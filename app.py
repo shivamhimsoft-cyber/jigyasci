@@ -86,10 +86,9 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Configure database
 # app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql+psycopg2://postgres:bbb07ak47@localhost:5432/shivamdb"   # Local Database URL
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://shivamdb_xz88_user:MCMF0p7eSiKVTDPLqlYF5mFhiuDiqCpu@dpg-d2e2e5adbo4c73ek5ba0-a.oregon-postgres.render.com/shivamdb_xz88"   # External Database URL
-# app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://shivamdb_xz88_user:MCMF0p7eSiKVTDPLqlYF5mFhiuDiqCpu@dpg-d2e2e5adbo4c73ek5ba0-a:5432/shivamdb_xz88"      # Internal Database URL
+# app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://shivamdb2:peIpDSI8JJ6tONyYEufjqUPz6cYAafEj@dpg-d34g43ruibrs73ages70-a.oregon-postgres.render.com/shivamdb2"   # External Database URL
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://shivamdb2:peIpDSI8JJ6tONyYEufjqUPz6cYAafEj@dpg-d34g43ruibrs73ages70-a/shivamdb2"      # Internal Database URL
  
-
 
 
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
