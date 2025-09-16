@@ -401,7 +401,7 @@
 
 
 
- {% if current_user.is_authenticated and current_user.user_type == 'Admin' %}
+                {% if current_user.is_authenticated and current_user.user_type == 'Admin' %}
                 <li class="sidebar-item">
                   <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('admin.admin_opportunities') }}">
                     <iconify-icon icon="solar:lightbulb-bolt-broken" class="text-xl p-2"></iconify-icon>
