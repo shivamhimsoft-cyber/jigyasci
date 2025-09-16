@@ -1,0 +1,1730 @@
+<!-- templates\base.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='images/logo-shade_blue.png') }}" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+          rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+
+    <!-- <link rel="stylesheet" href="../static/assets/css/theme.css"/> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/theme.css') }}"/>
+
+    <title>{% block title %}Research Collaboration Platform{% endblock %}</title>
+    <!-- <link rel="stylesheet" href="../static/assets/libs/jvectormap/jquery-jvectormap.css"> -->
+    <link rel="stylesheet"
+        href="{{ url_for('static', filename='assets/libs/jvectormap/jquery-jvectormap.css') }}"/>
+
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+
+</head>
+
+<body class="DEFAULT_THEME bg-lightprimary dark:bg-darkbody">
+<main>
+    <div id="main-wrapper" class="flex p-5">
+<!--        sidebar starts here-->
+        <aside id="application-sidebar-brand"
+               class="hs-overlay hs-overlay-open:translate-x-0 -translate-x-full xl:rtl:-translate-x-0 rtl:translate-x-full  left-0 rtl:left-auto xl:rtl:right-5 rtl:right-0 transform hidden xl:block xl:translate-x-0 xl:end-auto xl:bottom-0 fixed top-0 with-vertical  left-sidebar transition-all duration-300 h-screen z-[2] flex-shrink-0  w-[270px] border-border dark:border-darkborder bg-white dark:bg-dark xl:top-5 xl:start-5 shadow-md xl:rounded-md">
+            <!-- ---------------------------------- -->
+            <!-- Start Vertical Layout Sidebar -->
+            <!-- ---------------------------------- -->
+            <div class="p-3.5 flex justify-center">
+                <div class="brand-logo d-flex align-items-center justify-center">
+                    <a href="{{url_for('index')}}" class="text-nowrap logo-img">
+                        <img
+                                src="../static/images/logo-shade_blue.png"
+                                class="block h-32"
+                                alt="Logo-Dark"
+                        />
+                    </a>
+                </div>
+
+            </div>
+            <div class="scroll-sidebar" data-simplebar="">
+                <div class="px-4  mini-layout" data-te-sidenav-menu-ref>
+                    <nav class="hs-accordion-group w-full flex flex-col">
+                        <ul data-te-sidenav-menu-ref id="sidebarnav">
+
+                            <!-----Dashboard------->
+                            <div class="caption">
+                                <i class="ti ti-dots nav-small-cap-icon text-lg hidden text-center leading-[16px]"></i>
+                                <span class="hide-menu">HOME</span>
+                            </div>
+
+                            <li class="sidebar-item">
+                                <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('index') }}">
+                                    <iconify-icon icon="mdi:home-outline" class="text-xl p-2"></iconify-icon>
+                                    <span class="hide-menu flex-shrink-0">Home</span>
+                                </a>
+                            </li>
+
+
+                           
+
+                            <!-- Dashboard Link -->
+                            {% if current_user.is_authenticated %}
+                                <li class="sidebar-item">
+                                    {% if current_user.user_type == 'Admin' %}
+                                        <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                        href="{{ url_for('admin.admin_dashboard') }}">
+                                    {% elif current_user.user_type == 'PI' %}
+                                        <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                        href="{{ url_for('pi.faculty_dashboard') }}">
+                                    {% elif current_user.user_type == 'Student' %}
+                                        <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                        href="{{ url_for('student.studentProfile') }}">
+                                    {% elif current_user.user_type == 'Industry' %}
+                                        <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                        href="{{ url_for('industry.industry_dashboard') }}">
+                                    {% elif current_user.user_type == 'Vendor' %}
+                                        <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                        href="{{ url_for('vendor.vendor_dashboard') }}">
+                                    {% endif %}
+                                        <iconify-icon icon="mdi:view-dashboard-outline" class="text-xl p-2"></iconify-icon>
+                                            <span class="hide-menu flex-shrink-0">Dashboard</span>
+                                        </a>
+                                </li>
+                            {% endif %}
+                                {% if current_user.is_authenticated and current_user.user_type == 'Student' %}
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('student.student_profile') }}">
+                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Student Profile</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                                {% if current_user.is_authenticated and current_user.user_type == 'PI' %}
+
+                               <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('pi.view_pi_profile') }}">
+                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Profile</span>
+                                    </a>
+                                </li>
+
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('pi.publications') }}">
+                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Publications</span>
+                                    </a>
+                                </li>
+
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('pi.technologies') }}">
+                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Technologies</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+
+
+                            <!---Apps---->
+
+                            {% if current_user.is_authenticated and current_user.user_type == 'admin' %}
+                            <div class="caption">
+                                <i class="ti ti-dots nav-small-cap-icon text-lg hidden text-center leading-[16px]"></i>
+                                <span class="hide-menu">Other</span>
+                            </div>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link before:bg-lightindigo hover:text-indigo
+                                    " href="{{ url_for('list_opportunities') }}"
+                                >
+                                    <iconify-icon icon="solar:lightbulb-bolt-broken" class="text-xl p-2"></iconify-icon>
+                                    <span class="hide-menu flex-shrink-0 ">Opportunities</span>
+                                </a>
+                            </li>
+
+                            <li class="hs-accordion sidebar-item " id="menulevel-form-accordion">
+                                <a class="cursor-pointer hs-accordion-toggle sidebar-link  before:bg-lightindigo hover:text-indigo dark:hover:text-indigo ">
+                                    <iconify-icon icon="solar:smart-speaker-minimalistic-line-duotone"
+                                                  class="text-xl p-2"></iconify-icon>
+                                    <span class="hide-menu">Explore</span>
+                                    <span class="hide-menu ms-auto">
+                                        <i class="ti ti-chevron-right text-lg me-4 leading-tight hs-accordion-active:hidden "></i>
+                                         <i class="ti ti-chevron-up text-lg ms-auto hs-accordion-active:block hidden z-10 relative me-4"></i>
+                                    </span>
+                                </a>
+                                <div id="ecommerce-apps"
+                                     class="hs-accordion-content ">
+                                    <ul class="hs-accordion-group ">
+                                        <li class="dropdown-submenu">
+                                            <a class="hs-accordion-toggle textlink dark:opacity-70"
+                                               href="{{ url_for('search', category='profiles', query='') }}">
+                                                <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50 "></div>
+                                                <span class="hide-menu">Research Labs</span>
+                                            </a>
+                                        </li>
+                                        <li class="dropdown-submenu">
+                                            <a class="hs-accordion-toggle textlink dark:opacity-70"
+                                               href="{{ url_for('search', category='profiles', query='') }}">
+                                                <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50 "></div>
+                                                <span class="hide-menu">Industry Partners</span>
+                                            </a>
+                                        </li>
+                                        <li class="dropdown-submenu">
+                                            <a class="hs-accordion-toggle textlink dark:opacity-70"
+                                               href="{{ url_for('search', category='profiles', query='') }}">
+                                                <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50 "></div>
+                                                <span class="hide-menu">Vendors</span>
+                                            </a>
+                                        </li>
+                                        <li class="dropdown-submenu">
+                                            <a class="hs-accordion-toggle textlink dark:opacity-70"
+                                               href="{{ url_for('search', category='opportunities', query='') }}">
+                                                <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50 "></div>
+                                                <span class="hide-menu">Research Positions</span>
+                                            </a>
+                                        </li>
+
+                                    </ul>
+                                </div>
+                            </li>
+                            {% endif %}
+
+
+                            {% if current_user.is_authenticated and current_user.user_type in ['PI', 'Student'] %}
+                                <!-- Common for PI and Student -->
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('pi.education')}}">
+                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Education</span>
+                                    </a>
+                                </li>
+
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('pi.experience') }}">
+                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Experience</span>
+                                    </a>
+                                </li>
+
+                                <!-- <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('pi.publications') }}">
+                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Publications</span>
+                                    </a>
+                                </li>
+
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('pi.technologies') }}">
+                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Technologies</span>
+                                    </a>
+                                </li> -->
+
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('pi.skills') }}">
+                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Skills</span>
+                                    </a>
+                                </li>
+
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('pi.awards') }}">
+                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Awards</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            {% if current_user.is_authenticated and current_user.user_type == 'PI' %}
+                             
+
+                                 <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('pi.research_facilities') }}">
+                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Research Facilities</span>
+                                    </a>
+                                </li>
+
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('pi.basic_info') }}">
+                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Basic Information</span>
+                                    </a>
+                                </li>
+
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('pi.projects') }}">
+                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Projects</span>
+                                    </a>
+                                </li>
+
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('pi.team_members') }}">
+                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Team Members</span>
+                                    </a>
+                                </li>
+
+                                 <!-- <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('admin.sponsor_request') }}">
+                                        <iconify-icon icon="mdi:hand-coin-outline" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Looking for Sponsors</span>
+                                    </a>
+                                </li> -->
+                            {% endif %}
+
+
+                            {% if current_user.is_authenticated and current_user.user_type == 'Vendor' %}
+                             
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('vendor.vendorProfile') }}">
+                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Vendor Profile</span>
+                                    </a>
+                                </li>
+                                 <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('pi.technologies') }}">
+                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Technologies</span>
+                                    </a>
+                                </li>
+                                
+                            {% endif %}
+
+                            {% if current_user.is_authenticated and current_user.user_type == 'Industry' %}
+                             
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('industry.industryProfile') }}">
+                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Industry Profile</span>
+                                    </a>
+                                </li>
+                                 <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
+                                    href="{{ url_for('pi.technologies') }}">
+                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Technologies</span>
+                                    </a>
+                                </li>
+                                
+                            {% endif %}
+
+
+                                {% if current_user.is_authenticated %}
+                                {% if current_user.user_type == 'Admin' %}
+                                    <!-- <li class="sidebar-item">
+                                        <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('admin.admin_dashboard') }}">
+                                            <iconify-icon icon="solar:screencast-2-line-duotone"
+                                                        class="text-xl p-2"></iconify-icon>
+                                            <span class="hide-menu flex-shrink-0 ">Admin Dashboard</span>
+                                        </a>
+                                    </li> -->
+
+                                    <li class="sidebar-item">
+                                        <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('admin.add_institute') }}">
+                                            <iconify-icon icon="mdi:school-outline" class="text-xl p-2"></iconify-icon>
+                                            <span class="hide-menu flex-shrink-0">Institutes</span>
+                                        </a>
+                                    </li>
+
+
+
+                                    <li class="sidebar-item">
+                                        <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('admin.adminfaculty') }}">
+                                            <iconify-icon icon="mdi:account-tie-outline" class="text-xl p-2"></iconify-icon>
+                                            <span class="hide-menu flex-shrink-0">Faculty</span>
+                                        </a>
+                                    </li>
+
+                                    <!-- New Students Sidebar Item -->
+                                    <li class="sidebar-item">
+                                        <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('admin.adminstudents') }}">
+                                            <iconify-icon icon="mdi:account-school-outline" class="text-xl p-2"></iconify-icon>
+                                            <span class="hide-menu flex-shrink-0">Students</span>
+                                        </a>
+                                    </li>
+
+                                    <!-- <li class="sidebar-item">
+                                        <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('admin.departments') }}">
+                                            <iconify-icon icon="mdi:domain" class="text-xl p-2"></iconify-icon>
+                                            <span class="hide-menu flex-shrink-0">Department</span>
+                                        </a>
+                                    </li> -->
+
+                                {% endif %}
+                                {% endif %}
+                                
+
+                                
+                                 <!-- Add this to the sidebar menu in base.html -->
+                                <div class="caption">
+                                    <i class="ti ti-dots nav-small-cap-icon text-lg hidden text-center leading-[16px]"></i>
+                                    <span class="hide-menu">Opportunities</span>
+                                </div>
+
+                                {% if current_user.is_authenticated %}
+                                    <!-- Show "My Opportunities" only for non-Admin users -->
+                                    {% if current_user.user_type != 'Admin' %}
+                                    <li class="sidebar-item">
+                                        <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('my_opportunities') }}">
+                                            <iconify-icon icon="solar:lightbulb-bolt-broken" class="text-xl p-2"></iconify-icon>
+                                            <span class="hide-menu flex-shrink-0">My Opportunities</span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+
+                                    <!-- Show "Find Opportunities" for all authenticated users -->
+                                    <li class="sidebar-item">
+                                        <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('find_opportunities') }}">
+                                            <iconify-icon icon="solar:magnifer-line-duotone" class="text-xl p-2"></iconify-icon>
+                                            <span class="hide-menu flex-shrink-0">Find Opportunities</span>
+                                        </a>
+                                    </li>
+                                {% endif %}
+
+
+
+
+ {% if current_user.is_authenticated and current_user.user_type == 'Admin' %}
+                <li class="sidebar-item">
+                  <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('admin.admin_opportunities') }}">
+                    <iconify-icon icon="solar:lightbulb-bolt-broken" class="text-xl p-2"></iconify-icon>
+                    <span class="hide-menu flex-shrink-0">Manage Opportunities</span>
+                  </a>
+                </li>
+
+
+                                <!-- Admin Settings Categories (improved with accordions) -->
+                <div class="caption">
+                  <i class="ti ti-dots nav-small-cap-icon text-lg hidden text-center leading-[16px]"></i>
+                  <span class="hide-menu">Admin Settings</span>
+                </div>
+
+                <!-- User Settings Accordion -->
+                <li class="hs-accordion sidebar-item" id="user-settings-accordion">
+                  <a class="cursor-pointer hs-accordion-toggle sidebar-link before:bg-lightindigo hover:text-indigo">
+                    <iconify-icon icon="solar:user-id-line-duotone" class="text-xl p-2"></iconify-icon>
+                    <span class="hide-menu">User Settings</span>
+                    <span class="hide-menu ms-auto">
+                      <i class="ti ti-chevron-right text-lg me-4 leading-tight hs-accordion-active:hidden"></i>
+                      <i class="ti ti-chevron-up text-lg ms-auto hs-accordion-active:block hidden z-10 relative me-4"></i>
+                    </span>
+                  </a>
+                  <div class="hs-accordion-content">
+                    <ul class="hs-accordion-group">
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.user_types') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">User Types</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.account_statuses') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Account Statuses</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.verification_statuses') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Verification Statuses</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.profile_types') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Profile Types</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.visibility_settings') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Visibility Settings</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.genders') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Genders</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.research_profiles') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Research Profiles</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.current_statuses') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Current Statuses</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.team_sizes') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Team Sizes</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.proficiency_levels') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Proficiency Levels</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </li>
+
+                <!-- Institute Settings Accordion -->
+                <li class="hs-accordion sidebar-item" id="institute-settings-accordion">
+                  <a class="cursor-pointer hs-accordion-toggle sidebar-link before:bg-lightindigo hover:text-indigo">
+                    <iconify-icon icon="ic:baseline-business" class="text-xl p-2"></iconify-icon>
+                    <span class="hide-menu">Institute Settings</span>
+                    <span class="hide-menu ms-auto">
+                      <i class="ti ti-chevron-right text-lg me-4 leading-tight hs-accordion-active:hidden"></i>
+                      <i class="ti ti-chevron-up text-lg ms-auto hs-accordion-active:block hidden z-10 relative me-4"></i>
+                    </span>
+                  </a>
+                  <div class="hs-accordion-content">
+                    <ul class="hs-accordion-group">
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.institute_ownerships') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Institute Ownerships</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.institute_types') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Institute Types</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.admin_settings_departments') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Departments</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.institute_autonomous') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Institute Autonomous</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.current_designations') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Current Designations</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.degrees') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Degrees</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </li>
+
+                <!-- Opportunity Settings Accordion -->
+                <li class="hs-accordion sidebar-item" id="opportunity-settings-accordion">
+                  <a class="cursor-pointer hs-accordion-toggle sidebar-link before:bg-lightindigo hover:text-indigo">
+                    <iconify-icon icon="solar:lightbulb-bolt-line-duotone" class="text-xl p-2"></iconify-icon>
+                    <span class="hide-menu">Opportunity Settings</span>
+                    <span class="hide-menu ms-auto">
+                      <i class="ti ti-chevron-right text-lg me-4 leading-tight hs-accordion-active:hidden"></i>
+                      <i class="ti ti-chevron-up text-lg ms-auto hs-accordion-active:block hidden z-10 relative me-4"></i>
+                    </span>
+                  </a>
+                  <div class="hs-accordion-content">
+                    <ul class="hs-accordion-group">
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.opportunity_types') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Opportunity Types</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.opportunity_domains') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Opportunity Domains</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.opportunity_eligibilities') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Opportunity Eligibilities</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.opportunity_statuses') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Opportunity Statuses</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.compensation_currencies') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Compensation Currencies</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.csr_fund_categories') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">CSR Fund Categories</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.durations') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Durations</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.compensation_types') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Compensation Types</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.application_statuses') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Application Statuses</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </li>
+
+                <!-- Research & Tech Settings Accordion -->
+                <li class="hs-accordion sidebar-item" id="research-tech-settings-accordion">
+                  <a class="cursor-pointer hs-accordion-toggle sidebar-link before:bg-lightindigo hover:text-indigo">
+                    <iconify-icon icon="solar:atom-line-duotone" class="text-xl p-2"></iconify-icon>
+                    <span class="hide-menu">Research & Tech Settings</span>
+                    <span class="hide-menu ms-auto">
+                      <i class="ti ti-chevron-right text-lg me-4 leading-tight hs-accordion-active:hidden"></i>
+                      <i class="ti ti-chevron-up text-lg ms-auto hs-accordion-active:block hidden z-10 relative me-4"></i>
+                    </span>
+                  </a>
+                  <div class="hs-accordion-content">
+                    <ul class="hs-accordion-group">
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.sectors') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Sectors</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.equipment_types') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Equipment Types</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.dealing_categories') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Dealing Categories</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.funding_agencies') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Funding Agencies</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.team_positions') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Team Positions</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.publishers') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Publishers</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.skill_types') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Skill Types</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.research_areas') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Research Areas</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.trl_levels') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">TRL Levels</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.ip_statuses') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">IP Statuses</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.licensing_intents') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Licensing Intents</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </li>
+
+                <!-- Other Settings Accordion -->
+                <li class="hs-accordion sidebar-item" id="other-settings-accordion">
+                  <a class="cursor-pointer hs-accordion-toggle sidebar-link before:bg-lightindigo hover:text-indigo">
+                    <iconify-icon icon="solar:settings-line-duotone" class="text-xl p-2"></iconify-icon>
+                    <span class="hide-menu">Other Settings</span>
+                    <span class="hide-menu ms-auto">
+                      <i class="ti ti-chevron-right text-lg me-4 leading-tight hs-accordion-active:hidden"></i>
+                      <i class="ti ti-chevron-up text-lg ms-auto hs-accordion-active:block hidden z-10 relative me-4"></i>
+                    </span>
+                  </a>
+                  <div class="hs-accordion-content">
+                    <ul class="hs-accordion-group">
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.annual_turnovers') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Annual Turnovers</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.warranty_statuses') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Warranty Statuses</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.working_statuses') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Working Statuses</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.project_statuses') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Project Statuses</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.team_statuses') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Team Statuses</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.message_statuses') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Message Statuses</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.notification_types') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Notification Types</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.notification_read_statuses') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Notification Read Statuses</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.csr_availabilities') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">CSR Availabilities</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.currently_pursuing_options') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Currently Pursuing Options</span>
+                        </a>
+                      </li>
+                      <li class="dropdown-submenu">
+                        <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('admin.currently_working_options') }}">
+                          <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50"></div>
+                          <span class="hide-menu">Currently Working Options</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </li>
+              {% endif %}
+
+              <!-- Explore (from original base.html) -->
+              <!-- <li class="hs-accordion sidebar-item " id="explore-accordion">
+                <a class="cursor-pointer hs-accordion-toggle sidebar-link  before:bg-lightindigo hover:text-indigo ">
+                  <iconify-icon icon="solar:smart-speaker-minimalistic-line-duotone" class="text-xl p-2"></iconify-icon>
+                  <span class="hide-menu">Explore</span>
+                  <span class="hide-menu ms-auto">
+                    <i class="ti ti-chevron-right text-lg me-4 leading-tight hs-accordion-active:hidden "></i>
+                    <i class="ti ti-chevron-up text-lg ms-auto hs-accordion-active:block hidden z-10 relative me-4"></i>
+                  </span>
+                </a>
+                <div class="hs-accordion-content ">
+                  <ul class="hs-accordion-group ">
+                    <li class="dropdown-submenu">
+                      <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('search', category='profiles', query='') }}">
+                        <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50 "></div>
+                        <span class="hide-menu">Research Labs</span>
+                      </a>
+                    </li>
+                    <li class="dropdown-submenu">
+                      <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('search', category='profiles', query='') }}">
+                        <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50 "></div>
+                        <span class="hide-menu">Industry Partners</span>
+                      </a>
+                    </li>
+                    <li class="dropdown-submenu">
+                      <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('search', category='profiles', query='') }}">
+                        <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50 "></div>
+                        <span class="hide-menu">Vendors</span>
+                      </a>
+                    </li>
+                    <li class="dropdown-submenu">
+                      <a class="hs-accordion-toggle textlink dark:opacity-70" href="{{ url_for('search', category='opportunities', query='') }}">
+                        <div class="w-1.5 h-1.5 rounded-full bg-dark dark:bg-darklink opacity-50 "></div>
+                        <span class="hide-menu">Research Positions</span>
+                      </a>
+                    </li> -->
+
+
+                                
+
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </aside>
+
+
+
+
+
+
+<!--        side bar ends here-->
+        <div class="page-wrapper w-full" role="main">
+            <main class="h-full ">
+                <div class="container full-container py-5 xl:ps-6 ps-0 pt-0 pe-0 remove-ps">
+<!--                     header starts here-->
+                    <header class="sticky top-0 inset-x-0 z-[1] flex flex-wrap md:justify-start md:flex-nowrap text-sm py-3 lg:py-0 mb-6 bg-white dark:bg-dark rounded-md shadow-md">
+                        <div class="with-vertical w-full">
+                            <div class="w-full mx-auto px-4 lg:px-6" aria-label="Global">
+                                <div class="relative md:flex md:items-center md:justify-between">
+                                    <div class="hs-collapse  grow md:block">
+                                        <div class="flex justify-between items-center">
+                                            <div class="flex items-center gap-2 lg:w-auto w-full justify-between">
+
+                                                <div class="relative">
+                                                    <a class="xl:flex hidden text-xl icon-hover cursor-pointer text-link dark:text-darklink sidebartoggler h-10 w-10 hover:text-primary hover:bg-lightprimary dark:hover:bg-darkprimary  justify-center items-center rounded-full"
+                                                       id="headerCollapse" href="javascript:void(0)">
+                                                        <iconify-icon icon="solar:list-bold-duotone"
+                                                                      class="text-2xl relative z-[1]"></iconify-icon>
+                                                    </a>
+                                                    <!--Mobile Sidebar Toggle -->
+                                                    <div class="sticky top-0 inset-x-0 xl:hidden">
+                                                        <div class="flex items-center">
+                                                            <!-- Navigation Toggle -->
+                                                            <a class="text-xl icon-hover cursor-pointer text-link dark:text-darklink sidebartoggler h-10 w-10 hover:text-primary hover:bg-lightprimary dark:hover:bg-darkprimary flex justify-center items-center rounded-full"
+                                                               data-hs-overlay="#application-sidebar-brand"
+                                                               aria-controls="application-sidebar-brand"
+                                                               aria-label="Toggle navigation">
+                                                                <iconify-icon icon="solar:list-bold-duotone"
+                                                                              class="text-2xl relative z-[1]"></iconify-icon>
+                                                            </a>
+                                                            <!-- End Navigation Toggle -->
+                                                        </div>
+                                                    </div>
+                                                    <!-- End Sidebar Toggle -->
+                                                </div>
+
+                                                <div class="flex lg:hidden  md:w-fit overflow-hidden">
+                                                    <div class="brand-logo d-flex align-items-center justify-center">
+                                                        <a href="{{url_for('index')}}" class="text-nowrap logo-img">
+                                                            <img
+                                                                    src="../static/images/logo-shade_blue.png"
+                                                                    class=" block h-20"
+                                                                    alt="Logo-Dark"
+                                                            />
+                                                        </a>
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="lg:hidden">
+                                                    <button type="button"
+                                                            class="p-2 hs-collapse-toggle inline-flex h-10 w-10 text-link dark:text-darklink hover:text-primary hover:bg-lightprimary dark:hover:bg-darkprimary  justify-center items-center rounded-full"
+                                                            data-hs-collapse="#hs-basic-collapse-heading"
+                                                            aria-label="Toggle navigation">
+                                                        <i class="ti ti-dots text-xl"></i>
+                                                    </button>
+                                                </div>
+
+                                                <!-- Menu-->
+                                                <div id="navbar-offcanvas-example lg:block hidden"
+                                                     class="hs-overlay hs-overlay-open:translate-x-0 z-[2] -translate-x-full fixed top-0 start-0 transition-all duration-300 transform h-full max-w-xs bg-white dark:bg-dark  basis-full grow sm:order-1 lg:static lg:block lg:h-auto sm:max-w-none w-[270px] lg:border-r-transparent lg:transition-none lg:translate-x-0  lg:basis-auto hidden "
+                                                     tabindex="-1" data-hs-overlay-close-on-resize>
+                                                    <div class="lg:flex gap-2  items-center ">
+                                                        <div class="flex lg:hidden lg:p-0 p-5">
+                                                            <div class="brand-logo d-flex align-items-center justify-center">
+                                                                <a href="{{url_for('index')}}"
+                                                                   class="text-nowrap logo-img">
+                                                                    <img
+                                                                            src="../static/images/logo-shade_blue.png"
+                                                                            class=" block h-20"
+                                                                            alt="Logo-Dark"
+                                                                    />
+                                                                </a>
+                                                            </div>
+
+                                                        </div>
+                                                        <div class="lg:p-0 p-5 lg:flex gap-2 items-center">
+
+                                                            <!-- <div>
+                                                                <a href="#"
+                                                                   class="lg:w-auto w-full lg:py-1 lg:px-2 py-2 px-2 lg:text-base text-md flex  lg:gap-0 gap-3 header-link text-link dark:text-darklink  items-center hover:text-primary dark:hover:text-primary  rounded-md">
+                                                                    <i class="ti ti-message-dots lg:hidden lg:text-base text-xl"></i>Chat</a>
+                                                            </div>
+                                                            <div>
+                                                                <a href="#"
+                                                                   class="lg:w-auto w-full lg:py-1 lg:px-2 py-2 px-2 lg:text-base text-md flex  lg:gap-0 gap-3  header-link text-link dark:text-darklink  items-center hover:text-primary dark:hover:text-primary  rounded-md">
+                                                                    <i class="ti ti-calendar lg:hidden lg:text-base text-xl"></i>Calender</a>
+                                                            </div>
+                                                            <div>
+                                                                <a href="#"
+                                                                   class="lg:w-auto w-full lg:py-1 lg:px-2 py-2 px-2 lg:text-base text-md flex  lg:gap-0 gap-3   header-link text-link dark:text-darklink  items-center hover:text-primary dark:hover:text-primary rounded-md">
+                                                                    <i class="ti ti-mail lg:hidden lg:text-base text-xl"></i>Email</a>
+                                                            </div> -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="icon-nav items-center gap-2  lg:flex hidden">
+
+
+                                                <div class="hs-dropdown relative inline-flex [--auto-close:inside]">
+                                                    <!-- <a href="{{url_for('index')}}#"
+                                                       class="relative block hs-dropdown-toggle"
+                                                       id="hs-dropdown-default">
+                                                        <input type="text"
+                                                               class="form-control rounded-full py-[9px]  ps-12 border-bordergray  text-dark dark:text-darklink text-fs_15  placeholder:text-dark dark:placeholder:text-darklink placeholder:opacity-100 font-medium"
+                                                               placeholder="Try to searching ...">
+                                                        <iconify-icon icon="solar:magnifer-linear"
+                                                                      class="text-dark dark:text-darklink absolute top-3  start-1 text-fs_15  ms-3"></iconify-icon>
+                                                    </a> -->
+                                                    <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden w-[385px] bg-white shadow-md rounded-lg p-0 mt-2 dark:bg-gray-800 dark:divide-gray-700 after:h-4 after:absolute after:-bottom-4 after:start-0 after:w-full before:h-4 before:absolute before:-top-4 before:start-0 before:w-full"
+                                                         aria-labelledby="hs-dropdown-default">
+                                                        <div class="flex flex-col bg-white dark:bg-dark  shadow-sm  pointer-events-auto rounded-md">
+                                                            <div class="p-4 overflow-y-auto">
+                                                                <input type="text"
+                                                                       class="form-control rounded-sm py-2 border-bordergray text-dark dark:text-darklink text-sm  placeholder:text-dark dark:placeholder:text-darklink placeholder:opacity-100 font-medium"
+                                                                       placeholder="Try to searching ...">
+                                                            </div>
+                                                            <div class="items-center gap-x-2 py-3 px-5 border-t border-border dark:border-darkborder">
+
+                                                                <div class="overflow-hidden">
+                                                                    <h5 class="card-title mb-2">Quick Page Links</h5>
+                                                                    <div class="message-body max-h-[300px]"
+                                                                         data-simplebar="">
+                                                                        <ul>
+                                                                            <li class="bg-hover py-2 px-3 rounded-sm">
+                                                                                <a href="{{url_for('index')}}#"
+                                                                                   class="font-semibold text-sm text-link dark:text-darklink ">
+                                                                                    Opportunities
+                                                                                    <p class="text-sm text-link dark:text-darklink opacity-50 font-normal">
+                                                                                        /dashboards/opportunities</p>
+                                                                                </a>
+                                                                            </li>
+                                                                            <li class="bg-hover py-2 px-3 rounded-sm">
+                                                                                <a href="{{url_for('index')}}#"
+                                                                                   class="font-semibold text-sm text-link dark:text-darklink">
+                                                                                    Research Labs
+                                                                                    <p class="text-sm text-link dark:text-darklink opacity-50 font-normal">
+                                                                                        /dashboards/research-labs</p>
+                                                                                </a>
+                                                                            </li>
+                                                                            <li class="bg-hover py-2 px-3 rounded-sm">
+                                                                                <a href="{{url_for('index')}}#"
+                                                                                   class="font-semibold text-sm text-link dark:text-darklink">
+                                                                                    Industry
+                                                                                    <p class="text-sm text-link dark:text-darklink opacity-50 font-normal">
+                                                                                        /apps/industry</p>
+                                                                                </a>
+                                                                            </li>
+                                                                            <li class="bg-hover py-2 px-3 rounded-sm">
+                                                                                <a href="{{url_for('index')}}#"
+                                                                                   class="font-semibold text-sm text-link dark:text-darklink">
+                                                                                    Vendors
+                                                                                    <p class="text-sm text-link dark:text-darklink opacity-50 font-normal">
+                                                                                        /ecommerce/vendors</p>
+                                                                                </a>
+                                                                            </li>
+                                                                            <li class="bg-hover py-2 px-3 rounded-sm">
+                                                                                <a href="{{url_for('index')}}#"
+                                                                                   class="font-semibold text-sm text-link dark:text-darklink">
+                                                                                    Research Positions
+                                                                                    <p class="text-sm text-link dark:text-darklink opacity-50 font-normal">
+                                                                                        /ecommerce/research-positions</p>
+                                                                                </a>
+                                                                            </li>
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Theme Toggle  -->
+                                                <button type="button"
+                                                        class="hs-dark-mode-active:hidden icon-hover block hs-dark-mode group items-center font-medium hover:text-primary text-link dark:text-darklink h-10 w-10 hover:bg-lightprimary dark:hover:bg-darkprimary  justify-center rounded-full"
+                                                        data-hs-theme-click-value="dark" id="dark-layout">
+                                                    <iconify-icon icon="solar:moon-line-duotone"
+                                                                  class=" text-2xl  text-link dark:text-darklink relative  hover:text-primary"></iconify-icon>
+
+                                                </button>
+                                                <button type="button"
+                                                        class="hs-dark-mode-active:block icon-hover h-10 w-10 hidden hs-dark-mode group  items-center  font-medium hover:text-primary text-link dark:text-darklink hover:bg-lightprimary dark:hover:bg-darkprimary  justify-center rounded-full"
+                                                        data-hs-theme-click-value="light" id="light-layout">
+                                                    <iconify-icon icon="solar:sun-2-line-duotone"
+                                                                  class="text-2xl  text-link dark:text-darklink relative  hover:text-primary"></iconify-icon>
+                                                </button>
+                                                <div class="hs-dropdown xl:[--strategy:absolute] [--adaptive:none] md:[--trigger:hover] sm:relative group/menu">
+                                                    <a id="hs-dropdown-hover-event-notification"
+                                                       class="relative hs-dropdown-toggle h-10 w-10 text-link dark:text-darklink cursor-pointer hover:bg-lightprimary  hover:text-primary dark:hover:bg-darkprimary flex justify-center items-center rounded-full group-hover/menu:bg-lightprimary group-hover/menu:text-primary">
+                                                        <iconify-icon icon="solar:bell-bing-line-duotone"
+                                                                      class="text-2xl relative z-[1]"></iconify-icon>
+                                                        <span class="flex absolute top-2 end-3 -mt-0.5 -me-2">
+            <span
+                    class="animate-ping absolute inline-flex size-full rounded-full bg-teal-400 opacity-75 dark:bg-teal-600"></span>
+            <span
+                    class="relative inline-flex text-xs bg-teal-500 text-white rounded-full py-0.5 px-1">
+                <div class="h-1 rounded-full bg-primary"></div>
+            </span>
+        </span>
+                                                    </a>
+                                                    <div
+                                                            class="card hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 right-0 rtl:right-auto rtl:left-0 mt-2 min-w-max top-auto w-full sm:w-[360px] hidden z-[2]"
+                                                            aria-labelledby="hs-dropdown-hover-event-notification">
+                                                        <div class="flex items-center pt-6 px-7 gap-4">
+                                                            <h3 class="mb-0 text-lg font-semibold ">
+                                                                Notifications</h3>
+                                                            <span
+                                                                    class="py-1 px-3 border-0 badge text-xs font-medium bg-warning text-white">5
+                new</span>
+                                                        </div>
+                                                        <div class="message-body max-h-[320px] pt-4" data-simplebar>
+                                                            <a href="javascript:void(0)"
+                                                               class="dropdown-item px-7 py-3 flex items-center bg-hover">
+                <span
+                        class="flex-shrink-0 h-12 w-12 rounded-full bg-lightprimary dark:bg-darkprimary flex justify-center items-center">
+                    <iconify-icon icon="solar:widget-3-line-duotone"
+                                  class="text-primary text-xl"></iconify-icon>
+                </span>
+                                                                <div class="ps-4">
+                                                                    <h5 class="font-medium text-sm">
+                                                                        New Researcher
+                                                                    </h5>
+                                                                    <span class="text-xs block my-0.5">New researcher joined
+                        admin!</span>
+                                                                    <p class="text-xs">9.00 AM</p>
+                                                                </div>
+                                                            </a>
+                                                            <a href="javascript:void(0)"
+                                                               class="dropdown-item px-7 py-3 flex items-center bg-hover">
+                <span
+                        class="flex-shrink-0 h-12 w-12 rounded-full bg-lightsuccess dark:bg-darksuccess flex justify-center items-center">
+                    <iconify-icon icon="solar:user-circle-outline"
+                                  class="text-success text-xl"></iconify-icon>
+                </span>
+                                                                <div class="ps-4">
+                                                                    <h5 class="font-medium text-sm ">
+                                                                        New industry registered
+                                                                    </h5>
+                                                                    <span class="text-xs block my-0.5">A new industry joined us today
+                        meeting</span>
+                                                                    <p class="text-xs">10.00 AM</p>
+                                                                </div>
+                                                            </a>
+                                                        </div>
+                                                        <div class="pt-3 pb-6 px-7">
+                                                            <a href="{{url_for('index')}}#" class="btn w-full block">
+                                                                See All Notification
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+
+
+                                                
+<!-- Profile Dropdown -->
+<div class="hs-dropdown xl:[--strategy:absolute] [--adaptive:none] md:[--trigger:hover] sm:relative ms-3">
+    <a id="hs-dropdown-hover-event-profile"
+       class="relative hs-dropdown-toggle cursor-pointer align-middle rounded-full">
+        <div class="flex gap-4">
+            <div class="relative">
+                <img class="object-cover w-11 h-11 rounded-full"
+                     src="{{ url_for('static', filename='images/profile.png') }}"
+                     alt="Profile"
+                     aria-hidden="true">
+                <span class="h-3.5 w-3.5 rounded-full bg-success block absolute top-0 -end-1 border-2 border-white dark:border-dark"></span>
+            </div>
+            <div class="hidden sm:block">
+                <h6 class="font-bold text-dark dark:text-white text-base mb-1 profile-name">
+                    {{ current_user.profile.pi_profile.name 
+                       if current_user.user_type == 'PI' and current_user.profile and current_user.profile.pi_profile 
+                       else current_user.email.split('@')[0] }}
+                </h6>
+                <p class="text-sm leading-tight mb-0 text-link dark:text-darklink">
+                    {{ current_user.user_type }}
+                </p>
+            </div>
+        </div>
+    </a>
+
+<div class="card hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 mt-2 z-20 min-w-max top-auto right-0 rtl:right-auto rtl:left-0 w-full sm:w-[385px] hidden"
+
+     aria-labelledby="hs-dropdown-hover-event-profile">
+        <div class="card-body p-7">
+            <div class="flex items-center pb-5 justify-between">
+                <h3 class="mb-0 text-lg font-semibold text-dark dark:text-white">User Profile</h3>
+            </div>
+            <div class="message-body max-h-[450px]" data-simplebar>
+                <div>
+                    <div class="flex items-center gap-6 pb-5 border-b dark:border-darkborder">
+                        <img src="{{ url_for('static', filename='images/profile.png') }}"
+                             class="h-[90px] w-[90px] rounded-full object-cover"
+                             alt="profile">
+                        <div>
+                            <h5 class="card-title">
+                                {{ current_user.profile.pi_profile.name 
+                                   if current_user.user_type == 'PI' and current_user.profile and current_user.profile.pi_profile 
+                                   else current_user.email.split('@')[0] }}
+                            </h5>
+                            <span class="card-subtitle">{{ current_user.user_type }}</span>
+                            <p class="mb-0 mt-1 flex items-center">
+                                <i class="fas fa-envelope me-1"></i>
+                                {{ current_user.email }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <ul class="mt-3 flex flex-col gap-3.5">
+                        <!-- <li>
+                            <a href="#" class="flex gap-5 items-center bg-hover relative group p-2 rounded-sm">
+                                <div>
+                                    <h6 class="font-medium text-base leading-tight mb-1 group-hover:text-primary">
+                                        My Profile
+                                    </h6>
+                                    <p class="text-sm font-normal leading-tight">
+                                        Account settings
+                                    </p>
+                                </div>
+                            </a>
+                        </li> -->
+                        <li>
+                            <a href="{{ url_for('auth.logout') }}"
+                               class="flex gap-5 items-center p-2 rounded-sm bg-hover relative group">
+                                <span class="bg-lighterror dark:bg-darkerror p-2 hover:bg-error group text-error hover:text-white rounded-sm flex justify-center items-center">
+                                    <i class="fas fa-sign-out-alt text-2xl"></i>
+                                </span>
+                                <div>
+                                    <h6 class="font-medium text-base leading-tight mb-1 group-hover:text-primary">
+                                        Logout
+                                    </h6>
+                                    <p class="text-sm font-normal leading-tight">
+                                        Logout from your account
+                                    </p>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="lg:hidden block">
+                                    <div id="hs-basic-collapse-heading"
+                                         class="hs-collapse hidden w-full overflow-hidden transition-[height] duration-300"
+                                         aria-labelledby="hs-basic-collapse">
+                                        <div class="mt-2">
+                                            <div class="flex justify-between items-center">
+                                                <div class="lg:hidden flex items-center">
+
+                                                </div>
+                                                <div class="flex items-center gap-1">
+                                                    <!-- Theme Toggle  -->
+                                                    <button type="button" class="hs-dark-mode-active:hidden icon-hover h-10 w-10 block hs-dark-mode group items-center font-medium hover:text-primary text-link dark:text-darklink hover:bg-lightprimary dark:hover:bg-darkprimary  justify-center rounded-full"
+                                                            data-hs-theme-click-value="dark" id="dark-layout">
+                                                        <iconify-icon icon="solar:moon-line-duotone"
+                                                                      class="text-2xl  text-link dark:text-darklink relative  hover:text-primary"></iconify-icon>
+                                                    </button>
+                                                    <button type="button"
+                                                            class="hs-dark-mode-active:block icon-hover h-10 w-10 hidden hs-dark-mode group  items-center  font-medium hover:text-primary text-link dark:text-darklink hover:bg-lightprimary dark:hover:bg-darkprimary  justify-center rounded-full"
+                                                            data-hs-theme-click-value="light" id="light-layout">
+                                                        <iconify-icon icon="solar:sun-2-line-duotone"
+                                                                      class="text-2xl  text-link dark:text-darklink relative  hover:text-primary"></iconify-icon>
+                                                    </button>
+
+                                                    <!-- searchbar -->
+                                                    <div class="hs-dropdown relative inline-flex [--auto-close:inside]">
+                                                        <a href="{{url_for('index')}}#"
+                                                           class="relative flex justify-center items-center h-10 w-10 -top-0.5 hs-dropdown-toggle"
+                                                           id="hs-dropdown-default">
+                                                            <iconify-icon icon="solar:magnifer-linear"
+                                                                          class="text-dark dark:text-darklink text-2xl"></iconify-icon>
+                                                        </a>
+
+
+                                                        <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden w-[385px] bg-white shadow-md rounded-lg p-0 mt-2 dark:bg-gray-800 dark:divide-gray-700 after:h-4 after:absolute after:-bottom-4 after:start-0 after:w-full before:h-4 before:absolute before:-top-4 before:start-0 before:w-full"
+                                                             aria-labelledby="hs-dropdown-default">
+                                                            <div class="flex flex-col bg-white dark:bg-dark  shadow-sm  pointer-events-auto rounded-md">
+                                                                <div class="p-4 overflow-y-auto">
+                                                                    <input type="text"
+                                                                           class="form-control rounded-sm py-2 border-bordergray text-dark dark:text-darklink text-sm  placeholder:text-dark dark:placeholder:text-darklink placeholder:opacity-100 font-medium"
+                                                                           placeholder="Try to searching ...">
+                                                                </div>
+                                                                <div class="items-center gap-x-2 py-3 px-5 border-t border-border dark:border-darkborder">
+
+                                                                    <div class="overflow-hidden">
+                                                                        <h5 class="card-title mb-2">Quick Page Links</h5>
+                                                                        <div class="message-body max-h-[300px]"
+                                                                             data-simplebar="">
+                                                                            <ul>
+                                                                                <li class="bg-hover py-2 px-3 rounded-sm">
+                                                                                    <a href="{{url_for('index')}}#"
+                                                                                       class="font-semibold text-sm text-link dark:text-darklink ">
+                                                                                        Opportunites
+                                                                                        <p class="text-sm text-link dark:text-darklink opacity-50 font-normal">
+                                                                                            /dashboards/opportunities   </p>
+                                                                                    </a>
+                                                                                </li>
+                                                                                <li class="bg-hover py-2 px-3 rounded-sm">
+                                                                                    <a href="{{url_for('index')}}#"
+                                                                                       class="font-semibold text-sm text-link dark:text-darklink">
+                                                                                        Researc Labs
+                                                                                        <p class="text-sm text-link dark:text-darklink opacity-50 font-normal">
+                                                                                            /dashboards/research-labs</p>
+                                                                                    </a>
+                                                                                </li>
+                                                                                <li class="bg-hover py-2 px-3 rounded-sm">
+                                                                                    <a href="{{url_for('index')}}#"
+                                                                                       class="font-semibold text-sm text-link dark:text-darklink">
+                                                                                        Industry
+                                                                                        <p class="text-sm text-link dark:text-darklink opacity-50 font-normal">
+                                                                                            /apps/industry</p>
+                                                                                    </a>
+                                                                                </li>
+                                                                                <li class="bg-hover py-2 px-3 rounded-sm">
+                                                                                    <a href="{{url_for('index')}}#"
+                                                                                       class="font-semibold text-sm text-link dark:text-darklink">
+                                                                                        Vendors
+                                                                                        <p class="text-sm text-link dark:text-darklink opacity-50 font-normal">
+                                                                                            /ecommerce/vendors</p>
+                                                                                    </a>
+                                                                                </li>
+                                                                                <li class="bg-hover py-2 px-3 rounded-sm">
+                                                                                    <a href="{{url_for('index')}}#"
+                                                                                       class="font-semibold text-sm text-link dark:text-darklink">
+                                                                                        Research Positions
+                                                                                        <p class="text-sm text-link dark:text-darklink opacity-50 font-normal">
+                                                                                            /ecommerce/research-positions</p>
+                                                                                    </a>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+                                                    </div>
+                                                    <!-- Notifications DD -->
+
+                                                    <div
+                                                            class="hs-dropdown xl:[--strategy:absolute] [--adaptive:none] md:[--trigger:hover] sm:relative group/menu">
+                                                        <a id="hs-dropdown-hover-event-notification"
+                                                           class="relative hs-dropdown-toggle h-10 w-10 text-link dark:text-darklink cursor-pointer hover:bg-lightprimary  hover:text-primary dark:hover:bg-darkprimary flex justify-center items-center rounded-full group-hover/menu:bg-lightprimary group-hover/menu:text-primary">
+                                                            <iconify-icon icon="solar:bell-bing-line-duotone"
+                                                                          class="text-2xl relative z-[1]"></iconify-icon>
+                                                            <span class="flex absolute top-2 end-3 -mt-0.5 -me-2">
+            <span
+                    class="animate-ping absolute inline-flex size-full rounded-full bg-teal-400 opacity-75 dark:bg-teal-600"></span>
+            <span
+                    class="relative inline-flex text-xs bg-teal-500 text-white rounded-full py-0.5 px-1">
+                <div class="h-1 rounded-full bg-primary"></div>
+            </span>
+        </span>
+                                                        </a>
+                                                        <div
+                                                                class="card hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 right-0 rtl:right-auto rtl:left-0 mt-2 min-w-max top-auto w-full sm:w-[360px] hidden z-[2]"
+                                                                aria-labelledby="hs-dropdown-hover-event-notification">
+                                                            <div class="flex items-center pt-6 px-7 gap-4">
+                                                                <h3 class="mb-0 text-lg font-semibold ">
+                                                                    Notifications</h3>
+                                                                <span
+                                                                        class="py-1 px-3 border-0 badge text-xs font-medium bg-warning text-white">5
+                new</span>
+                                                            </div>
+                                                            <div class="message-body max-h-[320px] pt-4" data-simplebar>
+                                                                <a href="javascript:void(0)"
+                                                                   class="dropdown-item px-7 py-3 flex items-center bg-hover">
+                <span
+                        class="flex-shrink-0 h-12 w-12 rounded-full bg-lightprimary dark:bg-darkprimary flex justify-center items-center">
+                    <iconify-icon icon="solar:widget-3-line-duotone"
+                                  class="text-primary text-xl"></iconify-icon>
+                </span>
+                                                                    <div class="ps-4">
+                                                                        <h5 class="font-medium text-sm">
+                                                                            New Researcher
+                                                                        </h5>
+                                                                        <span class="text-xs block my-0.5">New researcher joined us
+                        admin!</span>
+                                                                        <p class="text-xs">9.00 AM</p>
+                                                                    </div>
+                                                                </a>
+                                                                <a href="javascript:void(0)"
+                                                                   class="dropdown-item px-7 py-3 flex items-center bg-hover">
+                <span
+                        class="flex-shrink-0 h-12 w-12 rounded-full bg-lightsuccess dark:bg-darksuccess flex justify-center items-center">
+                    <iconify-icon icon="solar:user-circle-outline"
+                                  class="text-success text-xl"></iconify-icon>
+                </span>
+                                                                    <div class="ps-4">
+                                                                        <h5 class="font-medium text-sm ">
+                                                                            Industry Registration
+                                                                        </h5>
+                                                                        <span class="text-xs block my-0.5">New industry registration today
+                        meeting</span>
+                                                                        <p class="text-xs">10.00 AM</p>
+                                                                    </div>
+                                                                </a>
+                                                            </div>
+                                                            <div class="pt-3 pb-6 px-7">
+                                                                <a href="{{url_for('index')}}#"
+                                                                   class="btn w-full block">
+                                                                    See All Notification
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Profile DD -->
+                                                    <div
+                                                            class="hs-dropdown xl:[--strategy:absolute] [--adaptive:none] md:[--trigger:hover] sm:relative ms-3">
+                                                        <a id="hs-dropdown-hover-event-profile"
+                                                           class="relative hs-dropdown-toggle cursor-pointer align-middle rounded-full">
+                                                            <div class="flex gap-4">
+                                                                <div class="relative">
+                                                                    <img class="object-cover w-11 h-11 rounded-full"
+                                                                         src="../static/images/logo-shade_blue.png"
+                                                                         alt
+                                                                         aria-hidden="true">
+                                                                    <span class="h-3.5 w-3.5 rounded-full bg-success block absolute top-0 -end-1 border-2 border-white dark:border-dark"></span>
+
+                                                                </div>
+                                                                <div class="hidden sm:block">
+                                                                    <h6
+                                                                            class="font-bold text-dark dark:text-white text-base mb-1 profile-name">
+                                                                        Super Admin
+                                                                    </h6>
+                                                                    <p
+                                                                            class="text-sm leading-tight mb-0 text-link dark:text-darklink">
+                                                                        Admin
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </a>
+                                                        <div
+                                                                class="card hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 mt-2 min-w-max top-auto right-0 rtl:right-auto rtl:left-0 w-full sm:w-[385px] hidden z-[2] border-none "
+                                                                aria-labelledby="hs-dropdown-hover-event-profile">
+                                                            <div class="card-body p-7">
+                                                                <div class="flex items-center pb-5 justify-between">
+                                                                    <h3
+                                                                            class="mb-0 text-lg font-semibold text-dark dark:text-white">
+                                                                        User
+                                                                        Profile</h3>
+                                                                </div>
+                                                                <div class="message-body max-h-[450px]" data-simplebar>
+                                                                    <div class>
+                                                                        <div
+                                                                                class="flex items-center gap-6 pb-5 border-b dark:border-darkborder">
+                                                                            <img src="../static/images/logo-shade_blue.png"
+                                                                                 class="h-[90px] w-[90px] rounded-full object-cover"
+                                                                                 alt="profile">
+                                                                            <div class>
+                                                                                <h5
+                                                                                        class="card-title">
+                                                                                   Super Admin
+                                                                                </h5>
+                                                                                <span
+                                                                                        class="card-subtitle">super
+                                admin</span>
+                                                                                <p
+                                                                                        class=" mb-0 mt-1 flex items-center">
+                                                                                    <iconify-icon
+                                                                                            icon="solar:mailbox-line-duotone"
+                                                                                            class="text-base me-1"></iconify-icon>
+                                                                                   superadmin@gmail.com
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <ul class="mt-3 flex flex-col gap-3.5">
+                                                                            <li>
+                                                                                <a href="#"
+                                                                                   class="flex gap-5 items-center bg-hover relative group p-2 rounded-sm">
+                                <span
+                                        class="bg-lightinfo dark:bg-darkinfo p-2 hover:bg-info group text-info hover:text-white rounded-sm flex justify-center items-center">
+                                    <iconify-icon
+                                            icon="solar:wallet-2-line-duotone"
+                                            class="text-2xl "></iconify-icon>
+                                </span>
+
+                                                                                    <div>
+                                                                                        <h6
+                                                                                                class="font-medium text-base leading-tight mb-1  group-hover:text-primary">
+                                                                                            My Profile
+                                                                                        </h6>
+                                                                                        <p
+                                                                                                class="text-sm  font-normal leading-tight">
+                                                                                            Account settings</p>
+                                                                                    </div>
+                                                                                </a>
+                                                                            </li>
+                                                                            <li>
+                                                                                <a href="{{ url_for('auth.logout') }}"
+                                                                                   class="flex gap-5 items-center p-2 rounded-sm bg-hover relative group">
+                                <span
+                                        class="bg-lighterror dark:bg-darkerror p-2 hover:bg-error group text-error hover:text-white rounded-sm flex justify-center items-center">
+                                    <iconify-icon
+                                            icon="solar:card-2-line-duotone"
+                                            class="text-2xl"></iconify-icon>
+                                </span>
+
+                                                                                        <div>
+                                                                                            <h6 class="font-medium text-base leading-tight mb-1 group-hover:text-primary">
+                                                                                                Logout
+                                                                                            </h6>
+                                                                                            <p class="text-sm font-normal leading-tight">
+                                                                                                Logout from your account
+                                                                                            </p>
+                                                                                        </div>
+
+                                                                                </a>
+                                                                            </li>
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </header>
+<!--                     header ends here-->
+<!--                    main content block here-->
+                           {% block content %}
+                           {% endblock %}
+<!--                    main content  block ends here-->
+                </div>
+            </main>
+        </div>
+    </div>
+</main>
+<div id="hs-overlay-right"
+     class="customizer  rounded-none hs-overlay bg-white dark:bg-dark hs-overlay-open:translate-x-0  translate-x-full rtl:hs-overlay-open:translate-x-0  rtl:-translate-x-full  fixed top-0 right-0 rtl:left-0 rtl:right-auto transition-all duration-300 transform h-full max-w-xs  w-full z-[60] hidden "
+     tabindex="-1">
+    <div class="flex justify-between items-center  border-border dark:border-darkborder  border-b py-3 px-6 ">
+        <h3 class="font-semibold text-lg text-dark dark:text-white">
+            Settings
+        </h3>
+        <button type="button"
+                class="inline-flex flex-shrink-0 justify-center items-center h-8 w-8 rounded-md text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white text-sm "
+                data-hs-overlay="#hs-overlay-right">
+            <span class="sr-only">Close modal</span>
+            <i class="ti ti-x text-xl text-dark dark:text-white"></i>
+        </button>
+    </div>
+
+    <!-------Light/Dark Theme--------->
+    <div class="px-6 py-6" data-simplebar="" style="height: calc(100vh - 80px)">
+        <h6 class="font-semibold text-dark dark:text-white mb-2">Theme</h6>
+        <div class="flex flex-row gap-3 customizer-box mb-8" role="group">
+            <input type="radio" class=" btn-check" name="theme-layout" autocomplete="off"/>
+            <label class="btn rounded-md border border-border dark:border-darkborder text-primary h-full py-3 px-5 hs-dark-mode-active:text-darklink cursor-pointer"
+                   for="light-layout" data-hs-theme-click-value="light"><i
+                    class="icon ti ti-sun text-2xl me-2 "></i> Light</label>
+            <input type="radio" class="btn-check" name="theme-layout" autocomplete="off"/>
+            <label class="btn rounded-md border border-border dark:border-darkborder text-link  h-full py-3 px-5 cursor-pointer hs-dark-mode-active:text-primary"
+                   for="dark-layout" data-hs-theme-click-value="dark"><i
+                    class="icon ti ti-moon text-2xl me-2 "></i> Dark</label>
+        </div>
+
+        <!-------Theme Direction--------->
+        <h6 class="font-semibold mb-2 text-dark dark:text-white">Theme Direction</h6>
+        <div class="flex flex-row gap-3 customizer-box mb-8" role="group">
+            <input type="radio" class="btn-check" name="direction-l" id="ltr-layout" autocomplete="off"/>
+            <label class="btn rounded-md border border-border dark:border-darkborder text-link dark:text-darklink h-full py-3 px-5 cursor-pointer"
+                   for="ltr-layout"><i
+                    class="icon ti ti-text-direction-ltr text-2xl me-2"></i>LTR</label>
+            <input type="radio" class="btn-check" name="direction-l" id="rtl-layout" autocomplete="off"/>
+            <label class="btn rounded-md border border-border dark:border-darkborder text-link dark:text-darklink h-full py-3 px-5 cursor-pointer"
+                   for="rtl-layout">
+                <i class="icon ti ti-text-direction-rtl text-2xl me-2"></i>RTL</label>
+        </div>
+
+        <!-------Theme Colors--------->
+        <h6 class="font-semibold mb-2 text-dark dark:text-white">Theme Colors</h6>
+        <div class="flex flex-row flex-wrap gap-3 customizer-box color-pallete mb-8" role="group">
+            <input type="radio" class="btn-check" name="color-theme-layout" id="Blue_Theme" autocomplete="off"/>
+            <label class="hs-tooltip btn py-4 px-5 rounded-md border border-border dark:border-darkborder flex items-center  justify-center hs-tooltip-toggle cursor-pointer"
+                   onclick="handleColorTheme('Blue_Theme')" for="Blue_Theme" data-bs-title="BLUE_THEME">
+                <div class="color-box rounded-full flex items-center justify-center skin-1">
+                    <i class="ti ti-check  flex icon text-white fs-5"></i>
+                </div>
+                <span
+                        class="tooltip hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible"
+                        role="tooltip">
+          Blue_Theme
+        </span>
+            </label>
+
+            <input type="radio" class="btn-check" name="color-theme-layout" id="Aqua_Theme" autocomplete="off"/>
+            <label class="hs-tooltip hs-tooltip-toggle btn py-4 px-5 rounded-md border border-border dark:border-darkborder flex items-center  justify-center cursor-pointer"
+                   onclick="handleColorTheme('Aqua_Theme')" for="Aqua_Theme" data-bs-title="AQUA_THEME">
+                <div class="color-box rounded-full flex items-center justify-center skin-2">
+                    <i class="ti ti-check text-white flex icon fs-5"></i>
+                </div>
+                <span
+                        class="tooltip hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible"
+                        role="tooltip">
+        Aqua_Theme
+      </span>
+            </label>
+
+            <input type="radio" class="btn-check" name="color-theme-layout" id="Purple_Theme" autocomplete="off"/>
+            <label class="hs-tooltip hs-tooltip-toggle btn py-4 px-5 rounded-md border border-border dark:border-darkborder flex items-center  justify-center cursor-pointer"
+                   onclick="handleColorTheme('Purple_Theme')" for="Purple_Theme"
+                   data-bs-title="PURPLE_THEME">
+                <div class="color-box rounded-full flex items-center justify-center skin-3">
+                    <i class="ti ti-check text-white flex icon fs-5"></i>
+                </div>
+                <span
+                        class="tooltip hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible"
+                        role="tooltip">
+        Purple_Theme
+      </span>
+            </label>
+
+            <input type="radio" class="btn-check" name="color-theme-layout" id="green-theme-layout" autocomplete="off"/>
+            <label class="hs-tooltip hs-tooltip-toggle btn py-4 px-5 rounded-md border border-border dark:border-darkborder flex items-center  justify-center cursor-pointer"
+                   onclick="handleColorTheme('Green_Theme')" for="green-theme-layout"
+                   data-bs-title="GREEN_THEME">
+                <div class="color-box rounded-full flex items-center justify-center skin-4">
+                    <i class="ti ti-check text-white flex icon fs-5"></i>
+                </div>
+                <span
+                        class="tooltip hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible"
+                        role="tooltip">
+        Green_Theme
+      </span>
+            </label>
+
+            <input type="radio" class="btn-check" name="color-theme-layout" id="cyan-theme-layout" autocomplete="off"/>
+            <label class="hs-tooltip hs-tooltip-toggle btn py-4 px-5 rounded-md border border-border dark:border-darkborder flex items-center  justify-center cursor-pointer"
+                   onclick="handleColorTheme('Cyan_Theme')" for="cyan-theme-layout"
+                   data-bs-title="CYAN_THEME">
+                <div class="color-box rounded-full flex items-center justify-center skin-5">
+                    <i class="ti ti-check text-white flex icon fs-5"></i>
+                </div>
+                <span
+                        class="tooltip hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible"
+                        role="tooltip">
+        Cyan_Theme
+      </span>
+            </label>
+
+            <input type="radio" class="btn-check" name="color-theme-layout" id="orange-theme-layout"
+                   autocomplete="off"/>
+            <label class="hs-tooltip hs-tooltip-toggle btn py-4 px-5 rounded-md border border-border dark:border-darkborder flex items-center  justify-center cursor-pointer"
+                   onclick="handleColorTheme('Orange_Theme')" for="orange-theme-layout"
+                   data-bs-title="ORANGE_THEME">
+                <div class="color-box rounded-full flex items-center justify-center skin-6">
+                    <i class="ti ti-check text-white flex icon fs-5"></i>
+                </div>
+                <span
+                        class="tooltip hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible"
+                        role="tooltip">
+        Orange_Theme
+      </span>
+            </label>
+        </div>
+
+        <!-- Layput Options  -->
+        <h6 class="font-semibold mb-2 text-dark dark:text-white">Layout Type</h6>
+        <div class="flex flex-row gap-3 customizer-box mb-8" role="group">
+            <div>
+                <input type="radio" class="btn-check" name="page-layout" id="vertical-layout" autocomplete="off"/>
+                <label class="btn rounded-md border border-border dark:border-darkborder text-link dark:text-darklink h-full py-3 px-5 cursor-pointer"
+                       for="vertical-layout">
+                    <i class="icon ti ti-layout-sidebar-right text-2xl me-2"></i> Vertical</label>
+            </div>
+            <div>
+                <input type="radio" class="btn-check" name="page-layout" id="horizontal-layout" autocomplete="off"/>
+                <label class="btn rounded-md border border-border dark:border-darkborder text-link dark:text-darklink h-full py-3 px-5 cursor-pointer"
+                       for="horizontal-layout">
+                    <i class=" icon ti ti-layout-navbar text-2xl me-2"></i> Horizontal</label>
+            </div>
+        </div>
+
+        <!-- Container Options  -->
+        <h6 class="font-semibold mb-2 text-dark dark:text-white">Container Option</h6>
+        <div class="flex flex-row gap-3 customizer-box mb-8" role="group">
+            <input type="radio" class="btn-check" name="layout" id="boxed-layout" autocomplete="off"/>
+            <label class="btn rounded-md border border-border dark:border-darkborder text-link dark:text-darklink h-full py-3 px-5 cursor-pointer"
+                   for="boxed-layout">
+                <i class="icon ti ti-layout-distribute-vertical text-2xl me-2"></i>
+                Boxed</label>
+
+            <input type="radio" class="btn-check" name="layout" id="full-layout" autocomplete="off"/>
+            <label class="btn rounded-md border border-border dark:border-darkborder text-link dark:text-darklink h-full py-3 px-5 cursor-pointer"
+                   for="full-layout">
+                <i class="icon ti ti-layout-distribute-horizontal text-2xl me-2"></i> Full</label>
+        </div>
+
+        <!-- Sidebar Type Options  -->
+        <h6 class="font-semibold mb-2 text-dark dark:text-white">Sidebar Type</h6>
+        <div class="flex flex-row gap-3 customizer-box mb-8" role="group">
+            <a href="javascript:void(0)" class="fullsidebar">
+                <input type="radio" class="btn-check" name="sidebar-type" id="full-sidebar" autocomplete="off"/>
+                <label class="btn rounded-md border border-border dark:border-darkborder text-link dark:text-darklink h-full py-3 px-5 cursor-pointer"
+                       for="full-sidebar"><i
+                        class="icon ti ti-layout-sidebar-right text-2xl me-2"></i> Full</label>
+            </a>
+            <div>
+                <input type="radio" class="btn-check " name="sidebar-type" id="mini-sidebar" autocomplete="off"/>
+                <label class="btn rounded-md border border-border dark:border-darkborder text-link dark:text-darklink h-full py-3 px-5 cursor-pointer"
+                       for="mini-sidebar">
+                    <iconify-icon icon="solar:siderbar-outline" class="icon fs-7 me-2"></iconify-icon>
+                    Collapse</label>
+            </div>
+        </div>
+
+        <!-- Border-sahdow Card Options  -->
+        <h6 class="font-semibold mb-2 text-dark dark:text-white">Card With</h6>
+        <div class="flex flex-row gap-3 customizer-box mb-8" role="group">
+            <input type="radio" class="btn-check" name="card-layout" id="card-with-border" autocomplete="off"/>
+            <label class="btn rounded-md border border-border dark:border-darkborder text-link dark:text-darklink h-full py-3 px-5 cursor-pointer"
+                   for="card-with-border"><i
+                    class="icon ti ti-border-outer text-2xl me-2"></i>Border</label>
+
+            <input type="radio" class="btn-check" name="card-layout" id="card-without-border" autocomplete="off"/>
+            <label class="btn rounded-md border border-border dark:border-darkborder text-link dark:text-darklink h-full py-3 px-5 cursor-pointer"
+                   for="card-without-border">
+                <i class="icon ti ti-border-none text-2xl me-2"></i>Shadow</label>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function handleColorTheme(e) {
+        document.documentElement.setAttribute("data-color-theme", e);
+    }
+</script>
+<!-- <script src="../static/assets/js/vendor.min.js"></script>
+<script src="../static/assets/js/theme/app.init.js"></script>
+<script src="../static/assets/js/theme/app.min.js"></script> -->
+<script src="{{ url_for('static', filename='assets/js/vendor.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/theme/app.init.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/theme/app.min.js') }}"></script>
+
+<!-- <script src="../static/assets/libs/simplebar/dist/simplebar.min.js"></script>
+<script src="../static/assets/libs/iconify-icon/dist/iconify-icon.min.js"></script>
+<script src="../static/assets/libs/preline/dist/preline.js"></script>
+<script src="../static/assets/libs/_preline/input-number/index.js"></script>
+<script src="../static/assets/libs/_preline/tooltip/index.js"></script>
+<script src="../static/assets/libs/_preline/stepper/index.js"></script>
+
+<script
+        src="../static/assets/libs/jvectormap/jquery-jvectormap.min.js"></script>
+<script
+        src="../static/assets/js/extra-libs/jvectormap/jquery-jvectormap-us-aea-en.js"></script>
+<script
+        src="../static/assets/libs/apexcharts/dist/apexcharts.min.js"></script>
+<script src="../static/assets/js/dashboards/dashboard.js"></script> -->
+
+
+<script src="{{ url_for('static', filename='assets/libs/simplebar/dist/simplebar.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/libs/iconify-icon/dist/iconify-icon.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/libs/preline/dist/preline.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/libs/_preline/input-number/index.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/libs/_preline/tooltip/index.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/libs/_preline/stepper/index.js') }}"></script>
+
+<script src="{{ url_for('static', filename='assets/libs/jvectormap/jquery-jvectormap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/extra-libs/jvectormap/jquery-jvectormap-us-aea-en.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/libs/apexcharts/dist/apexcharts.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/dashboards/dashboard.js') }}"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
+</body>
+
+</html>

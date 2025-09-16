@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard | Research Collaboration Platform{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card {
+        transition: transform 0.3s;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Admin Dashboard</h1>
+
+    <!-- Stats Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center bg-primary text-white mb-3 stat-card">
+                <div class="card-body">
+                    <h1 class="display-4">{{ stats.total_users }}</h1>
+                    <p class="lead">Total Users</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-success text-white mb-3 stat-card">
+                <div class="card-body">
+                    <h1 class="display-4">{{ stats.opportunities }}</h1>
+                    <p class="lead">Opportunities</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-info text-white mb-3 stat-card">
+                <div class="card-body">
+                    <h1 class="display-4">{{ stats.active_opportunities }}</h1>
+                    <p class="lead">Active Listings</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-warning text-white mb-3 stat-card">
+                <div class="card-body">
+                    <h1 class="display-4">{{ stats.applications }}</h1>
+                    <p class="lead">Applications</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Distribution Chart -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>User Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="userDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>User Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>User Type</th>
+                                    <th>Count</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><i class="fas fa-user-graduate me-2 text-primary"></i>Students</td>
+                                    <td>{{ stats.students }}</td>
+                                    <td>{{ (stats.students / stats.total_users * 100)|round|int if stats.total_users > 0 else 0 }}%</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="fas fa-microscope me-2 text-success"></i>PIs/Lab Directors</td>
+                                    <td>{{ stats.pis }}</td>
+                                    <td>{{ (stats.pis / stats.total_users * 100)|round|int if stats.total_users > 0 else 0 }}%</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="fas fa-building me-2 text-info"></i>Industry Partners</td>
+                                    <td>{{ stats.industry }}</td>
+                                    <td>{{ (stats.industry / stats.total_users * 100)|round|int if stats.total_users > 0 else 0 }}%</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="fas fa-truck me-2 text-warning"></i>Vendors</td>
+                                    <td>{{ stats.vendors }}</td>
+                                    <td>{{ (stats.vendors / stats.total_users * 100)|round|int if stats.total_users > 0 else 0 }}%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <!-- Recent Users -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Recent Users</h5>
+                    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#recentUsersCollapse" aria-expanded="true" aria-controls="recentUsersCollapse">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="collapse show" id="recentUsersCollapse">
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            {% for user in recent_users %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-0">{{ user.email }}</h6>
+                                            <small class="text-muted">
+                                                <span class="badge {% if user.user_type == 'Student' %}bg-primary{% elif user.user_type == 'PI' %}bg-success{% elif user.user_type == 'Industry' %}bg-info{% elif user.user_type == 'Vendor' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                                    {{ user.user_type }}
+                                                </span>
+                                                Joined: {{ user.created_at.strftime('%b %d, %Y') }}
+                                            </small>
+                                        </div>
+                                        <div class="btn-group">
+                                            <a href="{{ url_for('view_profile', user_id=user.id) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-user-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent text-center">
+                        <a href="#" class="btn btn-sm btn-outline-primary">View All Users</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Opportunities -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-briefcase me-2"></i>Recent Opportunities</h5>
+                    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#recentOpportunitiesCollapse" aria-expanded="true" aria-controls="recentOpportunitiesCollapse">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="collapse show" id="recentOpportunitiesCollapse">
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            {% for opportunity in recent_opportunities %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-0">{{ opportunity.title }}</h6>
+                                            <small class="text-muted">
+                                                <span class="badge {% if opportunity.type == 'Internship' %}bg-success{% elif opportunity.type == 'PhD' %}bg-primary{% elif opportunity.type == 'PostDoc' %}bg-info{% elif opportunity.type == 'Job' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                                    {{ opportunity.type }}
+                                                </span>
+                                                Posted: {{ opportunity.created_at.strftime('%b %d, %Y') }}
+                                            </small>
+                                        </div>
+                                        <div class="btn-group">
+                                            <a href="{{ url_for('view_opportunity', opportunity_id=opportunity.id) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-success">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent text-center">
+                        <a href="{{ url_for('list_opportunities') }}" class="btn btn-sm btn-outline-primary">View All Opportunities</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Actions -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Administrative Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <div class="card h-100 bg-light">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-user-shield fa-3x mb-3 text-primary"></i>
+                                    <h5>User Management</h5>
+                                    <p class="small">Approve, suspend, or manage user accounts</p>
+                                    <a href="#" class="btn btn-sm btn-outline-primary" id="manage-users-btn">Manage Users</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card h-100 bg-light">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-clipboard-check fa-3x mb-3 text-success"></i>
+                                    <h5>Content Moderation</h5>
+                                    <p class="small">Review and approve opportunities and profiles</p>
+                                    <a href="#" class="btn btn-sm btn-outline-success" id="moderate-content-btn">Moderate Content</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card h-100 bg-light">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-envelope-open-text fa-3x mb-3 text-info"></i>
+                                    <h5>Message Broadcast</h5>
+                                    <p class="small">Send announcements to platform users</p>
+                                    <a href="#" class="btn btn-sm btn-outline-info" id="broadcast-message-btn">Compose Message</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card h-100 bg-light">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-download fa-3x mb-3 text-warning"></i>
+                                    <h5>Export Data</h5>
+                                    <p class="small">Generate reports and export platform data</p>
+                                    <a href="#" class="btn btn-sm btn-outline-warning" id="export-data-btn">Export Reports</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // User Distribution Chart
+        const userCtx = document.getElementById('userDistributionChart').getContext('2d');
+        const userChart = new Chart(userCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Students', 'PIs/Lab Directors', 'Industry Partners', 'Vendors'],
+                datasets: [{
+                    data: [{{ stats.students }}, {{ stats.pis }}, {{ stats.industry }}, {{ stats.vendors }}],
+                    backgroundColor: [
+                        '#0d6efd', // primary
+                        '#198754', // success
+                        '#0dcaf0', // info
+                        '#ffc107'  // warning
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    title: {
+                        display: true,
+                        text: 'User Type Distribution'
+                    }
+                }
+            }
+        });
+    });
+</script>
+<script src="{{ url_for('static', filename='js/admin-dashboard.js') }}"></script>
+{% endblock %}
+{% endblock %}
+
+
+

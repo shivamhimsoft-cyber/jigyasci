@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}{{ specific_profile.company_name or 'Vendor Profile' }} | Research Collaboration Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    {% if specific_profile.logo %}
+                    <img src="{{ specific_profile.logo }}" class="img-fluid mb-3" style="max-height: 150px;" alt="Company Logo">
+                    {% else %}
+                    <div class="bg-secondary d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 150px; height: 150px;">
+                        <i class="fas fa-truck fa-4x text-white"></i>
+                    </div>
+                    {% endif %}
+                    <h3 class="card-title">{{ specific_profile.company_name or 'Company Name Not Provided' }}</h3>
+                    <p class="text-muted">Equipment/Service Vendor</p>
+                    <p><i class="fas fa-map-marker-alt me-2"></i>{{ specific_profile.region or 'Region Not Provided' }}</p>
+                    
+                    {% if current_user.is_authenticated and current_user.id == user.id %}
+                    <a href="{{ url_for('edit_profile') }}" class="btn btn-primary btn-sm"><i class="fas fa-edit me-1"></i> Edit Profile</a>
+                    {% else %}
+                    <a href="{{ url_for('conversation', user_id=user.id) }}" class="btn btn-primary btn-sm"><i class="fas fa-envelope me-1"></i> Message</a>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="d-flex justify-content-around">
+                        <div class="text-center">
+                            <h5>{{ profile.profile_completeness }}%</h5>
+                            <small class="text-muted">Profile</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-address-card me-2"></i>Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    {% if specific_profile.contact_person %}
+                    <p><i class="fas fa-user me-2"></i>{{ specific_profile.contact_person }}</p>
+                    {% endif %}
+                    
+                    {% if specific_profile.email %}
+                    <p><i class="fas fa-envelope me-2"></i>{{ specific_profile.email }}</p>
+                    {% endif %}
+                    
+                    {% if specific_profile.contact_phone %}
+                    <p><i class="fas fa-phone me-2"></i>{{ specific_profile.contact_phone }}</p>
+                    {% endif %}
+                    
+                    {% if specific_profile.address %}
+                    <p><i class="fas fa-map-marker-alt me-2"></i>{{ specific_profile.address }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Business Details</h5>
+                </div>
+                <div class="card-body">
+                    {% if specific_profile.gst %}
+                    <p><strong>GST Number:</strong> {{ specific_profile.gst }}</p>
+                    {% endif %}
+                    
+                    {% if specific_profile.pan %}
+                    <p><strong>PAN Number:</strong> {{ specific_profile.pan }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Product & Service Categories</h5>
+                </div>
+                <div class="card-body">
+                    {% if specific_profile.dealing_categories %}
+                    <h6>Dealing Categories:</h6>
+                    <div class="mb-3">
+                        {% for category in specific_profile.dealing_categories.split(',') %}
+                        <span class="badge bg-primary me-2 mb-2">{{ category.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if specific_profile.product_categories %}
+                    <h6>Product Categories:</h6>
+                    <div>
+                        {% for category in specific_profile.product_categories.split(',') %}
+                        <span class="badge bg-info me-2 mb-2">{{ category.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if specific_profile.why_me %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-star me-2"></i>Why Choose Us</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ specific_profile.why_me|nl2br }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-microscope me-2"></i>Laboratory Equipment & Services</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <img src="https://pixabay.com/get/gb1ebc9369ec837b1925c39ee939d150cacc01bdddc2b8c4de5f73fe276ca77bebb178ade522eb4a41ecbb4b62f808dddc3c49eb19129aec182f96aba3964a35a_1280.jpg" class="card-img-top" alt="Laboratory Equipment">
+                                <div class="card-body">
+                                    <h5 class="card-title">Research Equipment</h5>
+                                    <p class="card-text">State-of-the-art instruments for advanced scientific research.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <img src="https://pixabay.com/get/gbb1da1b75ff34d7d948424397bc6bbf52aea04b4c51afc822c8812a54d3760f5b00a743a87bd6e4eee7f024eb4b4d8427591ad4ceb09dcb356b689dde2c213e6_1280.jpg" class="card-img-top" alt="Laboratory Services">
+                                <div class="card-body">
+                                    <h5 class="card-title">Scientific Services</h5>
+                                    <p class="card-text">Comprehensive support for laboratory setup and maintenance.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-handshake me-2"></i>Collaboration Opportunities</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>Equipment demonstrations and workshops for research labs
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>Sponsorship opportunities for academic conferences and events
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>Customized solutions for specialized research needs
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>Technical support and training for laboratory personnel
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>Special pricing for academic institutions
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

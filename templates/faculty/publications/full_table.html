@@ -1,0 +1,213 @@
+<!-- templates\faculty\publications\full_table.html -->
+
+{% extends "frontBase.html" %}
+{% block title %}Publications | Full Table{% endblock %}
+
+{% block navbar_extra_profile %}
+<div><img src="../static/images/logo-shade_blue.png" class="lg:h-[60px] md:h-[60px] h-[50px] w-auto " alt=""></div>
+{% endblock %}
+{% block nav_bar_width %}
+    w-full py-2
+{% endblock %}
+{% block footer_width %}
+    w-full
+{% endblock %}
+
+
+{% block navbar_extra %}
+<form action="{{ url_for('publication.full_table') }}" method="GET" class="flex flex-grow max-w-md w-full">
+    <div class="relative w-full">
+        <input type="text" name="query" value="{{ query or '' }}" placeholder="Search Title / Author / Journal"
+               class="w-full pr-10 px-0 text-secondary border-b-[1px] border-b-secondary/60 border-0 py-0 focus:ring-0 focus:outline-none focus:border-secondary" />
+        <button type="submit" class="absolute right-3 top-[50%] translate-y-[-50%] text-secondary hover:scale-105 transition ease-in duration-2000">
+            <i class="fa fa-search"></i>
+        </button>
+    </div>
+</form>
+{% endblock %}
+
+{% block content %}
+<div class=" w-full  mx-auto px-4 ">
+    <div class="w-full flex justify-center">
+        <h1 class="lg:text-3xl md:text-2xl sm:text-xl text-xl font-bold text-secondary mb-6">Publications - Full View</h1>
+    </div>
+
+    <!-- Add filters -->
+    <form action="{{ url_for('publication.full_table') }}" method="GET" class="flex flex-wrap justify-end gap-2 mb-4">
+        <h2 class="sr-only">Filter Publications</h2>
+
+        <select name="year" class="py-1 px-3 rounded-sm border border-secondary/30 focus:border-secondary bg-gray-100 text-secondary w-[165px] flex-shrink-0 focus:ring-0 focus:outline-none">
+            <option value="">All Years</option>
+            {% for year in range(current_year, current_year-10, -1) %}
+            <option value="{{ year }}" {% if year|string == selected_year %}selected{% endif %}>{{ year }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="type" class="py-1 px-3 rounded-sm border border-secondary/30 focus:border-secondary bg-gray-100 text-secondary w-[165px] flex-shrink-0 focus:ring-0 focus:outline-none">
+            <option value="">All Types</option>
+            <option value="journal" {% if "journal" == selected_type %}selected{% endif %}>Journal</option>
+            <option value="conference" {% if "conference" == selected_type %}selected{% endif %}>Conference</option>
+            <option value="book" {% if "book" == selected_type %}selected{% endif %}>Book</option>
+        </select>
+
+        <button type="submit" class="px-6 py-1 bg-secondary/90 text-white border-secondary border-[1px] rounded-sm hover:bg-secondary transition ease-in duration-2000">
+            Filter
+        </button>
+    </form>
+
+    <div class="overflow-x-auto shadow-md">
+        <table class="w-full bg-white border border-gray-200">
+            <thead class="">
+                <tr class="w-full bg-white border border-gray-200 ">
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">#</th>
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">
+                        <a href="{{ url_for('publication.full_table', query=query, sort='title', direction='asc' if sort != 'title' or direction == 'desc' else 'desc', page=page) }}" class="hover:underline flex items-center">
+                            Title
+                            {% if sort == 'title' %}
+                                <span class="ml-2 inline-block w-4">{% if direction == 'asc' %}↑{% else %}↓{% endif %}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">
+                        <a href="{{ url_for('publication.full_table', query=query, sort='authors', direction='asc' if sort != 'authors' or direction == 'desc' else 'desc', page=page) }}" class="hover:underline flex items-center">
+                            Authors
+                            {% if sort == 'authors' %}
+                                <span class="ml-2 inline-block w-4">{% if direction == 'asc' %}↑{% else %}↓{% endif %}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">
+                        <a href="{{ url_for('publication.full_table', query=query, sort='journal', direction='asc' if sort != 'journal' or direction == 'desc' else 'desc', page=page) }}" class="hover:underline flex items-center">
+                            Journal/Conference
+                            {% if sort == 'journal' %}
+                                <span class="ml-2 inline-block w-4">{% if direction == 'asc' %}↑{% else %}↓{% endif %}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">
+                        <a href="{{ url_for('publication.full_table', query=query, sort='year', direction='asc' if sort != 'year' or direction == 'desc' else 'desc', page=page) }}" class="hover:underline flex items-center">
+                            Year
+                            {% if sort == 'year' %}
+                                <span class="ml-2 inline-block w-4">{% if direction == 'asc' %}↑{% else %}↓{% endif %}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">
+                        <a href="{{ url_for('publication.full_table', query=query, sort='author', direction='asc' if sort != 'author' or direction == 'desc' else 'desc', page=page) }}" class="hover:underline flex items-center">
+                            Author
+                            {% if sort == 'author' %}
+                                <span class="ml-2 inline-block w-4">{% if direction == 'asc' %}↑{% else %}↓{% endif %}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">
+                        <a href="{{ url_for('publication.full_table', query=query, sort='affiliation', direction='asc' if sort != 'affiliation' or direction == 'desc' else 'desc', page=page) }}" class="hover:underline flex items-center">
+                            Affiliation
+                            {% if sort == 'affiliation' %}
+                                <span class="ml-2 inline-block w-4">{% if direction == 'asc' %}↑{% else %}↓{% endif %}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">Action</th>
+                </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-200">
+                {% for pub in publications.items %}
+                <tr class="{% if loop.index0 % 2 == 0 %}bg-white{% else %}bg-primary/10{% endif %} hover:bg-primary/30">
+                    <td class="px-4 py-2 border-[1px] border-secondary/30 font-medium text-[17px]">{{ (publications.page - 1) * publications.per_page + loop.index }}</td>
+                    <td class="px-4 py-2 border-[1px] border-secondary/30 font-medium text-[17px]">
+                        <a href="{{ pub.Publication.doi_url if pub.Publication.doi_url else '#' }}"
+                           target="_blank"
+                           class="text-blue-600 hover:underline">
+                            {{ pub.Publication.title|truncate(70) }}
+                        </a>
+                    </td>
+                    <td class="px-4 py-2 border-[1px] border-secondary/30 font-medium text-[17px]">{{ pub.Publication.authors|truncate(50) }}</td>
+                    <td class="px-4 py-2 border-[1px] border-secondary/30 font-medium text-[17px]">{{ pub.Publication.journal_or_conference|truncate(30) }}</td>
+                    <td class="px-4 py-2 border-[1px] border-secondary/30 font-medium text-[17px]">{{ pub.Publication.year }}</td>
+                    <td class="px-4 py-2 border-[1px] border-secondary/30 font-medium text-[17px]">
+                        {% if pub.Publication.profile %}
+                        <div class="flex gap-2 items-center">
+                            <div class="h-10 w-10 flex-none rounded-full border-[1px] border-secondary/30">
+                                <img src="{{ pub.Publication.profile.profile_image_url if pub.Publication.profile.profile_image_url else url_for('static', filename='images/profile.png') }}"
+                                     onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/logo-shade_blue.png') }}';"
+                                     class="h-full w-full object-cover rounded-full">
+                            </div>
+                            <span>{{ pub.author_name }}</span>
+                        </div>
+                        {% else %}
+                            {{ pub.author_name }}
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2 border-[1px] border-secondary/30 font-medium text-[17px]">{{ pub.affiliation }}</td>
+                    <td class="px-4 py-2 border-[1px] border-secondary/30 font-medium text-[17px] ">
+                        {% if pub.Publication.profile %}
+                            {% if pub.Publication.profile.user.user_type == 'PI' %}
+                                <a href="{{ url_for('faculty_info', profile_id=pub.Publication.profile.id) }}"
+                                class="text-white bg-secondary px-3 py-1 rounded-sm hover:bg-primary transition ease-in duration-200">
+                                    View Profile
+                                </a>
+                            {% elif pub.Publication.profile.user.user_type == 'Student' %}
+                                <a href="{{ url_for('student.student_details', student_id=pub.Publication.profile.student_profile.id) }}"
+                                class="text-white bg-secondary px-3 py-1 rounded-sm hover:bg-primary transition ease-in duration-200">
+                                    View Profile
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if publications.pages > 1 %}
+    <div class="mt-6 flex justify-center">
+        <nav class="inline-flex rounded-md shadow">
+            {% if publications.has_prev %}
+            <a href="{{ url_for('publication.full_table',
+                              page=publications.prev_num,
+                              query=query,
+                              sort=sort,
+                              direction=direction,
+                              year=selected_year,
+                              type=selected_type) }}"
+               class="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-[19px] whitespace-nowrap font-medium text-gray-700 hover:bg-gray-50">Previous</a>
+            {% endif %}
+
+            {% for page_num in publications.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=3) %}
+                {% if page_num %}
+                    {% if publications.page == page_num %}
+                    <a href="#" class="px-3 py-2 border-t border-b border-primary bg-primary text-secondary text-[19px] whitespace-nowrap font-medium">{{ page_num }}</a>
+                    {% else %}
+                    <a href="{{ url_for('publication.full_table',
+                                      page=page_num,
+                                      query=query,
+                                      sort=sort,
+                                      direction=direction,
+                                      year=selected_year,
+                                      type=selected_type) }}"
+                       class="px-3 py-2 border-t border-b border-gray-300 bg-white text-[19px] whitespace-nowrap font-medium text-gray-700 hover:bg-gray-50">{{ page_num }}</a>
+                    {% endif %}
+                {% else %}
+                <span class="px-3 py-2 border-t border-b border-gray-300 bg-white text-[19px] whitespace-nowrap font-medium text-gray-700">...</span>
+                {% endif %}
+            {% endfor %}
+
+            {% if publications.has_next %}
+            <a href="{{ url_for('publication.full_table',
+                              page=publications.next_num,
+                              query=query,
+                              sort=sort,
+                              direction=direction,
+                              year=selected_year,
+                              type=selected_type) }}"
+               class="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-[19px] whitespace-nowrap font-medium text-gray-700 hover:bg-gray-50">Next</a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

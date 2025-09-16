@@ -1,0 +1,93 @@
+<!-- templates\students\full_table.html -->
+
+
+{% extends "frontBase.html" %}
+{% block title %}Research Collaboration Platform | Faculty Full Table{% endblock %}
+
+{% block navbar_extra_profile %}
+<div><img src="../static/images/logo-shade_blue.png" class="lg:h-[60px] md:h-[60px] h-[50px] w-auto " alt=""></div>
+{% endblock %}
+
+{% block nav_bar_width %}
+    w-full py-2
+{% endblock %}
+{% block footer_width %}
+    w-full
+{% endblock %}
+
+
+
+{% block navbar_extra %}
+<form action="{{ url_for('student.full_table') }}" method="GET" class="flex flex-grow max-w-md w-full">
+    <div class="relative w-full">
+        <input type="text" name="query" value="{{ query or '' }}" placeholder="Search Name / Institute / Interests"
+               class="w-full pr-10 px-0 text-secondary border-b-[1px] border-b-secondary/60 border-0 py-0 focus:ring-0 focus:outline-none focus:border-secondary" />
+        <button type="submit" class="absolute right-3 top-[50%] translate-y-[-50%] text-secondary hover:scale-105 transition ease-in duration-2000">
+            <i class="fa fa-search"></i>
+        </button>
+    </div>
+</form>
+{% endblock %}
+
+
+
+
+{% block content %}
+<div class="w-full h-full mx-auto px-4 py-8">
+      <h1 class="text-2xl font-bold text-secondary mb-6">Student Directory</h1>
+        <div class="overflow-x-auto">
+            <table class="w-full bg-white border border-gray-200">
+                <thead >
+                    <tr class="bg-secondary ">
+                        <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">Name</th>
+                        <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">Degree Program</th>
+                        <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">Affiliation</th>
+                        <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">Research Interests</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for student in students %}
+                    <tr class="{% if loop.index0 % 2 == 0 %}bg-white{% else %}bg-primary/10{% endif %} hover:bg-primary/30">
+                        <td class="px-4 py-2 border-[1px] border-black  max-w-[200px] overflow-x-auto font-medium text-[17px]">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    <img class="h-10 w-10 rounded-full"
+                                         src="{{ student.profile_image_url or url_for('static', filename='images/profile.png') }}"
+                                         onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/profile.png') }}';"
+                                         alt="{{ student.name }}">
+                                </div>
+                                <div class="ml-4">
+                                    <a href="{{ url_for('student.student_details', student_id=student.id) }}"
+                                       class="text-sm font-medium text-secondary hover:underline">
+                                        {{ student.name }}
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 border-[1px] border-black  max-w-[200px] overflow-x-auto font-medium text-[17px]">
+                            {{ student.degree_program or 'N/A' }}
+                        </td>
+                        <td class="px-4 py-2 border-[1px] border-black  max-w-[200px] overflow-x-auto font-medium text-[17px]">
+                            {{ student.affiliation or 'N/A' }}
+                        </td>
+                        <td class="px-4 py-2 border-[1px] border-black  max-w-[200px] overflow-x-auto font-medium text-[17px]">
+                            {{ student.research_interests or 'N/A' }}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr class=" bg-primary hover:bg-primary/30">
+                        <td colspan="4" class="px-4 py-2 border-[1px] border-black  overflow-x-auto font-medium text-[17px]">
+                            No students found matching your search.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+</div>
+{% endblock %}
+
+
+
+
+

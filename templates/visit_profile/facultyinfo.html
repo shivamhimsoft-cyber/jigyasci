@@ -1,0 +1,1225 @@
+<!-- templates\visit_profile\facultyinfo.html -->
+
+{% extends "frontBase.html" %}
+
+{% block title %}Research Collaboration Platform | {{ pi.name }}{% endblock %}
+
+{% block navbar_extra_profile %}
+<div><img src="../static/images/logo-shade_blue.png" class="lg:h-[60px] md:h-[60px] h-[50px] w-auto " alt=""></div>
+{% endblock %}
+
+{% block nav_bar_width %}
+lg:w-[70%] md:w-[90%] w-full py-2
+{% endblock %}
+
+{% block footer_width %}
+lg:w-[70%] md:w-[90%] w-full
+{% endblock %}
+
+
+<style>
+.bookmark-btn {
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.bookmark-btn.bookmarked i {
+    color: #f59e0b !important; /* yellow-500 */
+}
+
+.bookmark-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Animation for bookmark icon */
+@keyframes bounce {
+    0%, 20%, 53%, 80%, 100% {
+        transform: translate3d(0, 0, 0);
+    }
+    40%, 43% {
+        transform: translate3d(0, -8px, 0);
+    }
+    70% {
+        transform: translate3d(0, -4px, 0);
+    }
+    90% {
+        transform: translate3d(0, -2px, 0);
+    }
+}
+
+.bookmark-btn.bookmarked i {
+    animation: bounce 0.5s;
+}
+
+/* Ensure bookmarked state is visible even without hover */
+.bookmarked {
+    opacity: 1 !important;
+}
+</style>
+
+
+{% block content %}
+
+<div class="w-full flex justify-center p-4 min-h-screen">
+    <div class="lg:w-[70%] md:w-[90%] w-full">
+        <div class="p-4 flex lg:flex-row md:flex-row flex-col-reverse bg-white">
+            <div class="w-full grid lg:grid-cols-4 md:grid-cols-3 grid-cols-1 gap-4">
+                <!-- Left Sidebar with Tabs -->
+                <div class="w-full bg-white">
+                    <div class="bg-white sticky top-20">
+                        <a href="#tab-content-facultyProfile">
+                            <button class="w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap bg-secondary text-white font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-secondary transition ease-in duration-2000">
+                                <i class="fa fa-user text-sm mr-2"></i> Profile
+                            </button>
+                        </a>
+                        <a href="#tab-content-education">
+                            <button class="w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-secondary font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-secondary transition ease-in duration-2000">
+                                <i class="fa fa-graduation-cap text-sm mr-2"></i> Education
+                            </button>
+                        </a>
+                        <a href="#tab-content-experience">
+                            <button class="w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-secondary font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-secondary transition ease-in duration-2000">
+                                <i class="fa fa-briefcase text-sm mr-2"></i> Experience
+                            </button>
+                        </a>
+                        <a href="#tab-content-facilities">
+                            <button class="w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-secondary font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-secondary transition ease-in duration-2000">
+                                <i class="fa fa-flask text-sm mr-2"></i> Research Facilities
+                            </button>
+                        </a>
+                        <a href="#tab-content-technologies">
+                            <button class="w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-secondary font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-secondary transition ease-in duration-2000">
+                                <i class="fa fa-microchip text-sm mr-2"></i> Technologies
+                            </button>
+                        </a>
+                        <a href="#tab-content-skills">
+                            <button class="w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-secondary font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-secondary transition ease-in duration-2000">
+                                <i class="fa fa-tools text-sm mr-2"></i> Skills
+                            </button>
+                        </a>
+                        <a href="#tab-content-awards">
+                            <button class="w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-secondary font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-secondary transition ease-in duration-2000">
+                                <i class="fa fa-trophy text-sm mr-2"></i> Awards
+                            </button>
+                        </a>
+                        <a href="#tab-content-projects">
+                            <button class="w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-secondary font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-secondary transition ease-in duration-2000">
+                                <i class="fa fa-list-check text-sm mr-2"></i> Projects
+                            </button>
+                        </a>
+                        <a href="#tab-content-team">
+                            <button class="w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-secondary font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-secondary transition ease-in duration-2000">
+                                <i class="fa fa-users text-sm mr-2"></i> My Team
+                            </button>
+                        </a>
+                        <a href="#tab-content-publications">
+                            <button class="w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-secondary font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-secondary transition ease-in duration-2000">
+                                <i class="fa fa-file-shield text-sm mr-2"></i> Publications
+                            </button>
+                        </a>
+                    </div>
+
+                    <!-- Latest Publication Section -->
+                    <div class="bg-white rounded-sm shadow-sm overflow-hidden mb-6 mt-6 border-[1px] border-gray-300">
+                        <div class="bg-secondary px-3 py-2 text-white font-medium flex items-center">
+                            <i class="fas fa-newspaper mr-2"></i>
+                            <span>Latest Publication</span>
+                        </div>
+                        <div class="p-4">
+                            {% if profile.publications and profile.publications|length > 0 %}
+                                {% set latest_pub = profile.publications[0] %}
+                                <h4 class="font-bold text-gray-800 text-sm mb-1">"{{ latest_pub.title }}"</h4>
+                                <p class="text-gray-600 text-xs mb-2">{{ latest_pub.journal_or_conference }} ({{ latest_pub.year }})</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-500">Published: {{ latest_pub.date.strftime('%b %Y') if latest_pub.date else 'N/A' }}</span>
+                                    {% if latest_pub.doi %}
+                                    <a href="{{ latest_pub.doi }}" class="text-secondary text-xs font-medium hover:underline flex items-center">
+                                        View <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <p class="text-gray-500 text-sm">No publications available</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Similar Researchers Section -->
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6 border-[1px] border-gray-300">
+                        <div class="bg-secondary px-3 py-2 text-white font-medium flex items-center">
+                            <i class="fas fa-users mr-2"></i>
+                            <span>Similar Researchers</span>
+                        </div>
+                        <div class="divide-y divide-gray-100">
+                            <a href="#" class="group block p-3 hover:bg-gray-50 transition-colors">
+                                <div class="flex items-center">
+                                    <img src="../static/images/profile.png" class="h-10 w-10 rounded-full mr-3" alt="">
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 text-sm group-hover:text-secondary">Dr. Sanjay Patel</h4>
+                                        <p class="text-gray-600 text-xs">Computer Science, IIT Bombay</p>
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="#" class="group block p-3 hover:bg-gray-50 transition-colors">
+                                <div class="flex items-center">
+                                    <img src="../static/images/profile.png" class="h-10 w-10 rounded-full mr-3" alt="">
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 text-sm group-hover:text-secondary">Prof. Meena Sharma</h4>
+                                        <p class="text-gray-600 text-xs">Electrical Engg, IIT Delhi</p>
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="#" class="group block p-3 hover:bg-gray-50 transition-colors">
+                                <div class="flex items-center">
+                                    <img src="../static/images/profile.png" class="h-10 w-10 rounded-full mr-3" alt="">
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 text-sm group-hover:text-secondary">Dr. Anil Kumar</h4>
+                                        <p class="text-gray-600 text-xs">Mechanical Engg, IISc Bangalore</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Area -->
+                <div class="w-full lg:col-span-3 md:col-span-2 col-span-1">
+                    <!-- Profile Tab Content -->
+                    <div id="tab-content-facultyProfile" data-tab-content="facultyProfile" class="faculty-tab-content w-full">
+                        <!-- Profile Header with Card Layout -->
+                        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+                            <div class="md:flex">
+                                <!-- Profile Image Section -->
+                                <div class="md:w-1/4 p-6 flex flex-col items-center bg-secondary">
+                                    <div class="w-40 h-40 rounded-full border-4 border-white shadow-lg overflow-hidden mb-4">
+                                        <img src="{{ url_for('static', filename='images/profile.png') }}" class="w-full h-full object-cover" alt="{{ pi.name }}">
+                                    </div>
+                                    <h1 class="text-white font-bold text-xl mb-1">{{ pi.name }}</h1>
+                                    <p class="text-white/90 text-sm mb-2">{{ pi.current_designation }}</p>
+                                    <p class="text-white/80 text-xs text-center mb-4">{{ pi.affiliation }}</p>
+
+                                    <!-- Social Links -->
+                                    <div class="flex space-x-3 mb-4">
+                                        <a href="#" class="text-white hover:text-gray-200 transition-colors">
+                                            <i class="fab fa-linkedin fa-lg"></i>
+                                        </a>
+                                        <a href="#" class="text-white hover:text-gray-200 transition-colors">
+                                            <i class="fab fa-researchgate fa-lg"></i>
+                                        </a>
+                                        <a href="#" class="text-white hover:text-gray-200 transition-colors">
+                                            <i class="fab fa-google fa-lg"></i>
+                                        </a>
+                                        <a href="#" class="text-white hover:text-gray-200 transition-colors">
+                                            <i class="fas fa-envelope fa-lg"></i>
+                                        </a>
+                                    </div>
+
+                                    <!-- Quick Stats -->
+                                    <div class="w-full bg-white/20 rounded-lg p-3">
+                                        <div class="flex justify-between text-center">
+                                            <div>
+                                                <div class="text-white font-bold text-lg">{{ profile.publications|length }}</div>
+                                                <div class="text-white/80 text-xs">Publications</div>
+                                            </div>
+                                            <div class="border-l border-white/30"></div>
+                                            <div>
+                                                <div class="text-white font-bold text-lg">{{ pi.projects.count() }}</div>
+                                                <div class="text-white/80 text-xs">Projects</div>
+                                            </div>
+                                            <div class="border-l border-white/30"></div>
+                                            <div>
+                                                <div class="text-white font-bold text-lg">{{ pi.team_members.count() }}</div>
+                                                <div class="text-white/80 text-xs">Team Members</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Profile Details Section -->
+                                <div class="md:w-3/4 p-6">
+
+                                    <!-- Profile Header with Bookmark Button -->
+                                    <!-- <div class="flex items-start justify-end mb-6">
+                                        <button class="bookmark-btn p-2 rounded-full hover:bg-yellow-50 transition-colors ml-auto"
+                                                data-type="profile"
+                                                data-id="{{ profile.id }}"
+                                                title="Bookmark this profile">
+                                            <i class="far fa-bookmark text-gray-400 text-xl"></i>
+                                        </button>
+                                    </div> -->
+
+
+                                    <!-- Contact Information -->
+                                    <div class="mb-6">
+                                        <h2 class="text-lg font-semibold text-gray-800 mb-3 flex items-center relative">
+                                            <i class="fas fa-address-card text-secondary mr-2"></i>
+                                            Contact Information
+
+                                            {% if current_user.is_authenticated %}
+                                                <button class="bookmark-btn p-2 rounded-full hover:bg-yellow-50 transition-colors absolute right-0 top-0"
+                                                        data-type="profile"
+                                                        data-id="{{ pi.profile.id }}" 
+                                                        title="Bookmark this profile">
+                                                    <i class="far fa-bookmark text-gray-400 text-xl"></i>
+                                                </button>
+                                            {% else %}
+                                                <a href="{{ url_for('auth.login') }}"
+                                                class="p-2 rounded-full bg-white/80 border border-gray-200 
+                                                        hover:bg-primary hover:text-secondary hover:border-primary 
+                                                        transition-all duration-300 shadow-sm z-10 group absolute right-0 top-0">
+                                                    <i class="far fa-bookmark text-gray-400 text-lg"></i>
+                                                    <span class="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 
+                                                                rounded-full bg-white border border-gray-300 shadow group-hover:bg-secondary">
+                                                        <i class="fas fa-lock text-[10px] text-gray-600 group-hover:text-white"></i>
+                                                    </span>
+                                                </a>
+                                            {% endif %}
+                                        </h2>
+                     
+                                           <div class="grid md:grid-cols-2 gap-3">
+                                            <div class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                                <div class="bg-secondary/10 p-2 rounded-full mr-3">
+                                                    <i class="fas fa-envelope text-secondary"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-gray-500">Email</p>
+                                                    <p class="text-sm font-medium">{{ pi.email or 'Not provided' }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                                <div class="bg-secondary/10 p-2 rounded-full mr-3">
+                                                    <i class="fas fa-phone text-secondary"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-gray-500">Phone</p>
+                                                    <p class="text-sm font-medium">{{ pi.contact_phone or 'Not provided' }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                                <div class="bg-secondary/10 p-2 rounded-full mr-3">
+                                                    <i class="fas fa-map-marker-alt text-secondary"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-gray-500">Address</p>
+                                                    <p class="text-sm font-medium">{{ pi.address or 'Not provided' }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                                <div class="bg-secondary/10 p-2 rounded-full mr-3">
+                                                    <i class="fas fa-globe text-secondary"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-gray-500">Website</p>
+                                                    <p class="text-sm font-medium">{{ pi.website or 'Not provided' }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+
+                                    
+                                    <!-- Research Focus -->
+                                    <div class="mb-6">
+                                        <h2 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                                            <i class="fas fa-search text-secondary mr-2"></i>
+                                            Research Focus
+                                        </h2>
+                                        <p class="text-gray-700 text-sm leading-relaxed">
+                                            {{ pi.current_focus or 'No research focus specified' }}
+                                        </p>
+                                    </div>
+
+                                    <!-- Expectations from Students -->
+                                    <div>
+                                        <h2 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                                            <i class="fas fa-user-graduate text-secondary mr-2"></i>
+                                            Expectations from Students
+                                        </h2>
+                                        <p class="text-gray-700 text-sm leading-relaxed">
+                                            {{ pi.expectations_from_students or 'No expectations specified' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Research Areas Section -->
+                        <div class="bg-white rounded-xl border-[1px] border-gray-400 shadow-md overflow-hidden mb-6">
+                            <div class="p-6">
+                                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                    <i class="fas fa-flask text-secondary mr-2"></i>
+                                    Research Areas
+                                </h2>
+
+                                <div class="flex flex-wrap gap-2">
+                                    {% if pi.research_areas %}
+                                        {% for area in pi.research_areas.split(',') %}
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-secondary/10 text-secondary text-sm font-medium">
+                                                {{ area.strip() }}
+                                            </span>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p class="text-gray-500">No research areas specified</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+
+
+
+
+
+                  <!-- Education Tab Content -->
+        <div id="tab-content-education" data-tab-content="education" class="faculty-tab-content w-full hidden">
+            <div class="bg-white rounded-xl border-[1px] border-gray-400 shadow-md overflow-hidden mb-6">
+                <div class="p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-graduation-cap text-secondary mr-2"></i>
+                        Education
+                    </h2>
+
+                    <div class="space-y-4">
+                        {% for education in profile.educations %}
+                        <!-- Education Item -->
+                        <div class="flex items-start group hover:bg-gray-50 p-3 rounded-lg transition-colors duration-200">
+                            <div class="bg-secondary/10 p-3 rounded-full mr-4 mt-1">
+                                <i class="fas fa-university text-secondary"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start relative">   <!-- ADD relative -->
+                                    <h3 class="font-bold text-gray-800">{{ education.degree_name }}</h3>
+                                    <div class="flex items-center">
+                                        <span class="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full mr-2">
+                                            {% if education.currently_pursuing %}
+                                                {{ education.start_year }} - Present
+                                            {% else %}
+                                                {{ education.start_year }} - {{ education.end_year }}
+                                            {% endif %}
+                                        </span>
+                                        {% if current_user.is_authenticated %}
+                                            <button class="bookmark-btn p-1.5 rounded-full hover:bg-yellow-50 transition-colors"
+                                                    data-type="education"
+                                                    data-id="{{ education.id }}"
+                                                    title="Bookmark this education">
+                                                <i class="far fa-bookmark text-gray-400 hover:text-yellow-500 text-lg"></i>
+                                            </button>
+                                        {% else %}
+                                            <a href="{{ url_for('auth.login') }}"
+                                            class="p-2 rounded-full bg-white/80 border border-gray-200 
+                                                    hover:bg-primary hover:text-secondary hover:border-primary 
+                                                    transition-all duration-300 shadow-sm z-10 group">
+                                                <i class="far fa-bookmark text-gray-400 text-lg"></i>
+                                                <span class="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 
+                                                            rounded-full bg-white border border-gray-300 shadow group-hover:bg-secondary">
+                                                    <i class="fas fa-lock text-[10px] text-gray-600 group-hover:text-white"></i>
+                                                </span>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+
+
+                                
+                                <p class="text-gray-600 text-sm mb-1">{{ education.college }}, {{ education.university }}</p>
+                                {% if education.university_address %}
+                                <p class="text-gray-700 text-sm italic">{{ education.university_address }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <p class="text-gray-500">No education information available</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!-- Experience Tab Content -->
+<div id="tab-content-experience" data-tab-content="experience" class="faculty-tab-content w-full hidden">
+    <div class="bg-white rounded-xl border-[1px] border-gray-400 shadow-md overflow-hidden mb-6">
+        <div class="p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-briefcase text-secondary mr-2"></i>
+                Professional Experience
+            </h2>
+
+            <div class="space-y-4">
+                {% for experience in profile.experiences %}
+                <!-- Experience Item -->
+                <div class="border-l-4 border-secondary pl-4 group hover:bg-gray-50 p-3 rounded-lg transition-colors relative">
+                    {% if current_user.is_authenticated %}
+                    <button class="bookmark-btn absolute top-3 right-3 p-1.5 rounded-full hover:bg-yellow-50 transition-colors"
+                            data-type="experience" 
+                            data-id="{{ experience.id }}"
+                            title="Bookmark this experience">
+                        <i class="far fa-bookmark text-gray-400 hover:text-yellow-500 text-lg"></i>
+                    </button>
+                {% else %}
+                    <!-- Bookmark Button for Unauthenticated Users (redirects to login) -->
+                    <a href="{{ url_for('auth.login') }}"
+                    class="absolute top-3 right-3 p-2 rounded-full bg-white/80 border border-gray-200 
+                            hover:bg-primary hover:text-secondary hover:border-primary 
+                            transition-all duration-300 shadow-sm z-10 group"
+                    title="Login to bookmark this profile">
+                        <!-- Bookmark Icon always visible -->
+                        <i class="far fa-bookmark text-gray-400 text-lg"></i>
+                        <!-- Lock overlay (toggles on hover) -->
+                        <span class="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 
+                                    rounded-full bg-white border border-gray-300 shadow group-hover:bg-secondary">
+                            <i class="fas fa-lock text-[10px] text-gray-600 group-hover:text-white"></i>
+                        </span>
+                    </a>
+                {% endif %}                    
+                    <div class="flex justify-between items-start">
+                        <h3 class="font-bold text-gray-800">{{ experience.position }}</h3>
+                        <span class="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full">
+                            {% if experience.currently_working %}
+                                {{ experience.start_date.strftime('%b %Y') }} - Present
+                            {% else %}
+                                {{ experience.start_date.strftime('%b %Y') }} - {{ experience.end_date.strftime('%b %Y') }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-2">{{ experience.project_title }}</p>
+                    <ul class="list-disc list-inside text-gray-700 text-sm space-y-1 ml-2">
+                        {% if experience.pi %}
+                        <li>PI: {{ experience.pi }} ({{ experience.pi_affiliation }})</li>
+                        {% endif %}
+                        <li>At: {{ experience.college }}, {{ experience.university_or_industry }}</li>
+                    </ul>
+                </div>
+                {% else %}
+                <p class="text-gray-500">No experience information available</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Research Facilities Tab Content -->
+<div id="tab-content-facilities" data-tab-content="facilities" class="faculty-tab-content w-full hidden">
+    <div class="bg-white rounded-xl border-[1px] border-gray-400 shadow-md overflow-hidden mb-6">
+        <div class="p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-flask text-secondary mr-2"></i>
+                Research Facilities
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                {% for facility in pi.research_facilities %}
+                <div class="border rounded-lg p-4 hover:shadow-md transition-shadow group relative">
+                    {% if current_user.is_authenticated %}
+                    <button class="bookmark-btn absolute top-3 right-3 p-1.5 rounded-full hover:bg-yellow-50 transition-colors"
+                            data-type="facility" 
+                            data-id="{{ facility.id }}"
+                            title="Bookmark this facility">
+                        <i class="far fa-bookmark text-gray-400 hover:text-yellow-500 text-lg"></i>
+                    </button>
+                    {% else %}
+                        <!-- Bookmark Button for Unauthenticated Users (redirects to login) -->
+                        <a href="{{ url_for('auth.login') }}"
+                        class="absolute top-3 right-3 p-2 rounded-full bg-white/80 border border-gray-200 
+                                hover:bg-primary hover:text-secondary hover:border-primary 
+                                transition-all duration-300 shadow-sm z-10 group"
+                        title="Login to bookmark this profile">
+                            <!-- Bookmark Icon always visible -->
+                            <i class="far fa-bookmark text-gray-400 text-lg"></i>
+                            <!-- Lock overlay (toggles on hover) -->
+                            <span class="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 
+                                        rounded-full bg-white border border-gray-300 shadow group-hover:bg-secondary">
+                                <i class="fas fa-lock text-[10px] text-gray-600 group-hover:text-white"></i>
+                            </span>
+                        </a>
+                    {% endif %}                    
+                    <h3 class="font-bold text-gray-800">{{ facility.equipment_name }}</h3>
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        <div>
+                            <p class="text-sm text-gray-600">Make: <span class="font-medium">{{ facility.make }}</span></p>
+                            <p class="text-sm text-gray-600">Model: <span class="font-medium">{{ facility.model }}</span></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Type: <span class="font-medium">{{ facility.equipment_type }}</span></p>
+                            <p class="text-sm text-gray-600">Status: 
+                                <span class="font-medium {% if facility.working_status == 'Working' %}text-green-600{% else %}text-red-600{% endif %}">
+                                    {{ facility.working_status }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    {% if facility.sop_file %}
+                    <div class="mt-3">
+                        <a href="{{ url_for('static', filename='uploads/' + facility.sop_file) }}" 
+                           class="text-secondary text-sm flex items-center hover:underline">
+                            <i class="fas fa-file-pdf mr-1"></i> SOP Document
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 col-span-2">No research facilities available</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Technologies Tab Content -->
+<div id="tab-content-technologies" data-tab-content="technologies" class="faculty-tab-content w-full hidden">
+    <div class="bg-white rounded-xl border-[1px] border-gray-400 shadow-md overflow-hidden mb-6">
+        <div class="p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-microchip text-secondary mr-2"></i>
+                Technologies
+            </h2>
+
+            <div class="space-y-4">
+                {% for tech in profile.technologies %}
+                <div class="border rounded-lg p-4 hover:shadow-md transition-shadow group relative">
+                    {% if current_user.is_authenticated %}
+                    <button class="bookmark-btn absolute top-3 right-3 p-1.5 rounded-full hover:bg-yellow-50 transition-colors"
+                            data-type="technology" 
+                            data-id="{{ tech.id }}"
+                            title="Bookmark this technology">
+                        <i class="far fa-bookmark text-gray-400 hover:text-yellow-500 text-lg"></i>
+                    </button>
+                    {% else %}
+                        <!-- Bookmark Button for Unauthenticated Users (redirects to login) -->
+                        <a href="{{ url_for('auth.login') }}"
+                        class="absolute top-3 right-3 p-2 rounded-full bg-white/80 border border-gray-200 
+                                hover:bg-primary hover:text-secondary hover:border-primary 
+                                transition-all duration-300 shadow-sm z-10 group"
+                        title="Login to bookmark this profile">
+                            <!-- Bookmark Icon always visible -->
+                            <i class="far fa-bookmark text-gray-400 text-lg"></i>
+                            <!-- Lock overlay (toggles on hover) -->
+                            <span class="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 
+                                        rounded-full bg-white border border-gray-300 shadow group-hover:bg-secondary">
+                                <i class="fas fa-lock text-[10px] text-gray-600 group-hover:text-white"></i>
+                            </span>
+                        </a>
+                    {% endif %}               
+                    <h3 class="font-bold text-gray-800">{{ tech.title }}</h3>
+                    <p class="text-gray-700 text-sm mt-1">{{ tech.description }}</p>
+                    <div class="grid md:grid-cols-3 gap-2 mt-3">
+                        <div>
+                            <p class="text-xs text-gray-500">TRL</p>
+                            <p class="text-sm font-medium">{{ tech.trl }}/9</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">IP Status</p>
+                            <p class="text-sm font-medium">{{ tech.ip_status }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Licensing</p>
+                            <p class="text-sm font-medium">{{ tech.licensing_intent }}</p>
+                        </div>
+                    </div>
+                    {% if tech.keywords %}
+                    <div class="mt-3">
+                        <p class="text-xs text-gray-500">Keywords</p>
+                        <div class="flex flex-wrap gap-1 mt-1">
+                            {% for keyword in tech.keywords.split(',') %}
+                            <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">{{ keyword.strip() }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <p class="text-gray-500">No technologies listed</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Skills Tab Content -->
+<div id="tab-content-skills" data-tab-content="skills" class="faculty-tab-content w-full hidden">
+    <div class="bg-white rounded-xl border-[1px] border-gray-400 shadow-md overflow-hidden mb-6">
+        <div class="p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-tools text-secondary mr-2"></i>
+                Skills
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                {% for skill in profile.skills %}
+                <div class="border rounded-lg p-4 hover:shadow-md transition-shadow group relative">
+                    {% if current_user.is_authenticated %}
+                    <button class="bookmark-btn absolute top-3 right-3 p-1.5 rounded-full hover:bg-yellow-50 transition-colors"
+                            data-type="skill" 
+                            data-id="{{ skill.id }}"
+                            title="Bookmark this skill">
+                        <i class="far fa-bookmark text-gray-400 hover:text-yellow-500 text-lg"></i>
+                    </button>
+                    {% else %}
+                        <!-- Bookmark Button for Unauthenticated Users (redirects to login) -->
+                        <a href="{{ url_for('auth.login') }}"
+                        class="absolute top-3 right-3 p-2 rounded-full bg-white/80 border border-gray-200 
+                                hover:bg-primary hover:text-secondary hover:border-primary 
+                                transition-all duration-300 shadow-sm z-10 group"
+                        title="Login to bookmark this profile">
+                            <!-- Bookmark Icon always visible -->
+                            <i class="far fa-bookmark text-gray-400 text-lg"></i>
+                            <!-- Lock overlay (toggles on hover) -->
+                            <span class="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 
+                                        rounded-full bg-white border border-gray-300 shadow group-hover:bg-secondary">
+                                <i class="fas fa-lock text-[10px] text-gray-600 group-hover:text-white"></i>
+                            </span>
+                        </a>
+                    {% endif %}                    
+                    
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-gray-800">{{ skill.skill_name }}</h4>
+                            <p class="text-sm text-gray-600">{{ skill.skill_type }}</p>
+                        </div>
+                        <span class="text-sm font-medium bg-secondary/10 text-secondary px-2 py-1 rounded-full">
+                            {{ skill.proficiency_level }}
+                        </span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                        <div class="bg-secondary h-2 rounded-full" 
+                             style="width: {% if skill.proficiency_level == 'Beginner' %}25%{% elif skill.proficiency_level == 'Intermediate' %}50%{% elif skill.proficiency_level == 'Advanced' %}75%{% else %}100%{% endif %}">
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-gray-500 col-span-2">No skills listed</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Awards Tab Content -->
+<div id="tab-content-awards" data-tab-content="awards" class="faculty-tab-content w-full hidden">
+    <div class="bg-white rounded-xl border-[1px] border-gray-400 shadow-md overflow-hidden mb-6">
+        <div class="p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-trophy text-secondary mr-2"></i>
+                Awards & Recognition
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                {% for award in profile.awards %}
+                <div class="border rounded-lg p-4 hover:shadow-md transition-shadow text-center group relative">
+                    {% if current_user.is_authenticated %}
+                    <button class="bookmark-btn absolute top-3 right-3 p-1.5 rounded-full hover:bg-yellow-50 transition-colors"
+                            data-type="award" 
+                            data-id="{{ award.id }}"
+                            title="Bookmark this award">
+                        <i class="far fa-bookmark text-gray-400 hover:text-yellow-500 text-lg"></i>
+                    </button>
+                    {% else %}
+                        <!-- Bookmark Button for Unauthenticated Users (redirects to login) -->
+                        <a href="{{ url_for('auth.login') }}"
+                        class="absolute top-3 right-3 p-2 rounded-full bg-white/80 border border-gray-200 
+                                hover:bg-primary hover:text-secondary hover:border-primary 
+                                transition-all duration-300 shadow-sm z-10 group"
+                        title="Login to bookmark this profile">
+                            <!-- Bookmark Icon always visible -->
+                            <i class="far fa-bookmark text-gray-400 text-lg"></i>
+                            <!-- Lock overlay (toggles on hover) -->
+                            <span class="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 
+                                        rounded-full bg-white border border-gray-300 shadow group-hover:bg-secondary">
+                                <i class="fas fa-lock text-[10px] text-gray-600 group-hover:text-white"></i>
+                            </span>
+                        </a>
+                    {% endif %}            
+                    <div class="text-yellow-500 text-4xl mb-2">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-800">{{ award.title }}</h3>
+                    <p class="text-sm text-gray-600">{{ award.issuing_organization }}</p>
+                    <p class="text-xs text-gray-500 mt-2">
+                        <i class="fas fa-calendar mr-1"></i>
+                        {{ award.date.strftime('%b %Y') }}
+                    </p>
+                    {% if award.description %}
+                    <p class="text-sm text-gray-700 mt-2">{{ award.description }}</p>
+                    {% endif %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 col-span-2">No awards available</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Projects Tab Content -->
+<div id="tab-content-projects" data-tab-content="projects" class="faculty-tab-content w-full hidden">
+    <div class="bg-white rounded-xl border-[1px] border-gray-400 shadow-md overflow-hidden mb-6">
+        <div class="p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-list-check text-secondary mr-2"></i>
+                Research Projects
+            </h2>
+
+            <div class="space-y-4">
+                {% for project in pi.projects %}
+                <div class="border rounded-lg p-4 hover:shadow-md transition-shadow group relative">
+                    {% if current_user.is_authenticated %}
+                    <button class="bookmark-btn absolute top-3 right-3 p-1.5 rounded-full hover:bg-yellow-50 transition-colors"
+                            data-type="project" 
+                            data-id="{{ project.id }}"
+                            title="Bookmark this project">
+                        <i class="far fa-bookmark text-gray-400 hover:text-yellow-500 text-lg"></i>
+                    </button>
+                    {% else %}
+                        <!-- Bookmark Button for Unauthenticated Users (redirects to login) -->
+                        <a href="{{ url_for('auth.login') }}"
+                        class="absolute top-3 right-3 p-2 rounded-full bg-white/80 border border-gray-200 
+                                hover:bg-primary hover:text-secondary hover:border-primary 
+                                transition-all duration-300 shadow-sm z-10 group"
+                        title="Login to bookmark this profile">
+                            <!-- Bookmark Icon always visible -->
+                            <i class="far fa-bookmark text-gray-400 text-lg"></i>
+                            <!-- Lock overlay (toggles on hover) -->
+                            <span class="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 
+                                        rounded-full bg-white border border-gray-300 shadow group-hover:bg-secondary">
+                                <i class="fas fa-lock text-[10px] text-gray-600 group-hover:text-white"></i>
+                            </span>
+                        </a>
+                    {% endif %}                    
+                    <div class="flex justify-between items-start">
+                        <h3 class="font-bold text-gray-800">{{ project.title }}</h3>
+                        <span class="text-xs font-medium px-2 py-1 rounded-full 
+                            {% if project.status == 'Active' %}bg-green-100 text-green-800
+                            {% elif project.status == 'Completed' %}bg-blue-100 text-blue-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ project.status }}
+                        </span>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-2 mt-2">
+                        <div>
+                            <p class="text-xs text-gray-500">Funding Agency</p>
+                            <p class="text-sm font-medium">{{ project.funding_agency or 'N/A' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Duration</p>
+                            <p class="text-sm font-medium">
+                                {{ project.start_date.strftime('%b %Y') if project.start_date else 'N/A' }} - 
+                                {% if project.end_date %}
+                                    {{ project.end_date.strftime('%b %Y') }}
+                                {% else %}
+                                    Ongoing
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    {% if project.description %}
+                    <div class="mt-3">
+                        <p class="text-xs text-gray-500">Description</p>
+                        <p class="text-sm text-gray-700">{{ project.description }}</p>
+                    </div>
+                    {% endif %}
+                    {% if project.keywords %}
+                    <div class="mt-3">
+                        <p class="text-xs text-gray-500">Keywords</p>
+                        <div class="flex flex-wrap gap-1 mt-1">
+                            {% for keyword in project.keywords.split(',') %}
+                            <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">{{ keyword.strip() }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <p class="text-gray-500">No projects available</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Team Tab Content -->
+<div id="tab-content-team" data-tab-content="team" class="faculty-tab-content w-full hidden">
+    <div class="bg-white rounded-xl border-[1px] border-gray-400 shadow-md overflow-hidden mb-6">
+        <div class="p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-users text-secondary mr-2"></i>
+                Research Team
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                {% for member in pi.team_members %}
+                <div class="border rounded-lg p-4 hover:shadow-md transition-shadow group relative">
+                    {% if current_user.is_authenticated %}
+                    <button class="bookmark-btn absolute top-3 right-3 p-1.5 rounded-full hover:bg-yellow-50 transition-colors"
+                            data-type="team" 
+                            data-id="{{ member.id }}"
+                            title="Bookmark this team member">
+                        <i class="far fa-bookmark text-gray-400 hover:text-yellow-500 text-lg"></i>
+                    </button>
+                    {% else %}
+                        <!-- Bookmark Button for Unauthenticated Users (redirects to login) -->
+                        <a href="{{ url_for('auth.login') }}"
+                        class="absolute top-3 right-3 p-2 rounded-full bg-white/80 border border-gray-200 
+                                hover:bg-primary hover:text-secondary hover:border-primary 
+                                transition-all duration-300 shadow-sm z-10 group"
+                        title="Login to bookmark this profile">
+                            <!-- Bookmark Icon always visible -->
+                            <i class="far fa-bookmark text-gray-400 text-lg"></i>
+                            <!-- Lock overlay (toggles on hover) -->
+                            <span class="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 
+                                        rounded-full bg-white border border-gray-300 shadow group-hover:bg-secondary">
+                                <i class="fas fa-lock text-[10px] text-gray-600 group-hover:text-white"></i>
+                            </span>
+                        </a>
+                    {% endif %}                    
+                    <div class="flex items-center">
+                        <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden mr-4">
+                            {% if member.student and member.student.profile_picture %}
+                            <img src="{{ url_for('static', filename='uploads/' + member.student.profile_picture) }}" class="w-full h-full object-cover">
+                            {% else %}
+                            <i class="fas fa-user text-2xl text-gray-500"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-800">
+                                {% if member.student %}
+                                    {{ member.student.name }}
+                                {% else %}
+                                    {{ member.name }}
+                                {% endif %}
+                            </h3>
+                            <p class="text-sm text-gray-600">{{ member.position }}</p>
+                            <p class="text-xs text-gray-500 mt-1">
+                                <span class="{% if member.status == 'Current' %}text-green-600{% else %}text-gray-600{% endif %}">
+                                    {{ member.status }}
+                                </span>
+                                {% if member.start_date %}
+                                    | Since {{ member.start_date.strftime('%b %Y') }}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    {% if member.student %}
+                    <div class="mt-3">
+                        <p class="text-sm text-gray-700">
+                            <i class="fas fa-university mr-2"></i>
+                            {{ member.student.affiliation or 'N/A' }}
+                        </p>
+                        {% if member.student.research_interests %}
+                        <p class="text-sm text-gray-700 mt-1">
+                            <i class="fas fa-search mr-2"></i>
+                            {{ member.student.research_interests }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 col-span-2">No team members available</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Publications Tab Content -->
+<div id="tab-content-publications" data-tab-content="publications" class="faculty-tab-content w-full hidden">
+    <div class="bg-white rounded-xl border-[1px] border-gray-400 shadow-md overflow-hidden mb-6">
+        <div class="p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-file-alt text-secondary mr-2"></i>
+                Publications
+            </h2>
+
+            <div class="flex justify-end mb-4">
+                <div class="flex items-center">
+                    <input type="text" placeholder="Search publications..." class="px-3 py-1 border border-gray-300 rounded-l focus:outline-none focus:ring-1 focus:ring-secondary">
+                    <button class="bg-secondary text-white px-3 py-1 rounded-r">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                {% for publication in profile.publications %}
+                <div class="border rounded-lg p-4 hover:shadow-md transition-shadow group relative">
+                    {% if current_user.is_authenticated %}
+                    <button class="bookmark-btn absolute top-3 right-3 p-1.5 rounded-full hover:bg-yellow-50 transition-colors"
+                            data-type="publication" 
+                            data-id="{{ publication.id }}"
+                            title="Bookmark this publication">
+                        <i class="far fa-bookmark text-gray-400 hover:text-yellow-500 text-lg"></i>
+                    </button>
+                {% else %}
+                    <!-- Bookmark Button for Unauthenticated Users (redirects to login) -->
+                    <a href="{{ url_for('auth.login') }}"
+                    class="absolute top-3 right-3 p-2 rounded-full bg-white/80 border border-gray-200 
+                            hover:bg-primary hover:text-secondary hover:border-primary 
+                            transition-all duration-300 shadow-sm z-10 group"
+                    title="Login to bookmark this profile">
+                        <!-- Bookmark Icon always visible -->
+                        <i class="far fa-bookmark text-gray-400 text-lg"></i>
+                        <!-- Lock overlay (toggles on hover) -->
+                        <span class="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 
+                                    rounded-full bg-white border border-gray-300 shadow group-hover:bg-secondary">
+                            <i class="fas fa-lock text-[10px] text-gray-600 group-hover:text-white"></i>
+                        </span>
+                    </a>
+                {% endif %}                    
+                    <h3 class="font-bold text-gray-800 group-hover:text-secondary transition-colors">
+                        "{{ publication.title }}"
+                    </h3>
+                    <p class="text-gray-600 text-sm mb-1">{{ publication.authors }}</p>
+                    <p class="text-gray-600 text-sm mb-2">{{ publication.journal_or_conference }} ({{ publication.year }})</p>
+                    {% if publication.doi %}
+                    <div class="flex space-x-3 mt-2">
+                        <a href="{{ publication.doi }}" target="_blank" class="text-secondary text-sm flex items-center hover:underline">
+                            <i class="fas fa-external-link-alt mr-1 text-xs"></i> View
+                        </a>
+                        <a href="#" class="text-secondary text-sm flex items-center hover:underline">
+                            <i class="fas fa-file-pdf mr-1 text-xs"></i> PDF
+                        </a>
+                        <a href="#" class="text-secondary text-sm flex items-center hover:underline">
+                            <i class="fas fa-quote-right mr-1 text-xs"></i> Cite
+                        </a>
+                    </div>
+                    {% endif %}
+                    {% if publication.abstract %}
+                    <div class="mt-3">
+                        <button class="text-secondary text-sm font-medium flex items-center toggle-abstract">
+                            <span>Show Abstract</span>
+                            <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                        </button>
+                        <div class="abstract-content hidden mt-2 text-sm text-gray-700">
+                            {{ publication.abstract }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <p class="text-gray-500">No publications available</p>
+                {% endfor %}
+            </div>
+
+            {% if profile.publications|length > 5 %}
+            <div class="flex justify-center mt-6">
+                <button class="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary-dark transition-colors">
+                    Load More Publications
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab functionality
+    const tabContents = document.querySelectorAll('.faculty-tab-content');
+    
+    // Show the first tab content by default
+    if (tabContents.length > 0) {
+        tabContents[0].classList.remove('hidden');
+    }
+
+    // Abstract toggle functionality
+    document.querySelectorAll('.toggle-abstract').forEach(button => {
+        button.addEventListener('click', function() {
+            const abstractContent = this.nextElementSibling;
+            abstractContent.classList.toggle('hidden');
+            
+            if (abstractContent.classList.contains('hidden')) {
+                this.innerHTML = '<span>Show Abstract</span> <i class="fas fa-chevron-down ml-1 text-xs"></i>';
+            } else {
+                this.innerHTML = '<span>Hide Abstract</span> <i class="fas fa-chevron-up ml-1 text-xs"></i>';
+            }
+        });
+    });
+
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            
+            if (targetElement) {
+                // Hide all tab contents first
+                document.querySelectorAll('.faculty-tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                // Show the target tab content
+                targetElement.classList.remove('hidden');
+                
+                // Scroll to the target
+                targetElement.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+});
+
+
+// Booked marked logic here
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to check bookmark status for all items
+    function checkAllBookmarkStatuses() {
+        // Only check if user is logged in
+        {% if current_user.is_authenticated %}
+        // Check profile bookmark if it exists
+        const profileBookmarkBtn = document.querySelector('.bookmark-btn[data-type="profile"]');
+        if (profileBookmarkBtn) {
+            const bookmarkType = profileBookmarkBtn.dataset.type;
+            const itemId = profileBookmarkBtn.dataset.id;
+            
+            fetch(`/bookmark/status/${bookmarkType}/${itemId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.bookmarked) {
+                        profileBookmarkBtn.innerHTML = '<i class="fas fa-bookmark text-yellow-500 text-xl"></i>';
+                        profileBookmarkBtn.classList.add('bookmarked');
+                    } else {
+                        profileBookmarkBtn.innerHTML = '<i class="far fa-bookmark text-gray-400 text-xl"></i>';
+                        profileBookmarkBtn.classList.remove('bookmarked');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking profile bookmark status:', error);
+                });
+        }
+        
+        // Check other bookmarks
+        document.querySelectorAll('.bookmark-btn:not([data-type="profile"])').forEach(button => {
+            const bookmarkType = button.dataset.type;
+            const itemId = button.dataset.id;
+            
+            fetch(`/bookmark/status/${bookmarkType}/${itemId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.bookmarked) {
+                        button.innerHTML = '<i class="fas fa-bookmark text-yellow-500 text-lg"></i>';
+                        button.classList.add('bookmarked');
+                    } else {
+                        button.innerHTML = '<i class="far fa-bookmark text-gray-400 hover:text-yellow-500 text-lg"></i>';
+                        button.classList.remove('bookmarked');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking bookmark status:', error);
+                });
+        });
+        {% endif %}
+    }
+
+    // Check all bookmark statuses on page load
+    checkAllBookmarkStatuses();
+
+    // Bookmark toggle functionality
+    document.querySelectorAll('.bookmark-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const bookmarkType = this.dataset.type;
+            const itemId = this.dataset.id;
+            
+            fetch(`/bookmark/${bookmarkType}/${itemId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    if (data.bookmarked) {
+                        if (bookmarkType === 'profile') {
+                            this.innerHTML = '<i class="fas fa-bookmark text-yellow-500 text-xl"></i>';
+                        } else {
+                            this.innerHTML = '<i class="fas fa-bookmark text-yellow-500 text-lg"></i>';
+                        }
+                        this.classList.add('bookmarked');
+                        showNotification('Bookmark added!', 'success');
+                    } else {
+                        if (bookmarkType === 'profile') {
+                            this.innerHTML = '<i class="far fa-bookmark text-gray-400 text-xl"></i>';
+                        } else {
+                            this.innerHTML = '<i class="far fa-bookmark text-gray-400 hover:text-yellow-500 text-lg"></i>';
+                        }
+                        this.classList.remove('bookmarked');
+                        showNotification('Bookmark removed', 'info');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error updating bookmark', 'error');
+            });
+        });
+    });
+    
+    // Notification function
+    function showNotification(message, type) {
+        // Check if notification already exists
+        const existingNotification = document.querySelector('.fixed.notification');
+        if (existingNotification) {
+            document.body.removeChild(existingNotification);
+        }
+        
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-transform transform translate-x-full notification ${type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'} text-white`;
+        notification.textContent = message;
+        
+        // Add to document
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+            notification.classList.add('translate-x-0');
+        }, 10);
+        
+        // Remove after delay
+        setTimeout(() => {
+            notification.classList.remove('translate-x-0');
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+});
+</script>
+
+{% endblock %}

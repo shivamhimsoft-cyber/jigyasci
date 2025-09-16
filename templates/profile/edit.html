@@ -1,0 +1,669 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile | Research Collaboration Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Edit {{ profile_type }} Profile</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="" enctype="multipart/form-data" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        {% if profile_type == 'Student' %}
+                            <!-- Student Profile Form -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form.name.label(class="form-label") }}
+                                    {% if form.name.errors %}
+                                        {{ form.name(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.name.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.name(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.affiliation.label(class="form-label") }}
+                                    {% if form.affiliation.errors %}
+                                        {{ form.affiliation(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.affiliation.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.affiliation(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form.contact_email.label(class="form-label") }}
+                                    {% if form.contact_email.errors %}
+                                        {{ form.contact_email(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.contact_email.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.contact_email(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.contact_phone.label(class="form-label") }}
+                                    {% if form.contact_phone.errors %}
+                                        {{ form.contact_phone(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.contact_phone.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.contact_phone(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form.gender.label(class="form-label") }}
+                                    {% if form.gender.errors %}
+                                        {{ form.gender(class="form-select is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.gender.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.gender(class="form-select") }}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.current_status.label(class="form-label") }}
+                                    {% if form.current_status.errors %}
+                                        {{ form.current_status(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.current_status.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.current_status(class="form-control") }}
+                                    {% endif %}
+                                    <div class="form-text">Example: Undergraduate, Graduate, PhD Student, etc.</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.address.label(class="form-label") }}
+                                {% if form.address.errors %}
+                                    {{ form.address(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.address.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.address(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.research_interests.label(class="form-label") }}
+                                {% if form.research_interests.errors %}
+                                    {{ form.research_interests(class="form-control is-invalid", rows=4) }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.research_interests.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.research_interests(class="form-control", rows=4) }}
+                                {% endif %}
+                                <div class="form-text">Describe your research interests, areas of expertise, and topics you'd like to explore.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.why_me.label(class="form-label") }}
+                                {% if form.why_me.errors %}
+                                    {{ form.why_me(class="form-control is-invalid", rows=4) }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.why_me.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.why_me(class="form-control", rows=4) }}
+                                {% endif %}
+                                <div class="form-text">Why should a PI/lab choose you? Highlight your strengths and unique qualities.</div>
+                            </div>
+                        
+                        {% elif profile_type == 'PI' %}
+                            <!-- PI Profile Form -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form.name.label(class="form-label") }}
+                                    {% if form.name.errors %}
+                                        {{ form.name(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.name.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.name(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.department.label(class="form-label") }}
+                                    {% if form.department.errors %}
+                                        {{ form.department(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.department.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.department(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form.affiliation.label(class="form-label") }}
+                                    {% if form.affiliation.errors %}
+                                        {{ form.affiliation(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.affiliation.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.affiliation(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.current_designation.label(class="form-label") }}
+                                    {% if form.current_designation.errors %}
+                                        {{ form.current_designation(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.current_designation.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.current_designation(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form.email.label(class="form-label") }}
+                                    {% if form.email.errors %}
+                                        {{ form.email(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.email.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.email(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.contact_phone.label(class="form-label") }}
+                                    {% if form.contact_phone.errors %}
+                                        {{ form.contact_phone(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.contact_phone.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.contact_phone(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form.gender.label(class="form-label") }}
+                                    {% if form.gender.errors %}
+                                        {{ form.gender(class="form-select is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.gender.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.gender(class="form-select") }}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.address.label(class="form-label") }}
+                                    {% if form.address.errors %}
+                                        {{ form.address(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.address.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.address(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.current_message.label(class="form-label") }}
+                                {% if form.current_message.errors %}
+                                    {{ form.current_message(class="form-control is-invalid", rows=3) }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.current_message.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.current_message(class="form-control", rows=3) }}
+                                {% endif %}
+                                <div class="form-text">A welcome message for visitors to your profile.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.current_focus.label(class="form-label") }}
+                                {% if form.current_focus.errors %}
+                                    {{ form.current_focus(class="form-control is-invalid", rows=4) }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.current_focus.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.current_focus(class="form-control", rows=4) }}
+                                {% endif %}
+                                <div class="form-text">Describe your current research focus and key projects.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.expectations_from_students.label(class="form-label") }}
+                                {% if form.expectations_from_students.errors %}
+                                    {{ form.expectations_from_students(class="form-control is-invalid", rows=3) }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.expectations_from_students.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.expectations_from_students(class="form-control", rows=3) }}
+                                {% endif %}
+                                <div class="form-text">What do you expect from students who join your lab?</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.why_join_lab.label(class="form-label") }}
+                                {% if form.why_join_lab.errors %}
+                                    {{ form.why_join_lab(class="form-control is-invalid", rows=3) }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.why_join_lab.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.why_join_lab(class="form-control", rows=3) }}
+                                {% endif %}
+                                <div class="form-text">Why should students consider joining your lab?</div>
+                            </div>
+                            
+                        {% elif profile_type == 'Industry' %}
+                            <!-- Industry Profile Form -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form.company_name.label(class="form-label") }}
+                                    {% if form.company_name.errors %}
+                                        {{ form.company_name(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.company_name.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.company_name(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.contact_person.label(class="form-label") }}
+                                    {% if form.contact_person.errors %}
+                                        {{ form.contact_person(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.contact_person.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.contact_person(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form.email.label(class="form-label") }}
+                                    {% if form.email.errors %}
+                                        {{ form.email(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.email.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.email(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.contact_phone.label(class="form-label") }}
+                                    {% if form.contact_phone.errors %}
+                                        {{ form.contact_phone(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.contact_phone.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.contact_phone(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form.gst.label(class="form-label") }}
+                                    {% if form.gst.errors %}
+                                        {{ form.gst(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.gst.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.gst(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.pan.label(class="form-label") }}
+                                    {% if form.pan.errors %}
+                                        {{ form.pan(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.pan.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.pan(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.address.label(class="form-label") }}
+                                {% if form.address.errors %}
+                                    {{ form.address(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.address.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.address(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form.sector.label(class="form-label") }}
+                                    {% if form.sector.errors %}
+                                        {{ form.sector(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.sector.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.sector(class="form-control") }}
+                                    {% endif %}
+                                    <div class="form-text">E.g., Healthcare, IT, Manufacturing, etc.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.team_size.label(class="form-label") }}
+                                    {% if form.team_size.errors %}
+                                        {{ form.team_size(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.team_size.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.team_size(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form.annual_turnover.label(class="form-label") }}
+                                    {% if form.annual_turnover.errors %}
+                                        {{ form.annual_turnover(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.annual_turnover.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.annual_turnover(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.vision.label(class="form-label") }}
+                                {% if form.vision.errors %}
+                                    {{ form.vision(class="form-control is-invalid", rows=4) }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.vision.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.vision(class="form-control", rows=4) }}
+                                {% endif %}
+                                <div class="form-text">Describe your company's vision, mission, and innovation focus.</div>
+                            </div>
+                            
+                        {% elif profile_type == 'Vendor' %}
+                            <!-- Vendor Profile Form -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form.company_name.label(class="form-label") }}
+                                    {% if form.company_name.errors %}
+                                        {{ form.company_name(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.company_name.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.company_name(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.contact_person.label(class="form-label") }}
+                                    {% if form.contact_person.errors %}
+                                        {{ form.contact_person(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.contact_person.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.contact_person(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form.email.label(class="form-label") }}
+                                    {% if form.email.errors %}
+                                        {{ form.email(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.email.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.email(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.contact_phone.label(class="form-label") }}
+                                    {% if form.contact_phone.errors %}
+                                        {{ form.contact_phone(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.contact_phone.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.contact_phone(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form.gst.label(class="form-label") }}
+                                    {% if form.gst.errors %}
+                                        {{ form.gst(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.gst.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.gst(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.pan.label(class="form-label") }}
+                                    {% if form.pan.errors %}
+                                        {{ form.pan(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.pan.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.pan(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.address.label(class="form-label") }}
+                                {% if form.address.errors %}
+                                    {{ form.address(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.address.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.address(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.dealing_categories.label(class="form-label") }}
+                                {% if form.dealing_categories.errors %}
+                                    {{ form.dealing_categories(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.dealing_categories.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.dealing_categories(class="form-control") }}
+                                {% endif %}
+                                <div class="form-text">Enter categories separated by commas (e.g., Lab Equipment, Chemicals, Glassware)</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.product_categories.label(class="form-label") }}
+                                {% if form.product_categories.errors %}
+                                    {{ form.product_categories(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.product_categories.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.product_categories(class="form-control") }}
+                                {% endif %}
+                                <div class="form-text">Enter specific product categories separated by commas</div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form.region.label(class="form-label") }}
+                                    {% if form.region.errors %}
+                                        {{ form.region(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.region.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.region(class="form-control") }}
+                                    {% endif %}
+                                    <div class="form-text">Geographic areas where you provide services</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.why_me.label(class="form-label") }}
+                                {% if form.why_me.errors %}
+                                    {{ form.why_me(class="form-control is-invalid", rows=4) }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.why_me.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.why_me(class="form-control", rows=4) }}
+                                {% endif %}
+                                <div class="form-text">Why should research labs choose your products/services?</div>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('view_profile', user_id=current_user.id) }}" class="btn btn-secondary">Cancel</a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

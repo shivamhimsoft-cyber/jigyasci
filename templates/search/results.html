@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results | Research Collaboration Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" action="{{ url_for('search') }}">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search..." name="query" value="{{ query or '' }}">
+                            <select class="form-select" name="category" style="max-width: 150px;">
+                                <option value="all" {% if category == 'all' %}selected{% endif %}>All</option>
+                                <option value="profiles" {% if category == 'profiles' %}selected{% endif %}>Profiles</option>
+                                <option value="opportunities" {% if category == 'opportunities' %}selected{% endif %}>Opportunities</option>
+                            </select>
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search me-1"></i> Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if query %}
+        <h2 class="mb-4">Search Results for "{{ query }}"</h2>
+        
+        <!-- Opportunities Results -->
+        {% if category == 'opportunities' or category == 'all' %}
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h4 class="mb-0"><i class="fas fa-briefcase me-2"></i>Research Opportunities</h4>
+                </div>
+                <div class="card-body">
+                    {% if opportunities %}
+                        <div class="list-group">
+                            {% for opportunity in opportunities %}
+                                <a href="{{ url_for('view_opportunity', opportunity_id=opportunity.id) }}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">{{ opportunity.title }}</h5>
+                                        <span class="badge {% if opportunity.type == 'Internship' %}bg-success{% elif opportunity.type == 'PhD' %}bg-primary{% elif opportunity.type == 'PostDoc' %}bg-info{% elif opportunity.type == 'Job' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                            {{ opportunity.type }}
+                                        </span>
+                                    </div>
+                                    <p class="mb-1">{{ opportunity.description[:150] }}{% if opportunity.description|length > 150 %}...{% endif %}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-flask me-1"></i> {{ opportunity.domain }} |
+                                        <i class="fas fa-map-marker-alt me-1"></i> {{ opportunity.location }} |
+                                        {% if opportunity.deadline %}
+                                        <i class="fas fa-calendar-alt me-1"></i> Deadline: {{ opportunity.deadline.strftime('%b %d, %Y') }}
+                                        {% endif %}
+                                    </small>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No opportunities found matching your search.</p>
+                    {% endif %}
+                </div>
+                {% if opportunities %}
+                    <div class="card-footer bg-transparent text-end">
+                        <a href="{{ url_for('list_opportunities') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-list me-1"></i> View All Opportunities
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+        
+        <!-- Profile Results -->
+        {% if category == 'profiles' or category == 'all' %}
+            <!-- PI Profiles -->
+            {% if profiles.pi %}
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h4 class="mb-0"><i class="fas fa-microscope me-2"></i>Research Labs & PIs</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-cols-1 row-cols-md-2 g-4">
+                            {% for profile, pi_profile, user in profiles.pi %}
+                                <div class="col">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex mb-3">
+                                                {% if pi_profile.profile_picture %}
+                                                <img src="{{ pi_profile.profile_picture }}" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;" alt="Profile Picture">
+                                                {% else %}
+                                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                                                    <i class="fas fa-microscope fa-2x text-white"></i>
+                                                </div>
+                                                {% endif %}
+                                                <div>
+                                                    <h5 class="card-title mb-0">{{ pi_profile.name or 'PI/Lab Director' }}</h5>
+                                                    <p class="text-muted mb-0">{{ pi_profile.current_designation or '' }}</p>
+                                                    <p class="text-muted small mb-0">{{ pi_profile.department or '' }} | {{ pi_profile.affiliation or '' }}</p>
+                                                </div>
+                                            </div>
+                                            
+                                            {% if pi_profile.current_focus %}
+                                                <p class="card-text">{{ pi_profile.current_focus[:100] }}{% if pi_profile.current_focus|length > 100 %}...{% endif %}</p>
+                                            {% endif %}
+                                            
+                                            <div class="d-flex justify-content-end">
+                                                <a href="{{ url_for('view_profile', user_id=user.id) }}" class="btn btn-sm btn-outline-primary">View Profile</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Student Profiles -->
+            {% if profiles.student %}
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h4 class="mb-0"><i class="fas fa-user-graduate me-2"></i>Students</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-cols-1 row-cols-md-2 g-4">
+                            {% for profile, student_profile, user in profiles.student %}
+                                <div class="col">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex mb-3">
+                                                {% if student_profile.profile_picture %}
+                                                <img src="{{ student_profile.profile_picture }}" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;" alt="Profile Picture">
+                                                {% else %}
+                                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                                                    <i class="fas fa-user-graduate fa-2x text-white"></i>
+                                                </div>
+                                                {% endif %}
+                                                <div>
+                                                    <h5 class="card-title mb-0">{{ student_profile.name or 'Student' }}</h5>
+                                                    <p class="text-muted mb-0">{{ student_profile.current_status or '' }}</p>
+                                                    <p class="text-muted small mb-0">{{ student_profile.affiliation or '' }}</p>
+                                                </div>
+                                            </div>
+                                            
+                                            {% if student_profile.research_interests %}
+                                                <p class="card-text">{{ student_profile.research_interests[:100] }}{% if student_profile.research_interests|length > 100 %}...{% endif %}</p>
+                                            {% endif %}
+                                            
+                                            <div class="d-flex justify-content-end">
+                                                <a href="{{ url_for('view_profile', user_id=user.id) }}" class="btn btn-sm btn-outline-primary">View Profile</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Industry Profiles -->
+            {% if profiles.industry %}
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h4 class="mb-0"><i class="fas fa-building me-2"></i>Industry Partners</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-cols-1 row-cols-md-2 g-4">
+                            {% for profile, industry_profile, user in profiles.industry %}
+                                <div class="col">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex mb-3">
+                                                {% if industry_profile.logo %}
+                                                <img src="{{ industry_profile.logo }}" class="me-3" style="width: 60px; height: 60px; object-fit: contain;" alt="Company Logo">
+                                                {% else %}
+                                                <div class="bg-secondary d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                                                    <i class="fas fa-building fa-2x text-white"></i>
+                                                </div>
+                                                {% endif %}
+                                                <div>
+                                                    <h5 class="card-title mb-0">{{ industry_profile.company_name or 'Industry Partner' }}</h5>
+                                                    <p class="text-muted mb-0">{{ industry_profile.sector or '' }}</p>
+                                                </div>
+                                            </div>
+                                            
+                                            {% if industry_profile.vision %}
+                                                <p class="card-text">{{ industry_profile.vision[:100] }}{% if industry_profile.vision|length > 100 %}...{% endif %}</p>
+                                            {% endif %}
+                                            
+                                            <div class="d-flex justify-content-end">
+                                                <a href="{{ url_for('view_profile', user_id=user.id) }}" class="btn btn-sm btn-outline-primary">View Profile</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Vendor Profiles -->
+            {% if profiles.vendor %}
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h4 class="mb-0"><i class="fas fa-truck me-2"></i>Vendors & Service Providers</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-cols-1 row-cols-md-2 g-4">
+                            {% for profile, vendor_profile, user in profiles.vendor %}
+                                <div class="col">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex mb-3">
+                                                {% if vendor_profile.logo %}
+                                                <img src="{{ vendor_profile.logo }}" class="me-3" style="width: 60px; height: 60px; object-fit: contain;" alt="Company Logo">
+                                                {% else %}
+                                                <div class="bg-secondary d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                                                    <i class="fas fa-truck fa-2x text-white"></i>
+                                                </div>
+                                                {% endif %}
+                                                <div>
+                                                    <h5 class="card-title mb-0">{{ vendor_profile.company_name or 'Vendor/Service Provider' }}</h5>
+                                                    <p class="text-muted mb-0">{{ vendor_profile.region or '' }}</p>
+                                                </div>
+                                            </div>
+                                            
+                                            {% if vendor_profile.dealing_categories %}
+                                                <div class="mb-2">
+                                                    {% for category in vendor_profile.dealing_categories.split(',')[:3] %}
+                                                        <span class="badge bg-primary me-1">{{ category.strip() }}</span>
+                                                    {% endfor %}
+                                                    {% if vendor_profile.dealing_categories.split(',')|length > 3 %}
+                                                        <span class="badge bg-primary">...</span>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                            
+                                            <div class="d-flex justify-content-end">
+                                                <a href="{{ url_for('view_profile', user_id=user.id) }}" class="btn btn-sm btn-outline-primary">View Profile</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if not profiles.pi and not profiles.student and not profiles.industry and not profiles.vendor %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No profiles found matching your search.
+                </div>
+            {% endif %}
+        {% endif %}
+        
+        <!-- No Results -->
+        {% if (category == 'opportunities' or category == 'all') and not opportunities and (category == 'profiles' or category == 'all') and not profiles.pi and not profiles.student and not profiles.industry and not profiles.vendor %}
+            <div class="alert alert-info text-center p-4">
+                <i class="fas fa-search fa-3x mb-3"></i>
+                <h4>No results found</h4>
+                <p>We couldn't find any matches for "{{ query }}". Try different keywords or browse categories instead.</p>
+            </div>
+        {% endif %}
+    {% else %}
+        <!-- Search Page (no query yet) -->
+        <div class="row mb-5">
+            <div class="col-md-6 mx-auto text-center">
+                <h2 class="mb-4">Explore the Research Ecosystem</h2>
+                <p class="lead mb-4">Search for research opportunities, labs, industry partners, or vendors to connect with.</p>
+            </div>
+        </div>
+        
+        <div class="row row-cols-1 row-cols-md-2 g-4 mb-5">
+            <div class="col">
+                <div class="card h-100">
+                    <img src="https://pixabay.com/get/g847148f8b94a5d4f627fcbc895c3525ca4a803b7a707f2046e94e1ff8774ef6a93f8ce06ec815e6fce86eae783bae49fbaeb68f92dbcd726896c3170e0855d45_1280.jpg" class="card-img-top" alt="Students working">
+                    <div class="card-body text-center">
+                        <h4 class="card-title">Find Research Opportunities</h4>
+                        <p class="card-text">Discover internships, PhD positions, postdoc roles, and research projects.</p>
+                        <a href="{{ url_for('list_opportunities') }}" class="btn btn-primary">Browse Opportunities</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100">
+                    <img src="https://pixabay.com/get/g7207639e5253b98bf05309a99126157e4fce5a174327ef0c8bb04f0ee954eb81804b1ae76cf5cdc5f46e2d60b86cd6579bd3f6ba506c3c7c4235c8e9414b1f70_1280.jpg" class="card-img-top" alt="Research lab">
+                    <div class="card-body text-center">
+                        <h4 class="card-title">Connect with Research Labs</h4>
+                        <p class="card-text">Explore innovative research labs and connect with leading professors.</p>
+                        <a href="{{ url_for('search', category='profiles', query='') }}" class="btn btn-primary">Find Research Labs</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h4 class="mb-0">Popular Search Categories</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h5><i class="fas fa-flask me-2"></i>Research Areas</h5>
+                                <ul class="list-unstyled">
+                                    <li><a href="{{ url_for('search', query='Computer Science') }}">Computer Science</a></li>
+                                    <li><a href="{{ url_for('search', query='Biotechnology') }}">Biotechnology</a></li>
+                                    <li><a href="{{ url_for('search', query='Materials Science') }}">Materials Science</a></li>
+                                    <li><a href="{{ url_for('search', query='Renewable Energy') }}">Renewable Energy</a></li>
+                                    <li><a href="{{ url_for('search', query='Artificial Intelligence') }}">Artificial Intelligence</a></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h5><i class="fas fa-graduation-cap me-2"></i>Position Types</h5>
+                                <ul class="list-unstyled">
+                                    <li><a href="{{ url_for('search', query='Internship') }}">Internship</a></li>
+                                    <li><a href="{{ url_for('search', query='PhD') }}">PhD Position</a></li>
+                                    <li><a href="{{ url_for('search', query='PostDoc') }}">Post-Doctoral</a></li>
+                                    <li><a href="{{ url_for('search', query='Research Assistant') }}">Research Assistant</a></li>
+                                    <li><a href="{{ url_for('search', query='Research Scientist') }}">Research Scientist</a></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h5><i class="fas fa-tools me-2"></i>Equipment & Services</h5>
+                                <ul class="list-unstyled">
+                                    <li><a href="{{ url_for('search', query='Laboratory Equipment') }}">Laboratory Equipment</a></li>
+                                    <li><a href="{{ url_for('search', query='Chemicals') }}">Chemicals & Reagents</a></li>
+                                    <li><a href="{{ url_for('search', query='Instruments') }}">Scientific Instruments</a></li>
+                                    <li><a href="{{ url_for('search', query='Software') }}">Research Software</a></li>
+                                    <li><a href="{{ url_for('search', query='Analysis') }}">Analysis Services</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

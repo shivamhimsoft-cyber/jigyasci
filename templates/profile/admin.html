@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Profile | Research Collaboration Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 150px; height: 150px;">
+                        <i class="fas fa-user-shield fa-4x text-white"></i>
+                    </div>
+                    <h3 class="card-title">{{ specific_profile.name or 'System Administrator' }}</h3>
+                    <p class="text-muted">{{ specific_profile.role or 'Platform Administrator' }}</p>
+                    
+                    {% if current_user.is_authenticated and current_user.id == user.id %}
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary btn-sm"><i class="fas fa-tachometer-alt me-1"></i> Admin Dashboard</a>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="d-flex justify-content-around">
+                        <div class="text-center">
+                            <h5>{{ profile.profile_completeness }}%</h5>
+                            <small class="text-muted">Profile</small>
+                        </div>
+                        <div class="text-center">
+                            <h5>{{ stats.total_users if stats else 0 }}</h5>
+                            <small class="text-muted">Users</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-address-card me-2"></i>Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    {% if specific_profile.email %}
+                    <p><i class="fas fa-envelope me-2"></i>{{ specific_profile.email }}</p>
+                    {% endif %}
+                    
+                    {% if specific_profile.contact_phone %}
+                    <p><i class="fas fa-phone me-2"></i>{{ specific_profile.contact_phone }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-key me-2"></i>Permissions</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ specific_profile.permissions|nl2br }}</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Recent Activities</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-user-plus me-2 text-success"></i> Added new user accounts</span>
+                            <small class="text-muted">Today</small>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-check-circle me-2 text-primary"></i> Approved research opportunities</span>
+                            <small class="text-muted">Yesterday</small>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-cog me-2 text-warning"></i> System configuration update</span>
+                            <small class="text-muted">3 days ago</small>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-database me-2 text-info"></i> Database maintenance</span>
+                            <small class="text-muted">1 week ago</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Platform Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h2 class="display-4 text-primary">{{ stats.students if stats else 0 }}</h2>
+                                    <p class="lead">Students</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h2 class="display-4 text-success">{{ stats.pis if stats else 0 }}</h2>
+                                    <p class="lead">PIs/Researchers</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h2 class="display-4 text-info">{{ stats.industry if stats else 0 }}</h2>
+                                    <p class="lead">Industry Partners</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h2 class="display-4 text-warning">{{ stats.vendors if stats else 0 }}</h2>
+                                    <p class="lead">Vendors</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,1831 @@
+<!-- # templates\welcome.html -->
+
+
+{% extends "frontBase.html" %}
+{% block title %}Research Collaboration Platform | Home{% endblock %}
+{% block nav_bar_width %}
+lg:w-[60%] md:w-[90%] w-full
+{% endblock %}
+{% block footer_width %}
+lg:w-[60%] md:w-[90%] w-full
+{% endblock %}
+
+
+
+{% block content %}
+<div class="w-full flex flex-col min-h-[calc(100vh-300px)] h-full justify-center lg:mt-8">
+    <div class=" w-full ">
+        <div class="w-full rounded-2xl flex flex-col items-center px-4 lg:py-12 md:py-12 sm:py-6 py-4">
+            <!-- <span class="text-[#314a4a] font-medium lg:text-4xl md:text-4xl sm:text-3xl text-2xl">bodhiϕ</span> -->
+            <div><img src="../static/images/logo-shade_blue.png" class="lg:h-[100px] md:h-[100px] h-[80px] w-auto " alt=""></div>
+            <div class="mt-4 w-full lg:w-[60%] md:w-[90%] lg:py-6 md:py-6 py-2 mx-auto px-4">
+                    <div class="flex flex-wrap justify-center gap-2">
+                        {% set tabs = [
+                            ('PI-profile', 'Scientist'),
+                            ('Student', 'Student'),
+                            ('Vendor', 'Vendor'),
+                            ('Industry', 'Industry'),
+                            ('Research-Facilities', 'Research Facilities'),
+                            ('Publication', 'Publication'),
+                            ('technologies', 'Technologies')
+                        ] %}
+
+                        {% for tab_id, tab_label in tabs %}
+                            {% set safe_tab = tab_id.replace(' ', '-') %}
+                            <button
+                                id="tab-{{ safe_tab }}"
+                                data-tab="{{ tab_id }}"
+                                type="button"
+                                class="tab-button px-4 py-1 rounded-full  text-16 border-[2px] border-[#66C0DC] font-bold hover:bg-[#66C0DC] hover:text-[#ffffff] transition ease-in duration-2000
+                                ">
+                                {{ tab_label }}
+                            </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            <form action="{{ url_for('index') }}" method="GET" class="lg:w-[60%] md:w-[90%] px-4 w-full flex flex-col items-center">
+                 <div class="flex gap-4 w-full items-center">
+                     <div class="py-1 pl-10 text-[20px] bg-[#ffffff] text-[#727586] border-[2px] border-[#66C0DC] w-full h-max rounded-[10px] relative">
+                         <i class="fa fa-search absolute left-4 top-[50%] translate-y-[-50%] text-[#727586]"></i>
+                         <input type="text" name="query" value="{{ query }}" class="py-2 w-full border-none focus:outline-none focus:ring-0 focus:border-none text-[#000000] placeholder-[#727586]" placeholder="Search with Name / Institute / Location / Research Area">
+                     </div>
+                     <button class="w-max flex-none h-full px-6 py-2 rounded-[10px] font-bold bg-secondary text-white text-[20px] border-[2px] border-secondary hover:bg-white hover:text-secondary transition ease-in duration-2000 ">
+                         <span class="">Search</span>
+                     </button>
+                 </div>
+                 <div id="tab-data" data-active-tab="{{ (active_tab or '').replace(' ', '-') }}"></div>
+
+                <!-- PI Profile Tab -->
+                <div id="tab-content-PI-profile" data-tab-content="PI-profile" class="tab-content w-full flex flex-col gap-4 mt-4 hidden">
+                     <!-- View Full Table button at top -->
+                    <!-- For PI Profile tab -->
+                    {% if query and profiles|length > 0 %}
+                    <div class="flex justify-end w-full mb-2">
+                        <a href="{{ url_for('pi.faculty_full_table', query=query) }}"
+                        class="w-max flex-none h-full px-4 py-1.5 rounded-[10px] font-bold bg-secondary text-white text-[15px] border-[2px] border-secondary hover:bg-white hover:text-black transition ease-in duration-2000 ">
+                            View Full Table
+                        </a>
+                    </div>
+                    {% endif %}
+                    <div id="pi-profile-list">
+                        {% for profile in profiles[:5] %}
+                            {% set pi = profile.pi_profile %}
+                            {% if pi %}
+                                <div class="mb-6 w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg relative">
+                                    <!-- Bookmark Button -->
+                                    <!-- Bookmark Button -->
+                                    {% if current_user.is_authenticated %}
+                                        <!-- Normal Bookmark Button -->
+                                        <button class="bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full  z-10 bg-white border-[1px] border-secondary text-secondary text-sm hover:bg-secondary hover:text-white transition ease-in duration-2000"
+                                                data-type="profile"
+                                                data-id="{{ profile.id }}"
+                                                title="Bookmark this profile">
+                                            <i class="far fa-bookmark"></i>
+                                        </button>
+                                    {% else %}
+                                        <!-- Bookmark Button for Unauthenticated Users (redirects to login) -->
+                                        <a href="{{ url_for('auth.login') }}"
+                                        class=" bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full  z-10 bg-white border-[1px] border-secondary text-secondary text-sm"
+                                        title="Login to bookmark this profile">
+                                            <!-- Bookmark Icon always visible -->
+                                            <i class="far fa-bookmark"></i>
+                                            <!-- Lock overlay (toggles on hover) -->
+                                                <span class="absolute -top-1 -right-1 text-[13px] text-[red]  ">
+                                                    <i class="fas fa-lock"></i>
+                                                </span>
+                                        </a>
+                                    {% endif %}
+
+
+
+
+                                            <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                                                <!-- Profile Image Container -->
+                                                <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
+                                                    <a href="{{ url_for('faculty_info', profile_id=profile.id) }}" class="absolute inset-0 rounded-full overflow-hidden">
+                                                        <img src="{{ pi.profile_image_url if pi.profile_image_url else url_for('static', filename='images/profile.png') }}"
+                                                            onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/profile.png') }}';"
+                                                            class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                                            alt="{{ pi.name }} Profile Picture">
+                                                        <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                                                    </a>
+                                                </div>
+
+                                                <!-- Profile Details Container -->
+                                                <div class="w-full space-y-3">
+                                                    <!-- Name and Title -->
+                                                    <div class="space-y-1">
+                                                        <a href="{{ url_for('faculty_info', profile_id=profile.id) }}"
+                                                            class="text-[#404452] text-xl font-bold hover:text-[#404452] transition-colors duration-300 inline-block">
+                                                            <span class="bg-gradient-to-r from-[#66C0DC] to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                                                <i class="fas fa-user-circle mr-2 text-[#404452]"></i>{{ pi.name or 'N/A' }}
+                                                            </span>
+                                                        </a>
+                                                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                                            <span class="text-gray-700 flex items-center px-2 mt-2">
+                                                                <i class="fas fa-briefcase mr-2 text-secondary"></i>
+                                                                <span class="font-medium">{{ pi.current_designation or 'N/A' }}</span>
+                                                            </span>
+                                                            <span class="text-gray-600 flex items-center">
+                                                                <i class="fas fa-university mr-2 text-secondary"></i>
+                                                                {{ pi.department or 'N/A' }}
+                                                            </span>
+                                                            <span class="text-gray-600 flex items-center">
+                                                                <i class="fas fa-building mr-2 text-secondary"></i>
+                                                                {{ pi.affiliation_short or (pi.affiliation[:20] + '...' if pi.affiliation and pi.affiliation|length > 20 else pi.affiliation) if pi.affiliation else 'N/A'}}
+                                                            </span>
+                                                            <span class="text-gray-600 flex items-center">
+                                                                <i class="fas fa-map-marker-alt mr-2 text-secondary"></i>
+                                                                {{ pi.location or 'N/A' }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="w-full flex lg:flex-row items-start gap-4">
+                                                        <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-secondary w-full">
+                                                            <p class="text-sm md:text-base text-gray-700">
+                                                                <i class="fas fa-search mr-2 text-secondary"></i>
+                                                                <span class="font-medium">Research Focus:</span> {{ pi.current_focus or 'N/A' }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="flex justify-end gap-3 flex-none">
+                                                            <a href="{{ url_for('auth.login') }}"
+                                                                class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                                                title="Login to view open positions or collaboration opportunities">
+                                                                <i class="fas fa-lock group-hover:hidden block mr-2"></i>
+                                                                <i class="fas fa-lock-open group-hover:block hidden mr-2"></i>
+                                                                <span class="hidden sm:inline">Opportunities</span>
+                                                            </a>
+                                                            <a href="{{ url_for('auth.login') }}"
+                                                                class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                                                title="Login to view open positions or collaboration opportunities">
+                                                                <i class="fas fa-lock group-hover:hidden block mr-2"></i>
+                                                                <i class="fas fa-lock-open group-hover:block hidden mr-2"></i>
+                                                                <span class="hidden sm:inline">Metrics</span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                </div>
+                            {% endif %}
+                        {%else%}
+                        <div class="flex justify-center pt-2 ">
+                            <p class="text-center text-black font-semibold">No faculty found for your search.</p>
+                        </div>
+                        {% endfor %}
+                        {% if profiles|length > 5 %}
+                            <button id="load-more-pi" class="mt-4 text-blue-600 hover:underline font-semibold" data-offset="5" data-query="{{ query }}">Show More Results</button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Student Results Tab-->
+                <div id="tab-content-Student" data-tab-content="Student" class="tab-content w-full flex flex-col gap-4 mt-4 hidden">
+                    <!-- View Full Table button -->
+                    <!-- View Full Table button -->
+                    {% if query and students|length > 0 %}
+                    <div class="flex justify-end w-full mb-4">
+                        <a href="{{ url_for('student.full_table', query=query) }}"
+                        class="w-max flex-none h-full px-4 py-1.5 rounded-[10px] font-bold bg-[#66C0DC] text-[#ffffff] text-[15px] border-[2px] border-[#66C0DC] hover:bg-[#ffffff] hover:text-[#404452] transition ease-in duration-2000 ">
+                            View Full Table
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <div id="student-profile-list">
+                        {% for student in students[:5] %}
+                        <div class="w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg relative">
+                             <!-- Bookmark Button -->
+                            {% if current_user.is_authenticated %}
+                            <button class="bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full  z-10 bg-white border-[1px] border-secondary text-secondary text-sm hover:bg-secondary hover:text-white transition ease-in duration-2000"
+                                    data-type="student"
+                                    data-id="{{ student.id }}"
+                                    title="Bookmark this student">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                            {% else %}
+                                <!-- Bookmark Button for Unauthenticated Users (redirects to login) -->
+                                <a href="{{ url_for('auth.login') }}"
+                                class=" bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full  z-10 bg-white border-[1px] border-secondary text-secondary text-sm "
+                                title="Login to bookmark this profile">
+                                    <!-- Bookmark Icon always visible -->
+                                    <i class="far fa-bookmark"></i>
+                                    <!-- Lock overlay (toggles on hover) -->
+                                    <span class="absolute -top-1 -right-1 text-[13px] text-[red]  ">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                </a>
+                            {% endif %}                            <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                                <!-- Profile Image -->
+                                <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
+                                    <div class="absolute inset-0 rounded-full overflow-hidden">
+                                        <img src="{{ student.profile_image_url or url_for('static', filename='images/profile.png') }}"
+                                            onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/profile.png') }}';"
+                                            class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                            alt="{{ student.name }} Profile Picture">
+                                        <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Details -->
+                                <div class="w-full space-y-3">
+                                    <div class="space-y-1">
+                                        <a href="{{ url_for('student.student_details', student_id=student.id) }}"
+                                        class="text-black text-xl font-bold hover:text-[#404452] transition-colors duration-300 inline-block">
+                                            <span class="bg-gradient-to-r from-[#66C0DC] to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                                <i class="fas fa-user-graduate mr-2 text-black"></i>{{ student.name }}
+                                            </span>
+                                        </a>
+                                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                            <span class="text-gray-700 flex items-center px-2 mt-2">
+                                                <i class="fas fa-book mr-2 text-secondary"></i>
+                                                <span class="font-medium">{{ student.degree_program or 'N/A' }}</span>
+                                            </span>
+                                            <span class="text-gray-600 flex items-center">
+                                                <i class="fas fa-university mr-2 text-secondary"></i>
+                                                {{ student.affiliation or 'N/A' }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="w-full flex lg:flex-row items-start gap-4">
+                                        <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-secondary w-full">
+                                            <p class="text-sm md:text-base text-gray-700">
+                                                <i class="fas fa-search mr-2 text-secondary"></i>
+                                                <span class="font-medium">Interests:</span> {{ student.research_interests or 'N/A' }}
+                                            </p>
+                                            <p class="text-sm md:text-base text-gray-700 mt-1">
+                                                <i class="fas fa-tools mr-2 text-secondary"></i>
+                                                <span class="font-medium">Skills:</span> {{ student.skills or 'N/A' }}
+                                            </p>
+                                        </div>
+                                        <div class="flex justify-end gap-3 flex-none">
+                                            <a href="{{ url_for('auth.login') }}"
+                                            class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                            title="Login to connect with student">
+                                                <i class="fas fa-lock group-hover:hidden block mr-2"></i>
+                                                <i class="fas fa-lock-open group-hover:block hidden mr-2"></i>
+                                                <span class="hidden sm:inline">Connect</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {%else%}
+                        <div class="flex justify-center pt-2 ">
+                            <p class="text-center text-black font-semibold">No student found for your search.</p>
+                        </div>
+                        {% endfor %}
+
+                        {% if students|length > 5 %}
+                        <button id="load-more-students" class="mt-4 text-blue-600 hover:underline font-semibold" data-offset="5" data-query="{{ query }}">Show More Results</button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Vendor Results Tab -->
+                <div id="tab-content-Vendor" data-tab-content="Vendor" class="tab-content w-full flex flex-col gap-4 mt-4 hidden">
+                    <!-- View Full Table button at top -->
+                    <!-- View Full Table button at top -->
+                    {% if query and vendors|length > 0 %}
+                    <div class="flex justify-end w-full mb-2">
+                        <a href="{{ url_for('vendor.full_table', query=query) }}"
+                        class="w-max flex-none h-full px-4 py-1.5 rounded-[10px] font-bold bg-[#66C0DC] text-[#ffffff] text-[15px] border-[2px] border-[#66C0DC] hover:bg-[#ffffff] hover:text-[#404452] transition ease-in duration-2000 ">
+                            View Full Table
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <div id="vendor-profile-list">
+                        {% for vendor in vendors[:5] %}
+                            <div class="mb-6 w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg relative">
+                                <!-- Bookmark Button -->
+                                {% if current_user.is_authenticated %}
+                                <button class="bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full  z-10 bg-white border-[1px] border-secondary text-secondary text-sm hover:bg-secondary hover:text-white transition ease-in duration-2000"
+                                        data-type="vendor"
+                                        data-id="{{ vendor.id }}"
+                                        title="Bookmark this vendor">
+                                    <i class="far fa-bookmark"></i>
+                                </button>
+                                {% else %}
+                                    <!-- Bookmark Button for Unauthenticated Users (redirects to login) -->
+                                    <a href="{{ url_for('auth.login') }}"
+                                    class=" bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full  z-10 bg-white border-[1px] border-secondary text-secondary text-sm"
+                                    title="Login to bookmark this profile">
+                                        <!-- Bookmark Icon always visible -->
+                                        <i class="far fa-bookmark"></i>
+                                        <!-- Lock overlay (toggles on hover) -->
+                                        <span class="absolute -top-1 -right-1 text-[13px] text-[red]  ">
+                                            <i class="fas fa-lock"></i>
+                                        </span>
+                                    </a>
+                                {% endif %}
+                                <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                                    <!-- Vendor Logo Container -->
+                                    <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
+                                        <a href="{{ url_for('vendor.vendor_profile', vendor_id=vendor.id) }}" class="absolute inset-0 rounded-full overflow-hidden">
+                                            <img src="{{ vendor.logo_url if vendor.logo_url else url_for('static', filename='images/profile.png') }}"
+                                                onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/profile.png') }}';"
+                                                class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                                alt="{{ vendor.company_name }} Logo">
+                                            <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                                        </a>
+                                    </div>
+
+                                    <!-- Vendor Details Container -->
+                                    <div class="w-full space-y-3">
+                                        <!-- Company Name and Categories -->
+                                        <div class="space-y-1">
+                                            <a href="{{ url_for('vendor.vendor_profile', vendor_id=vendor.id) }}"
+                                                class="text-[#404452] text-xl font-bold hover:text-[#404452] transition-colors duration-300 inline-block">
+                                                <span class="bg-gradient-to-r from-[#66C0DC] to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                                    <i class="fas fa-building mr-2 text-black"></i>{{ vendor.company_name or 'N/A' }}
+                                                </span>
+                                            </a>
+                                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                                <span class="text-gray-700 flex items-center px-2 mt-2">
+                                                    <i class="fas fa-tags mr-2 text-secondary"></i>
+                                                    <span class="font-medium">{{ vendor.dealing_categories or 'Categories not specified' }}</span>
+                                                </span>
+                                                <span class="text-gray-600 flex items-center">
+                                                    <i class="fas fa-globe mr-2 text-secondary"></i>
+                                                    {{ vendor.region or 'Region not specified' }}
+                                                </span>
+                                                <span class="text-gray-600 flex items-center">
+                                                    <i class="fas fa-map-marker-alt mr-2 text-secondary"></i>
+                                                    {{ vendor.location or 'Location not specified' }}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="w-full flex lg:flex-row items-start gap-4">
+                                            <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-secondary w-full">
+                                                <p class="text-sm md:text-base text-gray-700">
+                                                    <i class="fas fa-info-circle mr-2 text-secondary"></i>
+                                                    <span class="font-medium">Products/Services:</span> {{ vendor.products_services or 'Not specified' }}
+                                                </p>
+                                            </div>
+                                            <div class="flex justify-end gap-3 flex-none">
+                                                <a href="{{ url_for('vendor.vendor_profile', vendor_id=vendor.id) }}"
+                                                    class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                                    title="View vendor details">
+                                                    <i class="fas fa-eye mr-2"></i>
+                                                    <span class="hidden sm:inline">Details</span>
+                                                </a>
+                                                <a href="{{ url_for('auth.login') }}"
+                                                    class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                                    title="Login to contact this vendor">
+                                                    <i class="fas fa-lock group-hover:hidden block mr-2"></i>
+                                                    <i class="fas fa-lock-open group-hover:block hidden mr-2"></i>
+                                                    <span class="hidden sm:inline">Contact</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {%else%}
+                        <div class="flex justify-center pt-2 ">
+                            <p class="text-center text-black font-semibold">No vendor found for your search.</p>
+                        </div>
+                        {% endfor %}
+                        {% if vendors|length > 5 %}
+                            <button id="load-more-vendors" class="mt-4 text-blue-600 hover:underline font-semibold" data-offset="5" data-query="{{ query }}">Show More Results</button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Industry Results Tab -->
+                <div id="tab-content-Industry" data-tab-content="Industry" class="tab-content w-full flex flex-col gap-4 mt-4 hidden">
+                    <!-- View Full Table button at top -->
+                    <!-- View Full Table button at top -->
+                    {% if query and industries|length > 0 %}
+                    <div class="flex justify-end w-full mb-2">
+                        <a href="{{ url_for('industry.full_table', query=query) }}"
+                        class="w-max flex-none h-full px-4 py-1.5 rounded-[10px] font-bold bg-[#66C0DC] text-[#ffffff] text-[15px] border-[2px] border-[#66C0DC] hover:bg-[#ffffff] hover:text-[#404452] transition ease-in duration-2000 ">
+                            View Full Table
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <div id="industry-profile-list">
+                        {% for industry in industries[:5] %}
+                            <div class="mb-6 w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg relative">
+                                 <!-- Bookmark Button -->
+                                {% if current_user.is_authenticated %}
+                                <button class="bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full  z-10 bg-white border-[1px] border-secondary text-secondary text-sm hover:bg-secondary hover:text-white transition ease-in duration-2000"
+                                        data-type="industry"
+                                        data-id="{{ industry.id }}"
+                                        title="Bookmark this industry">
+                                    <i class="far fa-bookmark"></i>
+                                </button>
+                                    {% else %}
+                                        <!-- Bookmark Button for Unauthenticated Users (redirects to login) -->
+                                        <a href="{{ url_for('auth.login') }}"
+                                        class=" bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full  z-10 bg-white border-[1px] border-secondary text-secondary text-sm"
+                                        title="Login to bookmark this profile">
+                                            <!-- Bookmark Icon always visible -->
+                                            <i class="far fa-bookmark"></i>
+                                            <!-- Lock overlay (toggles on hover) -->
+                                            <span class="">
+                                                <i class="fas fa-lock"></i>
+                                            </span>
+                                        </a>
+                                    {% endif %}                                   <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                                    <!-- Industry Logo Container -->
+                                    <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
+                                        <a href="{{ url_for('industry.industry_profile', industry_id=industry.id) }}" class="absolute inset-0 rounded-full overflow-hidden">
+                                            <img src="{{ industry.logo_url if industry.logo_url else url_for('static', filename='images/profile.png') }}"
+                                                onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/profile.png') }}';"
+                                                class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                                alt="{{ industry.company_name }} Logo">
+                                            <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                                        </a>
+                                    </div>
+
+                                    <!-- Industry Details Container -->
+                                    <div class="w-full space-y-3">
+                                        <!-- Company Name and Sector -->
+                                        <div class="space-y-1">
+                                            <a href="{{ url_for('industry.industry_profile', industry_id=industry.id) }}"
+                                                class="text-[#404452] text-xl font-bold hover:text-[#404452] transition-colors duration-300 inline-block">
+                                                <span class="bg-gradient-to-r from-[#66C0DC] to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                                    <i class="fas fa-industry mr-2 text-black"></i>{{ industry.company_name or 'N/A' }}
+                                                </span>
+                                            </a>
+                                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                                <span class="text-gray-700 flex items-center px-2 mt-2">
+                                                    <i class="fas fa-project-diagram mr-2 text-secondary"></i>
+                                                    <span class="font-medium">{{ industry.sector or 'Sector not specified' }}</span>
+                                                </span>
+                                                <span class="text-gray-600 flex items-center">
+                                                    <i class="fas fa-globe mr-2 text-secondary"></i>
+                                                    {{ industry.region or 'Region not specified' }}
+                                                </span>
+                                                <span class="text-gray-600 flex items-center">
+                                                    <i class="fas fa-map-marker-alt mr-2 text-secondary"></i>
+                                                    {{ industry.location or 'Location not specified' }}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="w-full flex lg:flex-row items-start gap-4">
+                                            <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-secondary w-full">
+                                                <p class="text-sm md:text-base text-gray-700">
+                                                    <i class="fas fa-lightbulb mr-2 text-secondary"></i>
+                                                    <span class="font-medium">Research Interests:</span> {{ industry.research_interest or 'Not specified' }}
+                                                </p>
+                                            </div>
+                                            <div class="flex justify-end gap-3 flex-none">
+                                                <a href="{{ url_for('industry.industry_profile', industry_id=industry.id) }}"
+                                                    class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                                    title="View industry details">
+                                                    <i class="fas fa-eye mr-2"></i>
+                                                    <span class="hidden sm:inline">Details</span>
+                                                </a>
+                                                <a href="{{ url_for('auth.login') }}"
+                                                    class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                                    title="Login to collaborate with this industry">
+                                                    <i class="fas fa-lock group-hover:hidden block mr-2"></i>
+                                                    <i class="fas fa-lock-open group-hover:block hidden mr-2"></i>
+                                                    <span class="hidden sm:inline">Collaborate</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {%else%}
+                        <div class="flex justify-center pt-2 ">
+                            <p class="text-center text-black font-semibold">No industry found for your search.</p>
+                        </div>
+                        {% endfor %}
+                        {% if industries|length > 5 %}
+                            <button id="load-more-industries" class="mt-4 text-blue-600 hover:underline font-semibold" data-offset="5" data-query="{{ query }}">Show More Results</button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Research Facilities Results Tab-->
+                <div id="tab-content-Research-Facilities" data-tab-content="Research-Facilities" class="tab-content w-full flex flex-col gap-4 mt-4 hidden">
+                    {% if query and facilities|length > 0 %}
+                    <div class="flex justify-end w-full mb-4">
+                        <a href="{{ url_for('facility.full_table', query=query) }}"
+                        class="w-max flex-none h-full px-4 py-1.5 rounded-[10px] font-bold bg-[#66C0DC] text-[#ffffff] text-[15px] border-[2px] border-[#66C0DC] hover:bg-[#ffffff] hover:text-[#404452] transition ease-in duration-2000 ">
+                            View Full Table
+                        </a>
+                    </div>
+                    {% endif %}
+                    {% for fac in facilities %}
+                    <div class="w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg relative">
+                                <!-- Bookmark Button -->
+                                {% if current_user.is_authenticated %}
+                                <button class="bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full  z-10 bg-white border-[1px] border-secondary text-secondary text-sm hover:bg-secondary hover:text-white transition ease-in duration-2000"
+                                        data-type="facility"
+                                        data-id="{{ fac.id }}"
+                                        title="Bookmark this facility">
+                                    <i class="far fa-bookmark"></i>
+                                </button>
+                                {% else %}
+                                    <!-- Bookmark Button for Unauthenticated Users (redirects to login) -->
+                                    <a href="{{ url_for('auth.login') }}"
+                                    class=" bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full  z-10 bg-white border-[1px] border-secondary text-secondary text-sm"
+                                    title="Login to bookmark this profile">
+                                        <!-- Bookmark Icon always visible -->
+                                        <i class="far fa-bookmark"></i>
+                                        <!-- Lock overlay (toggles on hover) -->
+                                        <span class="">
+                                            <i class="fas fa-lock"></i>
+                                        </span>
+                                    </a>
+                                {% endif %}
+                                <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                                    <!-- Facility Image/Logo -->
+                                    <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
+                                        <a href="{{ url_for('faculty_info', profile_id=fac.pi.profile.id) }}" class="absolute inset-0 rounded-full overflow-hidden">
+                                            <img src="{{ url_for('static', filename='images/profile.png') }}"
+                                                class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                                alt="{{ fac.equipment_name }} Logo">
+                                            <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                                        </a>
+                                    </div>
+
+                                    <!-- Facility Details -->
+                                    <div class="w-full space-y-3">
+                                        <div class="space-y-1">
+                                            <a href="{{ url_for('faculty_info', profile_id=fac.pi.profile.id) }}"
+                                            class="text-[#404452] text-xl font-bold hover:text-[#404452] transition-colors duration-300 inline-block">
+                                                <span class="bg-gradient-to-r from-[#66C0DC] to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                                    <i class="fas fa-microscope mr-2 text-black"></i>{{ fac.equipment_name or 'N/A' }}
+                                                </span>
+                                            </a>
+                                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                                <span class="text-gray-700 flex items-center px-2 mt-2">
+                                                    <i class="fas fa-tools mr-2 text-secondary"></i>
+                                                    <span class="font-medium">{{ fac.make or 'N/A' }} - {{ fac.model or 'N/A' }}</span>
+                                                </span>
+                                                <span class="text-gray-600 flex items-center">
+                                                    <i class="fas fa-map-marker-alt mr-2 text-secondary"></i>
+                                                    {{ fac.location or 'Location not specified' }}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="w-full flex lg:flex-row items-start gap-4">
+                                            <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-secondary w-full">
+                                                <p class="text-sm md:text-base text-gray-700">
+                                                    <i class="fas fa-align-left mr-2 text-secondary"></i>
+                                                    <span class="font-medium">Description:</span> {{ fac.description or 'Not provided' }}
+                                                </p>
+                                                <p class="text-sm md:text-base text-gray-700 mt-1">
+                                                    <i class="fas fa-check-circle mr-2 text-secondary"></i>
+                                                    <span class="font-medium">Status:</span> {{ fac.working_status or 'Unknown' }}
+                                                </p>
+                                            </div>
+
+                                            <div class="flex justify-end gap-3 flex-none">
+                                                <a href="{{ url_for('faculty_info', profile_id=fac.pi.profile.id) }}"
+                                                class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                                title="Book this facility">
+                                                    <i class="fas fa-calendar-plus group-hover:hidden block mr-2"></i>
+                                                    <i class="fas fa-calendar-check group-hover:block hidden mr-2"></i>
+                                                    <span class="hidden sm:inline">Book</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    {% else %}
+                    <div class="flex justify-center pt-2 ">
+                        <p class="text-center text-black font-semibold">No research facilities found for your search.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Publication Results Tab -->
+                <div id="tab-content-Publication" data-tab-content="Publication" class="tab-content w-full flex flex-col gap-4 mt-4 hidden">
+                    {% if query and publications|length > 0 %}
+                    <div class="flex justify-end w-full mb-4">
+                        <a href="{{ url_for('publication.full_table', query=query) }}"
+                        class="w-max flex-none h-full px-4 py-1.5 rounded-[10px] font-bold bg-[#66C0DC] text-[#ffffff] text-[15px] border-[2px] border-[#66C0DC] hover:bg-[#ffffff] hover:text-[#404452] transition ease-in duration-2000 ">
+                            View Full Table
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    {% for pub in publications %}
+                    <div class="w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg relative">
+                        <!-- Bookmark Button -->
+                        {% if current_user.is_authenticated %}
+                        <button class="bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full  z-10 bg-white border-[1px] border-secondary text-secondary text-sm hover:bg-secondary hover:text-white transition ease-in duration-2000"
+                                data-type="publication"
+                                data-id="{{ pub.id }}"
+                                title="Bookmark this publication">
+                            <i class="far fa-bookmark"></i>
+                        </button>
+                            {% else %}
+                                <!-- Bookmark Button for Unauthenticated Users (redirects to login) -->
+                                <a href="{{ url_for('auth.login') }}"
+                                class=" bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full  z-10 bg-white border-[1px] border-secondary text-secondary text-sm"
+                                title="Login to bookmark this profile">
+                                    <!-- Bookmark Icon always visible -->
+                                    <i class="far fa-bookmark"></i>
+                                    <!-- Lock overlay (toggles on hover) -->
+                                    <span class="">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                </a>
+                            {% endif %}                           <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                            <!-- Publication Thumbnail -->
+                            <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
+                                <div class="absolute inset-0 rounded-full overflow-hidden">
+                                    <img src="{{ url_for('static', filename='images/profile.png') }}"
+                                        class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                        alt="Publication Image">
+                                    <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                                </div>
+                            </div>
+
+                            <!-- Publication Details -->
+                            <div class="w-full space-y-3">
+                                <div class="space-y-1">
+                                    <span class="text-black text-xl font-bold inline-block bg-gradient-to-r from-[#66C0DC] to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                        <i class="fas fa-book-open mr-2 text-black"></i>{{ pub.title or 'Untitled' }}
+                                    </span>
+                                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                        <span class="text-gray-700 flex items-center px-2 mt-2">
+                                            <i class="fas fa-calendar-alt mr-2 text-secondary"></i>
+                                            <span class="font-medium">{{ pub.publication_date or 'Date not specified' }}</span>
+                                        </span>
+                                        <span class="text-gray-600 flex items-center">
+                                            <i class="fas fa-university mr-2 text-secondary"></i>
+                                            {{ pub.journal_or_conference or 'Venue not specified' }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="w-full flex lg:flex-row items-start gap-4">
+                                    <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-secondary w-full">
+                                        <p class="text-sm md:text-base text-gray-700">
+                                            <i class="fas fa-align-left mr-2 text-secondary"></i>
+                                            <span class="font-medium">Abstract:</span> {{ pub.abstract|truncate(200) or 'Not available' }}
+                                        </p>
+                                        <p class="text-sm md:text-base text-gray-700 mt-1">
+                                            <i class="fas fa-tags mr-2 text-secondary"></i>
+                                            <span class="font-medium">Keywords:</span> {{ pub.keywords or 'Not specified' }}
+                                        </p>
+                                    </div>
+
+                                    <div class="flex justify-end gap-3 flex-none">
+                                        {% if pub.profile and pub.profile.user %}
+                                            {% if pub.profile.user.user_type == 'PI' %}
+                                                <a href="{{ url_for('faculty_info', profile_id=pub.profile.id) }}"
+                                                class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                                title="View PI profile">
+                                                    <i class="fas fa-user group-hover:hidden block mr-2"></i>
+                                                    <i class="fas fa-user-check group-hover:block hidden mr-2"></i>
+                                                    <span class="hidden sm:inline">View PI</span>
+                                                </a>
+                                            {% elif pub.profile.user.user_type == 'Student' and pub.profile.student_profile %}
+                                                <a href="{{ url_for('student.student_details', student_id=pub.profile.student_profile.id) }}"
+                                                class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                                title="View student profile">
+                                                    <i class="fas fa-user-graduate group-hover:hidden block mr-2"></i>
+                                                    <i class="fas fa-user-check group-hover:block hidden mr-2"></i>
+                                                    <span class="hidden sm:inline">View Student</span>
+                                                </a>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-red-500 text-sm">Profile not linked</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="flex justify-center pt-2 ">
+                        <p class="text-center text-black font-semibold">No publication found for your search.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Technologies Results Tab -->
+                <div id="tab-content-technologies" data-tab-content="technologies" class="tab-content w-full flex flex-col gap-4 mt-4 hidden ">
+                {% if query and technologies|length > 0 %}
+                <div class="flex justify-end w-full mb-4">
+                    <a href="{{ url_for('technology.full_table', query=query) }}"
+                    class="w-max flex-none h-full px-4 py-1.5 rounded-[10px] font-bold bg-[#66C0DC] text-[#ffffff] text-[15px] border-[2px] border-[#66C0DC] hover:bg-[#ffffff] hover:text-[#404452] transition ease-in duration-2000 ">
+                        View Full Table
+                    </a>
+                </div>
+                {% endif %}
+
+                {% if technologies and technologies|length > 0 %}
+
+                    {% for tech in technologies %}
+                    <div class="w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg relative">
+                         <!-- Bookmark Button -->
+                        {% if current_user.is_authenticated %}
+                        <button class="bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full  z-10 bg-white border-[1px] border-secondary text-secondary text-sm hover:bg-secondary hover:text-white transition ease-in duration-2000"
+                                data-type="technologies"
+                                data-id="{{ tech.id }}"
+                                title="Bookmark this technologies">
+                            <i class="far fa-bookmark"></i>
+                        </button>
+                            {% else %}
+                                <!-- Bookmark Button for Unauthenticated Users (redirects to login) -->
+                                <a href="{{ url_for('auth.login') }}"
+                                class=" bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full  z-10 bg-white border-[1px] border-secondary text-secondary text-sm"
+                                title="Login to bookmark this profile">
+                                    <!-- Bookmark Icon always visible -->
+                                    <i class="far fa-bookmark"></i>
+                                    <!-- Lock overlay (toggles on hover) -->
+                                    <span class="">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                </a>
+                            {% endif %}
+                                <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                            <!-- Technology Icon -->
+                            <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
+                                <div class="absolute inset-0 rounded-full overflow-hidden">
+                                    <img src="{{ url_for('static', filename='images/profile.png') }}"
+                                        class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                        alt="Technology Image">
+                                    <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                                </div>
+                            </div>
+
+                            <!-- Technology Info -->
+                            <div class="w-full space-y-3">
+                                <div class="space-y-1">
+                                    <span class="text-black text-xl font-bold inline-block bg-gradient-to-r from-[#66C0DC] to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                        <i class="fas fa-cogs mr-2 text-black"></i>{{ tech.title or 'Untitled Technology' }}
+                                    </span>
+                                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                        <span class="text-gray-700 flex items-center px-2 mt-2">
+                                            <i class="fas fa-tag mr-2 text-secondary"></i>
+                                            <span class="font-medium">{{ tech.technology_type or 'Type not specified' }}</span>
+                                        </span>
+                                        <span class="text-gray-600 flex items-center">
+                                            <i class="fas fa-user mr-2 text-secondary"></i>
+                                            {{ tech.owner or 'Owner not specified' }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-secondary w-full">
+                                    <p class="text-sm md:text-base text-gray-700">
+                                        <i class="fas fa-align-left mr-2 text-secondary"></i>
+                                        <span class="font-medium">Description:</span> {{ tech.description|truncate(200) or 'Description not available' }}
+                                    </p>
+                                    <p class="text-sm md:text-base text-gray-700 mt-1">
+                                        <i class="fas fa-industry mr-2 text-secondary"></i>
+                                        <span class="font-medium">Target Industries:</span> {{ tech.target_industries or 'Not specified' }}
+                                    </p>
+                                </div>
+
+                                <div class="flex justify-between items-center flex-wrap">
+                                    <div class="flex gap-6 mt-2">
+                                        <button class="text-sm text-black flex items-center gap-1 hover:text-primary">
+                                            <i class="fa-regular fa-heart"></i> Like
+                                        </button>
+                                        <button class="text-sm text-black flex items-center gap-1 hover:text-primary">
+                                            <i class="fa-regular fa-comment"></i> Comment
+                                        </button>
+                                    </div>
+
+                                    <!-- Creator Profile Link -->
+                                    <div class="flex justify-end">
+                                        {% if tech.creator and tech.creator.user %}
+                                            {% set user_type = tech.creator.user.user_type %}
+                                            {% if user_type == 'PI' %}
+                                                <a href="{{ url_for('faculty_info', profile_id=tech.creator.id) }}"
+                                                class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-white transition-all duration-300 group"
+                                                title="View PI profile">
+                                                    <i class="fas fa-user group-hover:mr-2"></i>
+                                                    <span>View PI</span>
+                                                </a>
+                                            {% elif user_type == 'Student' and tech.creator.student_profile %}
+                                                <a href="{{ url_for('student.student_details', student_id=tech.creator.student_profile.id) }}"
+                                                class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-white transition-all duration-300 group"
+                                                title="View Student profile">
+                                                    <i class="fas fa-user-graduate group-hover:mr-2"></i>
+                                                    <span>View Student</span>
+                                                </a>
+                                            {% elif user_type == 'Vendor' and tech.creator.vendor_profile %}
+                                                <a href="{{ url_for('vendor.vendor_profile', vendor_id=tech.creator.vendor_profile.id) }}"
+                                                class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-white transition-all duration-300 group"
+                                                title="View Vendor profile">
+                                                    <i class="fas fa-store group-hover:mr-2"></i>
+                                                    <span>View Vendor</span>
+                                                </a>
+                                            {% elif user_type == 'Industry' and tech.creator.industry_profile %}
+                                                <a href="{{ url_for('industry.industry_profile', industry_id=tech.creator.industry_profile.id) }}"
+                                                class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-white transition-all duration-300 group"
+                                                title="View Industry profile">
+                                                    <i class="fas fa-industry group-hover:mr-2"></i>
+                                                    <span>View Industry</span>
+                                                </a>
+                                            {% else %}
+                                                <span class="text-red-500 text-sm">Profile not found</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-red-500 text-sm">Creator missing</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                       <!-- Show More Button -->
+                    {% if technologies|length >= current_limit %}
+                    <div class="w-full flex justify-center mt-4">
+                        <button class="show-more-btn px-4 py-2 rounded-md bg-primary text-white font-semibold hover:bg-primary-dark transition"
+                                data-current-limit="{{ current_limit }}">
+                            Show More ({{ technologies|length }} shown)
+                        </button>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <div class="flex justify-center pt-2 ">
+                        <p class="text-center text-black font-semibold">No technology found for your search.</p>
+                    </div>
+                {% endif %}
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// ACTIVE TAB LOGIC
+document.addEventListener('DOMContentLoaded', function () {
+    function switchTab(tab) {
+        const normalizedTab = tab.replace(/ /g, '-');
+
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(c => {
+            c.classList.add('hidden');
+        });
+
+        // Show the selected tab content
+        const content = document.querySelector(`#tab-content-${normalizedTab}`);
+        if (content) {
+            content.classList.remove('hidden');
+        }
+
+        // Reset all tab buttons to inactive styles
+        document.querySelectorAll('.tab-button').forEach(b => {
+            b.classList.remove('bg-secondary', 'text-white');
+            b.classList.add('bg-white', 'text-secondary');
+        });
+
+        // Set active tab button
+        const activeBtn = document.querySelector(`#tab-${normalizedTab}`);
+        if (activeBtn) {
+            activeBtn.classList.remove('bg-white', 'text-secondary');
+            activeBtn.classList.add('bg-secondary', 'text-white');
+
+            // Smooth scroll to ensure button is visible
+            setTimeout(() => {
+                activeBtn.scrollIntoView({
+                    behavior: 'smooth',
+                    inline: 'center',
+                    block: 'nearest'
+                });
+            }, 100);
+        }
+    }
+
+    // Get active tab from server-side data
+    const tabData = document.getElementById('tab-data');
+    const activeTab = tabData?.dataset?.activeTab;
+
+    // Switch to active tab with delay to ensure DOM is ready
+    if (activeTab) {
+        setTimeout(() => {
+            switchTab(activeTab);
+        }, 100);
+    }
+
+    // Add click event listeners to all tab buttons
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.dataset.tab;
+            switchTab(tab);
+        });
+    });
+
+    // If no search query, ensure PI-profile (Scientist) tab is active
+    const query = "{{ query }}";
+    if (!query && !activeTab) {
+        setTimeout(() => {
+            switchTab('PI-profile');
+        }, 100);
+    }
+});
+
+
+
+
+
+// Bookmark functionality - Optimized version
+document.addEventListener('DOMContentLoaded', function() {
+    // Track which items we've already checked to prevent repeated API calls
+    const checkedItems = new Set();
+
+    // Function to handle bookmark toggling
+    async function toggleBookmark(itemType, itemId) {
+        try {
+            const response = await fetch(`/bookmark/${itemType}/${itemId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                const bookmarkBtn = document.querySelector(`.bookmark-btn[data-type="${itemType}"][data-id="${itemId}"]`);
+                if (bookmarkBtn) {
+                    if (data.bookmarked) {
+                        bookmarkBtn.innerHTML = '<i class="fas fa-bookmark "></i>';
+                        bookmarkBtn.title = 'Remove bookmark';
+                        showNotification('Bookmarked successfully!', 'success');
+                    } else {
+                        bookmarkBtn.innerHTML = '<i class="far fa-bookmark"></i>';
+                        bookmarkBtn.title = 'Add bookmark';
+                        showNotification('Bookmark removed', 'info');
+                    }
+                }
+            } else {
+                showNotification(data.message || 'Error bookmarking item', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Error bookmarking item', 'error');
+        }
+    }
+
+    // Add event listeners to all bookmark buttons
+    function setupBookmarkButtons() {
+        document.querySelectorAll('.bookmark-btn').forEach(btn => {
+            // Only add event listener if not already added
+            if (!btn.hasAttribute('data-listener-added')) {
+                btn.setAttribute('data-listener-added', 'true');
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const itemType = btn.dataset.type;
+                    const itemId = btn.dataset.id;
+                    toggleBookmark(itemType, itemId);
+                });
+            }
+        });
+    }
+
+    // Check bookmark status for all items - optimized to prevent repeated calls
+    async function checkBookmarkStatus() {
+        const bookmarkButtons = document.querySelectorAll('.bookmark-btn');
+
+        for (const button of bookmarkButtons) {
+            const itemType = button.dataset.type;
+            const itemId = button.dataset.id;
+            const itemKey = `${itemType}-${itemId}`;
+
+            // Skip if we've already checked this item
+            if (checkedItems.has(itemKey)) continue;
+
+            checkedItems.add(itemKey);
+
+            try {
+                const response = await fetch(`/bookmark/status/${itemType}/${itemId}`);
+                const data = await response.json();
+
+                if (data.bookmarked) {
+                    button.innerHTML = '<i class="fas fa-bookmark"></i>';
+                    button.title = 'Remove bookmark';
+                }
+            } catch (error) {
+                console.error('Error checking bookmark status:', error);
+                // Remove from checked items so we can try again later
+                checkedItems.delete(itemKey);
+            }
+        }
+    }
+
+    // Initialize bookmark functionality
+    function initializeBookmarks() {
+        setupBookmarkButtons();
+        checkBookmarkStatus();
+    }
+
+    // Initialize when page loads
+    setTimeout(initializeBookmarks, 100);
+
+    // Reinitialize when new content is loaded (for "Show More" buttons)
+    const observer = new MutationObserver((mutations) => {
+        let shouldCheck = false;
+
+        for (const mutation of mutations) {
+            if (mutation.addedNodes.length > 0) {
+                shouldCheck = true;
+                break;
+            }
+        }
+
+        if (shouldCheck) {
+            setupBookmarkButtons();
+            checkBookmarkStatus();
+        }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Notification function
+    function showNotification(message, type) {
+        // Check if notification already exists
+        const existingNotification = document.querySelector('.bookmark-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        const notification = document.createElement('div');
+        notification.className = `bookmark-notification fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-transform transform translate-x-full ${type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'} text-white`;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+            notification.classList.add('translate-x-0');
+        }, 10);
+
+        setTimeout(() => {
+            notification.classList.remove('translate-x-0');
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+});
+
+
+
+// Fixed "Load More" functionality for PI profiles
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('load-more-pi');
+    if (!btn) return;
+
+    const container = document.querySelector('#pi-profile-list');
+    if (!container) return;
+
+    // Create or select an element to show count info
+    let infoText = document.getElementById('pi-results-info');
+    if (!infoText) {
+        infoText = document.createElement('div');
+        infoText.id = 'pi-results-info';
+        infoText.className = 'text-sm text-gray-700 mb-2';
+        container.parentNode.insertBefore(infoText, container);
+    }
+
+    // Get initial count from the server-side rendered content
+    let shownCount = container.querySelectorAll('.w-full.bg-white').length;
+
+    // Set the initial offset correctly (should match the number of already shown items)
+    btn.dataset.offset = shownCount;
+
+    // Show initial info
+    infoText.innerText = `Showing ${shownCount} results`;
+
+    btn.addEventListener('click', async function() {
+        const offset = parseInt(btn.dataset.offset);
+        const query = btn.dataset.query;
+
+        btn.disabled = true;
+        btn.innerText = 'Loading...';
+
+        try {
+            const res = await fetch(`/load_more_profiles?offset=${offset}&query=${encodeURIComponent(query)}`);
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+
+            const data = await res.json();
+
+            if (!data || !data.profiles || data.profiles.length === 0) {
+                btn.style.display = 'none';
+                const total = data && typeof data.total === 'number' ? data.total : shownCount;
+                infoText.innerText = `Showing ${shownCount} of ${total} results`;
+
+                const noMore = document.createElement('div');
+                noMore.className = 'text-sm text-gray-500 mt-2';
+                noMore.innerText = 'No more profiles to load.';
+                container.appendChild(noMore);
+                return;
+            }
+
+            // Check if the first new item is the same as the last existing item
+            const existingItems = container.querySelectorAll('.w-full.bg-white');
+            const lastExistingId = existingItems.length > 0 ?
+                existingItems[existingItems.length - 1].querySelector('.bookmark-btn')?.dataset.id : null;
+
+            const firstNewId = data.profiles[0]?.id;
+
+            // If we have a duplicate, skip the first item
+            let startIndex = 0;
+            if (lastExistingId && firstNewId && lastExistingId === firstNewId.toString()) {
+                startIndex = 1;
+                console.log("Skipping duplicate item:", firstNewId);
+            }
+
+            for (let i = startIndex; i < data.profiles.length; i++) {
+                const profile = data.profiles[i];
+                const card = document.createElement('div');
+                card.className = 'mb-6 w-full flex flex-col gap-4';
+                card.innerHTML = `
+                    <div class="w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg relative">
+                        <!-- Bookmark Button -->
+                        <button class="bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full  z-10 bg-white border-[1px] border-secondary text-secondary text-sm hover:bg-secondary hover:text-white transition ease-in duration-2000"
+                                data-type="profile"
+                                data-id="${profile.id}"
+                                title="Bookmark this profile">
+                            <i class="far fa-bookmark"></i>
+                        </button>
+
+                        <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                            <!-- Profile Image Container -->
+                            <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
+                                <a href="/faculty/${profile.id}" class="absolute inset-0 rounded-full overflow-hidden">
+                                    <img src="${profile.profile_image_url || '/static/images/profile.png'}"
+                                        onerror="this.onerror=null;this.src='/static/images/profile.png';"
+                                        class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                        alt="${profile.name} Profile Picture">
+                                    <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                                </a>
+                            </div>
+
+                            <!-- Profile Details Container -->
+                            <div class="w-full space-y-3">
+                                <!-- Name and Title -->
+                                <div class="space-y-1">
+                                    <a href="/faculty/${profile.id}"
+                                        class="text-[#404452] text-xl font-bold hover:text-[#404452] transition-colors duration-300 inline-block">
+                                        <span class="bg-gradient-to-r from-[#66C0DC] to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                            <i class="fas fa-user-circle mr-2 text-secondary"></i>${profile.name || 'N/A'}
+                                        </span>
+                                    </a>
+                                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                        <span class="text-gray-700 flex items-center px-2 mt-2">
+                                            <i class="fas fa-briefcase mr-2 text-secondary"></i>
+                                            <span class="font-medium">${profile.designation || 'N/A'}</span>
+                                        </span>
+                                        <span class="text-gray-600 flex items-center">
+                                            <i class="fas fa-university mr-2 text-secondary"></i>
+                                            ${profile.department || 'N/A'}
+                                        </span>
+                                        <span class="text-gray-600 flex items-center">
+                                            <i class="fas fa-building mr-2 text-secondary"></i>
+                                            ${(profile.affiliation && profile.affiliation.length > 20) ? profile.affiliation.slice(0, 20) + '...' : profile.affiliation || 'N/A'}
+                                        </span>
+                                        <span class="text-gray-600 flex items-center">
+                                            <i class="fas fa-map-marker-alt mr-2 text-secondary"></i>
+                                            ${profile.location || 'N/A'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="w-full flex lg:flex-row items-start gap-4">
+                                    <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-secondary w-full">
+                                        <p class="text-sm md:text-base text-gray-700">
+                                            <i class="fas fa-search mr-2 text-secondary"></i>
+                                            <span class="font-medium">Research Focus:</span> ${profile.focus || 'N/A'}
+                                        </p>
+                                    </div>
+                                    <div class="flex justify-end gap-3 flex-none">
+                                        <a href="/login"
+                                            class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                            title="Login to view open positions or collaboration opportunities">
+                                            <i class="fas fa-lock group-hover:hidden block mr-2"></i>
+                                            <i class="fas fa-lock-open group-hover:block hidden mr-2"></i>
+                                            <span class="hidden sm:inline">Opportunities</span>
+                                        </a>
+                                        <a href="/login"
+                                            class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                            title="Login to view open positions or collaboration opportunities">
+                                            <i class="fas fa-lock group-hover:hidden block mr-2"></i>
+                                            <i class="fas fa-lock-open group-hover:block hidden mr-2"></i>
+                                            <span class="hidden sm:inline">Metrics</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.insertBefore(card, btn);
+            }
+
+            // Update the count correctly (accounting for any skipped duplicates)
+            const itemsAdded = data.profiles.length - startIndex;
+            shownCount += itemsAdded;
+            infoText.innerText = `Showing ${shownCount} of ${data.total} results`;
+
+            // Update the offset for the next request
+            btn.dataset.offset = offset + data.profiles.length;
+
+            if (shownCount >= data.total) {
+                btn.style.display = 'none';
+            } else {
+                btn.disabled = false;
+                btn.innerText = 'Show More Results';
+            }
+
+            // Initialize bookmark functionality for newly added content
+            setTimeout(() => {
+                const event = new Event('DOMContentModified');
+                document.dispatchEvent(event);
+            }, 100);
+
+        } catch (error) {
+            console.error('Error loading more profiles:', error);
+            btn.disabled = false;
+            btn.innerText = 'Try Again';
+            showNotification('Error loading more results', 'error');
+        }
+    });
+});
+// Fixed "Load More" functionality for Students
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('load-more-students');
+    if (!btn) return;
+
+    const container = document.querySelector('#student-profile-list');
+    if (!container) return;
+
+    // Optional: results info
+    let infoText = document.getElementById('student-results-info');
+    if (!infoText) {
+        infoText = document.createElement('div');
+        infoText.id = 'student-results-info';
+        infoText.className = 'text-sm text-gray-700 mb-2';
+        container.parentNode.insertBefore(infoText, container);
+    }
+
+    let shownCount = container.querySelectorAll('.bg-white.shadow-md').length;
+    infoText.innerText = `Showing ${shownCount} results`;
+
+    btn.addEventListener('click', async () => {
+        const offset = parseInt(btn.dataset.offset);
+        const query = btn.dataset.query;
+
+        btn.disabled = true;
+        btn.innerText = 'Loading...';
+
+        try {
+            const res = await fetch(`/load_more_students?offset=${offset}&query=${encodeURIComponent(query)}`);
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+
+            const data = await res.json();
+
+            if (!data || !data.students || data.students.length === 0) {
+                btn.style.display = 'none';
+                infoText.innerText = `Showing ${shownCount} of ${data.total || shownCount} results`;
+                return;
+            }
+
+            data.students.forEach(student => {
+                const card = document.createElement('div');
+                card.className = 'w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg';
+                card.innerHTML = `
+                    <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                        <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
+                            <div class="absolute inset-0 rounded-full overflow-hidden">
+                                <img src="${student.profile_image_url || '/static/images/logo-shade_blue.png'}"
+                                     onerror="this.onerror=null;this.src='/static/images/logo-shade_blue.png';"
+                                     class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                     alt="${student.name} Profile Picture">
+                                <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                            </div>
+                        </div>
+                        <div class="w-full space-y-3">
+                            <div class="space-y-1">
+                                <a href="/student/${student.id}"
+                                   class="text-[#404452] text-xl font-bold hover:text-[#404452] transition-colors duration-300 inline-block">
+                                    <span class="bg-gradient-to-r from-[#66C0DC] to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                        <i class="fas fa-user-graduate mr-2 text-secondary"></i>${student.name || 'N/A'}
+                                    </span>
+                                </a>
+                                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                    <span class="text-gray-700 flex items-center px-2 mt-2">
+                                        <i class="fas fa-book mr-2 text-secondary"></i>
+                                        <span class="font-medium">${student.degree_program || 'N/A'}</span>
+                                    </span>
+                                    <span class="text-gray-600 flex items-center">
+                                        <i class="fas fa-university mr-2 text-secondary"></i>
+                                        ${student.affiliation || 'N/A'}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="w-full flex lg:flex-row items-start gap-4">
+                                <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-secondary w-full">
+                                    <p class="text-sm md:text-base text-gray-700">
+                                        <i class="fas fa-search mr-2 text-secondary"></i>
+                                        <span class="font-medium">Interests:</span> ${student.research_interests || 'N/A'}
+                                    </p>
+                                    <p class="text-sm md:text-base text-gray-700 mt-1">
+                                        <i class="fas fa-tools mr-2 text-secondary"></i>
+                                        <span class="font-medium">Skills:</span> ${student.skills || 'N/A'}
+                                    </p>
+                                </div>
+                                <div class="flex justify-end gap-3 flex-none">
+                                    <a href="/login"
+                                       class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                       title="Login to connect with student">
+                                        <i class="fas fa-lock group-hover:hidden block mr-2"></i>
+                                        <i class="fas fa-lock-open group-hover:block hidden mr-2"></i>
+                                        <span class="hidden sm:inline">Connect</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.insertBefore(card, btn);
+            });
+
+            shownCount += data.students.length;
+            infoText.innerText = `Showing ${shownCount} of ${data.total}`;
+
+            if (shownCount >= data.total) {
+                btn.style.display = 'none';
+            } else {
+                btn.dataset.offset = offset + data.students.length;
+                btn.disabled = false;
+                btn.innerText = 'Show More Results';
+            }
+
+            // Initialize bookmark functionality for newly added content
+            setTimeout(() => {
+                const event = new Event('DOMContentModified');
+                document.dispatchEvent(event);
+            }, 100);
+
+        } catch (err) {
+            console.error(err);
+            btn.disabled = false;
+            btn.innerText = 'Show More Results';
+            showNotification('Error loading more results', 'error');
+        }
+    });
+});
+
+// Fixed "Load More" functionality for Vendors
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('load-more-vendors');
+    if (!btn) return;
+
+    const container = document.querySelector('#vendor-profile-list');
+    if (!container) return;
+
+    // Create or select an element to show count info
+    let infoText = document.getElementById('vendor-results-info');
+    if (!infoText) {
+        infoText = document.createElement('div');
+        infoText.id = 'vendor-results-info';
+        infoText.className = 'text-sm text-gray-700 mb-2';
+        container.parentNode.insertBefore(infoText, container);
+    }
+
+    let shownCount = container.querySelectorAll('.w-full.bg-white').length;
+
+    infoText.innerText = `Showing ${shownCount} results`;
+
+    btn.addEventListener('click', async () => {
+        const offset = parseInt(btn.dataset.offset);
+        const query = btn.dataset.query;
+
+        btn.disabled = true;
+        btn.innerText = 'Loading...';
+
+        try {
+            const res = await fetch(`/load_more_vendors?offset=${offset}&query=${encodeURIComponent(query)}`);
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+
+            const data = await res.json();
+
+            if (!data || !data.vendors || data.vendors.length === 0) {
+                btn.style.display = 'none';
+
+                const total = data && typeof data.total === 'number' ? data.total : shownCount;
+                infoText.innerText = `Showing ${shownCount} of ${total} results`;
+
+                const noMore = document.createElement('div');
+                noMore.className = 'text-sm text-gray-500 mt-2';
+                noMore.innerText = 'No more vendors to load.';
+                container.appendChild(noMore);
+                return;
+            }
+
+            data.vendors.forEach(vendor => {
+                const card = document.createElement('div');
+                card.className = 'mb-6 w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg';
+                card.innerHTML = `
+                    <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                        <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
+                            <a href="/vendor/${vendor.id}" class="absolute inset-0 rounded-full overflow-hidden">
+                                <img src="${vendor.logo_url || '/static/images/logo-shade_blue.png'}"
+                                    onerror="this.onerror=null;this.src='/static/images/logo-shade_blue.png';"
+                                    class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                    alt="${vendor.company_name} Logo">
+                                <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                            </a>
+                        </div>
+
+                        <div class="w-full space-y-3">
+                            <div class="space-y-1">
+                                <a href="/vendor/${vendor.id}"
+                                    class="text-[#404452] text-xl font-bold hover:text-[#404452] transition-colors duration-300 inline-block">
+                                    <span class="bg-gradient-to-r from-[#66C0DC] to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                        <i class="fas fa-building mr-2 text-secondary"></i>${vendor.company_name || 'N/A'}
+                                    </span>
+                                </a>
+                                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                    <span class="text-gray-700 flex items-center px-2 mt-2">
+                                        <i class="fas fa-tags mr-2 text-secondary"></i>
+                                        <span class="font-medium">${vendor.dealing_categories || 'Categories not specified'}</span>
+                                    </span>
+                                    <span class="text-gray-600 flex items-center">
+                                        <i class="fas fa-globe mr-2 text-secondary"></i>
+                                        ${vendor.region || 'Region not specified'}
+                                    </span>
+                                    <span class="text-gray-600 flex items-center">
+                                        <i class="fas fa-map-marker-alt mr-2 text-secondary"></i>
+                                        ${vendor.location || 'Location not specified'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="w-full flex lg:flex-row items-start gap-4">
+                                <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-secondary w-full">
+                                    <p class="text-sm md:text-base text-gray-700">
+                                        <i class="fas fa-info-circle mr-2 text-secondary"></i>
+                                        <span class="font-medium">Products/Services:</span> ${vendor.products_services || 'Not specified'}
+                                    </p>
+                                </div>
+                                <div class="flex justify-end gap-3 flex-none">
+                                    <a href="/vendor/${vendor.id}"
+                                        class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                        title="View vendor details">
+                                        <i class="fas fa-eye mr-2"></i>
+                                        <span class="hidden sm:inline">Details</span>
+                                    </a>
+                                    <a href="/login"
+                                        class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                        title="Login to contact this vendor">
+                                        <i class="fas fa-lock group-hover:hidden block mr-2"></i>
+                                        <i class="fas fa-lock-open group-hover:block hidden mr-2"></i>
+                                        <span class="hidden sm:inline">Contact</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.insertBefore(card, btn);
+            });
+
+            shownCount += data.vendors.length;
+            infoText.innerText = `Showing ${shownCount} of ${data.total} results`;
+
+            if (shownCount >= data.total) {
+                btn.style.display = 'none';
+            } else {
+                btn.dataset.offset = offset + data.vendors.length;
+                btn.disabled = false;
+                btn.innerText = 'Show More Results';
+            }
+
+            // Initialize bookmark functionality for newly added content
+            setTimeout(() => {
+                const event = new Event('DOMContentModified');
+                document.dispatchEvent(event);
+            }, 100);
+
+        } catch (error) {
+            console.error('Error loading more vendors:', error);
+            btn.disabled = false;
+            btn.innerText = 'Try Again';
+            showNotification('Error loading more results', 'error');
+        }
+    });
+});
+
+// Fixed "Load More" functionality for Industries
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('load-more-industries');
+    if (!btn) return;
+
+    const container = document.querySelector('#industry-profile-list');
+    if (!container) return;
+
+    // Create or select an element to show count info
+    let infoText = document.getElementById('industry-results-info');
+    if (!infoText) {
+        infoText = document.createElement('div');
+        infoText.id = 'industry-results-info';
+        infoText.className = 'text-sm text-gray-700 mb-2';
+        container.parentNode.insertBefore(infoText, container);
+    }
+
+    let shownCount = container.querySelectorAll('.w-full.bg-white').length;
+
+    infoText.innerText = `Showing ${shownCount} results`;
+
+    btn.addEventListener('click', async () => {
+        const offset = parseInt(btn.dataset.offset);
+        const query = btn.dataset.query;
+
+        btn.disabled = true;
+        btn.innerText = 'Loading...';
+
+        try {
+            const res = await fetch(`/load_more_industries?offset=${offset}&query=${encodeURIComponent(query)}`);
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+
+            const data = await res.json();
+
+            if (!data || !data.industries || data.industries.length === 0) {
+                btn.style.display = 'none';
+
+                const total = data && typeof data.total === 'number' ? data.total : shownCount;
+                infoText.innerText = `Showing ${shownCount} of ${total} results`;
+
+                const noMore = document.createElement('div');
+                noMore.className = 'text-sm text-gray-500 mt-2';
+                noMore.innerText = 'No more industries to load.';
+                container.appendChild(noMore);
+                return;
+            }
+
+            data.industries.forEach(industry => {
+                const card = document.createElement('div');
+                card.className = 'mb-6 w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg';
+                card.innerHTML = `
+                    <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                        <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
+                            <a href="/industry/${industry.id}" class="absolute inset-0 rounded-full overflow-hidden">
+                                <img src="${industry.logo_url || '/static/images/logo-shade_blue.png'}"
+                                    onerror="this.onerror=null;this.src='/static/images/logo-shade_blue.png';"
+                                    class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                    alt="${industry.company_name} Logo">
+                                <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                            </a>
+                        </div>
+
+                        <div class="w-full space-y-3">
+                            <div class="space-y-1">
+                                <a href="/industry/${industry.id}"
+                                    class="text-[#404452] text-xl font-bold hover:text-[#404452] transition-colors duration-300 inline-block">
+                                    <span class="bg-gradient-to-r from-[#66C0DC] to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                        <i class="fas fa-industry mr-2 text-[#404452]"></i>${industry.company_name || 'N/A'}
+                                    </span>
+                                </a>
+                                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                    <span class="text-gray-700 flex items-center px-2 mt-2">
+                                        <i class="fas fa-project-diagram mr-2 text-secondary"></i>
+                                        <span class="font-medium">${industry.sector || 'Sector not specified' }}</span>
+                                    </span>
+                                    <span class="text-gray-600 flex items-center">
+                                        <i class="fas fa-globe mr-2 text-secondary"></i>
+                                        ${industry.region || 'Region not specified'}
+                                    </span>
+                                    <span class="text-gray-600 flex items-center">
+                                        <i class="fas fa-map-marker-alt mr-2 text-secondary"></i>
+                                        ${industry.location || 'Location not specified'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="w-full flex lg:flex-row items-start gap-4">
+                                <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-secondary w-full">
+                                    <p class="text-sm md:text-base text-gray-700">
+                                        <i class="fas fa-lightbulb mr-2 text-secondary"></i>
+                                        <span class="font-medium">Research Interests:</span> ${industry.research_interest || 'Not specified'}
+                                    </p>
+                                </div>
+                                <div class="flex justify-end gap-3 flex-none">
+                                    <a href="/industry/${industry.id}"
+                                        class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                        title="View industry details">
+                                        <i class="fas fa-eye mr-2"></i>
+                                        <span class="hidden sm:inline">Details</span>
+                                    </a>
+                                    <a href="/login"
+                                        class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                        title="Login to collaborate with this industry">
+                                        <i class="fas fa-lock group-hover:hidden block mr-2"></i>
+                                        <i class="fas fa-lock-open group-hover:block hidden mr-2"></i>
+                                        <span class="hidden sm:inline">Collaborate</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.insertBefore(card, btn);
+            });
+
+            shownCount += data.industries.length;
+            infoText.innerText = `Showing ${shownCount} of ${data.total} results`;
+
+            if (shownCount >= data.total) {
+                btn.style.display = 'none';
+            } else {
+                btn.dataset.offset = offset + data.industries.length;
+                btn.disabled = false;
+                btn.innerText = 'Show More Results';
+            }
+
+            // Initialize bookmark functionality for newly added content
+            setTimeout(() => {
+                const event = new Event('DOMContentModified');
+                document.dispatchEvent(event);
+            }, 100);
+
+        } catch (error) {
+            console.error('Error loading more industries:', error);
+            btn.disabled = false;
+            btn.innerText = 'Try Again';
+            showNotification('Error loading more results', 'error');
+        }
+    });
+});
+</script>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                <!-- PI Profile Results -->
+                <!-- <div id="tab-content-PI-profile" data-tab-content="PI-profile" class="tab-content w-full flex flex-col gap-4 mt-12">
+                    {% for profile in profiles %}
+                        {% set pi = profile.pi_profile %}
+                        {% if pi %}
+                        <div class="w-full bg-white rounded-lg border-[2px] border-[#314a4a]/10 p-4 flex flex-col gap-4">
+                            <div class="flex w-full justify-between flex-wrap gap-2">
+                                <div class="flex gap-2 w-max">
+                                    <div class="rounded-full h-16 w-16 overflow-hidden">
+                                        <img src="{{ url_for('static', filename='images/logo-shade_blue.png') }}"
+                                             class="w-full h-full object-cover" alt="Profile Pic">
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-[14px] text-[#314a4a]">{{ pi.name }}</span>
+                                        <span class="font-medium text-[12px]">{{ pi.current_designation or 'Designation not specified' }}</span>
+                                        <span class="text-gray-500 text-[11px]">{{ pi.affiliation or 'Affiliation not specified' }}</span>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('faculty_info', profile_id=profile.id) }}"
+                                    class="flex gap-2 items-center w-max h-max rounded-sm text-blue-500 px-3 py-0.5 hover:bg-[#314a4a] hover:text-white transition">
+                                        <i class="fa fa-plus text-[14px]"></i>
+                                        <span class="text-[14px] font-bold">FOLLOW</span>
+                                </a>
+                            </div>
+
+                            <div class="w-full flex flex-col">
+                                <span class="font-semibold lg:text-xl text-black">{{ pi.current_message or 'No research message.' }}</span>
+                                <span class="font-medium lg:text-md text-black">{{ pi.current_focus or 'Focus area not specified.' }}</span>
+                                <button class="flex gap-2 items-center w-max h-max rounded-sm text-blue-500 hover:border-b border-b-blue-500 transition">
+                                    <i class="fa fa-plus text-[14px]"></i>
+                                    <span class="text-[14px] font-bold">More</span>
+                                </button>
+                            </div>
+
+                            <div class="w-full flex justify-between gap-2 flex-wrap pb-4 border-b border-b-[#314a4a]/20">
+                                <button class="text-sm text-[#314a4a]">
+                                    <i class="fa fa-heart"></i> <span>5</span>
+                                </button>
+                                <button class="text-sm text-[#314a4a]">
+                                    <span>0</span> <span>comments</span>
+                                </button>
+                            </div>
+
+                            <div class="w-full flex gap-6">
+                                <button class="text-sm text-black">
+                                    <i class="fa-regular fa-heart"></i> Like
+                                </button>
+                                <button class="text-sm text-black">
+                                    <i class="fa-regular fa-comment"></i> Comments
+                                </button>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-center text-gray-600">No PI profiles found for your search.</p>
+                    {% endfor %}
+                </div> -->
+
+
+
+
+
+<!-- Replace the existing PI-profile tab content with this
+<div id="tab-content-PI-profile" data-tab-content="PI-profile" class="tab-content w-full flex flex-col gap-4 mt-12">
+    {% if profiles %}
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-200">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="py-3 px-4 border-b text-left">Name</th>
+                    <th class="py-3 px-4 border-b text-left">Current Focus</th>
+                    <th class="py-3 px-4 border-b text-left">Designation</th>
+                    <th class="py-3 px-4 border-b text-left">Affiliation</th>
+                    <th class="py-3 px-4 border-b text-left">Department</th>
+                    <th class="py-3 px-4 border-b text-left">Location</th>
+                    <th class="py-3 px-4 border-b text-left">Opportunities</th>
+                    <th class="py-3 px-4 border-b text-left">Research Metrics</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for profile in profiles %}
+                {% set pi = profile.pi_profile %}
+                {% if pi %}
+                <tr class="hover:bg-gray-50">
+                    <td class="py-3 px-4 border-b">
+                        <a href="{{ url_for('faculty_info', profile_id=profile.id) }}" class="text-blue-600 hover:underline">
+                            {{ pi.name }}
+                        </a>
+                    </td>
+                    <td class="py-3 px-4 border-b">{{ pi.current_focus or 'N/A' }}</td>
+                    <td class="py-3 px-4 border-b">{{ pi.current_designation or 'N/A' }}</td>
+                    <td class="py-3 px-4 border-b">{{ pi.affiliation_short or (pi.affiliation|truncate(30) if pi.affiliation else 'N/A') }}</td>
+                    <td class="py-3 px-4 border-b">{{ pi.department or 'N/A' }}</td>
+                    <td class="py-3 px-4 border-b">{{ pi.location or 'N/A' }}</td>
+                    <td class="py-3 px-4 border-b">
+                        <a href="{{ url_for('auth.login') }}" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-lock"></i> Login to view
+                        </a>
+                    </td>
+                    <td class="py-3 px-4 border-b">
+                        <a href="{{ url_for('auth.login') }}" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-lock"></i> Login to view
+                        </a>
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-center text-gray-600">No PI profiles found for your search.</p>
+    {% endif %}
+</div> -->
+
+
+
+
+
+
+
+
+
+

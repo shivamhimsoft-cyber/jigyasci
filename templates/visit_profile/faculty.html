@@ -1,0 +1,453 @@
+{% extends "frontBase.html" %}
+
+{% block title %}Research Collaboration Platform | Home{% endblock %}
+
+{% block content %}
+<div class="w-full flex justify-center p-4">
+    <div class="lg:w-[70%] md:w-[80%] sm:w-[80%] w-full ">
+        <div class="p-4 flex lg:flex-row md:flex-row flex-col-reverse bg-white">
+            <div class="w-full grid lg:grid-cols-4 md:grid-cols-3 grid-cols-1 gap-4">
+                <div class="w-full">
+                    <div class="bg-[#314a4a]-100">
+                        <button id="tab-prof" data-tab="facultyProfile"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-user text-sm mr-2"></i> Profile
+                        </button>
+                        <button id="tab-opp" data-tab="opportunities"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-check text-sm mr-2"></i> Opportunities
+                        </button>
+                        <button id="tab-fac" data-tab="facilities"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-flask text-sm mr-2"></i> Facilities
+                        </button>
+                        <button id="tab-pro" data-tab="projects"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-list-check text-sm mr-2"></i> Projects
+                        </button>
+                        <button id="tab-team" data-tab="team"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-users text-sm mr-2"></i> My Team
+                        </button>
+                        <button id="tab-chal" data-tab="challenge"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-person-chalkboard text-sm mr-2"></i> Challenge Board
+                        </button>
+                        <button id="tab-award" data-tab="award"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-award text-sm mr-2"></i> Award & Recognition
+                        </button>
+                        <button id="tab-avail" data-tab="availability"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-star text-sm mr-2"></i> Availability for Mentorship
+                        </button>
+                        <button id="tab-recom" data-tab="recommended"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-book text-sm mr-2"></i> Recommended Readings
+                        </button>
+                        <button id="tab-pub" data-tab="publications"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-file-shield text-sm mr-2"></i> Publications
+                        </button>
+                    </div>
+                    <div class="mt-6">
+                        <div
+                                class=" w-full h-max text-left  px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold ">
+                            <i class="fa fa-lightbulb text-sm mr-2"></i> Similar Experts
+                        </div>
+                        <div class=" bg-gray-100">
+                            <a href="{{url_for('facultyProfile')}}"
+                               class="w-full group flex items-center p-2 gap-2 border-t-[1px] border-t-[#314a4a]/50 ">
+                                <img src="../static/images/logo-shade_blue.png"
+                                     class="h-12 w-12 rounded-full flex-none" alt="">
+                                <div class="w-full flex flex-col">
+                                    <span class="font-bold text-sm group-hover:underline">Dr Rakesh Singh</span>
+                                    <p class="text-black/70 font-normal text-sm">Inorganic and Nuclear Chemistry</p>
+                                </div>
+                            </a>
+                            <a href="{{url_for('facultyProfile')}}"
+                               class="w-full group flex items-center p-2 gap-2 border-t-[1px] border-t-[#314a4a]/50 ">
+                                <img src="../static/images/logo-shade_blue.png"
+                                     class="h-12 w-12 rounded-full flex-none" alt="">
+                                <div class="w-full flex flex-col">
+                                    <span class="font-bold text-sm group-hover:underline">Prof Vidwan Singh</span>
+                                    <p class="text-black/70 font-normal text-sm">Inorganic and Nuclear Chemistry</p>
+                                </div>
+                            </a>
+                            <a href="{{url_for('facultyProfile')}}"
+                               class="w-full group flex items-center p-2 gap-2 border-t-[1px] border-t-[#314a4a]/50 ">
+                                <img src="../static/images/logo-shade_blue.png"
+                                     class="h-12 w-12 rounded-full flex-none" alt="">
+                                <div class="w-full flex flex-col">
+                                    <span class="font-bold text-sm group-hover:underline">Dr Rakesh Singh</span>
+                                    <p class="text-black/70 font-normal text-sm">Inorganic and Nuclear Chemistry</p>
+                                </div>
+                            </a>
+                            <a href="{{url_for('facultyProfile')}}"
+                               class="w-full group flex items-center p-2 gap-2 border-t-[1px] border-t-[#314a4a]/50 ">
+                                <img src="../static/images/logo-shade_blue.png"
+                                     class="h-12 w-12 rounded-full flex-none" alt="">
+                                <div class="w-full flex flex-col">
+                                    <span class="font-bold text-sm group-hover:underline">Prof Vidwan Singh</span>
+                                    <p class="text-black/70 font-normal text-sm">Inorganic and Nuclear Chemistry</p>
+                                </div>
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full lg:col-span-3  md:col-span-2 col-span-1">
+                    <div id="tab-content-facultyProfile" data-tab-content="facultyProfile" class="faculty-tab-content w-full flex flex-col gap-4 ">
+                        <div class="w-full ">
+                            <div class="w-full flex lg:flex-row md:flex-row flex-col gap-1">
+                                <div class="flex flex-col items-center lg:w-max md:w-max w-full flex-none">
+                                    <img src="../static/images/logo-shade_blue.png" class="w-52 h-auto" alt="">
+                                    <span class="text-[#314a4a] font-bold mt-2 text-lg">Dr. Ramesh Singh</span>
+                                    <span class="text-black font-normal leading-4 text-sm">Associate Professor</span>
+                                    <span class="text-black font-normal leading-4 text-sm">Chandigarh University</span>
+                                </div>
+                                <div class="w-full ">
+                                    <div class=" w-full h-max text-left  px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold ">
+                                        <i class="fa fa-person text-sm mr-2"></i> Profile Overview
+                                    </div>
+                                    <div class="w-full grid lg:grid-cols-4 md:grid-cols-1 sm:grid-cols-2 grid-cols-1">
+                                        <div class="w-full flex flex-col bg-gray-100 px-2 py-0.5 lg:border-r-[1px] lg:border-r-[#314a4a]/50 lg:border-b-0 md:border-b-[1px] md:border-b-[#314a4a]/50 ">
+                                            <span class="font-semibold text-[#314a4a] text-sm">Orcid Id</span>
+                                            <p class="font-normal text-xs">0000-1548-4585-6582</p>
+                                        </div>
+                                        <div class="w-full flex flex-col bg-gray-100 px-2 py-0.5 lg:border-r-[1px] lg:border-r-[#314a4a]/50 lg:border-b-0 md:border-b-[1px] md:border-b-[#314a4a]/50 ">
+                                            <span class="font-semibold text-[#314a4a] text-sm">Scopus Id</span>
+                                            <p class="font-normal text-xs">5896541258</p>
+                                        </div>
+                                        <div class="w-full flex flex-col bg-gray-100 px-2 py-0.5 lg:border-r-[1px] lg:border-r-[#314a4a]/50 lg:border-b-0 md:border-b-[1px] md:border-b-[#314a4a]/50 ">
+                                            <span class="font-semibold text-[#314a4a] text-sm">Researcher Id</span>
+                                            <p class="font-normal text-xs">GHY-2154-2589</p>
+                                        </div>
+                                        <div class="w-full flex flex-col bg-gray-100 px-2 py-0.5 ">
+                                            <span class="font-semibold text-[#314a4a] text-sm">Google Scholar Id</span>
+                                            <p class="font-normal text-xs">SKjglalLUlsl</p>
+                                        </div>
+                                    </div>
+                                    <div class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4 mt-4">
+                                        <div class="w-full flex bg-blue-100 p-3 gap-3">
+                                            <i class="fa fa-list-check text-lg text-blue-800"></i>
+                                            <div class="w-full flex flex-col">
+                                                <span class="text-blue-800 text-sm font-semibold">Publications</span>
+                                                <span class="text-[#314a4a] font-bold lg:text-2xl">23</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-full flex bg-green-100 p-3 gap-3">
+                                            <i class="fa fa-award text-lg text-green-800"></i>
+                                            <div class="w-full flex flex-col">
+                                                <span class="text-green-800 text-sm font-semibold">Awards</span>
+                                                <span class="text-[#314a4a] font-bold lg:text-2xl">3</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-full flex bg-red-100 p-3 gap-3">
+                                            <i class="fa fa-headphones text-lg text-red-800"></i>
+                                            <div class="w-full flex flex-col">
+                                                <span class="text-red-800 text-sm font-semibold">Conference Proceedings</span>
+                                                <span class="text-[#314a4a] font-bold lg:text-2xl">1</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class=" w-full h-max text-left  px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold mt-4">
+                                        Citations / H-Index
+                                    </div>
+                                    <div class="w-full grid lg:grid-cols-3 md:grid-cols-1 sm:grid-cols-2 grid-cols-1">
+                                        <div class="w-full flex flex-col bg-gray-100 px-2 py-0.5 lg:border-r-[1px] lg:border-r-[#314a4a]/50 ">
+                                            <span class="font-bold text-[#314a4a] text-lg">481</span>
+                                            <p class="font-normal text-xs">CITATION</p>
+                                        </div>
+                                        <div class="w-full flex flex-col bg-gray-100 px-2 py-0.5 lg:border-r-[1px] lg:border-r-[#314a4a]/50 ">
+                                            <span class="font-bold text-[#314a4a] text-lg">12</span>
+                                            <p class="font-normal text-xs">H-INDEX</p>
+                                        </div>
+
+                                        <div class="w-full flex flex-col bg-gray-100 px-2 py-0.5 ">
+                                            <span class="font-bold text-[#314a4a] text-lg">400</span>
+                                            <p class="font-normal text-xs">CITATIONS</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="w-full ">
+                            <div id="chart" class="w-full"></div>
+                        </div>
+                        <div class="w-full flex lg:flex-row md:flex-row sm:flex-row flex-col gap-6 mt-2">
+                            <div class="lg:w-[70%] md:w-[70%] sm:w-[60%] w-full bg-gray-100">
+                                <div
+                                        class=" w-full h-max text-left  px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold ">
+                                    <i class="fa fa-message text-sm mr-2"></i> Expectations from students
+                                </div>
+                                <div class=" bg-gray-100 p-2">
+                                    <p class="text-black text-sm">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto culpa libero perferendis. Ab ad aliquid cumque eligendi eos excepturi illum impedit ipsum nobis non nulla perferendis quos, recusandae reprehenderit rerum ut vel voluptatibus. Aperiam consequatur esse et magni nulla repellat, tenetur. Exercitationem hic molestiae numquam vitae? Accusantium ad architecto blanditiis debitis dignissimos ea eius eum exercitationem expedita fugiat id ipsum mollitia nisi non optio perferendis praesentium, provident quas qui quos repellendus reprehenderit repudiandae soluta velit, voluptate voluptatem voluptatibus? Accusamus adipisci aliquam debitis eos expedita harum ipsam ipsum officiis praesentium voluptatibus. Deleniti eligendi est harum impedit maiores praesentium rem repellat voluptatem.</p>
+                                </div>
+
+                            </div>
+                            <div class="lg:w-[30%] md:w-[30%] sm:w-[40%] w-full bg-gray-100">
+                                <div
+                                        class=" w-full h-max text-left  px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold ">
+                                    <i class="fa fa-flask text-sm mr-2"></i> Research Area
+                                </div>
+                                <div class=" bg-gray-100 p-2">
+                                    <p class="text-black text-sm">Chemisty, Biology, Engineering, Natural Science, Biochemistry </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-content-publications" data-tab-content="publications" class="faculty-tab-content w-full flex flex-col gap-4 ">
+                        <div class=" w-full h-max text-left  px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold ">
+                            <i class="fa fa-file text-sm mr-2"></i> Publications (20)
+                        </div>
+
+                        <div class="w-full flex justify-end flex-wrap gap-2">
+                            <input type="text" class="px-2 py-1 rounded-[3px] border-[1px] font-semibold text-sm border-[#314a4a]/70 placeholder-black focus:border-[#314a4a] focus:outline-none focus:ring-0" placeholder="Search publication....">
+                            <input type="date" class="px-2 py-1 rounded-[3px] border-[1px] font-semibold text-sm border-[#314a4a]/70 focus:border-[#314a4a] focus:outline-none focus:ring-0" placeholder="Search publication....">
+                        </div>
+
+                        <div class="w-full flex flex-col gap-6">
+                            <div class="w-full flex flex-col p-4 justify-center shadow-lg shadow-black/10 border-l-[5px] border-l-[#314a4a]/50">
+                                <span class="text-black font-bold lg:text-lg"><i class="fa fa-tag mr-2 text-red-700"></i> Synthesis, Characterization, Antimicrobial Activity, and Molecular Docking Study of Newer Chalcone-based Triazolo Pyrimidine Compounds</span>
+                                <span class="text-blue-600 font-medium lg:text-sm mt-2"> <i class="fa fa-users mr-2"></i> Arora S.;Das S.P.</span>
+                                <span class="text-[#314a4a] font-normal mt-1 text-sm"> <span class="bg-blue-600 text-white text-xs px-2 rounded-sm mr-2"> Article</span> E3S Web of Conferences, <span class="text-sm">Volume</span> <span class="font-bold underline">509</span>, <span class="text-sm">Year</span> <span class="font-bold underline">2024</span>
+                                           <a href="#"><i class="fa fa-up-right-from-square ml-4"></i></a>
+                                          </span>
+
+                            </div>
+                            <div class="w-full flex flex-col p-4 justify-center shadow-lg shadow-black/10 border-l-[5px] border-l-[#314a4a]/50">
+                                <span class="text-black font-bold lg:text-lg"><i class="fa fa-tag mr-2 text-red-700"></i> Synthesis, Characterization, Antimicrobial Activity, and Molecular Docking Study of Newer Chalcone-based Triazolo Pyrimidine Compounds</span>
+                                <span class="text-blue-600 font-medium lg:text-sm mt-2"> <i class="fa fa-users mr-2"></i> Arora S.;Das S.P.</span>
+                                <span class="text-[#314a4a] font-normal mt-1 text-sm"> <span class="bg-blue-600 text-white text-xs px-2 rounded-sm mr-2"> Article</span> E3S Web of Conferences, <span class="text-sm">Volume</span> <span class="font-bold underline">509</span>, <span class="text-sm">Year</span> <span class="font-bold underline">2024</span>
+                                           <a href="#"><i class="fa fa-up-right-from-square ml-4"></i></a>
+                                          </span>
+
+                            </div>
+                            <div class="w-full flex flex-col p-4 justify-center shadow-lg shadow-black/10 border-l-[5px] border-l-[#314a4a]/50">
+                                <span class="text-black font-bold lg:text-lg"><i class="fa fa-tag mr-2 text-red-700"></i> Synthesis, Characterization, Antimicrobial Activity, and Molecular Docking Study of Newer Chalcone-based Triazolo Pyrimidine Compounds</span>
+                                <span class="text-blue-600 font-medium lg:text-sm mt-2"> <i class="fa fa-users mr-2"></i> Arora S.;Das S.P.</span>
+                                <span class="text-[#314a4a] font-normal mt-1 text-sm"> <span class="bg-blue-600 text-white text-xs px-2 rounded-sm mr-2"> Article</span> E3S Web of Conferences, <span class="text-sm">Volume</span> <span class="font-bold underline">509</span>, <span class="text-sm">Year</span> <span class="font-bold underline">2024</span>
+                                           <a href="#"><i class="fa fa-up-right-from-square ml-4"></i></a>
+                                          </span>
+
+                            </div>
+                            <div class="w-full flex flex-col p-4 justify-center shadow-lg shadow-black/10 border-l-[5px] border-l-[#314a4a]/50">
+                                <span class="text-black font-bold lg:text-lg"><i class="fa fa-tag mr-2 text-red-700"></i> Synthesis, Characterization, Antimicrobial Activity, and Molecular Docking Study of Newer Chalcone-based Triazolo Pyrimidine Compounds</span>
+                                <span class="text-blue-600 font-medium lg:text-sm mt-2"> <i class="fa fa-users mr-2"></i> Arora S.;Das S.P.</span>
+                                <span class="text-[#314a4a] font-normal mt-1 text-sm"> <span class="bg-blue-600 text-white text-xs px-2 rounded-sm mr-2"> Article</span> E3S Web of Conferences, <span class="text-sm">Volume</span> <span class="font-bold underline">509</span>, <span class="text-sm">Year</span> <span class="font-bold underline">2024</span>
+                                           <a href="#"><i class="fa fa-up-right-from-square ml-4"></i></a>
+                                          </span>
+
+                            </div>
+                            <div class="w-full flex justify-center mt-4">
+                                <button class="flex items-center bg-[#314a4a] text-white px-4 rounded-sm py-0.5 border-[1px] border-[#314a4a] hover:bg-white hover:text-[#314a4a] transition ease-in duration-2000"><i class="fa fa-spinner mr-2"></i> Load more</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-content-award" data-tab-content="award" class="faculty-tab-content w-full flex flex-col gap-4 ">
+                        <div class=" w-full h-max text-left  px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold ">
+                            <i class="fa fa-award text-sm mr-2"></i> Award & Recognition
+                        </div>
+                        <div class="w-full grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-2 grid-cols-1 gap-4">
+                            <div class="w-full shadow-lg shadow-black/10 p-2 pt-6 flex flex-col items-center relative">
+
+                                <div class="absolute top-0 left-0 w-full flex justify-end">
+                                    <button class="font-bold px-2 bg-[#314a4a] text-white">2019</button>
+                                </div>
+                                <i class="fa fa-award lg:text-5xl md:text-4xl sm:text-4xl text-5xl text-yellow-600"></i>
+
+                                <span class="text-center leading-4 font-semibold text-black mt-4">Rajiv Gandhi National Fellowship</span>
+                                <span class="mt-2 font-normal text-sm">UGC, New Delhi</span>
+                            </div>
+                            <div class="w-full shadow-lg shadow-black/10 p-2 pt-6 flex flex-col items-center relative">
+
+                                <div class="absolute top-0 left-0 w-full flex justify-end">
+                                    <button class="font-bold px-2 bg-[#314a4a] text-white">2020</button>
+                                </div>
+                                <i class="fa fa-award lg:text-5xl md:text-4xl sm:text-4xl text-5xl text-yellow-600"></i>
+
+                                <span class="text-center leading-4 font-semibold text-black mt-4">Rajiv Gandhi National Fellowship</span>
+                                <span class="mt-2 font-normal text-sm">UGC, New Delhi</span>
+                            </div>
+                            <div class="w-full shadow-lg shadow-black/10 p-2 pt-6 flex flex-col items-center relative">
+
+                                <div class="absolute top-0 left-0 w-full flex justify-end">
+                                    <button class="font-bold px-2 bg-[#314a4a] text-white">2019</button>
+                                </div>
+                                <i class="fa fa-award lg:text-5xl md:text-4xl sm:text-4xl text-5xl text-yellow-600"></i>
+
+                                <span class="text-center leading-4 font-semibold text-black mt-4">Rajiv Gandhi National Fellowship</span>
+                                <span class="mt-2 font-normal text-sm">UGC, New Delhi</span>
+                            </div>
+                            <div class="w-full shadow-lg shadow-black/10 p-2 pt-6 flex flex-col items-center relative">
+
+                                <div class="absolute top-0 left-0 w-full flex justify-end">
+                                    <button class="font-bold px-2 bg-[#314a4a] text-white">2020</button>
+                                </div>
+                                <i class="fa fa-award lg:text-5xl md:text-4xl sm:text-4xl text-5xl text-yellow-600"></i>
+
+                                <span class="text-center leading-4 font-semibold text-black mt-4">Rajiv Gandhi National Fellowship</span>
+                                <span class="mt-2 font-normal text-sm">UGC, New Delhi</span>
+                            </div>
+                            <div class="w-full shadow-lg shadow-black/10 p-2 pt-6 flex flex-col items-center relative">
+
+                                <div class="absolute top-0 left-0 w-full flex justify-end">
+                                    <button class="font-bold px-2 bg-[#314a4a] text-white">2019</button>
+                                </div>
+                                <i class="fa fa-award lg:text-5xl md:text-4xl sm:text-4xl text-5xl text-yellow-600"></i>
+
+                                <span class="text-center leading-4 font-semibold text-black mt-4">Rajiv Gandhi National Fellowship</span>
+                                <span class="mt-2 font-normal text-sm">UGC, New Delhi</span>
+                            </div>
+                            <div class="w-full shadow-lg shadow-black/10 p-2 pt-6 flex flex-col items-center relative">
+
+                                <div class="absolute top-0 left-0 w-full flex justify-end">
+                                    <button class="font-bold px-2 bg-[#314a4a] text-white">2020</button>
+                                </div>
+                                <i class="fa fa-award lg:text-5xl md:text-4xl sm:text-4xl text-5xl text-yellow-600"></i>
+
+                                <span class="text-center leading-4 font-semibold text-black mt-4">Rajiv Gandhi National Fellowship</span>
+                                <span class="mt-2 font-normal text-sm">UGC, New Delhi</span>
+                            </div>
+                            <div class="w-full shadow-lg shadow-black/10 p-2 pt-6 flex flex-col items-center relative">
+
+                                <div class="absolute top-0 left-0 w-full flex justify-end">
+                                    <button class="font-bold px-2 bg-[#314a4a] text-white">2019</button>
+                                </div>
+                                <i class="fa fa-award lg:text-5xl md:text-4xl sm:text-4xl text-5xl text-yellow-600"></i>
+
+                                <span class="text-center leading-4 font-semibold text-black mt-4">Rajiv Gandhi National Fellowship</span>
+                                <span class="mt-2 font-normal text-sm">UGC, New Delhi</span>
+                            </div>
+                            <div class="w-full shadow-lg shadow-black/10 p-2 pt-6 flex flex-col items-center relative">
+
+                                <div class="absolute top-0 left-0 w-full flex justify-end">
+                                    <button class="font-bold px-2 bg-[#314a4a] text-white">2020</button>
+                                </div>
+                                <i class="fa fa-award lg:text-5xl md:text-4xl sm:text-4xl text-5xl text-yellow-600"></i>
+
+                                <span class="text-center leading-4 font-semibold text-black mt-4">Rajiv Gandhi National Fellowship</span>
+                                <span class="mt-2 font-normal text-sm">UGC, New Delhi</span>
+                            </div>
+                            <div class="w-full shadow-lg shadow-black/10 p-2 pt-6 flex flex-col items-center relative">
+
+                                <div class="absolute top-0 left-0 w-full flex justify-end">
+                                    <button class="font-bold px-2 bg-[#314a4a] text-white">2019</button>
+                                </div>
+                                <i class="fa fa-award lg:text-5xl md:text-4xl sm:text-4xl text-5xl text-yellow-600"></i>
+
+                                <span class="text-center leading-4 font-semibold text-black mt-4">Rajiv Gandhi National Fellowship</span>
+                                <span class="mt-2 font-normal text-sm">UGC, New Delhi</span>
+                            </div>
+                            <div class="w-full shadow-lg shadow-black/10 p-2 pt-6 flex flex-col items-center relative">
+
+                                <div class="absolute top-0 left-0 w-full flex justify-end">
+                                    <button class="font-bold px-2 bg-[#314a4a] text-white">2020</button>
+                                </div>
+                                <i class="fa fa-award lg:text-5xl md:text-4xl sm:text-4xl text-5xl text-yellow-600"></i>
+
+                                <span class="text-center leading-4 font-semibold text-black mt-4">Rajiv Gandhi National Fellowship</span>
+                                <span class="mt-2 font-normal text-sm">UGC, New Delhi</span>
+                            </div>
+                            <div class="w-full shadow-lg shadow-black/10 p-2 pt-6 flex flex-col items-center relative">
+
+                                <div class="absolute top-0 left-0 w-full flex justify-end">
+                                    <button class="font-bold px-2 bg-[#314a4a] text-white">2019</button>
+                                </div>
+                                <i class="fa fa-award lg:text-5xl md:text-4xl sm:text-4xl text-5xl text-yellow-600"></i>
+
+                                <span class="text-center leading-4 font-semibold text-black mt-4">Rajiv Gandhi National Fellowship</span>
+                                <span class="mt-2 font-normal text-sm">UGC, New Delhi</span>
+                            </div>
+                            <div class="w-full shadow-lg shadow-black/10 p-2 pt-6 flex flex-col items-center relative">
+
+                                <div class="absolute top-0 left-0 w-full flex justify-end">
+                                    <button class="font-bold px-2 bg-[#314a4a] text-white">2020</button>
+                                </div>
+                                <i class="fa fa-award lg:text-5xl md:text-4xl sm:text-4xl text-5xl text-yellow-600"></i>
+
+                                <span class="text-center leading-4 font-semibold text-black mt-4">Rajiv Gandhi National Fellowship</span>
+                                <span class="mt-2 font-normal text-sm">UGC, New Delhi</span>
+                            </div>
+                            <div class="w-full shadow-lg shadow-black/10 p-2 pt-6 flex flex-col items-center relative">
+
+                                <div class="absolute top-0 left-0 w-full flex justify-end">
+                                    <button class="font-bold px-2 bg-[#314a4a] text-white">2019</button>
+                                </div>
+                                <i class="fa fa-award lg:text-5xl md:text-4xl sm:text-4xl text-5xl text-yellow-600"></i>
+
+                                <span class="text-center leading-4 font-semibold text-black mt-4">Rajiv Gandhi National Fellowship</span>
+                                <span class="mt-2 font-normal text-sm">UGC, New Delhi</span>
+                            </div>
+                            <div class="w-full shadow-lg shadow-black/10 p-2 pt-6 flex flex-col items-center relative">
+
+                                <div class="absolute top-0 left-0 w-full flex justify-end">
+                                    <button class="font-bold px-2 bg-[#314a4a] text-white">2020</button>
+                                </div>
+                                <i class="fa fa-award lg:text-5xl md:text-4xl sm:text-4xl text-5xl text-yellow-600"></i>
+
+                                <span class="text-center leading-4 font-semibold text-black mt-4">Rajiv Gandhi National Fellowship</span>
+                                <span class="mt-2 font-normal text-sm">UGC, New Delhi</span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div id="tab-content-team" data-tab-content="team" class="faculty-tab-content w-full flex flex-col gap-4 ">
+                        <div class=" w-full h-max text-left  px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold ">
+                            <i class="fa fa-users text-sm mr-2"></i> Team
+                        </div>
+                        <div class="w-full grid lg:grid-cols-3 gap-4">
+                            <div class="w-full flex gap-2 items-center border-[1px] border-[#314a4a]/50 rounded-md p-2 bg-[#314a4a]/10">
+                                <div class="w-16 h-16 rounded-full flex-none">
+                                    <img src="../static/images/logo-shade_blue.png" class="h-full w-full rounded-full" alt="">
+                                </div>
+                                <div class="w-full flex flex-col">
+                                    <span class="font-bold text-black text-lg leading-6">Boruah J.J.</span>
+                                    <span class="font-medium text-gray-600 text-sm leading-6">Professor (IIT ROORKEE)</span>
+                                </div>
+                            </div>
+                            <div class="w-full flex gap-2 items-center border-[1px] border-[#314a4a]/50 rounded-md p-2 bg-[#314a4a]/10">
+                                <div class="w-16 h-16 rounded-full flex-none">
+                                    <img src="" class="h-full w-full rounded-full" alt="">
+                                </div>
+                                <div class="w-full flex flex-col">
+                                    <span class="font-bold text-black text-lg leading-6">Boruah J.J.</span>
+                                    <span class="font-medium text-gray-600 text-sm leading-6">Professor (IIT ROORKEE)</span>
+                                </div>
+                            </div>
+                            <div class="w-full flex gap-2 items-center border-[1px] border-[#314a4a]/50 rounded-md p-2 bg-[#314a4a]/10">
+                                <div class="w-16 h-16 rounded-full flex-none">
+                                    <img src="" class="h-full w-full rounded-full" alt="">
+                                </div>
+                                <div class="w-full flex flex-col">
+                                    <span class="font-bold text-black text-lg leading-6">Boruah J.J.</span>
+                                    <span class="font-medium text-gray-600 text-sm leading-6">Professor (IIT ROORKEE)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}

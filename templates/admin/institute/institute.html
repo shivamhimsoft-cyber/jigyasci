@@ -1,0 +1,577 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard | Research Collaboration Platform{% endblock %}
+
+{% block content %}
+<div class="max-w-full">
+<div class="container full-container max-w-full">
+
+<div class="flex justify-end mb-4">
+    <a href="{{ url_for('add_institute') }}" 
+       class="bg-green-500 hover:bg-green-600 text-black font-semibold py-2 px-4 rounded shadow">
+        Add Institute
+    </a>
+</div>
+
+ <div class="grid grid-cols-12 gap-6 mt-6">
+            <div class="col-span-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="sm:flex items-center justify-between mb-4">
+                            <div>
+                                <h5 class="card-title">Recent Users</h5>
+                                <p class="card-subtitle">Latest users registrations</p>
+                            </div>
+                            <div class="flex items-center gap-3 md:mt-0 mt-3">
+                                <form class="relative">
+                                    <input type="text"
+                                           class="form-control rounded-full py-[9px]  ps-12 border-bordergray  text-dark dark:text-darklink text-fs_15  font-medium"
+                                           placeholder="Search">
+                                    <iconify-icon icon="solar:magnifer-linear"
+                                                  class="text-dark dark:text-darklink absolute top-3  start-1 text-lg  ms-3"></iconify-icon>
+                                </form>
+
+                            </div>
+
+                        </div>
+                        <div class="flex flex-col">
+                            <div class="-m-1.5 overflow-x-auto">
+                                <div class="p-1.5 min-w-full inline-block align-middle">
+                                    <div class="overflow-hidden">
+                                        <table
+                                                class="min-w-full divide-y divide-border dark:divide-darkborder">
+                                            <thead>
+                                            <tr>
+                                                <th scope="col"
+                                                    class="text-start  p-3 ps-0 font-semibold text-dark dark:text-white text-base">
+                                                    #</th>
+                                                <th scope="col"
+                                                    class="text-start  p-3 font-semibold text-dark dark:text-white text-base">
+                                                    Products</th>
+                                                <th scope="col"
+                                                    class="text-start  p-3 font-semibold text-dark dark:text-white text-base">
+                                                    Customer</th>
+                                                <th scope="col"
+                                                    class="text-start  p-3 font-semibold text-dark dark:text-white text-base">
+                                                    Review</th>
+                                                <th scope="col"
+                                                    class="text-start  p-3 font-semibold text-dark dark:text-white text-base">
+                                                    Status</th>
+                                                <th scope="col"
+                                                    class="text-start  p-3 font-semibold text-dark dark:text-white text-base">
+                                                    Time</th>
+                                                <th scope="col"
+                                                    class="text-start  p-3 font-semibold text-dark dark:text-white text-base">
+                                                </th>
+
+                                            </tr>
+                                            </thead>
+                                            <tbody
+                                                    class="divide-y divide-border dark:divide-darkborder">
+                                            <tr>
+                                                <td class="p-3 ps-0 whitespace-nowrap">
+                                                    <input type="checkbox" class="form-check-input rounded-xs"
+                                                           id="check1">
+                                                </td>
+                                                <td class="p-3 whitespace-nowrap">
+                                                    <div class="flex gap-4 items-center truncate ">
+                                                        <div class>
+                                                            <img src="../static/assets/images/products/product-5.png"
+                                                                 width="60" height="60"
+                                                                 alt="user" />
+                                                        </div>
+                                                        <h6
+                                                                class="text-base line-clamp-2 md:max-w-56 whitespace-normal ">
+                                                            iPhone 13 pro max-Pacific Blue-128GB storage</h6>
+                                                    </div>
+                                                </td>
+
+                                                <td class="p-3">
+                                                    <div class="flex gap-4 items-center truncate">
+                                                        <img src="../static/assets/images/profile/user-2.jpg" alt
+                                                             class="w-8 h-8 rounded-full">
+                                                        <div>
+                                                            <h5 class="text-base">Arlene McCoy</h5>
+                                                            <p
+                                                                    class="text-dark dark:text-darklink font-light">macoy@arlene.com</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="p-3">
+                                                    <div class="flex gap-1">
+                                                        <iconify-icon icon="solar:star-bold"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-bold"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-bold"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-bold-duotone"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-line-duotone"
+                                                                      class="text-warning"></iconify-icon>
+                                                    </div>
+                                                    <p
+                                                            class="font-medium mt-1 text-dark dark:text-darklink  truncate line-clamp-2 max-w-56 whitespace-normal">
+                                                        This theme is great. Clean and easy to understand. Perfect
+                                                        for
+                                                    </p>
+                                                </td>
+                                                <td class="p-3">
+                                                    <div
+                                                            class="badge bg-lightsuccess dark:bg-darksuccess border-success text-success w-fit">Confirmed</div>
+
+                                                </td>
+                                                <td
+                                                        class="p-3 font-medium text-dark dark:text-darklink whitespace-nowrap">
+                                                    Nov 8
+                                                </td>
+                                                <td class="p-3">
+                                                    <div class="hs-dropdown relative inline-flex">
+                                                        <button id="hs-dropdown-custom-icon-trigger"
+                                                                class="hs-dropdown-toggle h-10 w-10 text-bodytext dark:text-darklink hover:text-primary dark:hover:text-primary group bg-hover justify-center items-center rounded-full">
+                                                            <i class="ti ti-dots-vertical text-lg"></i>
+                                                        </button>
+
+                                                        <div
+                                                                class="hs-dropdown-menu overflow-hidden z-[1] transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 min-w-40 hidden"
+                                                                aria-labelledby="hs-dropdown-custom-icon-trigger">
+                                                            <div class="flex flex-col">
+                                                                <div class="py-1 px-4 bg-hover">
+                                                                    <a class="font-medium flex gap-2 items-center "
+                                                                       href="index.html#">
+                                                                        <i class="ti ti-plus  text-base"></i>Add
+                                                                    </a>
+                                                                </div>
+                                                                <div class="py-1 px-4 bg-hover">
+                                                                    <a class="font-medium flex gap-2 items-center "
+                                                                       href="index.html#">
+                                                                        <i class="ti ti-edit  text-base"></i>Edit
+                                                                    </a>
+                                                                </div>
+                                                                <div class="py-1 px-4 bg-hover">
+                                                                    <a class="font-medium flex gap-2 items-center "
+                                                                       href="index.html#">
+                                                                        <i class="ti ti-trash  text-base"></i>Delete
+
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-3 ps-0 whitespace-nowrap">
+                                                    <input type="checkbox" class="form-check-input rounded-xs"
+                                                           id="check2">
+                                                </td>
+                                                <td class="p-3 whitespace-nowrap">
+                                                    <div class="flex gap-4 items-center truncate ">
+                                                        <div class>
+                                                            <img src="../static/assets/images/products/product-6.png"
+                                                                 width="60" height="60"
+                                                                 alt="user" />
+                                                        </div>
+                                                        <h6
+                                                                class="text-base line-clamp-2 md:max-w-56 whitespace-normal ">
+                                                            Apple MacBook Pro 13 inch-M1-8/256GB-space</h6>
+                                                    </div>
+                                                </td>
+
+                                                <td class="p-3">
+                                                    <div class="flex gap-4 items-center truncate">
+                                                        <img src="../static/assets/images/profile/user-3.jpg" alt
+                                                             class="w-8 h-8 rounded-full">
+                                                        <div>
+                                                            <h5 class="text-base">Jerome Bell</h5>
+                                                            <p
+                                                                    class="text-dark dark:text-darklink font-light">belljerome@yahoo.com</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="p-3">
+                                                    <div class="flex gap-1">
+                                                        <iconify-icon icon="solar:star-bold"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-bold"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-bold"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-bold-duotone"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-line-duotone"
+                                                                      class="text-warning"></iconify-icon>
+                                                    </div>
+                                                    <p
+                                                            class="font-medium mt-1 text-dark dark:text-darklink  truncate line-clamp-2 max-w-56 whitespace-normal">
+                                                        It's a Mac, after all. Once you've gone Mac,there's no
+                                                        going back. My first Mac
+                                                        lastedover nine years.
+                                                    </p>
+                                                </td>
+                                                <td class="p-3">
+                                                    <div
+                                                            class="badge bg-lightwarning dark:bg-darkwarning border-warning text-warning w-fit">Pending</div>
+
+                                                </td>
+                                                <td
+                                                        class="p-3 font-medium text-dark dark:text-darklink whitespace-nowrap">
+                                                    Nov 8
+                                                </td>
+                                                <td class="p-3">
+                                                    <div class="hs-dropdown relative inline-flex">
+                                                        <button id="hs-dropdown-custom-icon-trigger"
+                                                                class="hs-dropdown-toggle h-10 w-10 text-bodytext dark:text-darklink hover:text-primary dark:hover:text-primary group bg-hover justify-center items-center rounded-full">
+                                                            <i class="ti ti-dots-vertical text-lg"></i>
+                                                        </button>
+
+                                                        <div
+                                                                class="hs-dropdown-menu overflow-hidden z-[1] transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 min-w-40 hidden"
+                                                                aria-labelledby="hs-dropdown-custom-icon-trigger">
+                                                            <div class="flex flex-col">
+                                                                <div class="py-1 px-4 bg-hover">
+                                                                    <a class="font-medium flex gap-2 items-center "
+                                                                       href="index.html#">
+                                                                        <i class="ti ti-plus  text-base"></i>Add
+                                                                    </a>
+                                                                </div>
+                                                                <div class="py-1 px-4 bg-hover">
+                                                                    <a class="font-medium flex gap-2 items-center "
+                                                                       href="index.html#">
+                                                                        <i class="ti ti-edit  text-base"></i>Edit
+                                                                    </a>
+                                                                </div>
+                                                                <div class="py-1 px-4 bg-hover">
+                                                                    <a class="font-medium flex gap-2 items-center "
+                                                                       href="index.html#">
+                                                                        <i class="ti ti-trash  text-base"></i>Delete
+
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-3 ps-0 whitespace-nowrap">
+                                                    <input type="checkbox" class="form-check-input rounded-xs"
+                                                           id="check3">
+                                                </td>
+                                                <td class="p-3 whitespace-nowrap">
+                                                    <div class="flex gap-4 items-center truncate ">
+                                                        <div class>
+                                                            <img src="../static/assets/images/products/product-7.png"
+                                                                 width="60" height="60"
+                                                                 alt="user" />
+                                                        </div>
+                                                        <h6
+                                                                class="text-base line-clamp-2 md:max-w-56 whitespace-normal ">
+                                                            PlayStation 5 DualSense Wireless Controller</h6>
+                                                    </div>
+                                                </td>
+
+                                                <td class="p-3">
+                                                    <div class="flex gap-4 items-center truncate">
+                                                        <img src="../static/assets/images/profile/user-4.jpg" alt
+                                                             class="w-8 h-8 rounded-full">
+                                                        <div>
+                                                            <h5 class="text-base">Jacob Jones</h5>
+                                                            <p
+                                                                    class="text-dark dark:text-darklink font-light">jones009@hotmail.com</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="p-3">
+                                                    <div class="flex gap-1">
+                                                        <iconify-icon icon="solar:star-bold"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-bold"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-bold"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-bold-duotone"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-line-duotone"
+                                                                      class="text-warning"></iconify-icon>
+                                                    </div>
+                                                    <p
+                                                            class="font-medium mt-1 text-dark dark:text-darklink  truncate line-clamp-2 max-w-56 whitespace-normal">
+                                                        The best experience we could hope for.Customer service
+                                                        team is amazing and thequality
+                                                        of their products...
+                                                    </p>
+                                                </td>
+                                                <td class="p-3">
+                                                    <div
+                                                            class="badge bg-lightwarning dark:bg-darkwarning border-warning text-warning w-fit">Pending</div>
+
+                                                </td>
+                                                <td
+                                                        class="p-3 font-medium text-dark dark:text-darklink whitespace-nowrap">
+                                                    Nov 8
+                                                </td>
+                                                <td class="p-3">
+                                                    <div class="hs-dropdown relative inline-flex">
+                                                        <button id="hs-dropdown-custom-icon-trigger"
+                                                                class="hs-dropdown-toggle h-10 w-10 text-bodytext dark:text-darklink hover:text-primary dark:hover:text-primary group bg-hover justify-center items-center rounded-full">
+                                                            <i class="ti ti-dots-vertical text-lg"></i>
+                                                        </button>
+
+                                                        <div
+                                                                class="hs-dropdown-menu overflow-hidden z-[1] transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 min-w-40 hidden"
+                                                                aria-labelledby="hs-dropdown-custom-icon-trigger">
+                                                            <div class="flex flex-col">
+                                                                <div class="py-1 px-4 bg-hover">
+                                                                    <a class="font-medium flex gap-2 items-center "
+                                                                       href="index.html#">
+                                                                        <i class="ti ti-plus  text-base"></i>Add
+                                                                    </a>
+                                                                </div>
+                                                                <div class="py-1 px-4 bg-hover">
+                                                                    <a class="font-medium flex gap-2 items-center "
+                                                                       href="index.html#">
+                                                                        <i class="ti ti-edit  text-base"></i>Edit
+                                                                    </a>
+                                                                </div>
+                                                                <div class="py-1 px-4 bg-hover">
+                                                                    <a class="font-medium flex gap-2 items-center "
+                                                                       href="index.html#">
+                                                                        <i class="ti ti-trash  text-base"></i>Delete
+
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-3 ps-0 whitespace-nowrap">
+                                                    <input type="checkbox" class="form-check-input rounded-xs"
+                                                           id="check4">
+                                                </td>
+                                                <td class="p-3 whitespace-nowrap">
+                                                    <div class="flex gap-4 items-center truncate ">
+                                                        <div class>
+                                                            <img src="../static/assets/images/products/product-8.png"
+                                                                 width="60" height="60"
+                                                                 alt="user" />
+                                                        </div>
+                                                        <h6
+                                                                class="text-base line-clamp-2 md:max-w-56 md:whitespace-normal ">
+                                                            Amazon Basics Mesh, Mid-Back, Swivel Office De...</h6>
+                                                    </div>
+                                                </td>
+
+                                                <td class="p-3">
+                                                    <div class="flex gap-4 items-center truncate">
+                                                        <img src="../static/assets/images/profile/user-5.jpg" alt
+                                                             class="w-8 h-8 rounded-full">
+                                                        <div>
+                                                            <h5 class="text-base">Annette Black</h5>
+                                                            <p
+                                                                    class="text-dark dark:text-darklink font-light">blackanne@yahoo.com</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="p-3">
+                                                    <div class="flex gap-1">
+                                                        <iconify-icon icon="solar:star-bold"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-bold"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-bold"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-bold-duotone"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-bold-duotone"
+                                                                      class="text-warning"></iconify-icon>
+                                                    </div>
+                                                    <p
+                                                            class="font-medium mt-1 text-dark dark:text-darklink  truncate line-clamp-2 max-w-56 whitespace-normal">
+                                                        The controller is quite comfy for me. Despiteits increased
+                                                        size, the controller still
+                                                        fits well
+                                                    </p>
+                                                </td>
+                                                <td class="p-3">
+                                                    <div
+                                                            class="badge bg-lightsuccess dark:bg-darksuccess border-success text-success w-fit">Confirmed</div>
+
+                                                </td>
+                                                <td
+                                                        class="p-3 font-medium text-dark dark:text-darklink whitespace-nowrap">
+                                                    Nov 8
+                                                </td>
+                                                <td class="p-3">
+                                                    <div class="hs-dropdown relative inline-flex">
+                                                        <button id="hs-dropdown-custom-icon-trigger"
+                                                                class="hs-dropdown-toggle h-10 w-10 text-bodytext dark:text-darklink hover:text-primary dark:hover:text-primary group bg-hover justify-center items-center rounded-full">
+                                                            <i class="ti ti-dots-vertical text-lg"></i>
+                                                        </button>
+
+                                                        <div
+                                                                class="hs-dropdown-menu overflow-hidden z-[1] transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 min-w-40 hidden"
+                                                                aria-labelledby="hs-dropdown-custom-icon-trigger">
+                                                            <div class="flex flex-col">
+                                                                <div class="py-1 px-4 bg-hover">
+                                                                    <a class="font-medium flex gap-2 items-center "
+                                                                       href="index.html#">
+                                                                        <i class="ti ti-plus  text-base"></i>Add
+                                                                    </a>
+                                                                </div>
+                                                                <div class="py-1 px-4 bg-hover">
+                                                                    <a class="font-medium flex gap-2 items-center "
+                                                                       href="index.html#">
+                                                                        <i class="ti ti-edit  text-base"></i>Edit
+                                                                    </a>
+                                                                </div>
+                                                                <div class="py-1 px-4 bg-hover">
+                                                                    <a class="font-medium flex gap-2 items-center "
+                                                                       href="index.html#">
+                                                                        <i class="ti ti-trash  text-base"></i>Delete
+
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-3 ps-0 whitespace-nowrap">
+                                                    <input type="checkbox" class="form-check-input rounded-xs"
+                                                           id="check4">
+                                                </td>
+                                                <td class="p-3 whitespace-nowrap">
+                                                    <div class="flex gap-4 items-center truncate ">
+                                                        <div class>
+                                                            <img src="../static/assets/images/products/product-9.png"
+                                                                 width="60" height="60"
+                                                                 alt="user" />
+                                                        </div>
+                                                        <h6
+                                                                class="text-base line-clamp-2 md:max-w-56 md:whitespace-normal ">
+                                                            Sony X85J 75 Inch Sony 4K Ultra HD LED Smart G...</h6>
+                                                    </div>
+                                                </td>
+
+                                                <td class="p-3">
+                                                    <div class="flex gap-4 items-center truncate">
+                                                        <img src="../static/assets/images/profile/user-6.jpg" alt
+                                                             class="w-8 h-8 rounded-full">
+                                                        <div>
+                                                            <h5 class="text-base">Albert Flores</h5>
+                                                            <p
+                                                                    class="text-dark dark:text-darklink font-light">albertflo9@gmail.com</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="p-3">
+                                                    <div class="flex gap-1">
+                                                        <iconify-icon icon="solar:star-bold"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-bold"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-bold"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-bold-duotone"
+                                                                      class="text-warning"></iconify-icon>
+                                                        <iconify-icon icon="solar:star-bold-duotone"
+                                                                      class="text-warning"></iconify-icon>
+                                                    </div>
+                                                    <p
+                                                            class="font-medium mt-1 text-dark dark:text-darklink  truncate line-clamp-2 max-w-56 whitespace-normal">
+                                                        This theme is great. Perfect for those whodon't have time
+                                                        to start everything from.
+                                                    </p>
+                                                </td>
+                                                <td class="p-3">
+                                                    <div
+                                                            class="badge bg-lightwarning dark:bg-darkwarning border-warning text-warning w-fit">Pending</div>
+
+                                                </td>
+                                                <td
+                                                        class="p-3 font-medium text-dark dark:text-darklink whitespace-nowrap">
+                                                    Nov 8
+                                                </td>
+                                                <td class="p-3">
+                                                    <div class="hs-dropdown relative inline-flex">
+                                                        <button id="hs-dropdown-custom-icon-trigger"
+                                                                class="hs-dropdown-toggle h-10 w-10 text-bodytext dark:text-darklink hover:text-primary dark:hover:text-primary group bg-hover justify-center items-center rounded-full">
+                                                            <i class="ti ti-dots-vertical text-lg"></i>
+                                                        </button>
+
+                                                        <div
+                                                                class="hs-dropdown-menu overflow-hidden z-[1] transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 min-w-40 hidden"
+                                                                aria-labelledby="hs-dropdown-custom-icon-trigger">
+                                                            <div class="flex flex-col">
+                                                                <div class="py-1 px-4 bg-hover">
+                                                                    <a class="font-medium flex gap-2 items-center "
+                                                                       href="index.html#">
+                                                                        <i class="ti ti-plus  text-base"></i>Add
+                                                                    </a>
+                                                                </div>
+                                                                <div class="py-1 px-4 bg-hover">
+                                                                    <a class="font-medium flex gap-2 items-center "
+                                                                       href="index.html#">
+                                                                        <i class="ti ti-edit  text-base"></i>Edit
+                                                                    </a>
+                                                                </div>
+                                                                <div class="py-1 px-4 bg-hover">
+                                                                    <a class="font-medium flex gap-2 items-center "
+                                                                       href="index.html#">
+                                                                        <i class="ti ti-trash  text-base"></i>Delete
+
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                                class="md:flex text-center pt-3 justify-between items-center border-t border-border dark:border-darkborder">
+                            <p class="font-medium">1-6 of 32</p>
+                            <!-- Pagination -->
+                            <nav class="flex items-center gap-x-1">
+                                <button type="button"
+                                        class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-hover focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-darklink  dark:focus:bg-white/10">
+                                    <i
+                                            class="ti ti-chevron-left text-sm leading-tight font-medium"></i>
+                                    <span class="leading-tight">Previous</span>
+                                </button>
+                                <div class="flex items-center gap-x-1">
+                                    <button type="button"
+                                            class="min-h-[38px] min-w-[38px] flex justify-center items-center text-dark bg-hover py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-darklink  dark:focus:bg-white/10"
+                                            aria-current="page">1</button>
+                                    <button type="button"
+                                            class="min-h-[38px] min-w-[38px] flex justify-center items-center text-dark bg-hover py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-darklink  dark:focus:bg-white/10">2</button>
+                                    <button type="button"
+                                            class="min-h-[38px] min-w-[38px] flex justify-center items-center text-dark bg-hover py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-darklink  dark:focus:bg-white/10">3</button>
+                                </div>
+                                <button type="button"
+                                        class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-hover focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-darklink  dark:focus:bg-white/10">
+                                    <span class="leading-tight">Next</span>
+                                    <i
+                                            class="ti ti-chevron-right text-sm leading-tight font-medium"></i>
+                                </button>
+                            </nav>
+                            <!-- End Pagination -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+</div>
+
+</div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,1263 @@
+{% extends "frontBase.html" %}
+
+{% block title %}Research Collaboration Platform | Home{% endblock %}
+
+{% block navbar_extra_profile %}
+<div><img src="../static/images/logo-shade_blue.png" class="lg:h-[60px] md:h-[60px] h-[50px] w-auto " alt=""></div>
+{% endblock %}
+
+{% block nav_bar_width %}
+lg:w-[70%] md:w-[90%] w-full py-2
+{% endblock %}
+{% block footer_width %}
+lg:w-[70%] md:w-[90%] w-full
+{% endblock %}
+
+
+{% block content %}
+
+<div class="w-full flex justify-center p-4 min-h-screen">
+    <div class="lg:w-[70%]  md:w-[90%] w-full">
+        <div class="p-4 flex lg:flex-row md:flex-row flex-col-reverse bg-white">
+            <div class="w-full grid lg:grid-cols-4 md:grid-cols-3 grid-cols-1 gap-4" >
+                <!-- Left Sidebar with Tabs -->
+                <div class="w-full bg-white">
+                    <div class="bg-white sticky top-20">
+                        <a href="#tab-content-studentProfile">
+                            <button
+                                    class="w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap bg-secondary text-white font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-secondary transition ease-in duration-2000">
+                                <i class="fa fa-user text-sm mr-2"></i> Profile
+                            </button>
+                        </a>
+                        <a href="#tab-content-skills">
+                            <button
+                                    class="w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-secondary font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-secondary transition ease-in duration-2000">
+                                <i class="fa fa-lightbulb text-sm mr-2"></i> Skills
+                            </button>
+                        </a>
+                        <a href="#tab-content-studentTeam">
+                            <button
+                                    class="w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-secondary font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-secondary transition ease-in duration-2000">
+                                <i class="fa fa-users text-sm mr-2"></i> My Team
+                            </button>
+                        </a>
+                        <a href="#tab-content-studentAward">
+                            <button
+                                    class="w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-secondary font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-secondary transition ease-in duration-2000">
+                                <i class="fa fa-award text-sm mr-2"></i> Awards & Recognition
+                            </button>
+                        </a>
+                    </div>
+
+                    <div class="bg-white rounded-sm shadow-sm overflow-hidden mb-6 mt-6 border-[1px] border-gray-300">
+                        <div class="bg-secondary px-3 py-2 text-white font-medium flex items-center">
+                            <i class="fas fa-newspaper mr-2"></i>
+                            <span>Latest Publication</span>
+                        </div>
+                        <div class="p-4">
+                            <h4 class="font-bold text-gray-800 text-sm mb-1">"Transformer-based Models for Low-Resource Languages"</h4>
+                            <p class="text-gray-600 text-xs mb-2">ACL 2022</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-500">Published: May 2022</span>
+                                <a href="#" class="text-secondary text-xs font-medium hover:underline flex items-center">
+                                    View <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Similar Publications Section -->
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6 border-[1px] border-gray-300">
+                        <div class="bg-secondary px-3 py-2 text-white font-medium flex items-center">
+                            <i class="fas fa-book-open mr-2"></i>
+                            <span>Similar Publications</span>
+                        </div>
+                        <div class="divide-y divide-gray-100">
+                            <a href="#" class="block p-3 hover:bg-gray-50 transition-colors">
+                                <h4 class="font-bold text-gray-800 text-sm mb-1">"Efficient NLP for Regional Languages"</h4>
+                                <p class="text-gray-600 text-xs">NeurIPS 2021</p>
+                            </a>
+                            <a href="#" class="block p-3 hover:bg-gray-50 transition-colors">
+                                <h4 class="font-bold text-gray-800 text-sm mb-1">"Low-Resource Machine Translation"</h4>
+                                <p class="text-gray-600 text-xs">EMNLP 2020</p>
+                            </a>
+                            <a href="#" class="block p-3 hover:bg-gray-50 transition-colors">
+                                <h4 class="font-bold text-gray-800 text-sm mb-1">"Adaptive Learning for NLP"</h4>
+                                <p class="text-gray-600 text-xs">ACL 2019</p>
+                            </a>
+                        </div>
+                        <div class="p-3 text-center border-t border-gray-100">
+                            <a href="#" class="text-secondary text-sm font-medium hover:underline">View all similar publications</a>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Conferences -->
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6 border-[1px] border-gray-300">
+                        <div class="bg-secondary px-3 py-2 text-white font-medium flex items-center">
+                            <i class="fas fa-calendar-alt mr-2"></i>
+                            <span>Upcoming Conferences</span>
+                        </div>
+                        <div class="divide-y divide-gray-100">
+                            <div class="p-3">
+                                <h4 class="font-bold text-gray-800 text-sm mb-1">ACL 2023</h4>
+                                <p class="text-gray-600 text-xs mb-1">July 9-14, 2023 | Toronto, Canada</p>
+                                <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Paper Accepted</span>
+                            </div>
+                            <div class="p-3">
+                                <h4 class="font-bold text-gray-800 text-sm mb-1">EMNLP 2023</h4>
+                                <p class="text-gray-600 text-xs mb-1">December 6-10, 2023 | Singapore</p>
+                                <span class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">Reviewing</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Similar Students Section -->
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden border-[1px] border-gray-300">
+                        <div class="bg-secondary px-3 py-2 text-white font-medium flex items-center">
+                            <i class="fas fa-users mr-2"></i>
+                            <span>Similar Researchers</span>
+                        </div>
+                        <div class="divide-y divide-gray-100">
+                            <a href="#" class="group block p-3 hover:bg-gray-50 transition-colors">
+                                <div class="flex items-center">
+                                    <img src="../static/images/logo-shade_blue.png" class="h-10 w-10 rounded-full mr-3" alt="">
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 text-sm group-hover:text-secondary">Rahul Sharma</h4>
+                                        <p class="text-gray-600 text-xs">Computer Science, IIT Bombay</p>
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="#" class="group block p-3 hover:bg-gray-50 transition-colors">
+                                <div class="flex items-center">
+                                    <img src="../static/images/logo-shade_blue.png" class="h-10 w-10 rounded-full mr-3" alt="">
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 text-sm group-hover:text-secondary">Priya Patel</h4>
+                                        <p class="text-gray-600 text-xs">Biotech, IISc Bangalore</p>
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="#" class="group block p-3 hover:bg-gray-50 transition-colors">
+                                <div class="flex items-center">
+                                    <img src="../static/images/logo-shade_blue.png" class="h-10 w-10 rounded-full mr-3" alt="">
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 text-sm group-hover:text-secondary">Amit Kumar</h4>
+                                        <p class="text-gray-600 text-xs">Electrical Engg, IIT Delhi</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="p-3 text-center border-t border-gray-100">
+                            <a href="#" class="text-secondary text-sm font-medium hover:underline">View all similar researchers</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Area -->
+                <div class="w-full lg:col-span-3 md:col-span-2 col-span-1">
+                    <!-- Profile Tab Content -->
+                    <div id="tab-content-studentProfile" data-tab-content="studentProfile" class="student-tab-content w-full">
+                        <!-- Profile Header with Card Layout -->
+                        <div class="bg-white  rounded-xl shadow-md overflow-hidden mb-6">
+                            <div class="md:flex">
+                                <!-- Profile Image Section -->
+                                <div class="md:w-1/4 p-6 flex flex-col items-center bg-secondary">
+                                    <div class="w-40 h-40 rounded-full border-4 border-white shadow-lg overflow-hidden mb-4">
+                                        <img src="{{ url_for('static', filename=student.profile_picture) if student.profile_picture else url_for('static', filename='images/profile.png') }}" class="w-full h-full object-cover" alt="{{ student.name }}">                                    </div>
+                                    <h1 class="text-white font-bold text-xl mb-1">{{ student.name }}</h1>
+                                    <p class="text-white/90 text-sm mb-2">{{ student.current_status or 'Research Scholar' }}</p>
+                                    <p class="text-white/80 text-xs text-center mb-4">{{ student.affiliation or 'University' }}</p>
+
+                                    <!-- Social Links -->
+                                    <div class="flex space-x-3 mb-4">
+                                        <a href="#" class="text-white hover:text-gray-200 transition-colors">
+                                            <i class="fab fa-linkedin fa-lg"></i>
+                                        </a>
+                                        <a href="#" class="text-white hover:text-gray-200 transition-colors">
+                                            <i class="fab fa-researchgate fa-lg"></i>
+                                        </a>
+                                        <a href="#" class="text-white hover:text-gray-200 transition-colors">
+                                            <i class="fab fa-google fa-lg"></i>
+                                        </a>
+                                        <a href="#" class="text-white hover:text-gray-200 transition-colors">
+                                            <i class="fas fa-envelope fa-lg"></i>
+                                        </a>
+                                    </div>
+
+                                    <!-- Quick Stats -->
+                                    <div class="w-full bg-white/20 rounded-lg p-3">
+                                        <div class="flex justify-between text-center">
+                                            <div>
+                                                <div class="text-white font-bold text-lg">{{ publications|length }}</div>
+                                                <div class="text-white/80 text-xs">Publications</div>
+                                            </div>
+                                            <div class="border-l border-white/30"></div>
+                                            <div>
+                                                <div class="text-white font-bold text-lg">{{ experiences|length }}</div>
+                                                <div class="text-white/80 text-xs">Projects</div>
+                                            </div>
+                                            <div class="border-l border-white/30"></div>
+                                            <div>
+                                                <div class="text-white font-bold text-lg">{{ skills|length }}</div>
+                                                <div class="text-white/80 text-xs">Skills</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Profile Details Section -->
+                                <div class="md:w-3/4 p-6">
+                                    <!-- Contact Information -->
+                                    <div class="mb-6">
+                                        <h2 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                                            <i class="fas fa-address-card text-secondary mr-2"></i>
+                                            Contact Information
+                                        </h2>
+                                        {% if current_user.is_authenticated %}
+                                        <button class="bookmark-btn absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-yellow-50 transition-colors z-10"
+                                                data-type="student"
+                                                data-id="{{ student.id }}"
+                                                title="Bookmark this student">
+                                            <i class="far fa-bookmark text-gray-400 hover:text-yellow-500"></i>
+                                        </button>
+                                        {% else %}
+                                            <!-- Bookmark Button for Unauthenticated Users (redirects to login) -->
+                                            <a href="{{ url_for('auth.login') }}"
+                                            class="absolute top-3 right-3 p-2 rounded-full bg-white/80 border border-gray-200 
+                                                    hover:bg-primary hover:text-secondary hover:border-primary 
+                                                    transition-all duration-300 shadow-sm z-10 group"
+                                            title="Login to bookmark this profile">
+                                                <!-- Bookmark Icon always visible -->
+                                                <i class="far fa-bookmark text-gray-400 text-lg"></i>
+                                                <!-- Lock overlay (toggles on hover) -->
+                                                <span class="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 
+                                                            rounded-full bg-white border border-gray-300 shadow group-hover:bg-secondary">
+                                                    <i class="fas fa-lock text-[10px] text-gray-600 group-hover:text-white"></i>
+                                                </span>
+                                            </a>
+                                        {% endif %}       
+                                        <div class="grid md:grid-cols-2 gap-3">
+                                            <div class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                                <div class="bg-secondary/10 p-2 rounded-full mr-3">
+                                                    <i class="fas fa-envelope text-secondary"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-gray-500">Email</p>
+                                                    <p class="text-sm font-medium">{{ student.contact_email or 'Not provided' }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                                <div class="bg-secondary/10 p-2 rounded-full mr-3">
+                                                    <i class="fas fa-phone text-secondary"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-gray-500">Phone</p>
+                                                    <p class="text-sm font-medium">{{ student.contact_phone or 'Not provided' }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                                <div class="bg-secondary/10 p-2 rounded-full mr-3">
+                                                    <i class="fas fa-map-marker-alt text-secondary"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-gray-500">Address</p>
+                                                    <p class="text-sm font-medium">{{ student.address or 'Not provided' }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                                <div class="bg-secondary/10 p-2 rounded-full mr-3">
+                                                    <i class="fas fa-globe text-secondary"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-gray-500">Website</p>
+                                                    <p class="text-sm font-medium">{{ student.website or 'Not provided' }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Research Interests -->
+                                    <div class="mb-6">
+                                        <h2 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                                            <i class="fas fa-search text-secondary mr-2"></i>
+                                            Research Interests
+                                        </h2>
+                                        <div class="flex flex-wrap gap-2">
+                                            {% if student.research_interests %}
+                                                {% for interest in student.research_interests.split(',') %}
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-secondary/10 text-secondary text-sm font-medium">
+                                                        {{ interest.strip() }}
+                                                    </span>
+                                                {% endfor %}
+                                            {% else %}
+                                                <p class="text-gray-500">No research interests specified</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <!-- About Me -->
+                                    <div>
+                                        <h2 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                                            <i class="fas fa-user-graduate text-secondary mr-2"></i>
+                                            About Me
+                                        </h2>
+                                        <p class="text-gray-700 text-sm leading-relaxed">
+                                            {{ student.why_me or 'No description provided.' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Education Section -->
+                        <div class="bg-white rounded-xl border-[1px] border-gray-400 shadow-md overflow-hidden mb-6">
+                            <div class="p-6">
+                                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                    <i class="fas fa-graduation-cap text-secondary mr-2"></i>
+                                    Education
+                                </h2>
+
+                                <div class="space-y-4">
+                                    {% for education in educations %}
+                                    <!-- Education Item -->
+                                    <div class="flex items-start">
+                                        <div class="bg-secondary/10 p-3 rounded-full mr-4 mt-1">
+                                            <i class="fas fa-university text-secondary"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex justify-between items-start">
+                                                <h3 class="font-bold text-gray-800">{{ education.degree_name }}</h3>
+                                                <span class="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full">
+                                                    {% if education.currently_pursuing %}
+                                                        {{ education.start_year }} - Present
+                                                    {% else %}
+                                                        {{ education.start_year }} - {{ education.end_year }}
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                            <p class="text-gray-600 text-sm mb-1">{{ education.college }}, {{ education.university }}</p>
+                                            {% if education.university_address %}
+                                            <p class="text-gray-700 text-sm italic">{{ education.university_address }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <p class="text-gray-500">No education information available</p>
+                                    {% endfor %}
+
+                                    <!-- Education Item 2 -->
+                                    <!-- <div class="flex items-start">
+                                        <div class="bg-secondary/10 p-3 rounded-full mr-4 mt-1">
+                                            <i class="fas fa-university text-secondary"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex justify-between items-start">
+                                                <h3 class="font-bold text-gray-800">M.Tech in Data Science</h3>
+                                                <span class="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full">2018 - 2020</span>
+                                            </div>
+                                            <p class="text-gray-600 text-sm mb-1">Indian Institute of Science, Bangalore</p>
+                                            <p class="text-gray-700 text-sm">CGPA: 9.2/10.0</p>
+                                        </div>
+                                    </div> -->
+
+                                    <!-- Education Item 3 -->
+                                    <!-- <div class="flex items-start">
+                                        <div class="bg-secondary/10 p-3 rounded-full mr-4 mt-1">
+                                            <i class="fas fa-university text-secondary"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex justify-between items-start">
+                                                <h3 class="font-bold text-gray-800">B.Tech in Computer Engineering</h3>
+                                                <span class="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full">2014 - 2018</span>
+                                            </div>
+                                            <p class="text-gray-600 text-sm mb-1">Delhi Technological University</p>
+                                            <p class="text-gray-700 text-sm">CGPA: 8.6/10.0</p>
+                                        </div>
+                                    </div> -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Experience & Publications Grid -->
+                        <div class="grid md:grid-cols-2 rounded-xl border-[1px] border-gray-400 gap-6">
+                            <!-- Experience Section -->
+                            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                                <div class="p-6">
+                                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                        <i class="fas fa-briefcase text-secondary mr-2"></i>
+                                        Experience
+                                    </h2>
+
+                                    <div class="space-y-4">
+                                        <!-- Experience Item 1 -->
+                                        {% for experience in experiences %}
+                                        <!-- Experience Item -->
+                                        <div class="border-l-4 border-secondary pl-4">
+                                            <div class="flex justify-between items-start">
+                                                <h3 class="font-bold text-gray-800">{{ experience.position }}</h3>
+                                                <span class="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full">
+                                                    {% if experience.currently_working %}
+                                                        {{ experience.start_date.strftime('%b %Y') }} - Present
+                                                    {% else %}
+                                                        {{ experience.start_date.strftime('%b %Y') }} - {{ experience.end_date.strftime('%b %Y') }}
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                            <p class="text-gray-600 text-sm mb-2">{{ experience.project_title }}</p>
+                                            <ul class="list-disc list-inside text-gray-700 text-sm space-y-1 ml-2">
+                                                {% if experience.pi %}
+                                                <li>PI: {{ experience.pi }} ({{ experience.pi_affiliation }})</li>
+                                                {% endif %}
+                                                <li>At: {{ experience.college }}, {{ experience.university_or_industry }}</li>
+                                            </ul>
+                                        </div>
+                                        {% else %}
+                                        <p class="text-gray-500">No experience information available</p>
+                                        {% endfor %}
+
+                                        <!-- Experience Item 2 -->
+                                        <!-- <div class="border-l-4 border-secondary pl-4">
+                                            <div class="flex justify-between items-start">
+                                                <h3 class="font-bold text-gray-800">Teaching Assistant</h3>
+                                                <span class="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full">2020 - Present</span>
+                                            </div>
+                                            <p class="text-gray-600 text-sm mb-2">IIT Delhi</p>
+                                            <ul class="list-disc list-inside text-gray-700 text-sm space-y-1 ml-2">
+                                                <li>Assisted in teaching Machine Learning and Data Structures courses</li>
+                                                <li>Mentored undergraduate students in research projects</li>
+                                                <li>Developed course materials and assignments</li>
+                                            </ul>
+                                        </div> -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Publications Section -->
+                            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                                <div class="p-6">
+                                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                        <i class="fas fa-file-alt text-secondary mr-2"></i>
+                                        Selected Publications
+                                    </h2>
+
+                                    <div class="space-y-4">
+                                        {% for publication in publications[:2] %}
+                                        <!-- Publication -->
+                                        <div class="group">
+                                            <h3 class="font-bold text-gray-800 group-hover:text-secondary transition-colors">
+                                                "{{ publication.title }}"
+                                            </h3>
+                                            <p class="text-gray-600 text-sm mb-1">{{ publication.journal_or_conference }} ({{ publication.year }})</p>
+                                            <p class="text-gray-700 text-sm mb-2">
+                                                {{ publication.abstract[:150] }}...
+                                            </p>
+                                            <div class="flex space-x-3">
+                                                {% if publication.doi %}
+                                                <a href="https://doi.org/{{ publication.doi }}" target="_blank" class="text-secondary text-sm flex items-center hover:underline">
+                                                    <i class="fas fa-external-link-alt mr-1 text-xs"></i> View
+                                                </a>
+                                                {% endif %}
+                                                <a href="#" class="text-secondary text-sm flex items-center hover:underline">
+                                                    <i class="fas fa-file-pdf mr-1 text-xs"></i> PDF
+                                                </a>
+                                                <a href="#" class="text-secondary text-sm flex items-center hover:underline">
+                                                    <i class="fas fa-quote-right mr-1 text-xs"></i> Cite
+                                                </a>
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <p class="text-gray-500">No publications available</p>
+                                        {% endfor %}
+                                        <!-- Publication 2 -->
+                                        <!-- <div class="group">
+                                            <h3 class="font-bold text-gray-800 group-hover:text-secondary transition-colors">
+                                                "Efficient Training Techniques for Neural Networks"
+                                            </h3>
+                                            <p class="text-gray-600 text-sm mb-1">NeurIPS 2021</p>
+                                            <p class="text-gray-700 text-sm mb-2">
+                                                Proposed optimization methods reducing training time by 30% without accuracy loss.
+                                            </p>
+                                            <div class="flex space-x-3">
+                                                <a href="#" class="text-secondary text-sm flex items-center hover:underline">
+                                                    <i class="fas fa-external-link-alt mr-1 text-xs"></i> View
+                                                </a>
+                                                <a href="#" class="text-secondary text-sm flex items-center hover:underline">
+                                                    <i class="fas fa-file-pdf mr-1 text-xs"></i> PDF
+                                                </a>
+                                                <a href="#" class="text-secondary text-sm flex items-center hover:underline">
+                                                    <i class="fas fa-quote-right mr-1 text-xs"></i> Cite
+                                                </a>
+                                            </div>
+                                        </div> -->
+
+                                        {% if publications|length > 2 %}
+                                        <div class="pt-2">
+                                            <button class="flex items-center text-secondary font-medium hover:text-secondary-dark transition-colors">
+                                                <i class="fas fa-list mr-2"></i> View All {{ publications|length }} Publications
+                                            </button>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Skills Tab Content -->
+                    <div id="tab-content-skills" data-tab-content="skills" class="student-tab-content w-full flex flex-col gap-6 mt-4">
+                        <!-- Header with improved styling -->
+                        <div class="w-full h-max text-left px-6 py-3 whitespace-nowrap text-white bg-secondary font-semibold rounded-sm shadow-md">
+                            <i class="fas fa-flask text-lg mr-3"></i> Research Skills & Competencies
+                        </div>
+
+                        <!-- Research Methodologies -->
+                        <!-- <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-400">
+                            <h4 class="font-bold text-xl text-secondary mb-4 flex items-center">
+                                <i class="fas fa-microscope mr-2"></i> Research Methodologies
+                            </h4>
+                            <div class="flex flex-wrap gap-3">
+                                <div class="flex items-center bg-secondary/5 px-4 py-2 rounded-full border border-secondary/20 hover:bg-secondary/10 transition-all">
+                                    <i class="fas fa-chart-bar text-secondary-dark mr-2"></i>
+                                    <span class="font-medium">Quantitative Research</span>
+                                    <span class="ml-2 text-xs bg-secondary-dark text-white px-2 py-0.5 rounded-full">Expert</span>
+                                </div>
+                                <div class="flex items-center bg-secondary/5 px-4 py-2 rounded-full border border-secondary/20 hover:bg-secondary/10 transition-all">
+                                    <i class="fas fa-comments text-secondary-dark mr-2"></i>
+                                    <span class="font-medium">Qualitative Research</span>
+                                    <span class="ml-2 text-xs bg-secondary-dark text-white px-2 py-0.5 rounded-full">Advanced</span>
+                                </div>
+                                <div class="flex items-center bg-secondary/5 px-4 py-2 rounded-full border border-secondary/20 hover:bg-secondary/10 transition-all">
+                                    <i class="fas fa-blender-phone text-secondary-dark mr-2"></i>
+                                    <span class="font-medium">Mixed Methods</span>
+                                    <span class="ml-2 text-xs bg-secondary-dark text-white px-2 py-0.5 rounded-full">Intermediate</span>
+                                </div>
+                                <div class="flex items-center bg-secondary/5 px-4 py-2 rounded-full border border-secondary/20 hover:bg-secondary/10 transition-all">
+                                    <i class="fas fa-dna text-secondary-dark mr-2"></i>
+                                    <span class="font-medium">Experimental Design</span>
+                                    <span class="ml-2 text-xs bg-secondary-dark text-white px-2 py-0.5 rounded-full">Advanced</span>
+                                </div>
+                            </div>
+                        </div> -->
+
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-400">
+                            <h4 class="font-bold text-xl text-secondary mb-4 flex items-center">
+                                <i class="fas fa-microscope mr-2"></i> Research Methodologies
+                            </h4>
+                            <div class="flex flex-wrap gap-3">
+                                {% for skill in skills if skill.skill_type == 'Methodology' %}
+                                <div class="flex items-center bg-secondary/5 px-4 py-2 rounded-full border border-secondary/20 hover:bg-secondary/10 transition-all">
+                                    <i class="fas fa-chart-bar text-secondary-dark mr-2"></i>
+                                    <span class="font-medium">{{ skill.skill_name }}</span>
+                                    <span class="ml-2 text-xs bg-secondary-dark text-white px-2 py-0.5 rounded-full">{{ skill.proficiency_level }}</span>
+                                </div>
+                                {% else %}
+                                <p class="text-gray-500">No methodology skills listed</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+
+
+
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-400">
+                            <h4 class="font-bold text-xl text-secondary mb-4 flex items-center">
+                                <i class="fas fa-brain mr-2"></i> Analytical Skills
+                            </h4>
+                            <div class="grid lg:grid-cols-2 grid-cols-1 gap-5">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <h5 class="font-semibold">Statistical Analysis</h5>
+                                        <span class="text-secondary-dark font-bold">95%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 h-3 rounded-full">
+                                        <div class="bg-gradient-to-r from-secondary to-secondary-dark h-3 rounded-full" style="width: 95%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <h5 class="font-semibold">Data Visualization</h5>
+                                        <span class="text-secondary-dark font-bold">90%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 h-3 rounded-full">
+                                        <div class="bg-gradient-to-r from-secondary to-secondary-dark h-3 rounded-full" style="width: 90%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <h5 class="font-semibold">Literature Review</h5>
+                                        <span class="text-secondary-dark font-bold">92%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 h-3 rounded-full">
+                                        <div class="bg-gradient-to-r from-secondary to-secondary-dark h-3 rounded-full" style="width: 92%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <h5 class="font-semibold">Research Ethics</h5>
+                                        <span class="text-secondary-dark font-bold">88%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 h-3 rounded-full">
+                                        <div class="bg-gradient-to-r from-secondary to-secondary-dark h-3 rounded-full" style="width: 88%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Technical Proficiencies -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-400">
+                            <h4 class="font-bold text-xl text-secondary mb-4 flex items-center">
+                                <i class="fas fa-laptop-code mr-2"></i> Technical Proficiencies
+                            </h4>
+                            <div class="flex flex-wrap gap-3">
+                                {% for skill in skills if skill.skill_type == 'Technical' %}
+                                <div class="flex items-center bg-secondary/5 px-4 py-2 rounded-lg border border-secondary/20 hover:shadow-md transition-all group">
+                                    <i class="fas fa-code text-2xl text-secondary-dark mr-3 group-hover:scale-110 transition-transform"></i>
+                                    <div>
+                                        <div class="font-medium">{{ skill.skill_name }}</div>
+                                        <div class="text-xs text-gray-600">{{ skill.proficiency_level }}</div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <p class="text-gray-500">No technical skills listed</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Academic Writing & Communication -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-400">
+                            <h4 class="font-bold text-xl text-secondary mb-4 flex items-center">
+                                <i class="fas fa-pen-fancy mr-2"></i> Academic Writing & Communication
+                            </h4>
+                            <div class="grid md:grid-cols-3 grid-cols-2 gap-4">
+                                <div class="flex items-center space-x-3 bg-secondary/5 p-3 rounded-lg">
+                                    <div class="bg-secondary/20 p-2 rounded-full">
+                                        <i class="fas fa-book text-secondary-dark"></i>
+                                    </div>
+                                    <span class="font-medium">Journal Articles</span>
+                                </div>
+                                <div class="flex items-center space-x-3 bg-secondary/5 p-3 rounded-lg">
+                                    <div class="bg-secondary/20 p-2 rounded-full">
+                                        <i class="fas fa-file-alt text-secondary-dark"></i>
+                                    </div>
+                                    <span class="font-medium">Research Proposals</span>
+                                </div>
+                                <div class="flex items-center space-x-3 bg-secondary/5 p-3 rounded-lg">
+                                    <div class="bg-secondary/20 p-2 rounded-full">
+                                        <i class="fas fa-chalkboard-teacher text-secondary-dark"></i>
+                                    </div>
+                                    <span class="font-medium">Conference Presentations</span>
+                                </div>
+                                <div class="flex items-center space-x-3 bg-secondary/5 p-3 rounded-lg">
+                                    <div class="bg-secondary/20 p-2 rounded-full">
+                                        <i class="fas fa-graduation-cap text-secondary-dark"></i>
+                                    </div>
+                                    <span class="font-medium">Thesis Writing</span>
+                                </div>
+                                <div class="flex items-center space-x-3 bg-secondary/5 p-3 rounded-lg">
+                                    <div class="bg-secondary/20 p-2 rounded-full">
+                                        <i class="fas fa-comment-dots text-secondary-dark"></i>
+                                    </div>
+                                    <span class="font-medium">Peer Review</span>
+                                </div>
+                                <div class="flex items-center space-x-3 bg-secondary/5 p-3 rounded-lg">
+                                    <div class="bg-secondary/20 p-2 rounded-full">
+                                        <i class="fas fa-file text-secondary-dark"></i>
+                                    </div>
+                                    <span class="font-medium">Grant Writing</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Soft Skills with improved cards -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-400">
+                            <h4 class="font-bold text-xl text-secondary mb-4 flex items-center">
+                                <i class="fas fa-people-arrows mr-2"></i> Professional Competencies
+                            </h4>
+                            <div class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
+                                <div class="bg-gradient-to-br from-white to-secondary/5 p-4 rounded-lg border border-secondary/20 hover:shadow-md transition-all">
+                                    <div class="text-secondary-dark text-2xl mb-2">
+                                        <i class="fas fa-lightbulb"></i>
+                                    </div>
+                                    <h5 class="font-bold mb-1">Critical Thinking</h5>
+                                    <p class="text-sm text-gray-600">Ability to analyze complex problems and develop innovative solutions.</p>
+                                </div>
+                                <div class="bg-gradient-to-br from-white to-secondary/5 p-4 rounded-lg border border-secondary/20 hover:shadow-md transition-all">
+                                    <div class="text-secondary-dark text-2xl mb-2">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <h5 class="font-bold mb-1">Collaboration</h5>
+                                    <p class="text-sm text-gray-600">Experience working in interdisciplinary research teams.</p>
+                                </div>
+                                <div class="bg-gradient-to-br from-white to-secondary/5 p-4 rounded-lg border border-secondary/20 hover:shadow-md transition-all">
+                                    <div class="text-secondary-dark text-2xl mb-2">
+                                        <i class="fas fa-hourglass-half"></i>
+                                    </div>
+                                    <h5 class="font-bold mb-1">Project Management</h5>
+                                    <p class="text-sm text-gray-600">Skilled in planning and executing research projects on schedule.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- My Team Tab Content -->
+                    <div id="tab-content-studentTeam" data-tab-content="studentTeam" class="student-tab-content w-full flex flex-col gap-6 mt-4">
+                        <!-- Header with gradient and icon -->
+                        <div class="w-full h-max text-left px-6 py-3 whitespace-nowrap text-white bg-secondary font-semibold rounded-sm shadow-md flex items-center">
+                            <i class="fas fa-users text-lg mr-3"></i> Research Team & Collaborators
+                        </div>
+
+                        <!-- Research Supervisor Card -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-400">
+                            <h4 class="font-bold text-xl text-secondary mb-4 flex items-center">
+                                <i class="fas fa-user-tie mr-2"></i> Research Supervisor
+                            </h4>
+                            <div class="flex flex-col md:flex-row gap-6 items-start">
+                                <div class="relative">
+                                    <img src="../static/images/logo-shade_blue.png" class="w-24 h-24 rounded-full border-4 border-secondary/20 shadow-md" alt="Supervisor">
+                                    <div class="absolute -bottom-2 -right-2 bg-secondary-dark text-white text-xs font-bold px-2 py-1 rounded-full">PI</div>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-xl font-bold text-gray-800">Dr. Rajesh Kumar</h3>
+                                    <p class="text-secondary-dark font-medium">Professor of Computer Science</p>
+                                    <p class="text-sm text-gray-600 mb-3">Artificial Intelligence Research Lab, IIT Delhi</p>
+
+                                    <div class="grid grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <p class="text-xs text-gray-500">Email</p>
+                                            <p class="text-sm font-medium">rkumar@iitd.ac.in</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-gray-500">Phone</p>
+                                            <p class="text-sm font-medium">+91 98765 43210</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-gray-500">Office</p>
+                                            <p class="text-sm font-medium">Block C, Room 205</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-gray-500">Google Scholar</p>
+                                            <a href="#" class="text-sm font-medium text-secondary-dark hover:underline flex items-center">
+                                                <i class="fab fa-google mr-1"></i> Profile
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="bg-secondary/10 text-secondary-dark text-xs px-2 py-1 rounded">Machine Learning</span>
+                                        <span class="bg-secondary/10 text-secondary-dark text-xs px-2 py-1 rounded">Computer Vision</span>
+                                        <span class="bg-secondary/10 text-secondary-dark text-xs px-2 py-1 rounded">AI Ethics</span>
+                                    </div>
+                                </div>
+                                <div class="md:text-right">
+                                    <a href="#" class="inline-flex items-center px-4 py-2 bg-secondary-dark text-white rounded-lg hover:bg-secondary transition-all">
+                                        <i class="fas fa-envelope mr-2"></i> Contact
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Research Group Members -->
+                        <div class="bg-white ">
+                            <!-- <div class="flex justify-between items-center mb-4">
+                                <h4 class="font-bold text-xl text-secondary flex items-center">
+                                    <i class="fas fa-users-cog mr-2"></i> Research Group Members
+                                    <span class="ml-2 text-sm bg-secondary/20 text-secondary-dark px-2 py-0.5 rounded-full">6 Members</span>
+                                </h4>
+                                <div class="flex space-x-2">
+                                    <button class="px-3 py-1 text-xs bg-gray-100 rounded-lg hover:bg-gray-200">All</button>
+                                    <button class="px-3 py-1 text-xs bg-gray-100 rounded-lg hover:bg-gray-200">PhD</button>
+                                    <button class="px-3 py-1 text-xs bg-gray-100 rounded-lg hover:bg-gray-200">M.Tech</button>
+                                </div>
+                            </div> -->
+
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="font-bold text-xl text-secondary flex items-center">
+                                    <i class="fas fa-users-cog mr-2"></i> Research Groups
+                                    <span class="ml-2 text-sm bg-secondary/20 text-secondary-dark px-2 py-0.5 rounded-full">{{ team_memberships|length }} Memberships</span>
+                                </h4>
+                            </div>
+
+                            <div class="grid lg:grid-cols-2 gap-4">
+
+                                {% for membership in team_memberships %}
+                                <!-- Team Membership -->
+                                <div class="flex items-center gap-4 p-4 border border-gray-400 rounded-lg hover:shadow-md transition-all">
+                                    <div class="relative">
+                                        <img src="{{ url_for('static', filename='images/logo-shade_blue.png') }}" class="w-16 h-16 rounded-full border-2 border-secondary/30" alt="">
+                                        <div class="absolute -bottom-1 -right-1 bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                                            {{ membership.pi_profile.profile.user.user_type }}
+                                        </div>
+                                    </div>
+
+                                    <div class="flex-1">
+                                        <h5 class="font-bold">{{ membership.pi_profile.name }}</h5>
+                                        <p class="text-sm text-gray-600">{{ membership.pi_profile.department }}, {{ membership.pi_profile.affiliation }}</p>
+                                        <p class="text-xs text-secondary-dark font-medium">{{ membership.position }}</p>
+                                        <div class="flex items-center mt-1">
+                                            <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded mr-2">{{ membership.status }}</span>
+                                            <span class="text-xs text-gray-500">
+                                                {{ membership.start_date.strftime('%b %Y') }} -
+                                                {% if membership.end_date %}
+                                                    {{ membership.end_date.strftime('%b %Y') }}
+                                                {% else %}
+                                                    Present
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <a href="mailto:{{ membership.pi_profile.email }}" class="text-gray-400 hover:text-secondary">
+                                        <i class="fas fa-envelope"></i>
+                                    </a>
+                                </div>
+                                {% else %}
+                                <p class="text-gray-500">No team memberships found</p>
+                                {% endfor %}
+
+                                <!-- PhD Student 1 -->
+                                <!-- <div class="flex items-center gap-4 p-4 border border-gray-400 rounded-lg hover:shadow-md transition-all">
+                                    <div class="relative">
+                                        <img src="../static/images/logo-shade_blue.png" class="w-16 h-16 rounded-full border-2 border-secondary/30" alt="">
+                                        <div class="absolute -bottom-1 -right-1 bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded-full">PhD</div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h5 class="font-bold">Amit Sharma</h5>
+                                        <p class="text-sm text-gray-600">3rd Year PhD Scholar</p>
+                                        <p class="text-xs text-secondary-dark font-medium">Computer Vision | Deep Learning</p>
+                                        <div class="flex items-center mt-1">
+                                            <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded mr-2">Active</span>
+                                            <a href="#" class="text-xs text-secondary-dark hover:underline">2 Publications</a>
+                                        </div>
+                                    </div>
+                                    <a href="#" class="text-gray-400 hover:text-secondary">
+                                        <i class="fas fa-envelope"></i>
+                                    </a>
+                                </div> -->
+
+                                <!-- PhD Student 2 -->
+                                <!-- <div class="flex items-center gap-4 p-4 border border-gray-400 rounded-lg hover:shadow-md transition-all">
+                                    <div class="relative">
+                                        <img src="../static/images/logo-shade_blue.png" class="w-16 h-16 rounded-full border-2 border-secondary/30" alt="">
+                                        <div class="absolute -bottom-1 -right-1 bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded-full">PhD</div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h5 class="font-bold">Priya Patel</h5>
+                                        <p class="text-sm text-gray-600">2nd Year PhD Scholar</p>
+                                        <p class="text-xs text-secondary-dark font-medium">Reinforcement Learning | Robotics</p>
+                                        <div class="flex items-center mt-1">
+                                            <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded mr-2">Active</span>
+                                            <a href="#" class="text-xs text-secondary-dark hover:underline">1 Publication</a>
+                                        </div>
+                                    </div>
+                                    <a href="#" class="text-gray-400 hover:text-secondary">
+                                        <i class="fas fa-envelope"></i>
+                                    </a>
+                                </div> -->
+
+                                <!-- M.Tech Student 1 -->
+                                <!-- <div class="flex items-center gap-4 p-4 border border-gray-400 rounded-lg hover:shadow-md transition-all">
+                                    <div class="relative">
+                                        <img src="../static/images/logo-shade_blue.png" class="w-16 h-16 rounded-full border-2 border-secondary/30" alt="">
+                                        <div class="absolute -bottom-1 -right-1 bg-purple-500 text-white text-xs px-1.5 py-0.5 rounded-full">M.Tech</div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h5 class="font-bold">Rahul Verma</h5>
+                                        <p class="text-sm text-gray-600">M.Tech Research Scholar</p>
+                                        <p class="text-xs text-secondary-dark font-medium">NLP | Text Mining</p>
+                                        <div class="flex items-center mt-1">
+                                            <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded mr-2">Active</span>
+                                            <a href="#" class="text-xs text-secondary-dark hover:underline">Thesis Ongoing</a>
+                                        </div>
+                                    </div>
+                                    <a href="#" class="text-gray-400 hover:text-secondary">
+                                        <i class="fas fa-envelope"></i>
+                                    </a>
+                                </div> -->
+
+                                <!-- M.Tech Student 2 -->
+                                <!-- <div class="flex items-center gap-4 p-4 border border-gray-400 rounded-lg hover:shadow-md transition-all">
+                                    <div class="relative">
+                                        <img src="../static/images/logo-shade_blue.png" class="w-16 h-16 rounded-full border-2 border-secondary/30" alt="">
+                                        <div class="absolute -bottom-1 -right-1 bg-purple-500 text-white text-xs px-1.5 py-0.5 rounded-full">M.Tech</div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h5 class="font-bold">Neha Gupta</h5>
+                                        <p class="text-sm text-gray-600">M.Tech Research Scholar</p>
+                                        <p class="text-xs text-secondary-dark font-medium">Data Mining | Big Data</p>
+                                        <div class="flex items-center mt-1">
+                                            <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded mr-2">Active</span>
+                                            <a href="#" class="text-xs text-secondary-dark hover:underline">Conference Paper</a>
+                                        </div>
+                                    </div>
+                                    <a href="#" class="text-gray-400 hover:text-secondary">
+                                        <i class="fas fa-envelope"></i>
+                                    </a>
+                                </div> -->
+                            </div>
+                        </div>
+
+                        <!-- Collaborators Section -->
+                        <div class="bg-white ">
+                            <h4 class="font-bold text-xl text-secondary mb-4 flex items-center">
+                                <i class="fas fa-handshake mr-2"></i> Research Collaborators
+                            </h4>
+
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <!-- Collaborator 1 -->
+                                <div class="flex items-start gap-4 p-4 border border-gray-400 rounded-lg hover:shadow-md transition-all">
+                                    <img src="../static/images/logo-shade_blue.png" class="w-16 h-16 rounded-full border-2 border-[#314a4a]/30" alt="">
+                                    <div>
+                                        <h5 class="font-bold">Dr. Sunita Rao</h5>
+                                        <p class="text-sm text-[#314a4a]-dark font-medium">Associate Professor, IIIT Bangalore</p>
+                                        <p class="text-xs text-gray-600 mb-2">Specialization: Human-Computer Interaction</p>
+                                        <div class="flex flex-wrap gap-2 mb-2">
+                                            <span class="text-xs bg-gray-100 px-2 py-0.5 rounded">Joint Publications: 3</span>
+                                            <span class="text-xs bg-gray-100 px-2 py-0.5 rounded">Projects: 1 Ongoing</span>
+                                        </div>
+                                        <div class="flex space-x-3">
+                                            <a href="#" class="text-[#314a4a]-dark hover:text-[#314a4a] text-sm flex items-center">
+                                                <i class="fas fa-envelope mr-1"></i> Email
+                                            </a>
+                                            <a href="#" class="text-[#314a4a]-dark hover:text-[#314a4a] text-sm flex items-center">
+                                                <i class="fas fa-external-link-alt mr-1"></i> Profile
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Collaborator 2 -->
+                                <div class="flex items-start gap-4 p-4 border border-gray-400 rounded-lg hover:shadow-md transition-all">
+                                    <img src="../static/images/logo-shade_blue.png" class="w-16 h-16 rounded-full border-2 border-[#314a4a]/30" alt="">
+                                    <div>
+                                        <h5 class="font-bold">Prof. A. Kumar</h5>
+                                        <p class="text-sm text-[#314a4a]-dark font-medium">Professor, IIT Bombay</p>
+                                        <p class="text-xs text-gray-600 mb-2">Specialization: Quantum Computing</p>
+                                        <div class="flex flex-wrap gap-2 mb-2">
+                                            <span class="text-xs bg-gray-100 px-2 py-0.5 rounded">Joint Publications: 2</span>
+                                            <span class="text-xs bg-gray-100 px-2 py-0.5 rounded">Workshops: 3</span>
+                                        </div>
+                                        <div class="flex space-x-3">
+                                            <a href="#" class="text-[#314a4a]-dark hover:text-[#314a4a] text-sm flex items-center">
+                                                <i class="fas fa-envelope mr-1"></i> Email
+                                            </a>
+                                            <a href="#" class="text-[#314a4a]-dark hover:text-[#314a4a] text-sm flex items-center">
+                                                <i class="fas fa-external-link-alt mr-1"></i> Profile
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alumni Section -->
+                        <div class="bg-white ">
+                            <h4 class="font-bold text-xl text-[#314a4a] mb-4 flex items-center">
+                                <i class="fas fa-user-graduate mr-2"></i> Research Group Alumni
+                            </h4>
+
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">Name</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">Degree</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">Year</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">Current Position</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">Research Area</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Dr. Sanjay Mehta</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">PhD</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">2020</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">Assistant Professor, BITS Pilani</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">Computer Vision</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Dr. Anjali Deshpande</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">PhD</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">2019</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">Research Scientist, Google</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">NLP</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Vikram Joshi</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">M.Tech</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">2021</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">Data Scientist, Amazon</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">Machine Learning</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Awards & Recognition Tab Content -->
+                    <div id="tab-content-studentAward" data-tab-content="studentAward" class="student-tab-content w-full flex flex-col gap-6 hidden">
+                        <!-- Enhanced Header with Gradient -->
+                        <div class="w-full h-max text-left px-6 py-3 whitespace-nowrap text-white bg-[#314a4a] font-semibold rounded-sm shadow-md flex items-center">
+                            <i class="fas fa-trophy text-lg mr-3"></i> Awards & Recognitions
+                        </div>
+
+                        <!-- Awards Grid -->
+                        <div class="grid lg:grid-cols-2 gap-6">
+                            <!-- Best Paper Award -->
+                            {% for award in awards %}
+                            <!-- Award Card -->
+                            <div class="relative group">
+                                <div class="relative bg-white p-5 rounded-lg border border-gray-400 shadow-md hover:shadow-md transition-all h-full">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div class="flex items-center">
+                                            <div class="bg-[#314a4a]/10 p-2 rounded-full mr-3">
+                                                <i class="fas fa-award text-[#314a4a] text-xl"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-bold text-lg text-gray-800">{{ award.title }}</h4>
+                                                <p class="text-sm text-[#314a4a]-dark font-medium">{{ award.issuing_organization }}</p>
+                                            </div>
+                                        </div>
+                                        <span class="bg-[#314a4a] text-white text-xs px-2 py-1 rounded-full">{{ award.date.year }}</span>
+                                    </div>
+                                    <p class="text-gray-600 mb-4">{{ award.description }}</p>
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex items-center text-sm text-gray-500">
+                                            <i class="fas fa-calendar-alt mr-1"></i> {{ award.date.strftime('%b %Y') }}
+                                        </div>
+                                        {% if award.document_link %}
+                                        <a href="{{ award.document_link }}" class="text-[#314a4a] text-sm font-medium hover:underline flex items-center">
+                                            View Certificate <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <p class="text-gray-500">No awards or recognitions listed</p>
+                            {% endfor %}
+
+                            <!-- Gold Medal -->
+                            <!-- <div class="relative group">
+                                <div class="relative bg-white p-5 rounded-lg border border-gray-400 shadow-md hover:shadow-md transition-all h-full">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div class="flex items-center">
+                                            <div class="bg-yellow-100/50 p-2 rounded-full mr-3">
+                                                <i class="fas fa-medal text-yellow-600 text-xl"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-bold text-lg text-gray-800">Institute Gold Medal</h4>
+                                                <p class="text-sm text-[#314a4a]-dark font-medium">Academic Excellence</p>
+                                            </div>
+                                        </div>
+                                        <span class="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">Top 1%</span>
+                                    </div>
+                                    <p class="text-gray-600 mb-4">Awarded for securing first position in the M.Tech Computer Science program with a CGPA of 9.8/10.0</p>
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex items-center text-sm text-gray-500">
+                                            <i class="fas fa-calendar-alt mr-1"></i> May 2022
+                                        </div>
+                                        <a href="#" class="text-[#314a4a] text-sm font-medium hover:underline flex items-center">
+                                            View Details <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div> -->
+
+                            <!-- PMRF Fellowship -->
+                            <!-- <div class="relative group">
+                                <div class="relative bg-white p-5 rounded-lg border border-gray-400 shadow-md hover:shadow-md transition-all h-full">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div class="flex items-center">
+                                            <div class="bg-blue-100/50 p-2 rounded-full mr-3">
+                                                <i class="fas fa-user-graduate text-blue-600 text-xl"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-bold text-lg text-gray-800">PM Research Fellowship</h4>
+                                                <p class="text-sm text-[#314a4a]-dark font-medium">Government of India</p>
+                                            </div>
+                                        </div>
+                                        <span class="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">Prestige</span>
+                                    </div>
+                                    <p class="text-gray-600 mb-4">Selected for the prestigious Prime Minister's Research Fellowship with full funding for PhD studies in Artificial Intelligence</p>
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex items-center text-sm text-gray-500">
+                                            <i class="fas fa-calendar-alt mr-1"></i> March 2021
+                                        </div>
+                                        <a href="#" class="text-[#314a4a] text-sm font-medium hover:underline flex items-center">
+                                            Fellowship Letter <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div> -->
+
+                            <!-- IEEE Project Award -->
+                            <!-- <div class="relative group">
+                                <div class="relative bg-white p-5 rounded-lg border border-gray-400 shadow-md hover:shadow-md transition-all h-full">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div class="flex items-center">
+                                            <div class="bg-red-100/50 p-2 rounded-full mr-3">
+                                                <i class="fas fa-certificate text-red-600 text-xl"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-bold text-lg text-gray-800">Best Project Award</h4>
+                                                <p class="text-sm text-[#314a4a]-dark font-medium">IEEE Region 10</p>
+                                            </div>
+                                        </div>
+                                        <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">Innovation</span>
+                                    </div>
+                                    <p class="text-gray-600 mb-4">Recognized for developing "ML-based Early Detection System for Cardiovascular Diseases" at IEEE PROJECT EXPO 2020</p>
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex items-center text-sm text-gray-500">
+                                            <i class="fas fa-calendar-alt mr-1"></i> November 2020
+                                        </div>
+                                        <a href="#" class="text-[#314a4a] text-sm font-medium hover:underline flex items-center">
+                                            Project Link <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div> -->
+
+                            <!-- Merit Scholarship -->
+                            <!-- <div class="relative group">
+                                <div class="relative bg-white p-5 rounded-lg border border-gray-400 shadow-md hover:shadow-md transition-all h-full">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div class="flex items-center">
+                                            <div class="bg-green-100/50 p-2 rounded-full mr-3">
+                                                <i class="fas fa-rupee-sign text-green-600 text-xl"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-bold text-lg text-gray-800">University Merit Scholarship</h4>
+                                                <p class="text-sm text-[#314a4a]-dark font-medium">Academic Year 2019-20</p>
+                                            </div>
+                                        </div>
+                                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Merit</span>
+                                    </div>
+                                    <p class="text-gray-600 mb-4">Awarded to top 5 students of the batch based on academic performance and research potential</p>
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex items-center text-sm text-gray-500">
+                                            <i class="fas fa-calendar-alt mr-1"></i> August 2019
+                                        </div>
+                                        <a href="#" class="text-[#314a4a] text-sm font-medium hover:underline flex items-center">
+                                            View Details <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div> -->
+
+                            <!-- Hackathon Winner -->
+                            <!-- <div class="relative group">
+                                <div class="relative bg-white p-5 rounded-lg border border-gray-400 shadow-md hover:shadow-md transition-all h-full">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div class="flex items-center">
+                                            <div class="bg-purple-100/50 p-2 rounded-full mr-3">
+                                                <i class="fas fa-laptop-code text-purple-600 text-xl"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-bold text-lg text-gray-800">AI Hackathon Winner</h4>
+                                                <p class="text-sm text-[#314a4a]-dark font-medium">National Level</p>
+                                            </div>
+                                        </div>
+                                        <span class="bg-purple-500 text-white text-xs px-2 py-1 rounded-full">1st Prize</span>
+                                    </div>
+                                    <p class="text-gray-600 mb-4">Won 1st prize among 150 teams in National AI Challenge for developing "Real-time Traffic Analysis System"</p>
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex items-center text-sm text-gray-500">
+                                            <i class="fas fa-calendar-alt mr-1"></i> December 2018
+                                        </div>
+                                        <a href="#" class="text-[#314a4a] text-sm font-medium hover:underline flex items-center">
+                                            Demo Video <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div> -->
+                        </div>
+
+                        <!-- View All Button -->
+
+                        {% if awards|length > 4 %}
+                            <!-- View All Button -->
+                            <div class="flex justify-center mt-2">
+                                <button class="px-6 py-2 bg-white border border-[#314a4a] text-[#314a4a] rounded-lg hover:bg-[#314a4a] hover:text-white transition-all flex items-center">
+                                    <span>View All {{ awards|length }} Awards</span>
+                                    <i class="fas fa-chevron-down ml-2"></i>
+                                </button>
+                            </div>
+                        {% endif %}
+
+
+                        <!-- <div class="flex justify-center mt-2">
+                            <button class="px-6 py-2 bg-white border border-[#314a4a] text-[#314a4a] rounded-lg hover:bg-[#314a4a] hover:text-white transition-all flex items-center">
+                                <span>View All 12 Awards</span>
+                                <i class="fas fa-chevron-down ml-2"></i>
+                            </button>
+                        </div> -->
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab functionality
+    const tabButtons = document.querySelectorAll('.student-tab-button');
+    const tabContents = document.querySelectorAll('.student-tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons and contents
+            tabButtons.forEach(btn => btn.classList.remove('bg-[#314a4a]', 'text-white'));
+            tabContents.forEach(content => content.classList.add('hidden'));
+            
+            // Add active class to clicked button
+            button.classList.add('bg-[#314a4a]', 'text-white');
+            
+            // Show corresponding content
+            const tabId = button.getAttribute('data-tab');
+            document.querySelector(`#tab-content-${tabId}`).classList.remove('hidden');
+        });
+    });
+    
+    // Activate the first tab by default
+    if (tabButtons.length > 0) {
+        tabButtons[0].click();
+    }
+});
+</script>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

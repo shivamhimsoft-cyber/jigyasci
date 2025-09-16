@@ -1,0 +1,324 @@
+<!-- templates\faculty\profile.html -->
+{% extends "base.html" %}
+{% block title %}PI Profile - {{ profile.name }}{% endblock %}
+
+{% block content %}
+
+
+
+
+<div class="container py-4">
+
+   <!-- ✅ Button aligned LEFT, outside the card -->
+<div class="row mb-3">
+    <div class="col-lg-8 mx-auto d-flex justify-content-start">
+        {% if profile %}
+            <!-- Show Edit Button if profile exists -->
+            <button id="editBtn" class="btn btn-outline-primary btn-sm rounded-pill shadow-sm" onclick="toggleEditForm()" title="Edit Profile">
+                <i class="fas fa-edit me-1"></i> Edit Profile
+            </button>
+        {% else %}
+            <!-- Show Add Profile Button if no profile -->
+            <button id="editBtn" class="btn btn-outline-success btn-sm rounded-pill shadow-sm" onclick="toggleEditForm()" title="Add Profile">
+                <i class="fas fa-user-plus me-1"></i> Add Profile
+            </button>
+        {% endif %}
+    </div>
+</div>
+
+
+
+
+<div id="profileView" {% if not profile %}style="display: none;"{% endif %}>
+    <div class="row">
+        <!-- Main Profile Card -->
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm border-0">
+
+
+                <!-- Profile Header with Image Placeholder -->
+                <div class="profile-header bg-primary bg-gradient text-white p-4 rounded-top position-relative">
+                    
+                    
+                    <div class="d-flex align-items-center">
+                        <div class="me-4">
+                            {% if profile.profile_picture %}
+                            <img src="{{ profile.profile_picture }}" class="rounded-circle" 
+                                 style="width: 100px; height: 100px; object-fit: cover;" 
+                                 alt="{{ profile.name }}">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='images/logo-shade_blue.png') }}" 
+                                 class="rounded-circle bg-white p-2"
+                                 style="width: 100px; height: 100px; object-fit: contain;" 
+                                 alt="Default Logo">
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h2 class="mb-1">{{ profile.name or "Principal Investigator" }}</h2>
+                            <p class="mb-1">
+                                <i class="fas fa-building me-2"></i>
+                                {{ profile.department or "Department not specified" }}
+                            </p>
+                            <p class="mb-0">
+                                <i class="fas fa-university me-2"></i>
+                                {{ profile.affiliation or "Affiliation not specified" }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rest of the profile body remains the same -->
+                <div class="card-body p-4">
+                    <!-- Personal Information Section -->
+                    <div class="mb-4">
+                        <h5 class="card-section-title border-bottom pb-2 mb-3">
+                            <i class="fas fa-user-circle me-2"></i>Personal Information
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-birthday-cake text-muted me-2"></i>
+                                    <div>
+                                        <small class="text-muted">Date of Birth</small>
+                                        <p class="mb-0">{{ profile.dob.strftime('%d %b, %Y') if profile.dob else 'Not provided' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-venus-mars text-muted me-2"></i>
+                                    <div>
+                                        <small class="text-muted">Gender</small>
+                                        <p class="mb-0">{{ profile.gender or 'Not provided' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information Section -->
+                    <div class="mb-4">
+                        <h5 class="card-section-title border-bottom pb-2 mb-3">
+                            <i class="fas fa-address-card me-2"></i>Contact Information
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-envelope text-muted me-2"></i>
+                                    <div>
+                                        <small class="text-muted">Email</small>
+                                        <p class="mb-0">{{ profile.email or 'Not provided' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-phone text-muted me-2"></i>
+                                    <div>
+                                        <small class="text-muted">Phone</small>
+                                        <p class="mb-0">{{ profile.contact_phone or 'Not provided' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-map-marker-alt text-muted me-2 mt-1"></i>
+                                    <div>
+                                        <small class="text-muted">Address</small>
+                                        <p class="mb-0">{{ profile.address or 'Not provided' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Professional Information Section -->
+                    <div class="mb-4">
+                        <h5 class="card-section-title border-bottom pb-2 mb-3">
+                            <i class="fas fa-briefcase me-2"></i>Professional Information
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-calendar-day text-muted me-2"></i>
+                                    <div>
+                                        <small class="text-muted">Start Date</small>
+                                        <p class="mb-0">{{ profile.start_date.strftime('%d %b, %Y') if profile.start_date else 'Not provided' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Research Information Section -->
+                    <div class="mb-4">
+                        <h5 class="card-section-title border-bottom pb-2 mb-3">
+                            <i class="fas fa-flask me-2"></i>Research Information
+                        </h5>
+                        <div class="mb-3">
+                            <small class="text-muted">Current Research Focus</small>
+                            <p class="mb-0">{{ profile.current_focus or 'Not provided' }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted">Current Message</small>
+                            <p class="mb-0">{{ profile.current_message or 'Not provided' }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted">Expectations from Students</small>
+                            <p class="mb-0">{{ profile.expectations_from_students or 'Not provided' }}</p>
+                        </div>
+                        <div class="mb-0">
+                            <small class="text-muted">Why Join Our Lab</small>
+                            <p class="mb-0">{{ profile.why_join_lab or 'Not provided' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+<div id="editForm" {% if not profile %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+
+    <form method="POST" action="{{ url_for('pi.basic_info') }}">
+<div class="grid grid-cols-12 gap-6">
+    <div class="col-span-12">
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h5 class="text-2xl font-semibold text-indigo-700 mb-1">Personal Details</h5>
+            <p class="text-gray-600 mb-6">To change your personal detail, edit and save from here.</p>
+
+            <form method="POST" class="grid grid-cols-12 gap-x-6 gap-y-4">
+                <!-- Left Column -->
+                <div class="lg:col-span-6 col-span-12">
+                    <div class="flex flex-col gap-4">
+                        <div>
+                            <label class="font-semibold text-gray-700 mb-1 block">Name</label>
+                            <input name="name" value="{{ profile.name if profile else '' }}" class="form-control py-2 w-full border border-gray-300 rounded-md" placeholder="Your Name">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-gray-700 mb-1 block">Department</label>
+                            <input name="department" value="{{ profile.department if profile else '' }}" class="form-control py-2 w-full border border-gray-300 rounded-md" placeholder="Department">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-gray-700 mb-1 block">Affiliation</label>
+                            <input name="affiliation" value="{{ profile.affiliation if profile else '' }}" class="form-control py-2 w-full border border-gray-300 rounded-md" placeholder="Affiliation">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-gray-700 mb-1 block">Gender</label>
+                            <select name="gender" class="form-control py-2 w-full border border-gray-300 rounded-md">
+                                <option value="">Select Gender</option>
+                                <option value="Male" {% if profile and profile.gender == "Male" %}selected{% endif %}>Male</option>
+                                <option value="Female" {% if profile and profile.gender == "Female" %}selected{% endif %}>Female</option>
+                                <option value="Other" {% if profile and profile.gender == "Other" %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="lg:col-span-6 col-span-12">
+                    <div class="flex flex-col gap-4">
+                        <div>
+                            <label class="font-semibold text-gray-700 mb-1 block">Designation</label>
+                            <input name="current_designation" value="{{ profile.current_designation if profile else '' }}" class="form-control py-2 w-full border border-gray-300 rounded-md" placeholder="Designation">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-gray-700 mb-1 block">Start Date</label>
+                            <input type="date" name="start_date" value="{{ profile.start_date if profile and profile.start_date else '' }}" class="form-control py-2 w-full border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-gray-700 mb-1 block">Date of Birth</label>
+                            <input type="date" name="dob" value="{{ profile.dob if profile and profile.dob else '' }}" class="form-control py-2 w-full border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-gray-700 mb-1 block">Email</label>
+                            <input type="email" name="email" value="{{ profile.email if profile else '' }}" class="form-control py-2 w-full border border-gray-300 rounded-md" placeholder="you@example.com">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Full Width Fields -->
+                <div class="col-span-12">
+                    <label class="font-semibold text-gray-700 mb-1 block">Phone</label>
+                    <input name="contact_phone" value="{{ profile.contact_phone if profile else '' }}" class="form-control py-2 w-full border border-gray-300 rounded-md" placeholder="Contact Number">
+                </div>
+
+                <div class="col-span-12">
+                    <label class="font-semibold text-gray-700 mb-1 block">Address</label>
+                    <input name="address" value="{{ profile.address if profile else '' }}" class="form-control py-2 w-full border border-gray-300 rounded-md" placeholder="Your address">
+                </div>
+
+                <div class="col-span-12">
+                    <label class="font-semibold text-gray-700 mb-1 block">Current Message</label>
+                    <textarea name="current_message" class="form-control py-2 w-full border border-gray-300 rounded-md" rows="3">{{ profile.current_message if profile else '' }}</textarea>
+                </div>
+
+                <div class="col-span-12">
+                    <label class="font-semibold text-gray-700 mb-1 block">Current Focus</label>
+                    <textarea name="current_focus" class="form-control py-2 w-full border border-gray-300 rounded-md" rows="3">{{ profile.current_focus if profile else '' }}</textarea>
+                </div>
+
+                <div class="col-span-12">
+                    <label class="font-semibold text-gray-700 mb-1 block">Expectations from Students</label>
+                    <textarea name="expectations" class="form-control py-2 w-full border border-gray-300 rounded-md" rows="3">{{ profile.expectations_from_students if profile else '' }}</textarea>
+                </div>
+
+                <div class="col-span-12">
+                    <label class="font-semibold text-gray-700 mb-1 block">Why Join Lab</label>
+                    <textarea name="why_join_lab" class="form-control py-2 w-full border border-gray-300 rounded-md" rows="3">{{ profile.why_join_lab if profile else '' }}</textarea>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="col-span-12 flex gap-3 justify-end mt-4">
+                    <button type="submit" class="py-2 px-6 text-sm font-medium rounded-md border border-transparent bg-success hover:bg-successemphasis text-white">
+                            Update
+                          </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+    </form>
+</div>
+
+
+
+
+<style>
+    .profile-header {
+        background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
+    }
+    
+    .card-section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #3a7bd5;
+    }
+    
+    .card {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+</style>
+
+<script>
+
+function toggleEditForm() {
+    // Hide profile view
+    const profileView = document.getElementById('profileView');
+    if (profileView) profileView.style.display = 'none';
+
+    // Show the form
+    const editForm = document.getElementById('editForm');
+    if (editForm) editForm.style.display = 'block';
+
+    // Hide the edit/add button
+    const editBtn = document.getElementById('editBtn');
+    if (editBtn) editBtn.style.display = 'none';
+}
+</script>
+
+</script>
+{% endblock %}

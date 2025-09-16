@@ -1,0 +1,223 @@
+{% extends "frontBase.html" %}
+
+{% block title %}Research Collaboration Platform | Home{% endblock %}
+
+{% block content %}
+<section class="hero bg-dark text-light rounded p-4 mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6">
+            <h1 class="display-4 fw-bold">Connecting Research Ecosystems</h1>
+            <p class="lead">Join our platform to collaborate with researchers, find opportunities, and accelerate innovation.</p>
+
+            {% if not current_user.is_authenticated %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 me-md-2">Get Started</a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg px-4">Sign In</a>
+            </div>
+            {% else %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <a href="{{ url_for('search') }}" class="btn btn-primary btn-lg px-4 me-md-2">Explore</a>
+                {% if current_user.user_type in ['PI', 'Industry'] %}
+                <a href="{{ url_for('create_opportunity') }}" class="btn btn-outline-light btn-lg px-4">Post Opportunity</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-lg-6 mt-4 mt-lg-0">
+            <img src="https://pixabay.com/get/g7207639e5253b98bf05309a99126157e4fce5a174327ef0c8bb04f0ee954eb81804b1ae76cf5cdc5f46e2d60b86cd6579bd3f6ba506c3c7c4235c8e9414b1f70_1280.jpg" class="img-fluid rounded" alt="Researchers collaborating in a lab">
+        </div>
+    </div>
+</section>
+
+<section class="mb-5">
+    <h2 class="mb-4 text-center">Who We Connect</h2>
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-graduate fa-3x mb-3 text-primary"></i>
+                    <h5 class="card-title">Students</h5>
+                    <p class="card-text">Find research opportunities, connect with mentors, and build your academic journey.</p>
+                </div>
+                <div class="card-footer bg-transparent border-0 text-center">
+                    <a href="{{ url_for('search', category='opportunities', query='') }}" class="btn btn-sm btn-outline-primary">Find Opportunities</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-microscope fa-3x mb-3 text-success"></i>
+                    <h5 class="card-title">PIs & Lab Directors</h5>
+                    <p class="card-text">Recruit talented students, showcase research, and secure collaborations.</p>
+                </div>
+                <div class="card-footer bg-transparent border-0 text-center">
+                    {% if current_user.is_authenticated and current_user.user_type == 'PI' %}
+                    <a href="{{ url_for('create_opportunity') }}" class="btn btn-sm btn-outline-success">Post Opportunity</a>
+                    {% else %}
+                    <a href="{{ url_for('search', category='profiles', query='') }}" class="btn btn-sm btn-outline-success">Explore Labs</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-building fa-3x mb-3 text-info"></i>
+                    <h5 class="card-title">Industry</h5>
+                    <p class="card-text">Post research challenges, find academic collaborators, and recruit talent.</p>
+                </div>
+                <div class="card-footer bg-transparent border-0 text-center">
+                    {% if current_user.is_authenticated and current_user.user_type == 'Industry' %}
+                    <a href="{{ url_for('create_opportunity') }}" class="btn btn-sm btn-outline-info">Post Challenge</a>
+                    {% else %}
+                    <a href="{{ url_for('search', category='profiles', query='') }}" class="btn btn-sm btn-outline-info">Find Partners</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-truck fa-3x mb-3 text-warning"></i>
+                    <h5 class="card-title">Vendors</h5>
+                    <p class="card-text">Connect with research labs for equipment provision and sponsorship opportunities.</p>
+                </div>
+                <div class="card-footer bg-transparent border-0 text-center">
+                    <a href="{{ url_for('search', category='profiles', query='') }}" class="btn btn-sm btn-outline-warning">Connect with Labs</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6">
+            <h2 class="mb-4">Featured Research Labs</h2>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <img src="https://pixabay.com/get/g835c61805612685cf69928d02c3305cb7eb8052489ad6fab3b3de3f7bc36e6268b55808a9d3be69c84c4c52200376f3d5a9b9875d447ebe05de86d6203e2cf1f_1280.jpg" class="card-img-top" alt="Research Lab">
+                        <div class="card-body">
+                            <h5 class="card-title">Molecular Biology Lab</h5>
+                            <p class="card-text">Cutting-edge research in genetics and molecular biology.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <img src="https://pixabay.com/get/g7b2a48bae05c348eb02bbcc7316d69f119542f560f391419852057328dc26d6621ad499ac6b0b4cc932274eacd1214225bb6f1f836831b1ca8bb141e2a030e88_1280.jpg" class="card-img-top" alt="Research Lab">
+                        <div class="card-body">
+                            <h5 class="card-title">Materials Science Group</h5>
+                            <p class="card-text">Developing next-generation materials for sustainability.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <a href="{{ url_for('search', category='profiles', query='') }}" class="btn btn-outline-primary">Explore All Labs</a>
+            </div>
+        </div>
+        <div class="col-lg-6 mt-5 mt-lg-0">
+            <h2 class="mb-4">Top Opportunities</h2>
+            <div class="list-group">
+                {% if opportunities %}
+                    {% for opportunity in opportunities %}
+                        <a href="{{ url_for('view_opportunity', opportunity_id=opportunity.id) }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ opportunity.title }}</h5>
+                                <small class="text-muted">{{ opportunity.type }}</small>
+                            </div>
+                            <p class="mb-1">{{ opportunity.description[:100] }}{% if opportunity.description|length > 100 %}...{% endif %}</p>
+                            <small class="text-muted">Domain: {{ opportunity.domain }} | Location: {{ opportunity.location }}</small>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center p-4">
+                        <p class="text-muted">No opportunities available at the moment.</p>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="text-center mt-4">
+                <a href="{{ url_for('list_opportunities') }}" class="btn btn-outline-primary">View All Opportunities</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-light rounded p-4 mb-5">
+    <h2 class="mb-4 text-center">Connecting Research with Industry</h2>
+    <div class="row align-items-center">
+        <div class="col-lg-6">
+            <img src="https://pixabay.com/get/g870d4863ee6a7252f13eb7e3dd52400c4c607fa97a01827f1adce2a0cfe1663c7aceff2c306d82fb961b3bbe3ea17dd67bbae8155b338e62c2ada1b30c7624fe_1280.jpg" class="img-fluid rounded" alt="Industry-academic collaboration">
+        </div>
+        <div class="col-lg-6 mt-4 mt-lg-0">
+            <h3>Why Collaborate?</h3>
+            <div class="d-flex mb-3">
+                <div class="me-3">
+                    <i class="fas fa-flask fa-2x text-primary"></i>
+                </div>
+                <div>
+                    <h5>Access to Cutting-edge Research</h5>
+                    <p>Collaborate with leading academic institutions to stay at the forefront of innovation.</p>
+                </div>
+            </div>
+            <div class="d-flex mb-3">
+                <div class="me-3">
+                    <i class="fas fa-lightbulb fa-2x text-warning"></i>
+                </div>
+                <div>
+                    <h5>Solve Complex Problems</h5>
+                    <p>Tap into specialized expertise to address your organization's technical challenges.</p>
+                </div>
+            </div>
+            <div class="d-flex mb-3">
+                <div class="me-3">
+                    <i class="fas fa-users fa-2x text-success"></i>
+                </div>
+                <div>
+                    <h5>Talent Pipeline</h5>
+                    <p>Connect with promising students and researchers for future recruitment opportunities.</p>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <a href="{{ url_for('register') }}" class="btn btn-primary">Join the Network</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-5">
+    <h2 class="mb-4 text-center">Success Stories</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Nanotech Breakthrough</h5>
+                    <p class="card-text">"Our industry-academic collaboration led to a patented nanotechnology solution that's now being commercialized."</p>
+                    <p class="card-text"><small class="text-muted">- Dr. Sarah Chen, Materials Science Lab</small></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">PhD to Industry Leader</h5>
+                    <p class="card-text">"I found my PhD position through this platform. Now I lead R&D at a biotech company and help mentor new students."</p>
+                    <p class="card-text"><small class="text-muted">- Dr. Michael Johnson, NovaBio Inc.</small></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Equipment Innovation</h5>
+                    <p class="card-text">"Collaborating with research labs helped us develop our scientific equipment line, resulting in a 200% sales increase."</p>
+                    <p class="card-text"><small class="text-muted">- Jennifer Lopez, LabTech Solutions</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

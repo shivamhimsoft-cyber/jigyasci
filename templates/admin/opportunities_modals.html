@@ -1,0 +1,230 @@
+<!-- templates/admin/opportunities_modals.html -->
+<div id="addLinkModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center hidden z-50 overflow-y-auto py-6">
+    <div id="linkModalContent" 
+         class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-2xl mx-auto my-8 transform scale-95 opacity-0 transition-all duration-300
+                max-h-[90vh] flex flex-col overflow-hidden">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-5 pb-3 border-b flex-shrink-0">
+            <h3 class="text-xl font-bold text-gray-800">
+                <i class="fas fa-link mr-2 text-orange-500"></i>
+                Add Opportunity Link
+            </h3>
+            <button type="button" onclick="closeAddLinkModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times-circle text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Scrollable Body -->
+        <div class="overflow-y-auto pr-2 flex-1 modal-scroll">
+            <form id="addLinkForm" class="space-y-6">
+                <div id="linkFieldsContainer" class="space-y-6">
+                    <!-- First Link Block -->
+                    <div class="link-block border rounded-lg p-4 relative bg-gray-50">
+                        <button type="button" class="remove-link absolute top-2 right-2 text-red-500 hover:text-red-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Title -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
+                                <input type="text" name="title[]" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg"
+                                       placeholder="Enter link title">
+                            </div>
+
+                            <!-- Link -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Link (Required)</label>
+                                <input type="url" name="link[]" required
+                                       class="w-full p-3 border border-gray-300 rounded-lg"
+                                       placeholder="https://example.com">
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mt-4">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                            <textarea name="description[]" rows="3"
+                                      class="w-full p-3 border border-gray-300 rounded-lg"
+                                      placeholder="Brief description"></textarea>
+                        </div>
+
+                        <!-- Tags -->
+                        <div class="mt-4">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Tags</label>
+                            <input type="text" name="tags[]" 
+                                   class="w-full p-3 border border-gray-300 rounded-lg"
+                                   placeholder="Comma separated tags (e.g. research, internship)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Another Link Button -->
+                <div class="flex justify-start">
+                    <button type="button" id="addAnotherLink" 
+                            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 flex items-center gap-2">
+                        <i class="fas fa-plus"></i> Add Another Link
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer (Fixed Bottom in Modal) -->
+        <div class="flex justify-end gap-3 pt-4 mt-4 border-t flex-shrink-0">
+            <button type="button" onclick="closeAddLinkModal()" 
+                    class="px-5 py-2.5 text-gray-600 hover:text-gray-800 font-medium rounded-lg">
+                Cancel
+            </button>
+            <button type="button" id="submitLinksBtn"
+                    class="px-5 py-2.5 bg-orange-600 text-black font-medium rounded-lg hover:bg-orange-700 flex items-center gap-2">
+                <i class="fas fa-plus"></i>
+                Add Links
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Store the first block HTML for resetting
+const firstBlockHTML = document.querySelector('.link-block').outerHTML;
+
+// ✅ Open modal
+function openAddLinkModal() {
+    const modal = document.getElementById('addLinkModal');
+    const content = document.getElementById('linkModalContent');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+    }, 50);
+}
+
+// ✅ Close modal
+function closeAddLinkModal() {
+    const modal = document.getElementById('addLinkModal');
+    const content = document.getElementById('linkModalContent');
+    content.classList.add('scale-95', 'opacity-0');
+    content.classList.remove('scale-100', 'opacity-100');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        // Reset form
+        document.getElementById('addLinkForm').reset();
+        // Reset to just one block
+        document.getElementById('linkFieldsContainer').innerHTML = firstBlockHTML;
+    }, 200);
+}
+
+// ✅ Add another link block
+document.getElementById('addAnotherLink').addEventListener('click', function() {
+    const container = document.getElementById('linkFieldsContainer');
+    const newBlock = document.createElement('div');
+    newBlock.className = 'link-block border rounded-lg p-4 relative bg-gray-50';
+    newBlock.innerHTML = firstBlockHTML;
+    container.appendChild(newBlock);
+});
+
+// ✅ Remove block (using event delegation)
+document.getElementById('linkFieldsContainer').addEventListener('click', function(e) {
+    if (e.target.closest('.remove-link')) {
+        const blocks = document.querySelectorAll('.link-block');
+        if (blocks.length > 1) {
+            e.target.closest('.link-block').remove();
+        }
+    }
+});
+
+// ✅ Submit form
+document.getElementById('submitLinksBtn').addEventListener('click', async function() {
+    const submitBtn = this;
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+    submitBtn.disabled = true;
+
+    const blocks = document.querySelectorAll('.link-block');
+    const linksData = [];
+    
+    // Validate and collect data
+    let hasErrors = false;
+    
+    blocks.forEach(block => {
+        const link = block.querySelector('[name="link[]"]').value;
+        
+        if (!link) {
+            hasErrors = true;
+            block.querySelector('[name="link[]"]').classList.add('border-red-500');
+        } else {
+            block.querySelector('[name="link[]"]').classList.remove('border-red-500');
+            
+            linksData.push({
+                title: block.querySelector('[name="title[]"]').value,
+                url: link, // Note: changed from 'link' to 'url' to match your model
+                description: block.querySelector('[name="description[]"]').value,
+                tags: block.querySelector('[name="tags[]"]').value,
+            });
+        }
+    });
+
+    if (hasErrors) {
+        showNotification('error', 'Please fill in all required link fields');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+        return;
+    }
+
+    try {
+        const response = await fetch('{{ url_for("admin.admin_add_opportunity_link") }}', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ links: linksData })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            showNotification('success', result.message || 'Links added successfully!');
+            closeAddLinkModal();
+        } else {
+            showNotification('error', result.message || 'Error adding links');
+        }
+    } catch (error) {
+        showNotification('error', 'Network error: ' + error.message);
+    } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+});
+
+// Make functions globally available
+window.openAddLinkModal = openAddLinkModal;
+window.closeAddLinkModal = closeAddLinkModal;
+</script>
+
+<style>
+    /* Custom scrollbar for modal */
+.modal-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.modal-scroll::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.modal-scroll::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+</style>

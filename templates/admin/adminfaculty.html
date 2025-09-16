@@ -1,0 +1,498 @@
+{% extends "base.html" %}
+{% block title %}Faculty Dashboard | Research Collaboration Platform{% endblock %}
+{% block content %}
+<div class="">
+        <div class="flex flex-wrap items-center gap-4 mb-6">
+            <button onclick="showManualForm()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-md transition-colors duration-200">
+                <i class="ti ti-user-plus mr-2"></i>Manually Add Faculty
+            </button>
+            <button onclick="showUploadForm()"
+                    class="bg-white  text-warning border border-warning hover:text-white hover:bg-warning font-semibold py-2.5 px-6 rounded-lg shadow-md transition-colors duration-200">
+                <i class="ti ti-upload mr-2"></i>Import CSV
+            </button>
+            <a href="{{ url_for('static', filename='sample_faculty.csv') }}" download
+               class="bg-white  text-success border border-success hover:text-white hover:bg-success font-semibold py-2.5 px-6 rounded-lg shadow-md transition-colors duration-200">
+                <i class="ti ti-download mr-2"></i>Download CSV Template
+            </a>
+        </div>
+        <div id="upload-form" class="hidden mb-6 bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
+            <h3 class="text-lg font-semibold text-black mb-4">Import Faculty from CSV</h3>
+            <form method="POST" enctype="multipart/form-data" class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div class="flex-1">
+                    <input type="file" name="faculty_csv"
+                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                           placeholder="Choose CSV file" required accept=".csv">
+                </div>
+                <button type="button" onclick="hideUploadForm()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors duration-200">
+                    Cancel
+                </button>
+                <button type="submit" class="bg-success  text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-colors duration-200 mt-6 sm:mt-0">
+                    <i class="ti ti-upload me-2"></i>Upload CSV
+                </button>
+
+            </form>
+        </div>
+        <div id="manual-form" class="hidden mb-6 bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
+            <h3 class="text-lg font-semibold text-black mb-6">Add Faculty Manually</h3>
+            <form method="POST" action="{{ url_for('admin.adminfaculty') }}">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- Personal Information -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Name *</label>
+                        <input type="text" name="name"
+                               class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                               placeholder="Enter full name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Email *</label>
+                        <input type="email" name="email"
+                               class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                               placeholder="Enter email address" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Department *</label>
+                        <select name="department"
+                                class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black" required>
+                            <option value="">Select Department</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept.name }}">{{ dept.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Current Designation *</label>
+                        <select name="current_designation"
+                                class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black" required>
+                            <option value="">Select Designation</option>
+                            {% for designation in designations %}
+                            <option value="{{ designation.name }}">{{ designation.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Gender *</label>
+                        <select name="gender"
+                                class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black" required>
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Date of Birth *</label>
+                        <input type="date" name="dob"
+                               class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                               placeholder="Select date of birth" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Start Date</label>
+                        <input type="date" name="start_date"
+                               class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                               placeholder="Select start date">
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Contact Phone</label>
+                        <input type="tel" name="contact_phone"
+                               class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                               placeholder="Enter phone number">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Address</label>
+                        <textarea name="address"
+                                  class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                                  rows="2" placeholder="Enter address"></textarea>
+                    </div>
+
+                    <!-- Research Information -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Affiliation *</label>
+                        <input type="text" name="affiliation"
+                               class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                               placeholder="Enter affiliation" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Affiliation (Short Form)</label>
+                        <input type="text" name="affiliation_short"
+                               class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                               placeholder="Enter short form">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Location (City) *</label>
+                        <input type="text" name="location"
+                               class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                               placeholder="Enter city" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Education Summary</label>
+                        <textarea name="education"
+                                  class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                                  rows="2" placeholder="Enter education summary"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Research Interest</label>
+                        <textarea name="research_interest"
+                                  class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                                  rows="2" placeholder="Enter research interests"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Current Focus (Research Area) *</label>
+                        <select name="current_focus"
+                                class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black" required>
+                            <option value="">Select Research Area</option>
+                            {% for area in research_areas %}
+                            <option value="{{ area.name }}">{{ area.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Research Metrics -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Papers Published</label>
+                        <input type="number" name="papers_published"
+                               class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                               placeholder="Enter number" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Total Citations</label>
+                        <input type="number" name="total_citations"
+                               class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                               placeholder="Enter number" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Research Experience (Years)</label>
+                        <input type="number" name="research_experience_years"
+                               class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                               placeholder="Enter years" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">H-Index</label>
+                        <input type="number" name="h_index"
+                               class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                               placeholder="Enter H-index" min="0">
+                    </div>
+
+                    <!-- Additional Information -->
+                    <div class="form-group sm:col-span-2 md:col-span-3 lg:col-span-4">
+                        <label class="block text-sm font-semibold text-black mb-2">Current Message</label>
+                        <textarea name="current_message"
+                                  class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                                  rows="2" placeholder="Enter current message"></textarea>
+                    </div>
+
+                    <div class="form-group sm:col-span-2 md:col-span-3 lg:col-span-4">
+                        <label class="block text-sm font-semibold text-black mb-2">Expectations from Students</label>
+                        <textarea name="expectations_from_students"
+                                  class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                                  rows="2" placeholder="Enter expectations"></textarea>
+                    </div>
+
+                    <div class="form-group sm:col-span-2 md:col-span-3 lg:col-span-4">
+                        <label class="block text-sm font-semibold text-black mb-2">Why Join My Lab</label>
+                        <textarea name="why_join_lab"
+                                  class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                                  rows="2" placeholder="Enter reasons to join lab"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Profile URL</label>
+                        <input type="url" name="profile_url"
+                               class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                               placeholder="Enter profile URL">
+                    </div>
+                </div>
+
+                <div class="mt-6 flex flex-wrap gap-3">
+
+                    <button type="button" onclick="hideManualForm()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-6 py-2.5 rounded-lg shadow-md transition-colors duration-200">
+                        <i class="ti ti-x me-2"></i>Cancel
+                    </button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg shadow-md transition-colors duration-200">
+                        <i class="ti ti-check me-2"></i>Add Faculty
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div id="faculty-table" class=" w-full card bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div class="card-body p-6">
+                <div class="sm:flex items-center justify-between mb-6">
+                    <div>
+                        <h5 class="text-xl font-semibold text-black mb-1">Faculty List</h5>
+                        <p class="text-sm text-gray-600">All registered faculty profiles</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 md:mt-0 mt-4">
+                        <form class="relative">
+                            <input type="text"
+                                   class="border border-black/80 rounded-sm px-4 py-1.5 pl-10 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black w-64"
+                                   placeholder="Search faculty...">
+                        </form>
+                        <form method="GET" action="{{ url_for('admin.adminfaculty') }}" class="flex items-center">
+                            <select name="per_page" onchange="this.form.submit()"
+                                    class="border border-black/80  rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black" style="min-width: 150px">
+                                <option value="5" {% if request.args.get('per_page', '10') == '5' %}selected{% endif %}>5 per page</option>
+                                <option value="10" {% if request.args.get('per_page', '10') == '10' %}selected{% endif %}>10 per page</option>
+                                <option value="25" {% if request.args.get('per_page', '10') == '25' %}selected{% endif %}>25 per page</option>
+                                <option value="50" {% if request.args.get('per_page', '10') == '50' %}selected{% endif %}>50 per page</option>
+                            </select>
+                            <input type="hidden" name="page" value="{{ request.args.get('page', '1') }}">
+                        </form>
+                    </div>
+                </div>
+
+                <div class="flex flex-col">
+                        <div id="table-container" class="overflow-auto cursor-grab">
+                        <table class=" divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">S. No.</th>
+                                        <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Name</th>
+                                        <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Department</th>
+                                        <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Affiliation</th>
+                                        <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Gender</th>
+                                        <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">DOB</th>
+                                        <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Designation</th>
+                                        <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Start Date</th>
+                                        <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Email</th>
+                                        <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Address</th>
+                                        <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Focus Area</th>
+                                        <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                    {% for pi in faculty.items %}
+                                    <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                        <td class="px-4 py-3 whitespace-nowrap text-center text-sm text-black">
+                                            {{ (faculty.page - 1) * faculty.per_page + loop.index }}
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <div class="flex gap-3 items-center">
+                                                <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                                                    <img src="{{ url_for('static', filename='images/profile.png') }}" alt="Profile" class="w-full h-full object-cover">
+                                                </div>
+                                                <span class="text-sm font-medium text-black">{{ pi.name }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="text-sm text-black">{{ pi.department or '-' }}</span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <div class="max-w-xs">
+                                                <span class="text-sm text-black line-clamp-2">
+                                                    {{ pi.affiliation or '-' }}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="text-sm text-black">{{ pi.gender or '-' }}</span>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="text-sm text-black">{{ pi.dob.strftime('%Y-%m-%d') if pi.dob else '-' }}</span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <div class="max-w-xs">
+                                                <span class="text-sm text-black line-clamp-2">
+                                                    {{ pi.current_designation or '-' }}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="text-sm text-black">{{ pi.start_date.strftime('%Y-%m-%d') if pi.start_date else '-' }}</span>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="text-sm text-black">{{ pi.email or '-' }}</span>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="text-sm text-black max-w-xs truncate">{{ pi.address or '-' }}</span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <div class="max-w-xs">
+                                                <span class="text-sm text-black">{{ pi.current_focus or '-' }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <div class="flex items-center gap-2">
+                                                <button class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors duration-200" title="View">
+                                                    <i class="ti ti-eye text-base"></i>
+                                                </button>
+                                                <button class="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors duration-200" title="Edit">
+                                                    <i class="ti ti-edit text-base"></i>
+                                                </button>
+                                                <form action="{{ url_for('admin.delete_faculty', id=pi.id) }}" method="POST" class="inline"
+                                                      onsubmit="return confirm('Are you sure you want to delete this faculty?');">
+                                                    <button type="submit" class="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors duration-200" title="Delete">
+                                                        <i class="ti ti-trash text-base"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="12" class="px-4 py-8 text-center text-gray-500">
+                                            <div class="flex flex-col items-center">
+                                                <i class="ti ti-users text-4xl text-gray-300 mb-2"></i>
+                                                <span class="text-sm">No faculty found</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="md:flex text-center pt-3 justify-between items-center border-t border-border dark:border-darkborder">
+                    <p class="font-medium">
+                        Showing {{ faculty.first }} to {{ faculty.last }} of {{ faculty.total }} entries
+                    </p>
+                    <nav class="flex items-center gap-x-1">
+                        {% if faculty.has_prev %}
+                        <a href="{{ url_for('admin.adminfaculty', page=faculty.prev_num, per_page=request.args.get('per_page', '10')) }}"
+                           class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-hover focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-darklink dark:focus:bg-white/10">
+                            <i class="ti ti-chevron-left text-sm leading-tight font-medium"></i>
+                            <span class="leading-tight">Previous</span>
+                        </a>
+                        {% else %}
+                        <span class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-gray-200 cursor-not-allowed dark:text-darklink">
+            <i class="ti ti-chevron-left text-sm leading-tight font-medium"></i>
+            <span class="leading-tight">Previous</span>
+          </span>
+                        {% endif %}
+                        <div class="flex items-center gap-x-1">
+                            {% for page_num in faculty.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=3) %}
+                            {% if page_num %}
+                            {% if faculty.page == page_num %}
+                            <span class="min-h-[38px] min-w-[38px] flex justify-center items-center text-white bg-primary py-2 px-3 text-sm rounded-lg focus:outline-none"
+                                  aria-current="page">{{ page_num }}</span>
+                            {% else %}
+                            <a href="{{ url_for('admin.adminfaculty', page=page_num, per_page=request.args.get('per_page', '10')) }}"
+                               class="min-h-[38px] min-w-[38px] flex justify-center items-center text-dark bg-hover py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-100 dark:text-darklink dark:focus:bg-white/10">
+                                {{ page_num }}
+                            </a>
+                            {% endif %}
+                            {% else %}
+                            <span class="min-h-[38px] min-w-[38px] flex justify-center items-center text-dark bg-hover py-2 px-3 text-sm rounded-lg">...</span>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% if faculty.has_next %}
+                        <a href="{{ url_for('admin.adminfaculty', page=faculty.next_num, per_page=request.args.get('per_page', '10')) }}"
+                           class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-hover focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-darklink dark:focus:bg-white/10">
+                            <span class="leading-tight">Next</span>
+                            <i class="ti ti-chevron-right text-sm leading-tight font-medium"></i>
+                        </a>
+                        {% else %}
+                        <span class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-gray-200 cursor-not-allowed dark:text-darklink">
+            <span class="leading-tight">Next</span>
+            <i class="ti ti-chevron-right text-sm leading-tight font-medium"></i>
+          </span>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+</div>
+<script>
+    function showUploadForm() {
+        const uploadForm = document.getElementById('upload-form');
+        const manualForm = document.getElementById('manual-form');
+        const facultyTable = document.getElementById('faculty-table');
+
+        if (uploadForm.classList.contains('hidden')) {
+            uploadForm.classList.remove('hidden');
+            manualForm.classList.add('hidden');
+            facultyTable.classList.add('hidden');
+        } else {
+            uploadForm.classList.add('hidden');
+            facultyTable.classList.remove('hidden');
+        }
+    }
+
+    function showManualForm() {
+        const uploadForm = document.getElementById('upload-form');
+        const manualForm = document.getElementById('manual-form');
+        const facultyTable = document.getElementById('faculty-table');
+
+        if (manualForm.classList.contains('hidden')) {
+            manualForm.classList.remove('hidden');
+            uploadForm.classList.add('hidden');
+            facultyTable.classList.add('hidden');
+        } else {
+            manualForm.classList.add('hidden');
+            facultyTable.classList.remove('hidden');
+        }
+    }
+
+    function hideManualForm() {
+        const manualForm = document.getElementById('manual-form');
+        const facultyTable = document.getElementById('faculty-table');
+
+        manualForm.classList.add('hidden');
+        facultyTable.classList.remove('hidden');
+    }
+
+    function hideUploadForm() {
+        const uploadForm = document.getElementById('upload-form');
+        const facultyTable = document.getElementById('faculty-table');
+
+        uploadForm.classList.add('hidden');
+        facultyTable.classList.remove('hidden');
+    }
+</script>
+<script>
+    const container = document.getElementById('table-container');
+
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    container.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return; // Only respond to left-click
+        isDown = true;
+        container.classList.add('cursor-grabbing');
+        container.classList.remove('cursor-grab');
+        startX = e.pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
+        e.preventDefault(); // Prevent text selection
+    });
+
+    container.addEventListener('mouseleave', () => {
+        isDown = false;
+        container.classList.remove('cursor-grabbing');
+        container.classList.add('cursor-grab');
+    });
+
+    container.addEventListener('mouseup', () => {
+        isDown = false;
+        container.classList.remove('cursor-grabbing');
+        container.classList.add('cursor-grab');
+    });
+
+    container.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startX) * 1; // Scroll speed multiplier
+        container.scrollLeft = scrollLeft - walk;
+    });
+</script>
+{% endblock %}

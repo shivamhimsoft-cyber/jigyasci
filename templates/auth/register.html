@@ -1,0 +1,646 @@
+<!-- templates\auth\register.html -->
+{% extends "authBase.html" %}
+
+{% block title %}Register | Research Collaboration Platform{% endblock %}
+
+{% block content %}
+<div class="lg:w-5/12 w-full">
+    <h2 class="font-bold text-3xl mb-3">Welcome to JigyaSci</h2>
+    <p class="text-base text-dark dark:text-darklink mb-7 font-medium">Create an Account</p>
+
+    <form method="POST" action="{{ url_for('auth.register') }}" novalidate id="registrationForm">
+        {{ form.hidden_tag() }}
+        
+        <!-- Hidden field to preserve user_type value when dropdown is disabled -->
+        <input type="hidden" id="userTypeHidden" name="user_type">
+
+        <div class="flex flex-col gap-5 mt-7">
+            <!-- User Type -->
+            <div>
+                {{ form.user_type.label(class="text-dark dark:text-darklink font-semibold mb-2 block") }}
+                {{ form.user_type(class="form-control rounded-full", id="userType") }}
+            </div>
+
+            <!-- Email -->
+            <div>
+                {{ form.email.label(class="text-dark dark:text-darklink font-semibold mb-2 block") }}
+                {{ form.email(class="form-control rounded-full", id="emailField") }}
+                <div class="form-text text-red-600" id="emailHelpText">
+                    {% if form.user_type.data in ['PI', 'Student'] %}
+                        Use institutional email address.
+                    {% else %}
+                        Use valid company email address.
+                    {% endif %}
+                </div>
+                <div id="emailError" class="text-red-500 text-sm mt-1 hidden"></div>
+            </div>
+
+            <!-- OTP Section - Enhanced Design -->
+            <div id="verificationSection" class="hidden">
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg mb-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-blue-700">
+                                We've sent a 6-digit verification code to your email address. Please check your inbox and spam folder.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="text-dark dark:text-darklink font-semibold mb-3 block text-lg">Verification Code</label>
+                    
+                    <div class="flex justify-center space-x-2 mb-3" id="otp-inputs">
+                        <input type="text" maxlength="1" class="otp-digit w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" data-index="0">
+                        <input type="text" maxlength="1" class="otp-digit w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" data-index="1">
+                        <input type="text" maxlength="1" class="otp-digit w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" data-index="2">
+                        <span class="self-center text-gray-400">-</span>
+                        <input type="text" maxlength="1" class="otp-digit w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" data-index="3">
+                        <input type="text" maxlength="1" class="otp-digit w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" data-index="4">
+                        <input type="text" maxlength="1" class="otp-digit w-12 h-12 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" data-index="5">
+                    </div>
+                    
+                    <!-- Hidden field to store the complete OTP -->
+                    <input type="hidden" name="verification_code" id="verificationCode">
+                    
+                    <div class="text-sm text-gray-600 mb-4 text-center">
+                        Enter the 6-digit code sent to <span id="email-display" class="font-medium"></span>
+                    </div>
+                    
+                    <div id="otp-feedback" class="text-center mb-4">
+                        <div id="countdown-timer" class="text-sm text-gray-600">
+                            Code expires in: <span id="timer" class="font-medium">05:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center space-x-3 mb-6">
+                    <button type="button" id="verifyOtpBtn" class="btn btn-primary py-2 px-6 flex items-center">
+                        <svg id="verify-spinner" class="hidden animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Verify Code
+                    </button>
+                    
+                    <button type="button" id="resendCode" class="btn btn-outline-primary py-2 px-6 flex items-center" disabled>
+                        <svg id="resend-spinner" class="hidden animate-spin -ml-1 mr-2 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span id="resend-text">Resend</span>
+                        <span id="resend-countdown" class="hidden">(0:30)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Password Section -->
+            <div id="passwordSection" class="hidden">
+                <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mb-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-green-700">
+                                Email verified successfully! Please set your password to complete registration.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    {{ form.password.label(class="text-dark dark:text-darklink font-semibold mb-2 block") }}
+                    {{ form.password(class="form-control rounded-full", id="passwordField") }}
+                    <div class="text-sm text-gray-600 mt-1">Must be at least 8 characters long</div>
+                    <div id="passwordError" class="text-red-500 text-sm mt-1 hidden"></div>
+                </div>
+
+                <div>
+                    {{ form.password2.label(class="text-dark dark:text-darklink font-semibold mb-2 block") }}
+                    {{ form.password2(class="form-control rounded-full", id="password2Field") }}
+                    <div id="password2Error" class="text-red-500 text-sm mt-1 hidden"></div>
+                </div>
+
+                <div class="mt-4 flex items-start">
+                    {{ form.agree_terms(class="form-check-input mt-1 mr-2", id="agreeTerms") }}
+                    <label class="form-check-label text-sm" for="agreeTerms">
+                        I agree to the <a href="#" class="text-blue-600 hover:underline">Terms and Conditions</a> and <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a>
+                    </label>
+                    <div id="termsError" class="text-red-500 text-sm mt-1 hidden"></div>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div id="initialSubmit">
+                <button type="button" id="verifyEmailBtn" class="btn btn-primary py-3 w-full flex justify-center items-center">
+                    <svg id="email-spinner" class="hidden animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Verify Email
+                </button>
+            </div>
+
+            <div id="finalSubmit" class="hidden">
+                <button type="submit" id="registerBtn" class="btn btn-primary py-3 w-full" disabled>
+                    Complete Registration
+                </button>
+            </div>
+
+            <div class="mt-4 text-center">
+                <span class="text-base font-medium">Already have an account?
+                    <a href="{{ url_for('auth.login') }}" class="text-blue-600 font-medium hover:underline">Login</a>
+                </span>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+.otp-digit {
+    transition: all 0.2s ease;
+}
+.otp-digit:focus {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+.otp-digit.filled {
+    border-color: #3B82F6;
+    background-color: #EFF6FF;
+}
+#resendCode:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const userTypeField = document.getElementById('userType');
+    const userTypeHidden = document.getElementById('userTypeHidden');
+    const emailField = document.getElementById('emailField');
+    const verificationSection = document.getElementById('verificationSection');
+    const passwordSection = document.getElementById('passwordSection');
+    const initialSubmit = document.getElementById('initialSubmit');
+    const finalSubmit = document.getElementById('finalSubmit');
+    const verifyEmailBtn = document.getElementById('verifyEmailBtn');
+    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+    const resendCodeBtn = document.getElementById('resendCode');
+    const otpFeedback = document.getElementById('otp-feedback');
+    const emailHelpText = document.getElementById('emailHelpText');
+    const registrationForm = document.getElementById('registrationForm');
+    const registerBtn = document.getElementById('registerBtn');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    const password2Error = document.getElementById('password2Error');
+    const termsError = document.getElementById('termsError');
+    const passwordField = document.getElementById('passwordField');
+    const password2Field = document.getElementById('password2Field');
+    const agreeTerms = document.getElementById('agreeTerms');
+    const emailDisplay = document.getElementById('email-display');
+    const emailSpinner = document.getElementById('email-spinner');
+    const verifySpinner = document.getElementById('verify-spinner');
+    const resendSpinner = document.getElementById('resend-spinner');
+    const resendText = document.getElementById('resend-text');
+    const resendCountdown = document.getElementById('resend-countdown');
+    const timerElement = document.getElementById('timer');
+    const otpInputs = document.querySelectorAll('.otp-digit');
+    const verificationCode = document.getElementById('verificationCode');
+
+    let otpVerified = false;
+    let emailValidated = false;
+    let countdownTimer;
+    let resendCooldownTimer;
+    const allowedDomains = ['.ac.in', '.edu.in', '.gov.in', '.nic.in', '.res.in', 
+                           '.ernet.in', '.isro.gov.in', '.drdo.in', '.nptel.iitm.ac.in', 
+                           '.swayam.gov.in', 'gmail.com'];
+
+    // OTP input handling
+    function setupOtpInputs() {
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                const value = e.target.value;
+                
+                if (value.length === 1) {
+                    e.target.classList.add('filled');
+                    
+                    // Move to next input
+                    if (index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
+                    }
+                } else if (value.length === 0) {
+                    e.target.classList.remove('filled');
+                    
+                    // Move to previous input on backspace
+                    if (index > 0) {
+                        otpInputs[index - 1].focus();
+                    }
+                }
+                
+                // Update hidden field
+                updateOtpValue();
+            });
+            
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && input.value === '' && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+            
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pasteData = e.clipboardData.getData('text').slice(0, 6);
+                pasteData.split('').forEach((char, i) => {
+                    if (otpInputs[i]) {
+                        otpInputs[i].value = char;
+                        otpInputs[i].classList.add('filled');
+                    }
+                });
+                updateOtpValue();
+                
+                // Focus last input
+                if (pasteData.length > 0) {
+                    const lastIndex = Math.min(pasteData.length - 1, otpInputs.length - 1);
+                    otpInputs[lastIndex].focus();
+                }
+            });
+        });
+    }
+    
+    function updateOtpValue() {
+        let otpValue = '';
+        otpInputs.forEach(input => {
+            otpValue += input.value;
+        });
+        verificationCode.value = otpValue;
+        
+        // Auto-verify if all digits are filled
+        if (otpValue.length === 6 && !otpVerified) {
+            verifyOtpBtn.click();
+        }
+    }
+    
+    function clearOtpInputs() {
+        otpInputs.forEach(input => {
+            input.value = '';
+            input.classList.remove('filled');
+        });
+        verificationCode.value = '';
+    }
+    
+    function startCountdown(duration, displayElement, callback) {
+        let timer = duration, minutes, seconds;
+        return setInterval(function () {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+            
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            
+            displayElement.textContent = minutes + ":" + seconds;
+            
+            if (--timer < 0) {
+                clearInterval(countdownTimer);
+                if (callback) callback();
+            }
+        }, 1000);
+    }
+    
+    function startResendCooldown() {
+        resendCodeBtn.disabled = true;
+        resendText.classList.add('hidden');
+        resendCountdown.classList.remove('hidden');
+        
+        let cooldown = 30;
+        resendCooldownTimer = setInterval(function() {
+            resendCountdown.textContent = `(${cooldown})`;
+            
+            if (cooldown <= 0) {
+                clearInterval(resendCooldownTimer);
+                resendCodeBtn.disabled = false;
+                resendText.classList.remove('hidden');
+                resendCountdown.classList.add('hidden');
+            }
+            cooldown--;
+        }, 1000);
+    }
+
+    function updateEmailHelpText() {
+        if (userTypeField.value === 'PI' || userTypeField.value === 'Student') {
+            // emailHelpText.textContent = 'Use institutional email address. Allowed domains: ' + allowedDomains.join(', ');
+            emailHelpText.textContent = 'Use institutional email address.';
+
+        } else {
+            emailHelpText.textContent = 'Use valid company email address.';
+        }
+    }
+
+    function validateEmailDomain(email, userType) {
+        if (userType !== 'PI' && userType !== 'Student') {
+            return true; // No domain restriction for other user types
+        }
+        
+        const domain = email.substring(email.lastIndexOf('@') + 1);
+        return allowedDomains.some(allowed => domain.endsWith(allowed));
+    }
+
+    function checkEmailExists(email) {
+        return fetch('{{ url_for("auth.check_email") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email })
+        })
+        .then(response => response.json())
+        .then(data => data.exists)
+        .catch(error => {
+            console.error("Error checking email:", error);
+            return false;
+        });
+    }
+
+    function isValidEmail(email) {
+        return /^[^@]+@[^@]+\.[^@]+$/.test(email);
+    }
+
+    function validateForm() {
+        let isValid = true;
+        
+        // Clear previous errors
+        emailError.classList.add('hidden');
+        passwordError.classList.add('hidden');
+        password2Error.classList.add('hidden');
+        termsError.classList.add('hidden');
+        
+        // Validate email
+        if (!emailValidated) {
+            isValid = false;
+        }
+        
+        // Validate password
+        if (passwordField.value.length < 8) {
+            passwordError.textContent = 'Password must be at least 8 characters long';
+            passwordError.classList.remove('hidden');
+            isValid = false;
+        }
+        
+        // Validate password confirmation
+        if (passwordField.value !== password2Field.value) {
+            password2Error.textContent = 'Passwords do not match';
+            password2Error.classList.remove('hidden');
+            isValid = false;
+        }
+        
+        // Validate terms agreement
+        if (!agreeTerms.checked) {
+            termsError.textContent = 'You must agree to the terms and conditions';
+            termsError.classList.remove('hidden');
+            isValid = false;
+        }
+        
+        // Enable/disable register button
+        registerBtn.disabled = !isValid;
+        
+        return isValid;
+    }
+
+    function updateForm() {
+        if (otpVerified) {
+            initialSubmit.classList.add('hidden');
+            finalSubmit.classList.remove('hidden');
+            passwordSection.classList.remove('hidden');
+            
+            // Make fields readonly and disable user type dropdown
+            userTypeField.setAttribute('readonly', true);
+            userTypeField.setAttribute('disabled', true);
+            emailField.setAttribute('readonly', true);
+            
+            // Add visual indicator that these fields are locked
+            userTypeField.classList.add('bg-gray-100', 'cursor-not-allowed');
+            emailField.classList.add('bg-gray-100', 'cursor-not-allowed');
+            
+            // Update the hidden field with the current user type value
+            userTypeHidden.value = userTypeField.value;
+            
+            validateForm();
+        } else {
+            initialSubmit.classList.remove('hidden');
+            finalSubmit.classList.add('hidden');
+            passwordSection.classList.add('hidden');
+            
+            // Make fields editable again
+            userTypeField.removeAttribute('readonly');
+            userTypeField.removeAttribute('disabled');
+            emailField.removeAttribute('readonly');
+            
+            // Remove visual indicators
+            userTypeField.classList.remove('bg-gray-100', 'cursor-not-allowed');
+            emailField.classList.remove('bg-gray-100', 'cursor-not-allowed');
+            
+            // Clear the hidden field
+            userTypeHidden.value = '';
+        }
+    }
+
+    userTypeField.addEventListener('change', function() {
+        updateEmailHelpText();
+        updateForm();
+    });
+
+    emailField.addEventListener('input', function() {
+        updateForm();
+        emailError.classList.add('hidden');
+    });
+
+    passwordField.addEventListener('input', validateForm);
+    password2Field.addEventListener('input', validateForm);
+    agreeTerms.addEventListener('change', validateForm);
+
+    verifyEmailBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        const email = emailField.value.trim();
+        const userType = userTypeField.value;
+
+        if (!email) {
+            emailError.textContent = 'Please enter your email first';
+            emailError.classList.remove('hidden');
+            return;
+        }
+
+        // Validate email domain for PI and Student
+        if ((userType === 'PI' || userType === 'Student') && !validateEmailDomain(email, userType)) {
+            emailError.textContent = 'Invalid email domain for ' + userType + '. Allowed domains: ' + allowedDomains.join(', ');
+            emailError.classList.remove('hidden');
+            return;
+        }
+
+        // Show loading spinner
+        emailSpinner.classList.remove('hidden');
+        verifyEmailBtn.disabled = true;
+
+        // Check if email already exists
+        checkEmailExists(email).then(exists => {
+            if (exists) {
+                emailError.textContent = 'This email is already registered';
+                emailError.classList.remove('hidden');
+                emailSpinner.classList.add('hidden');
+                verifyEmailBtn.disabled = false;
+                return;
+            }
+
+            // If all validations pass, send OTP
+            fetch('{{ url_for("auth.send_otp") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, user_type: userType })
+            })
+            .then(response => response.json())
+            .then(data => {
+                emailSpinner.classList.add('hidden');
+                verifyEmailBtn.disabled = false;
+                
+                if (data.message) {
+                    emailValidated = true;
+                    emailError.classList.add('hidden');
+                    emailField.readOnly = true;
+                    verificationSection.classList.remove('hidden');
+                    initialSubmit.classList.add('hidden');
+                    
+                    // Display email for user confirmation
+                    emailDisplay.textContent = email;
+                    
+                    // Start OTP expiration countdown
+                    if (countdownTimer) clearInterval(countdownTimer);
+                    countdownTimer = startCountdown(300, timerElement, function() {
+                        otpFeedback.innerHTML = '<div class="text-red-600 font-medium">Verification code has expired</div>';
+                    });
+                    
+                    // Start resend cooldown
+                    startResendCooldown();
+                    
+                } else if (data.error) {
+                    emailError.textContent = "Error: " + data.error;
+                    emailError.classList.remove('hidden');
+                }
+            })
+            .catch(error => {
+                console.error("Error sending OTP:", error);
+                emailSpinner.classList.add('hidden');
+                verifyEmailBtn.disabled = false;
+                emailError.textContent = "Error sending verification code. Please try again.";
+                emailError.classList.remove('hidden');
+            });
+        });
+    });
+
+    verifyOtpBtn.addEventListener('click', function() {
+        const otp = verificationCode.value;
+        const email = emailField.value.trim();
+        
+        if (otp.length !== 6) {
+            otpFeedback.innerHTML = '<div class="text-red-600 font-medium">Please enter a complete 6-digit code</div>';
+            return;
+        }
+        
+        // Show loading spinner
+        verifySpinner.classList.remove('hidden');
+        verifyOtpBtn.disabled = true;
+        
+        fetch('{{ url_for("auth.verify_otp") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ otp: otp, email: email })
+        })
+        .then(response => response.json())
+        .then(data => {
+            verifySpinner.classList.add('hidden');
+            verifyOtpBtn.disabled = false;
+            
+            if (data.success) {
+                otpVerified = true;
+                clearInterval(countdownTimer);
+                otpFeedback.innerHTML = '<div class="text-green-600 font-medium">✓ Email verified successfully!</div>';
+                updateForm();
+            } else {
+                otpFeedback.innerHTML = '<div class="text-red-600 font-medium">Invalid verification code. Please try again.</div>';
+                clearOtpInputs();
+                otpInputs[0].focus();
+            }
+        })
+        .catch(error => {
+            console.error("OTP verification failed:", error);
+            verifySpinner.classList.add('hidden');
+            verifyOtpBtn.disabled = false;
+            otpFeedback.innerHTML = '<div class="text-red-600 font-medium">Verification failed. Please try again.</div>';
+        });
+    });
+
+    resendCodeBtn.addEventListener('click', function () {
+        // Show loading spinner
+        resendSpinner.classList.remove('hidden');
+        resendCodeBtn.disabled = true;
+        
+        const email = emailField.value.trim();
+        const userType = userTypeField.value;
+        
+        fetch('{{ url_for("auth.send_otp") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, user_type: userType })
+        })
+        .then(response => response.json())
+        .then(data => {
+            resendSpinner.classList.add('hidden');
+            
+            if (data.message) {
+                // Clear previous OTP inputs
+                clearOtpInputs();
+                otpInputs[0].focus();
+                
+                // Restart countdown timers
+                if (countdownTimer) clearInterval(countdownTimer);
+                countdownTimer = startCountdown(300, timerElement, function() {
+                    otpFeedback.innerHTML = '<div class="text-red-600 font-medium">Verification code has expired</div>';
+                });
+                
+                startResendCooldown();
+                
+                otpFeedback.innerHTML = '<div class="text-green-600 font-medium">New verification code sent!</div>';
+            } else {
+                otpFeedback.innerHTML = '<div class="text-red-600 font-medium">Failed to resend code. Please try again.</div>';
+            }
+        })
+        .catch(error => {
+            console.error("Error resending OTP:", error);
+            resendSpinner.classList.add('hidden');
+            resendCodeBtn.disabled = false;
+            otpFeedback.innerHTML = '<div class="text-red-600 font-medium">Error resending code. Please try again.</div>';
+        });
+    });
+
+    registrationForm.addEventListener('submit', function(e) {
+        if (!otpVerified || !validateForm()) {
+            e.preventDefault();
+            if (!otpVerified) {
+                alert("Please verify your email before registering.");
+            }
+        } else {
+            // Ensure the hidden field has the correct value before submitting
+            userTypeHidden.value = userTypeField.value;
+        }
+    });
+
+    // Initialize OTP input handling
+    setupOtpInputs();
+    updateEmailHelpText();
+    updateForm();
+});
+</script>
+{% endblock %}

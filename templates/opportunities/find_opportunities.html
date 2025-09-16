@@ -1,0 +1,1254 @@
+<!-- templates/opportunities/find_opportunities.html -->
+{% extends "base.html" %}
+{% block title %}{% if show_mine %}My Opportunities{% else %}Find Opportunities{% endif %} | Research Collaboration Platform{% endblock %}
+{% block content %}
+<style>
+  /* Style file inputs to match your form controls */
+input[type="file"]::file-selector-button {
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background-color: #e5e7eb;
+}
+
+.dark input[type="file"]::file-selector-button {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #fff;
+}
+
+.dark input[type="file"]::file-selector-button:hover {
+  background-color: #4b5563;
+}
+
+
+
+
+.document-field {
+  transition: all 0.3s ease;
+}
+
+.document-field:hover {
+  background-color: #f9fafb;
+}
+
+.dark .document-field {
+  background-color: #4b5563;
+}
+
+.dark .document-field:hover {
+  background-color: #374151;
+}
+
+input[type="file"]::file-selector-button {
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background-color: #e5e7eb;
+}
+
+.dark input[type="file"]::file-selector-button {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #fff;
+}
+
+.dark input[type="file"]::file-selector-button:hover {
+  background-color: #4b5563;
+}
+</style>
+
+
+<div class="max-w-full">  
+  <div class="container full-container max-w-full"> 
+
+    <!-- Search Bar -->
+    <div class="card mb-6">
+      <div class="card-body">
+        <div class="flex justify-between items-center mb-4">
+          <h5 class="card-title">
+            {% if show_mine %}My Opportunities{% else %}Search Opportunities{% endif %}
+          </h5>
+          <div>
+            {% if current_user.user_type != 'Admin' %}
+            <button onclick="toggleMyOpportunities()" 
+                    class="{% if show_mine %}bg-blue-600 text-white{% else %}bg-gray-200{% endif %} hover:bg-blue-500 font-semibold py-2 px-4 rounded shadow">
+              {% if show_mine %}Show All Opportunities{% else %}Show My Opportunities{% endif %}
+            </button>
+            {% endif %}
+          </div>
+        </div>
+        
+        <form method="GET" action="{{ url_for('find_opportunities') }}" class="flex gap-4">
+          <input type="hidden" name="mine" value="{{ 'true' if show_mine else 'false' }}">
+          <div class="flex-grow">
+            <input type="text" name="query" value="{{ request.args.get('query', '') }}" 
+                   class="form-control py-2" placeholder="Search by title, domain, or keywords">
+          </div>
+          <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-black font-semibold py-2 px-4 rounded shadow">
+            Search
+          </button>
+        </form>
+      </div>
+    </div>
+
+<!-- Add this tab navigation -->
+<div class="flex border-b border-gray-200 mb-4">
+  <button id="tab-opportunities" class="px-4 py-2 font-medium border-b-2 border-blue-500 text-blue-600">
+    Opportunities
+  </button>
+  <button id="tab-links" class="px-4 py-2 font-medium text-gray-500 hover:text-gray-700">
+    Opportunity Links
+  </button>
+</div>
+
+<!-- Opportunities Table -->
+<div id="opportunities-table">
+  <div class="overflow-x-auto mt-4">
+    <table class="min-w-full divide-y divide-border dark:divide-darkborder">
+      <!-- Your existing opportunities table content -->
+      <thead>
+        <tr>
+          <th class="text-start p-3 ps-0 font-semibold text-dark dark:text-white text-base">#</th>
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Type</th>
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Title</th>
+          
+          {% if not show_mine %}
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Posted By</th>
+          {% endif %}
+          
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Domain</th>
+          
+          {% if show_mine %}
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Eligibility</th>
+          {% endif %}
+          
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Deadline</th>
+          
+          {% if show_mine %}
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Description</th>
+          {% endif %}
+          
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Location</th>
+          
+          {% if show_mine %}
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Duration</th>
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Compensation</th>
+          {% endif %}
+          
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Status</th>
+          
+          {% if show_mine %}
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Created</th>
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Ad Link</th>
+          {% endif %}
+          
+          {% if not show_mine %}
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Your Application</th>
+          {% endif %}
+          
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y">
+        {% for opportunity in opportunities.items %}
+        <tr>
+          <!-- Your existing opportunity row content -->
+          <td class="p-3 ps-0 whitespace-nowrap">{{ (opportunities.page - 1) * opportunities.per_page + loop.index }}</td>
+          <td class="p-3">{{ opportunity.type }}</td>
+          <td class="p-3">
+            <a href="#" class="text-primary hover:underline" 
+               onclick="showOpportunityDetails({{ opportunity.id }})">
+              {{ opportunity.title }}
+            </a>
+          </td>
+          
+          {% if not show_mine %}
+          <td class="p-3">
+            <a href="{{ url_for('opp_view_profile', profile_id=opportunity.creator_profile_id) }}" 
+               class="text-primary hover:underline">
+              {{ opportunity.creator.user.email }} ({{ opportunity.creator.profile_type }})
+            </a>
+          </td>
+          {% endif %}
+          
+          <td class="p-3">{{ opportunity.domain }}</td>
+          
+          {% if show_mine %}
+          <td class="p-3">{{ opportunity.eligibility|truncate(30) if opportunity.eligibility else '-' }}</td>
+          {% endif %}
+          
+          <td class="p-3">{{ opportunity.deadline.strftime('%Y-%m-%d') if opportunity.deadline else '-' }}</td>
+          
+          {% if show_mine %}
+          <td class="p-3">{{ opportunity.description|truncate(30) if opportunity.description else '-' }}</td>
+          {% endif %}
+          
+          <td class="p-3">{{ opportunity.location }}</td>
+          
+          {% if show_mine %}
+          <td class="p-3">{{ opportunity.duration if opportunity.duration else '-' }}</td>
+          <td class="p-3">{{ opportunity.compensation if opportunity.compensation else '-' }}</td>
+          {% endif %}
+          
+          <td class="p-3">
+            <span class="badge 
+              {% if opportunity.status == 'Active' %}bg-lightsuccess text-success
+              {% elif opportunity.status == 'Closed' %}bg-lightwarning text-warning
+              {% else %}bg-gray-200 text-gray-700{% endif %}">
+              {{ opportunity.status }}
+            </span>
+          </td>
+          
+          {% if show_mine %}
+          <td class="p-3">{{ opportunity.created_at.strftime('%Y-%m-%d') if opportunity.created_at else '-' }}</td>
+          <td class="p-3">
+            {% if opportunity.advertisement_link %}
+              <a href="{{ opportunity.advertisement_link }}" target="_blank" class="text-primary hover:underline">View</a>
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          {% endif %}
+          
+          {% if not show_mine %}
+          <td class="p-3" id="application-status-{{ opportunity.id }}">
+            {% set user_application = opportunity.applications|selectattr('applicant_user_id', 'equalto', current_user.id)|first %}
+            {% if user_application %}
+              <span class="badge 
+                {% if user_application.status == 'Pending' %}bg-lightwarning text-warning
+                {% elif user_application.status == 'Accepted' %}bg-lightsuccess text-success
+                {% elif user_application.status == 'Shortlisted' %}bg-lightinfo text-info
+                {% else %}bg-lighterror text-error{% endif %}">
+                <i class="ti ti-{% if user_application.status == 'Pending' %}clock{% elif user_application.status == 'Accepted' %}check{% elif user_application.status == 'Shortlisted' %}star{% else %}x{% endif %} mr-1"></i>
+                {{ user_application.status }}
+              </span>
+            {% else %}
+              <span class="text-gray-500 text-sm">
+                <i class="ti ti-circle-dashed"></i> Not applied
+              </span>
+            {% endif %}
+          </td>
+          {% endif %}
+          
+
+          <td class="p-3 whitespace-nowrap">
+            <div class="flex gap-2">
+              {% if not show_mine %}
+              <a href="{{ url_for('opp_view_profile', profile_id=opportunity.creator_profile_id) }}"
+                target="_blank"
+                class="px-4 py-2 rounded-full text-sm font-medium text-black 
+                       bg-gradient-to-r from-blue-500 to-indigo-600 
+                       shadow-md hover:shadow-lg hover:scale-105 transform transition-all duration-200">
+                View Profile
+              </a>
+              {% endif %}
+              
+              <button onclick="showOpportunityDetails({{ opportunity.id }})" 
+                class="px-4 py-2 rounded-full text-sm font-medium text-black 
+                       bg-gradient-to-r from-green-500 to-emerald-600 
+                       shadow-md hover:shadow-lg hover:scale-105 transform transition-all duration-200">
+                Details
+              </button>
+              
+              {% if not show_mine and opportunity.creator_profile_id != current_user.profile.id and current_user.user_type != 'Admin' %}
+                {% if not opportunity.applications|selectattr('applicant_user_id', 'equalto', current_user.id)|first %}
+                <button onclick="showApplicationModal({{ opportunity.id }})" 
+                  class="px-4 py-2 rounded-full text-sm font-medium text-black 
+                         bg-gradient-to-r from-purple-500 to-pink-600 
+                         shadow-md hover:shadow-lg hover:scale-105 transform transition-all duration-200">
+                  Apply
+                </button>
+                {% else %}
+                <button disabled
+                  class="px-4 py-2 rounded-full text-sm font-medium text-gray-400 bg-gray-200 
+                         cursor-not-allowed">
+                  Applied
+                </button>
+                {% endif %}
+              {% endif %}
+              
+              {% if show_mine %}
+              <a href="{{ url_for('opportunity_applicants', opportunity_id=opportunity.id) }}" 
+                class="px-4 py-2 rounded-full text-sm font-medium text-black 
+                       bg-gradient-to-r from-indigo-500 to-violet-600 
+                       shadow-md hover:shadow-lg hover:scale-105 transform transition-all duration-200">
+                View Applicants
+              </a>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="
+            {% if show_mine %}14{% else %}10{% endif %}
+          " class="p-3 text-center text-gray-500">
+            No opportunities found.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Opportunity Links Table (Hidden by default) -->
+<div id="links-table" class="hidden">
+  <div class="overflow-x-auto mt-4">
+    <table class="min-w-full divide-y divide-border dark:divide-darkborder">
+      <thead>
+        <tr>
+          <th class="text-start p-3 ps-0 font-semibold text-dark dark:text-white text-base">#</th>
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Title</th>
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">URL</th>
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Description</th>
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Status</th>
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Added By</th>
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Created</th>
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Your Application</th>
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y">
+        {% for link in opportunity_links %}
+        <tr>
+          <td class="p-3 ps-0 whitespace-nowrap">{{ loop.index }}</td>
+          <td class="p-3">{{ link.title or 'No title' }}</td>
+          <td class="p-3">
+            <a href="{{ link.url }}" target="_blank" class="text-primary hover:underline break-all">
+              {{ link.url|truncate(40) }}
+            </a>
+          </td>
+          <td class="p-3">{{ link.description|truncate(50) if link.description else '-' }}</td>
+          <td class="p-3">
+            <span class="badge 
+              {% if link.is_active %}bg-lightsuccess text-success
+              {% else %}bg-lightwarning text-warning{% endif %}">
+              {{ 'Active' if link.is_active else 'Inactive' }}
+            </span>
+          </td>
+          <td class="p-3">
+            {% if link.added_by_profile %}
+              <a href="{{ url_for('opp_view_profile', profile_id=link.added_by_profile.id) }}" 
+                 class="text-primary hover:underline">
+                {{ link.added_by_profile.user.email }} ({{ link.added_by_profile.profile_type }})
+              </a>
+            {% else %}
+              Unknown
+            {% endif %}
+          </td>
+          <td class="p-3">{{ link.created_at.strftime('%Y-%m-%d') if link.created_at else '-' }}</td>
+
+
+          <td class="p-3">
+            {% if link.user_has_applied %}
+              <span class="badge 
+                {% if link.application_status == 'Pending' %}bg-lightwarning text-warning
+                {% elif link.application_status == 'Accepted' %}bg-lightsuccess text-success
+                {% elif link.application_status == 'Shortlisted' %}bg-lightinfo text-info
+                {% else %}bg-lighterror text-error{% endif %}">
+                <i class="ti ti-{% if link.application_status == 'Pending' %}clock
+                  {% elif link.application_status == 'Accepted' %}check
+                  {% elif link.application_status == 'Shortlisted' %}star
+                  {% else %}x{% endif %} mr-1"></i>
+                {{ link.application_status }}
+              </span>
+            {% else %}
+              <span class="text-gray-500 text-sm">
+                <i class="ti ti-circle-dashed"></i> Not applied
+              </span>
+            {% endif %}
+          </td>
+
+
+          <td class="p-3 whitespace-nowrap">
+            <div class="flex gap-2">
+              {% if not link.user_has_applied and current_user.user_type != 'Admin' %}
+                <button onclick="showLinkApplicationModal({{ link.id }})" 
+                  class="px-4 py-2 rounded-full text-sm font-medium text-black 
+                         bg-gradient-to-r from-purple-500 to-pink-600 
+                         shadow-md hover:shadow-lg hover:scale-105 transform transition-all duration-200">
+                  Apply
+                </button>
+              {% elif link.user_has_applied %}
+                <button disabled
+                  class="px-4 py-2 rounded-full text-sm font-medium text-gray-400 bg-gray-200 
+                         cursor-not-allowed">
+                  Applied
+                </button>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="9" class="p-3 text-center text-gray-500">
+            No opportunity links found.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- Opportunity Links Table (Hidden by default) -->
+<div id="links-table" class="hidden">
+  <div class="overflow-x-auto mt-4">
+    <table class="min-w-full divide-y divide-border dark:divide-darkborder">
+      <thead>
+        <tr>
+          <th class="text-start p-3 ps-0 font-semibold text-dark dark:text-white text-base">#</th>
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Title</th>
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">URL</th>
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Description</th>
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Status</th>
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Added By</th>
+          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Created</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y">
+        {% for link in opportunity_links %}
+        <tr>
+          <td class="p-3 ps-0 whitespace-nowrap">{{ loop.index }}</td>
+          <td class="p-3">{{ link.title or 'No title' }}</td>
+          <td class="p-3">
+            <a href="{{ link.url }}" target="_blank" class="text-primary hover:underline break-all">
+              {{ link.url|truncate(40) }}
+            </a>
+          </td>
+          <td class="p-3">{{ link.description|truncate(50) if link.description else '-' }}</td>
+          <td class="p-3">
+            <span class="badge 
+              {% if link.is_active %}bg-lightsuccess text-success
+              {% else %}bg-lightwarning text-warning{% endif %}">
+              {{ 'Active' if link.is_active else 'Inactive' }}
+            </span>
+          </td>
+          <td class="p-3">
+            {% if link.added_by_profile %}
+              <a href="{{ url_for('opp_view_profile', profile_id=link.added_by_profile.id) }}" 
+                 class="text-primary hover:underline">
+                {{ link.added_by_profile.user.email }} ({{ link.added_by_profile.profile_type }})
+              </a>
+            {% else %}
+              Unknown
+            {% endif %}
+          </td>
+          <td class="p-3">{{ link.created_at.strftime('%Y-%m-%d') if link.created_at else '-' }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="p-3 text-center text-gray-500">
+            No opportunity links found.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+
+
+        <!-- Application Modal -->
+<div id="applicationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white dark:bg-dark rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-auto">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold">Apply for Opportunity</h3>
+        <button onclick="closeApplicationModal()" class="text-gray-500 hover:text-gray-700">
+          <i class="ti ti-x text-xl"></i>
+        </button>
+      </div>
+      <form id="applicationForm" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="opportunity_id" id="modalOpportunityId">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <!-- Cover Letter -->
+          <div class="md:col-span-2">
+            <label class="font-semibold block mb-1">Cover Letter (Optional)</label>
+            <textarea name="cover_letter" class="form-control py-2" rows="4" 
+                      placeholder="Why are you interested in this opportunity?"></textarea>
+          </div>
+          
+          <!-- Resume Upload -->
+          <div>
+            <label class="font-semibold block mb-1">Resume (Optional)</label>
+            <input type="file" name="resume" class="form-control py-2" accept=".pdf,.doc,.docx">
+            <p class="text-xs text-gray-500 mt-1">PDF, DOC or DOCX files only</p>
+          </div>
+          
+          <!-- Additional Documents -->
+          <!-- <div>
+            <label class="font-semibold block mb-1">Additional Documents (Optional)</label>
+            <input type="file" name="additional_documents" class="form-control py-2" accept=".pdf,.doc,.docx,.zip">
+            <p class="text-xs text-gray-500 mt-1">PDF, DOC, DOCX or ZIP files</p>
+          </div> -->
+          
+          <!-- Additional Documents Section -->
+          <div class="md:col-span-2">
+            <div class="flex justify-between items-center mb-2">
+              <label class="font-semibold block">Additional Documents (Optional)</label>
+              <button type="button" onclick="addDocumentField()" 
+                      class="bg-blue-500 hover:bg-blue-600 text-black text-xs font-semibold py-1 px-2 rounded">
+                <i class="ti ti-plus mr-1"></i> Add Document
+              </button>
+            </div>
+            
+            <div id="additionalDocumentsContainer" class="space-y-3">
+              <!-- Document fields will be added here dynamically -->
+            </div>
+          </div>
+
+
+          <!-- Notes -->
+          <div class="md:col-span-2">
+            <label class="font-semibold block mb-1">Notes (Optional)</label>
+            <textarea name="notes" class="form-control py-2" rows="3" 
+                      placeholder="Any additional information you'd like to share..."></textarea>
+          </div>
+        </div>
+        
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="closeApplicationModal()" 
+                  class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded shadow">
+            Cancel
+          </button>
+          <button type="submit" 
+                  class="bg-purple-500 hover:bg-purple-600 text-black font-semibold py-2 px-4 rounded shadow">
+            Submit Application
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- Link Application Modal -->
+<div id="linkApplicationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white dark:bg-dark rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-auto">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold">Apply for Opportunity Link</h3>
+        <button onclick="closeLinkApplicationModal()" class="text-gray-500 hover:text-gray-700">
+          <i class="ti ti-x text-xl"></i>
+        </button>
+      </div>
+      <form id="linkApplicationForm" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="link_id" id="modalLinkId">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <!-- Cover Letter -->
+          <div class="md:col-span-2">
+            <label class="font-semibold block mb-1">Cover Letter (Optional)</label>
+            <textarea name="cover_letter" class="form-control py-2" rows="4" 
+                      placeholder="Why are you interested in this opportunity?"></textarea>
+          </div>
+          
+          <!-- Resume Upload -->
+          <div>
+            <label class="font-semibold block mb-1">Resume (Optional)</label>
+            <input type="file" name="resume" class="form-control py-2" accept=".pdf,.doc,.docx">
+            <p class="text-xs text-gray-500 mt-1">PDF, DOC or DOCX files only</p>
+          </div>
+          
+          <!-- Additional Documents Section -->
+          <div class="md:col-span-2">
+            <div class="flex justify-between items-center mb-2">
+              <label class="font-semibold block">Additional Documents (Optional)</label>
+              <button type="button" onclick="addLinkDocumentField()" 
+                      class="bg-blue-500 hover:bg-blue-600 text-black text-xs font-semibold py-1 px-2 rounded">
+                <i class="ti ti-plus mr-1"></i> Add Document
+              </button>
+            </div>
+            
+            <div id="additionalDocumentsContainerLink" class="space-y-3">
+              <!-- Document fields will be added here dynamically -->
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="md:col-span-2">
+            <label class="font-semibold block mb-1">Notes (Optional)</label>
+            <textarea name="notes" class="form-control py-2" rows="3" 
+                      placeholder="Any additional information you'd like to share..."></textarea>
+          </div>
+        </div>
+        
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="closeLinkApplicationModal()" 
+                  class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded shadow">
+            Cancel
+          </button>
+          <button type="submit" 
+                  class="bg-purple-500 hover:bg-purple-600 text-black font-semibold py-2 px-4 rounded shadow">
+            Submit Application
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+        <!-- Pagination -->
+        <div class="md:flex text-center pt-3 justify-between items-center border-t border-border dark:border-darkborder">
+          <p class="font-medium">
+            Showing {{ opportunities.first }} to {{ opportunities.last }} of {{ opportunities.total }} entries
+          </p>
+          
+          <nav class="flex items-center gap-x-1">
+            {% if opportunities.has_prev %}
+              <a href="{{ url_for('find_opportunities', page=opportunities.prev_num, query=request.args.get('query', ''), mine='true' if show_mine else 'false') }}"
+                class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-hover focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-darklink dark:focus:bg-white/10">
+                <i class="ti ti-chevron-left text-sm leading-tight font-medium"></i>
+                <span class="leading-tight">Previous</span>
+              </a>
+            {% else %}
+              <span class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-gray-200 cursor-not-allowed dark:text-darklink">
+                <i class="ti ti-chevron-left text-sm leading-tight font-medium"></i>
+                <span class="leading-tight">Previous</span>
+              </span>
+            {% endif %}
+            
+            <div class="flex items-center gap-x-1">
+              {% for page_num in opportunities.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=3) %}
+                {% if page_num %}
+                  {% if opportunities.page == page_num %}
+                    <span class="min-h-[38px] min-w-[38px] flex justify-center items-center text-white bg-primary py-2 px-3 text-sm rounded-lg focus:outline-none"
+                      aria-current="page">{{ page_num }}</span>
+                  {% else %}
+                    <a href="{{ url_for('find_opportunities', page=page_num, query=request.args.get('query', ''), mine='true' if show_mine else 'false') }}"
+                      class="min-h-[38px] min-w-[38px] flex justify-center items-center text-dark bg-hover py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-100 dark:text-darklink dark:focus:bg-white/10">
+                      {{ page_num }}
+                    </a>
+                  {% endif %}
+                {% else %}
+                  <span class="min-h-[38px] min-w-[38px] flex justify-center items-center text-dark bg-hover py-2 px-3 text-sm rounded-lg">...</span>
+                {% endif %}
+              {% endfor %}
+            </div>
+            
+            {% if opportunities.has_next %}
+              <a href="{{ url_for('find_opportunities', page=opportunities.next_num, query=request.args.get('query', ''), mine='true' if show_mine else 'false') }}"
+                class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-hover focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-darklink dark:focus:bg-white/10">
+                <span class="leading-tight">Next</span>
+                <i class="ti ti-chevron-right text-sm leading-tight font-medium"></i>
+              </a>
+            {% else %}
+              <span class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-gray-200 cursor-not-allowed dark:text-darklink">
+                <span class="leading-tight">Next</span>
+                <i class="ti ti-chevron-right text-sm leading-tight font-medium"></i>
+              </span>
+            {% endif %}
+          </nav>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Opportunity Details Modal -->
+<div id="opportunityModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white dark:bg-dark rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-auto">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold" id="modalTitle"></h3>
+        <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+          <i class="ti ti-x text-xl"></i>
+        </button>
+      </div>
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="font-semibold block">Type:</label>
+            <p id="modalType"></p>
+          </div>
+          <div>
+            <label class="font-semibold block">Posted By:</label>
+            <p id="modalPostedBy"></p>
+          </div>
+          <div>
+            <label class="font-semibold block">Domain:</label>
+            <p id="modalDomain"></p>
+          </div>
+          <div>
+            <label class="font-semibold block">Deadline:</label>
+            <p id="modalDeadline"></p>
+          </div>
+          <div>
+            <label class="font-semibold block">Location:</label>
+            <p id="modalLocation"></p>
+          </div>
+          <div>
+            <label class="font-semibold block">Duration:</label>
+            <p id="modalDuration"></p>
+          </div>
+          <div>
+            <label class="font-semibold block">Compensation:</label>
+            <p id="modalCompensation"></p>
+          </div>
+          <div>
+            <label class="font-semibold block">Status:</label>
+            <p id="modalStatus"></p>
+          </div>
+        </div>
+        <div>
+          <label class="font-semibold block">Eligibility:</label>
+          <p id="modalEligibility" class="whitespace-pre-line"></p>
+        </div>
+        <div>
+          <label class="font-semibold block">Description:</label>
+          <p id="modalDescription" class="whitespace-pre-line"></p>
+        </div>
+        <div>
+          <label class="font-semibold block">Keywords:</label>
+          <p id="modalKeywords"></p>
+        </div>
+        <div>
+          <label class="font-semibold block">Advertisement Link:</label>
+          <a id="modalLink" href="#" target="_blank" class="text-primary hover:underline"></a>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end">
+        <button onclick="closeModal()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded shadow">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+// Show opportunity details in modal
+function showOpportunityDetails(opportunityId) {
+  fetch(`/get-opportunity/${opportunityId}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data) {
+        document.getElementById('modalTitle').textContent = data.title;
+        document.getElementById('modalType').textContent = data.type;
+        document.getElementById('modalPostedBy').innerHTML = 
+          `<a href="/opp_view-profile/${data.creator_profile_id}" class="text-primary hover:underline">
+            ${data.creator_email} (${data.creator_type})
+          </a>`;
+        document.getElementById('modalDomain').textContent = data.domain || '-';
+        document.getElementById('modalDeadline').textContent = data.deadline || '-';
+        document.getElementById('modalLocation').textContent = data.location || '-';
+        document.getElementById('modalDuration').textContent = data.duration || '-';
+        document.getElementById('modalCompensation').textContent = data.compensation || '-';
+        document.getElementById('modalStatus').innerHTML = 
+          `<span class="badge ${data.status === 'Active' ? 'bg-lightsuccess text-success' : 
+                              data.status === 'Closed' ? 'bg-lightwarning text-warning' : 
+                              'bg-gray-200 text-gray-700'}">
+            ${data.status}
+          </span>`;
+        document.getElementById('modalEligibility').textContent = data.eligibility || '-';
+        document.getElementById('modalDescription').textContent = data.description || '-';
+        document.getElementById('modalKeywords').textContent = data.keywords || '-';
+        const link = document.getElementById('modalLink');
+        link.textContent = data.advertisement_link || '-';
+        link.href = data.advertisement_link || '#';
+        
+        document.getElementById('opportunityModal').classList.remove('hidden');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Failed to load opportunity details');
+    });
+}
+
+function closeModal() {
+  document.getElementById('opportunityModal').classList.add('hidden');
+}
+
+function toggleMyOpportunities() {
+  const url = new URL(window.location.href);
+  const currentMode = url.searchParams.get('mine') === 'true';
+  url.searchParams.set('mine', currentMode ? 'false' : 'true');
+  url.searchParams.delete('page'); // Reset to first page when switching modes
+  window.location.href = url.toString();
+}
+
+
+
+
+
+
+
+
+
+
+// Document counter for unique IDs
+let documentCounter = 0;
+
+// Function to add a new document field
+function addDocumentField(fileName = '', fileData = null, isDefault = false) {
+  documentCounter++;
+  const container = document.getElementById('additionalDocumentsContainer');
+  
+  const documentField = document.createElement('div');
+  documentField.className = `document-field flex items-start gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg ${isDefault ? 'default-field' : ''}`;
+  
+  documentField.innerHTML = `
+    <div class="flex-grow grid grid-cols-1 md:grid-cols-12 gap-2">
+      <div class="md:col-span-5">
+        <input type="text" name="document_names[]" 
+               class="form-control py-2" placeholder="Document name (e.g., Transcript, Certificate)"
+               value="${fileName}" ${isDefault ? 'required' : ''}>
+      </div>
+      <div class="md:col-span-6">
+        <input type="file" name="additional_documents[]" 
+               class="form-control py-2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+               ${fileData ? 'data-file="' + btoa(JSON.stringify(fileData)) + '"' : ''} ${isDefault ? 'required' : ''}>
+      </div>
+      <div class="md:col-span-1">
+        ${isDefault ? 
+          `<button type="button" class="text-gray-400 mt-1 cursor-not-allowed" disabled title="Required field">
+            <i class="ti ti-lock text-lg"></i>
+          </button>` : 
+          `<button type="button" onclick="removeDocumentField(this)" 
+                  class="text-red-500 hover:text-red-700 mt-1" title="Remove document">
+            <i class="ti ti-x text-lg"></i>
+          </button>`
+        }
+      </div>
+    </div>
+  `;
+  
+  container.appendChild(documentField);
+}
+
+// Function to remove a document field (only for non-default fields)
+function removeDocumentField(button) {
+  const field = button.closest('.document-field');
+  // Only remove if it's not the default field
+  if (!field.classList.contains('default-field')) {
+    field.remove();
+  }
+}
+
+// Show application modal with default field
+function showApplicationModal(opportunityId) {
+  document.getElementById('modalOpportunityId').value = opportunityId;
+  
+  // Clear previous documents
+  const container = document.getElementById('additionalDocumentsContainer');
+  container.innerHTML = '';
+  
+  // Add default non-removable document field
+  addDocumentField('', null, true);
+  
+  document.getElementById('applicationModal').classList.remove('hidden');
+}
+
+// Close modal and reset form
+function closeApplicationModal() {
+  document.getElementById('applicationModal').classList.add('hidden');
+  document.getElementById('applicationForm').reset();
+  
+  // Clear all document fields
+  const container = document.getElementById('additionalDocumentsContainer');
+  container.innerHTML = '';
+}
+
+// Handle form submission with multiple documents
+document.getElementById('applicationForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  // Basic validation - check if document names are provided for files
+  const documentFields = document.querySelectorAll('.document-field');
+  let valid = true;
+  
+  documentFields.forEach(field => {
+    const fileInput = field.querySelector('input[type="file"]');
+    const nameInput = field.querySelector('input[type="text"]');
+    
+    if (fileInput.files.length > 0 && !nameInput.value.trim()) {
+      nameInput.classList.add('border-red-500');
+      valid = false;
+      alert('Please provide a name for all documents you\'re uploading.');
+    } else {
+      nameInput.classList.remove('border-red-500');
+    }
+  });
+  
+  if (!valid) return;
+  
+  const formData = new FormData(this);
+  const opportunityId = formData.get('opportunity_id');
+  
+  fetch(`/apply-opportunity/${opportunityId}`, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(response => {
+    if (response.redirected) {
+      window.location.href = response.url;
+      return null;
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (data) {
+      if (data.success) {
+        closeApplicationModal();
+        
+        // Update the UI without reloading the page
+        const statusCell = document.getElementById(`application-status-${opportunityId}`);
+        if (statusCell) {
+          statusCell.innerHTML = `
+            <span class="badge bg-lightwarning text-warning">
+              <i class="ti ti-clock mr-1"></i>
+              Pending
+            </span>
+          `;
+        }
+        
+        // Disable the apply button
+        const applyButtons = document.querySelectorAll(`button[onclick="showApplicationModal(${opportunityId})"]`);
+        applyButtons.forEach(button => {
+          button.outerHTML = `
+            <button disabled
+              class="px-4 py-2 rounded-full text-sm font-medium text-gray-400 bg-gray-200 cursor-not-allowed">
+              Applied
+            </button>
+          `;
+        });
+        
+        // Show success message
+        alert('Application submitted successfully!');
+      } else {
+        alert(data.message || 'Failed to submit application');
+      }
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('An error occurred while submitting the application');
+  });
+});
+
+
+
+// Tab switching functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const tabOpportunities = document.getElementById('tab-opportunities');
+  const tabLinks = document.getElementById('tab-links');
+  const opportunitiesTable = document.getElementById('opportunities-table');
+  const linksTable = document.getElementById('links-table');
+  
+  if (tabOpportunities && tabLinks && opportunitiesTable && linksTable) {
+    tabOpportunities.addEventListener('click', function() {
+      tabOpportunities.classList.add('border-blue-500', 'text-blue-600');
+      tabOpportunities.classList.remove('text-gray-500');
+      tabLinks.classList.remove('border-blue-500', 'text-blue-600');
+      tabLinks.classList.add('text-gray-500');
+      
+      opportunitiesTable.classList.remove('hidden');
+      linksTable.classList.add('hidden');
+    });
+    
+    tabLinks.addEventListener('click', function() {
+      tabLinks.classList.add('border-blue-500', 'text-blue-600');
+      tabLinks.classList.remove('text-gray-500');
+      tabOpportunities.classList.remove('border-blue-500', 'text-blue-600');
+      tabOpportunities.classList.add('text-gray-500');
+      
+      linksTable.classList.remove('hidden');
+      opportunitiesTable.classList.add('hidden');
+    });
+  }
+});
+
+
+
+// Show application modal for opportunity links
+function showLinkApplicationModal(linkId) {
+  document.getElementById('modalLinkId').value = linkId;
+  
+  // Clear previous documents
+  const container = document.getElementById('additionalDocumentsContainerLink');
+  container.innerHTML = '';
+  
+  // Add default non-removable document field
+  addLinkDocumentField('', null, true);
+  
+  document.getElementById('linkApplicationModal').classList.remove('hidden');
+}
+
+// Close link application modal
+function closeLinkApplicationModal() {
+  document.getElementById('linkApplicationModal').classList.add('hidden');
+  document.getElementById('linkApplicationForm').reset();
+  
+  // Clear all document fields
+  const container = document.getElementById('additionalDocumentsContainerLink');
+  container.innerHTML = '';
+}
+
+// Document counter for link application
+let linkDocumentCounter = 0;
+
+// Function to add a new document field for link application
+function addLinkDocumentField(fileName = '', fileData = null, isDefault = false) {
+  linkDocumentCounter++;
+  const container = document.getElementById('additionalDocumentsContainerLink');
+  
+  const documentField = document.createElement('div');
+  documentField.className = `document-field flex items-start gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg ${isDefault ? 'default-field' : ''}`;
+  
+  documentField.innerHTML = `
+    <div class="flex-grow grid grid-cols-1 md:grid-cols-12 gap-2">
+      <div class="md:col-span-5">
+        <input type="text" name="document_names[]" 
+               class="form-control py-2" placeholder="Document name (e.g., Transcript, Certificate)"
+               value="${fileName}" ${isDefault ? 'required' : ''}>
+      </div>
+      <div class="md:col-span-6">
+        <input type="file" name="additional_documents[]" 
+               class="form-control py-2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+               ${fileData ? 'data-file="' + btoa(JSON.stringify(fileData)) + '"' : ''} ${isDefault ? 'required' : ''}>
+      </div>
+      <div class="md:col-span-1">
+        ${isDefault ? 
+          `<button type="button" class="text-gray-400 mt-1 cursor-not-allowed" disabled title="Required field">
+            <i class="ti ti-lock text-lg"></i>
+          </button>` : 
+          `<button type="button" onclick="removeLinkDocumentField(this)" 
+                  class="text-red-500 hover:text-red-700 mt-1" title="Remove document">
+            <i class="ti ti-x text-lg"></i>
+          </button>`
+        }
+      </div>
+    </div>
+  `;
+  
+  container.appendChild(documentField);
+}
+
+// Function to remove a document field for link application
+function removeLinkDocumentField(button) {
+  const field = button.closest('.document-field');
+  if (!field.classList.contains('default-field')) {
+    field.remove();
+  }
+}
+
+// Handle link application form submission
+document.getElementById('linkApplicationForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  // Basic validation
+  const documentFields = document.querySelectorAll('#additionalDocumentsContainerLink .document-field');
+  let valid = true;
+  
+  documentFields.forEach(field => {
+    const fileInput = field.querySelector('input[type="file"]');
+    const nameInput = field.querySelector('input[type="text"]');
+    
+    if (fileInput.files.length > 0 && !nameInput.value.trim()) {
+      nameInput.classList.add('border-red-500');
+      valid = false;
+      alert('Please provide a name for all documents you\'re uploading.');
+    } else {
+      nameInput.classList.remove('border-red-500');
+    }
+  });
+  
+  if (!valid) return;
+  
+  const formData = new FormData(this);
+  const linkId = formData.get('link_id');
+  
+  fetch(`/apply-opportunity-link/${linkId}`, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(response => {
+    if (response.redirected) {
+      window.location.href = response.url;
+      return null;
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (data) {
+      if (data.success) {
+        closeLinkApplicationModal();
+
+        
+        
+        // Update the UI without reloading the page
+        // const applyButtons = document.querySelectorAll(`button[onclick="showLinkApplicationModal(${linkId})"]`);
+        // applyButtons.forEach(button => {
+        //   button.outerHTML = `
+        //     <button disabled
+        //       class="px-4 py-2 rounded-full text-sm font-medium text-gray-400 bg-gray-200 cursor-not-allowed">
+        //       Applied
+        //     </button>
+        //   `;
+        // });
+
+
+        // Update the UI immediately
+                updateApplicationStatusUI(linkId, 'Pending');
+                
+                // Disable the apply button
+                const applyButtons = document.querySelectorAll(`button[onclick="showLinkApplicationModal(${linkId})"]`);
+                applyButtons.forEach(button => {
+                    button.outerHTML = `
+                        <button disabled
+                            class="px-4 py-2 rounded-full text-sm font-medium text-gray-400 bg-gray-200 cursor-not-allowed">
+                            Applied
+                        </button>
+                    `;
+                });
+        
+        // Update application status
+        const statusCells = document.querySelectorAll(`tr:has(button[onclick="showLinkApplicationModal(${linkId})"]) td:nth-last-child(2)`);
+        statusCells.forEach(cell => {
+          cell.innerHTML = `
+            <span class="badge bg-lightwarning text-warning">
+              <i class="ti ti-clock mr-1"></i>
+              Pending
+            </span>
+          `;
+        });
+        
+        // Show success message
+        alert('Application submitted successfully!');
+      } else {
+        alert(data.message || 'Failed to submit application');
+      }
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('An error occurred while submitting the application');
+  });
+});
+
+
+// UPDATE STATUS LIKE PENDING ACCEPTED AND RESJECTED FUNCTION
+
+// Poll for application status updates
+function startStatusPolling() {
+    // Only poll if we're on the links tab and user is not admin
+    const linksTab = document.getElementById('links-table');
+    if (!linksTab || !linksTab.classList.contains('hidden') || '{{ current_user.user_type }}' === 'Admin') {
+        return;
+    }
+    
+    // Get all link IDs that we might have applied to
+    const linkIds = [];
+    document.querySelectorAll('button[onclick^="showLinkApplicationModal"]').forEach(button => {
+        const match = button.getAttribute('onclick').match(/showLinkApplicationModal\((\d+)\)/);
+        if (match) {
+            linkIds.push(parseInt(match[1]));
+        }
+    });
+    
+    if (linkIds.length === 0) return;
+    
+    // Poll every 10 seconds for status updates
+    setInterval(() => {
+        linkIds.forEach(linkId => {
+            fetch(`/get-application-status/${linkId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.has_applied) {
+                        updateApplicationStatusUI(linkId, data.status);
+                    }
+                })
+                .catch(error => console.error('Error polling status:', error));
+        });
+    }, 10000); // Poll every 10 seconds
+}
+
+// Update the UI with new status
+function updateApplicationStatusUI(linkId, status) {
+    // Update status badge
+    const statusBadge = document.querySelector(`tr:has(button[onclick="showLinkApplicationModal(${linkId})"]) td:nth-last-child(2)`);
+    if (statusBadge) {
+        let badgeClass, iconClass;
+        
+        switch(status) {
+            case 'Pending':
+                badgeClass = 'bg-lightwarning text-warning';
+                iconClass = 'ti-clock';
+                break;
+            case 'Accepted':
+                badgeClass = 'bg-lightsuccess text-success';
+                iconClass = 'ti-check';
+                break;
+            case 'Shortlisted':
+                badgeClass = 'bg-lightinfo text-info';
+                iconClass = 'ti-star';
+                break;
+            case 'Rejected':
+                badgeClass = 'bg-lighterror text-error';
+                iconClass = 'ti-x';
+                break;
+            default:
+                badgeClass = 'bg-gray-200 text-gray-700';
+                iconClass = 'ti-circle-dashed';
+        }
+        
+        statusBadge.innerHTML = `
+            <span class="badge ${badgeClass}">
+                <i class="${iconClass} mr-1"></i>
+                ${status}
+            </span>
+        `;
+    }
+    
+    // Update button if status changed from pending to something else
+    if (status !== 'Pending') {
+        const applyButton = document.querySelector(`button[onclick="showLinkApplicationModal(${linkId})"]`);
+        if (applyButton) {
+            applyButton.outerHTML = `
+                <button disabled
+                    class="px-4 py-2 rounded-full text-sm font-medium text-gray-400 bg-gray-200 cursor-not-allowed">
+                    Applied
+                </button>
+            `;
+        }
+    }
+}
+
+// Start polling when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    startStatusPolling();
+});
+</script>
+{% endblock %}
