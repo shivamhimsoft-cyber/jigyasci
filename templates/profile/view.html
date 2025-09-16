@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.profile_type }} Profile | Research Collaboration Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        Redirecting to your profile page...
+    </div>
+    
+    <script>
+        // This is a basic profile viewer that redirects to the specific profile type page
+        window.onload = function() {
+            {% if user.profile.profile_type == 'Student' %}
+                window.location.href = "{{ url_for('view_profile', user_id=user.id) }}";
+            {% elif user.profile.profile_type == 'PI' %}
+                window.location.href = "{{ url_for('view_profile', user_id=user.id) }}";
+            {% elif user.profile.profile_type == 'Industry' %}
+                window.location.href = "{{ url_for('view_profile', user_id=user.id) }}";
+            {% elif user.profile.profile_type == 'Vendor' %}
+                window.location.href = "{{ url_for('view_profile', user_id=user.id) }}";
+            {% else %}
+                document.write('<div class="alert alert-danger">Unknown profile type</div>');
+            {% endif %}
+        }
+    </script>
+</div>
+{% endblock %}

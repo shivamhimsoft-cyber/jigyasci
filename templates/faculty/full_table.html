@@ -1,0 +1,453 @@
+<!-- templates\faculty\full_table.html -->
+
+
+{% extends "frontBase.html" %}
+{% block title %}Research Collaboration Platform | Faculty Full Table{% endblock %}
+
+{% block navbar_extra %}
+<form action="{{ url_for('pi.faculty_full_table') }}" method="GET" class="flex flex-grow max-w-md w-full">
+    <div class="relative w-full">
+        <input type="text" name="query" value="{{ query or '' }}" placeholder="Search Name / Institute / Location"
+               class="w-full pr-10 px-0 text-secondary  border-b-[1px] border-b-secondary/60 border-0 py-0 focus:ring-0 focus:outline-none focus:border-secondary" />
+
+        <button type="submit" class="absolute right-3  top-[50%] translate-y-[-50%] text-secondary hover:scale-105 transition ease-in duration-2000">
+            <i class="fa fa-search"></i>
+        </button>
+    </div>
+</form>
+{% endblock %}
+
+
+{% block navbar_extra_profile %}
+<div><img src="../static/images/logo-shade_blue.png" class="lg:h-[60px] md:h-[60px] h-[50px] w-auto " alt=""></div>
+{% endblock %}
+
+{% block nav_bar_width %}
+    w-full py-2
+{% endblock %}
+{% block footer_width %}
+    w-full
+{% endblock %}
+
+
+
+{% block content %}
+<div class=" w-full  mx-auto px-4 ">
+  <div class="w-full flex justify-center">
+      <h1 class="lg:text-3xl md:text-2xl sm:text-xl text-xl font-bold text-secondary mb-6">PI Profiles - Full View</h1>
+  </div>
+
+<form action="{{ url_for('pi.faculty_full_table') }}" method="GET" class="flex flex-wrap justify-end gap-2 mb-4">
+    <h2 class="sr-only">Filter Profiles</h2>
+
+    <select name="department" class="py-1 px-3 rounded-sm border border-secondary/30 focus:border-secondary bg-gray-100 text-secondary w-[165px] flex-shrink-0 focus:ring-0 focus:outline-none">
+        <option value="">All Departments</option>
+        {% for dept in departments %}
+        <option value="{{ dept }}" {% if dept == selected_department %}selected{% endif %}>{{ dept }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="location" class="py-1 px-3 rounded-sm border border-secondary/30 focus:border-secondary bg-gray-100 text-secondary w-[165px] flex-shrink-0 focus:ring-0 focus:outline-none">
+        <option value="">All Locations</option>
+        {% for loc in locations %}
+        <option value="{{ loc }}" {% if loc == selected_location %}selected{% endif %}>{{ loc }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="min_papers" class="py-1 px-3 rounded-sm border border-secondary/30 focus:border-secondary bg-gray-100 text-secondary w-[165px] flex-shrink-0 focus:ring-0 focus:outline-none">
+        <option value="">Min Papers</option>
+        <option value="0" {% if min_papers == '0' %}selected{% endif %}>0 or less</option>
+        <option value="5" {% if min_papers == '5' %}selected{% endif %}>5 or less</option>
+        <option value="10" {% if min_papers == '10' %}selected{% endif %}>10 or less</option>
+        <option value="20" {% if min_papers == '20' %}selected{% endif %}>20 or less</option>
+        <option value=">20" {% if min_papers == '>20' %}selected{% endif %}>More than 20</option>
+    </select>
+
+
+    <select name="min_experience" class="py-1 px-3 rounded-sm border border-secondary/30 focus:border-secondary bg-gray-100 text-secondary w-[165px] flex-shrink-0 focus:ring-0 focus:outline-none">
+        <option value="">Min Experience</option>
+        <option value="0" {% if min_experience == '0' %}selected{% endif %}>0 or less</option>
+        <option value="3" {% if min_experience == '3' %}selected{% endif %}>3 or less</option>
+        <option value="5" {% if min_experience == '5' %}selected{% endif %}>5 or less</option>
+        <option value="10" {% if min_experience == '10' %}selected{% endif %}>10 or less</option>
+        <option value="15" {% if min_experience == '15' %}selected{% endif %}>15 or less</option>
+        <option value=">15" {% if min_experience == '>15' %}selected{% endif %}>More than 15</option>
+    </select>
+
+    <select name="min_hindex" class="py-1 px-3 rounded-sm border border-secondary/30 focus:border-secondary bg-gray-100 text-secondary w-[165px] flex-shrink-0 focus:ring-0 focus:outline-none">
+        <option value="">Min h-index</option>
+        <option value="0" {% if min_hindex == '0' %}selected{% endif %}>0 or less</option>
+        <option value="5" {% if min_hindex == '5' %}selected{% endif %}>5 or less</option>
+        <option value="10" {% if min_hindex == '10' %}selected{% endif %}>10 or less</option>
+        <option value="15" {% if min_hindex == '15' %}selected{% endif %}>15 or less</option>
+        <option value="20" {% if min_hindex == '20' %}selected{% endif %}>20 or less</option>
+        <option value=">20" {% if min_hindex == '>20' %}selected{% endif %}>More than 20</option>
+
+    </select>
+
+
+    <button type="submit" class=" px-6 py-1 bg-secondary/90 text-white border-secondary border-[1px] rounded-sm hover:bg-secondary transition ease-in duration-2000">
+        Filter
+    </button>
+</form>
+
+<form method="GET" action="{{ url_for('pi.faculty_full_table') }}" class="flex items-center justify-end mt-4 mb-4 ">
+    <!-- Preserve filter values in hidden inputs -->
+    <input type="hidden" name="department" value="{{ selected_department }}">
+    <input type="hidden" name="location" value="{{ selected_location }}">
+    <input type="hidden" name="min_papers" value="{{ min_papers }}">
+    <input type="hidden" name="min_experience" value="{{ min_experience }}">
+    <input type="hidden" name="min_hindex" value="{{ min_hindex }}">
+
+    <div class="relative w-max">
+        <input type="text" name="query" value="{{ query or '' }}" placeholder="Search within result....."
+               class="w-full pl-3 pr-10 text-secondary border-secondary/80 focus:border-secondary rounded-sm py-1 max-w-sm focus:ring-0 focus:outline-none " />
+        <button type="submit" class="absolute right-3 top-[40%] translate-y-[-50%] text-secondary flex items-center hover:scale-105 trasition ease-in duration-2000 animate-bounce">
+            <i class="fa fa-search  "></i>
+        </button>
+    </div>
+</form>
+
+    <div class="overflow-x-auto shadow-md">
+        <table class="w-full bg-white border border-gray-200">
+            <thead >
+                <tr class="w-full bg-secondary border border-gray-200 ">
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">#</th>
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">
+                        <a href="{{ url_for('pi.faculty_full_table', query=query, sort='name', direction='asc' if sort != 'name' or direction == 'desc' else 'desc', page=page) }}" class="hover:underline flex items-center">
+                            Name
+                            {% if sort == 'name' %}
+                                <span class="ml-2 inline-block w-4">{% if direction == 'asc' %}↑{% else %}↓{% endif %}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">
+                        <a href="{{ url_for('pi.faculty_full_table', query=query, sort='research_focus', direction='asc' if sort != 'research_focus' or direction == 'desc' else 'desc', page=page) }}" class="hover:underline flex items-center">
+                            Research Focus
+                            {% if sort == 'research_focus' %}
+                                <span class="ml-2 inline-block w-4">{% if direction == 'asc' %}↑{% else %}↓{% endif %}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">
+                        <a href="{{ url_for('pi.faculty_full_table', query=query, sort='designation', direction='asc' if sort != 'designation' or direction == 'desc' else 'desc', page=page) }}" class="hover:underline flex items-center">
+                            Designation
+                            {% if sort == 'designation' %}
+                                <span class="ml-2 inline-block w-4">{% if direction == 'asc' %}↑{% else %}↓{% endif %}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">
+                        <a href="{{ url_for('pi.faculty_full_table', query=query, sort='affiliation', direction='asc' if sort != 'affiliation' or direction == 'desc' else 'desc', page=page) }}" class="hover:underline flex items-center">
+                            Affiliation
+                            {% if sort == 'affiliation' %}
+                                <span class="ml-2 inline-block w-4">{% if direction == 'asc' %}↑{% else %}↓{% endif %}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">
+                        <a href="{{ url_for('pi.faculty_full_table', query=query, sort='department', direction='asc' if sort != 'department' or direction == 'desc' else 'desc', page=page) }}" class="hover:underline flex items-center">
+                            Department
+                            {% if sort == 'department' %}
+                                <span class="ml-2 inline-block w-4">{% if direction == 'asc' %}↑{% else %}↓{% endif %}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">
+                        <a href="{{ url_for('pi.faculty_full_table', query=query, sort='location', direction='asc' if sort != 'location' or direction == 'desc' else 'desc', page=page) }}" class="hover:underline flex items-center">
+                            Location
+                            {% if sort == 'location' %}
+                                <span class="ml-2 inline-block w-4">{% if direction == 'asc' %}↑{% else %}↓{% endif %}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">
+                        <a href="{{ url_for('pi.faculty_full_table', query=query, sort='papers', direction='asc' if sort != 'papers' or direction == 'desc' else 'desc', page=page) }}" class="hover:underline flex items-center">
+                            Papers
+                            {% if sort == 'papers' %}
+                                <span class="ml-2 inline-block w-4">{% if direction == 'asc' %}↑{% else %}↓{% endif %}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">
+                        <a href="{{ url_for('pi.faculty_full_table', query=query, sort='citations', direction='asc' if sort != 'citations' or direction == 'desc' else 'desc', page=page) }}" class="hover:underline flex items-center">
+                            Citations
+                            {% if sort == 'citations' %}
+                                <span class="ml-2 inline-block w-4">{% if direction == 'asc' %}↑{% else %}↓{% endif %}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">
+                        <a href="{{ url_for('pi.faculty_full_table', query=query, sort='experience', direction='asc' if sort != 'experience' or direction == 'desc' else 'desc', page=page) }}" class="hover:underline flex items-center">
+                            Experience
+                            {% if sort == 'experience' %}
+                                <span class="ml-2 inline-block w-4">{% if direction == 'asc' %}↑{% else %}↓{% endif %}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">
+                        <a href="{{ url_for('pi.faculty_full_table', query=query, sort='h_index', direction='asc' if sort != 'h_index' or direction == 'desc' else 'desc', page=page) }}" class="hover:underline flex items-center">
+                            h-index
+                            {% if sort == 'h_index' %}
+                                <span class="ml-2 inline-block w-4">{% if direction == 'asc' %}↑{% else %}↓{% endif %}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-4 py-2 text-white  border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal ">Bookmark</th>
+                </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-200">
+                {% for profile in profiles.items %}
+                    {% set pi = profile.pi_profile %}
+                    {% if pi %}
+                    <tr class="{% if loop.index0 % 2 == 0 %}bg-white{% else %}bg-primary/10{% endif %} hover:bg-primary/30">
+                        <td class="px-4 py-2 border-[1px] border-black  max-w-[200px] overflow-x-auto font-medium text-[17px]">{{ (profiles.page - 1) * profiles.per_page + loop.index }}</td>
+                        <td class="px-4 py-2 border-[1px] border-black  max-w-[200px] overflow-x-auto font-medium text-[17px]">
+                            <div class="flex gap-2  w-full items-center ">
+                                  <div class="h-10 w-10 flex-none rounded-full border-[1px] border-black ">
+                                      <img src="{{ pi.profile_image_url if pi.profile_image_url else url_for('static', filename='images/profile.png') }}"
+                                           onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/logo-shade_blue.png') }}';"
+                                           class="h-full w-full object-cover rounded-full">
+                                  </div>
+                                  <div class="w-full">
+                                      <a href="{{ url_for('faculty_info', profile_id=profile.id) }}" class="text-blue-600 hover:underline">
+                                          {{ pi.name or 'N/A' }}
+                                      </a>
+                                  </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 border-[1px] border-black  max-w-[300px] overflow-x-auto font-medium text-[17px]">{{ pi.current_focus or 'N/A' }}</td>
+                        <td class="px-4 py-2 border-[1px] border-black  max-w-[300px] overflow-x-auto font-medium text-[17px]">{{ pi.current_designation or 'N/A' }}</td>
+                        <td class="px-4 py-2 border-[1px] border-black  max-w-[200px] overflow-x-auto font-medium text-[17px]">{{ pi.affiliation_short or pi.affiliation or 'N/A' }}</td>
+                        <td class="px-4 py-2 border-[1px] border-black  max-w-[200px] overflow-x-auto font-medium text-[17px]">{{ pi.department or 'N/A' }}</td>
+                        <td class="px-4 py-2 border-[1px] border-black  max-w-[200px] overflow-x-auto font-medium text-[17px]">{{ pi.location or 'N/A' }}</td>
+                        <td class="px-4 py-2 border-[1px] border-black  max-w-[200px] overflow-x-auto font-medium text-[17px]">{{ pi.papers_published or 'N/A' }}</td>
+                        <td class="px-4 py-2 border-[1px] border-black  max-w-[200px] overflow-x-auto font-medium text-[17px]">{{ pi.total_citations or 'N/A' }}</td>
+                        <td class="px-4 py-2 border-[1px] border-black  max-w-[200px] overflow-x-auto font-medium text-[17px]">{{ pi.research_experience_years or 'N/A' }}</td>
+                        <td class="px-4 py-2 border-[1px] border-black  max-w-[200px] overflow-x-auto font-medium text-[17px]">{{ pi.h_index or 'N/A' }}</td>
+                       <td class="px-4 py-2 border-[1px] border-black max-w-[200px] overflow-x-auto font-medium text-[17px] text-center">
+                          {% if current_user.is_authenticated %}
+                          <button class="  h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full  bg-white border-[1px] border-secondary text-secondary text-sm hover:bg-secondary hover:text-white transition ease-in duration-2000"
+                                  data-type="profile"
+                                  data-id="{{ profile.id }}"
+                                  title="Bookmark this profile">
+                              <i class="far fa-bookmark "></i>
+                          </button>
+                          {% else %}
+                                <a href="{{ url_for('auth.login') }}"
+                                class="h-8 w-8 relative flex justify-center items-center shadow-sm shadow-black/40 rounded-full  z-10 bg-white border-[1px] border-secondary text-secondary text-sm">
+                                    <i class="far fa-bookmark text-gray-400 text-lg"></i>
+                                    <span class="absolute -top-1 -right-1 text-[13px] text-[red]  ">
+                                        <i class="fas fa-lock "></i>
+                                    </span>
+                                </a>
+                            {% endif %}
+                      </td>
+
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+
+<!--    <div class="w-full flex justify-center pt-6 ">-->
+<!--        <button class="w-max bg-secondary border-[1px] border-secondary text-white rounded-sm px-4 py-1.5  rounded-sm font-bold"> <i class="fa fa-hourglass-half animate-spin mr-2"></i> Load more.....</button>-->
+<!--    </div>-->
+
+   {% if profiles.pages > 1 %}
+       <div class="mt-6 flex justify-center">
+          <nav class="inline-flex rounded-md shadow">
+        {% if profiles.has_prev %}
+        <a href="{{ url_for('pi.faculty_full_table',
+                            query=query,
+                            sort=sort,
+                            direction=direction,
+                            page=profiles.prev_num,
+                            department=selected_department,
+                            location=selected_location,
+                            min_papers=min_papers,
+                            min_experience=min_experience,
+                            min_hindex=min_hindex) }}"
+           class="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-[19px] whitespace-nowrap font-medium text-gray-700 hover:bg-gray-50">Previous</a>
+        {% endif %}
+
+        {% for page_num in profiles.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=3) %}
+            {% if page_num %}
+                {% if profiles.page == page_num %}
+                <a href="#" class="px-3 py-2 border-t border-b border-primary bg-primary text-secondary text-[19px] whitespace-nowrap font-medium">{{ page_num }}</a>
+                {% else %}
+                <a href="{{ url_for('pi.faculty_full_table',
+                                    query=query,
+                                    sort=sort,
+                                    direction=direction,
+                                    page=page_num,
+                                    department=selected_department,
+                                    location=selected_location,
+                                    min_papers=min_papers,
+                                    min_experience=min_experience,
+                                    min_hindex=min_hindex) }}"
+                   class="px-3 py-2 border-t border-b border-gray-300 bg-white text-[19px] whitespace-nowrap font-medium text-gray-700 hover:bg-gray-50">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+            <span class="px-3 py-2 border-t border-b border-gray-300 bg-white text-[19px] whitespace-nowrap font-medium text-gray-700">...</span>
+            {% endif %}
+        {% endfor %}
+
+        {% if profiles.has_next %}
+        <a href="{{ url_for('pi.faculty_full_table',
+                            query=query,
+                            sort=sort,
+                            direction=direction,
+                            page=profiles.next_num,
+                            department=selected_department,
+                            location=selected_location,
+                            min_papers=min_papers,
+                            min_experience=min_experience,
+                            min_hindex=min_hindex) }}"
+           class="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-[19px] whitespace-nowrap font-medium text-gray-700 hover:bg-gray-50">Next</a>
+        {% endif %}
+    </nav>
+       </div>
+{% endif %}
+
+</div>
+
+
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to handle bookmark toggling
+    async function toggleBookmark(itemType, itemId) {
+        try {
+            const response = await fetch(`/bookmark/${itemType}/${itemId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                const bookmarkBtn = document.querySelector(`.bookmark-btn[data-type="${itemType}"][data-id="${itemId}"]`);
+                if (bookmarkBtn) {
+                    if (data.bookmarked) {
+                        bookmarkBtn.innerHTML = '<i class="fas fa-bookmark text-secondary"></i>';
+                        bookmarkBtn.title = 'Remove bookmark';
+                        showNotification('Bookmarked successfully!', 'success');
+                    } else {
+                        bookmarkBtn.innerHTML = '<i class="far fa-bookmark text-gray-400 hover:text-yellow-500"></i>';
+                        bookmarkBtn.title = 'Add bookmark';
+                        showNotification('Bookmark removed', 'info');
+                    }
+                }
+            } else {
+                showNotification(data.message || 'Error bookmarking item', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Error bookmarking item', 'error');
+        }
+    }
+
+    // Add event listeners to all bookmark buttons
+    function setupBookmarkButtons() {
+        document.querySelectorAll('.bookmark-btn').forEach(btn => {
+            // Only add event listener if not already added
+            if (!btn.hasAttribute('data-listener-added')) {
+                btn.setAttribute('data-listener-added', 'true');
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const itemType = btn.dataset.type;
+                    const itemId = btn.dataset.id;
+                    toggleBookmark(itemType, itemId);
+                });
+            }
+        });
+    }
+
+    // Check bookmark status for all items
+    async function checkBookmarkStatus() {
+        const bookmarkButtons = document.querySelectorAll('.bookmark-btn');
+
+        for (const button of bookmarkButtons) {
+            const itemType = button.dataset.type;
+            const itemId = button.dataset.id;
+
+            try {
+                const response = await fetch(`/bookmark/status/${itemType}/${itemId}`);
+                const data = await response.json();
+
+                if (data.bookmarked) {
+                    button.innerHTML = '<i class="fas fa-bookmark text-secondary"></i>';
+                    button.title = 'Remove bookmark';
+                }
+            } catch (error) {
+                console.error('Error checking bookmark status:', error);
+            }
+        }
+    }
+
+    // Initialize bookmark functionality
+    function initializeBookmarks() {
+        setupBookmarkButtons();
+        checkBookmarkStatus();
+    }
+
+    // Initialize when page loads
+    setTimeout(initializeBookmarks, 100);
+
+    // Notification function
+    function showNotification(message, type) {
+        // Check if notification already exists
+        const existingNotification = document.querySelector('.bookmark-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        const notification = document.createElement('div');
+        notification.className = `bookmark-notification fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-transform transform translate-x-full ${type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'} text-white`;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+            notification.classList.add('translate-x-0');
+        }, 10);
+
+        setTimeout(() => {
+            notification.classList.remove('translate-x-0');
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+});
+</script>
+
+<style>
+.bookmark-btn {
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.bookmark-btn:hover {
+    transform: scale(1.1);
+}
+
+.bookmark-notification {
+    z-index: 10000;
+}
+</style>
+{% endblock %}

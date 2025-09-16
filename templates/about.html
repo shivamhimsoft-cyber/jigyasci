@@ -1,0 +1,159 @@
+{% extends "frontBase.html" %}
+{% block title %}About | Bodhiϕ{% endblock %}
+{% block nav_bar_width %}
+lg:w-[60%] md:w-[90%] w-full lg:py-6 md:py-6 py-2
+{% endblock %}
+{% block footer_width %}
+lg:w-[60%] md:w-[90%] w-full
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-20">
+    <!-- Hero Section -->
+    <div class="text-center mb-20">
+        <h1 class="text-5xl font-bold text-[#2c3e50] mb-6">About <span class="text-[#16a085]">JigyaSci</span></h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Bridging the gap between academic research and industry innovation through intelligent collaboration
+        </p>
+        <div class="w-32 h-1.5 bg-gradient-to-r from-[#16a085] to-[#2c3e50] mx-auto mt-6 rounded-full"></div>
+    </div>
+
+    <!-- Mission Section -->
+    <div class="grid md:grid-cols-2 gap-16 items-center mb-28">
+        <div class="order-2 md:order-1">
+            <div class="relative">
+                <div class="absolute -top-6 -left-6 w-24 h-24 border-4 border-[#16a085] opacity-20 rounded-lg"></div>
+                <div class="absolute -bottom-6 -right-6 w-24 h-24 border-4 border-[#2c3e50] opacity-20 rounded-lg"></div>
+                <div class="relative bg-white p-2 rounded-lg shadow-xl border border-gray-100">
+                    <img src="/static/images/logo-shade_blue.png" alt="Bodhiϕ Platform" class="rounded-lg w-full h-auto object-cover">
+                </div>
+            </div>
+        </div>
+        <div class="order-1 md:order-2">
+<!--            <span class="inline-block text-[#16a085] font-medium mb-4">OUR MISSION</span>-->
+            <h2 class="text-3xl font-bold text-[#2c3e50] mb-6 leading-tight">
+                Pioneering India's Innovation Ecosystem
+            </h2>
+            <p class="text-gray-600 text-lg leading-relaxed mb-6">
+                JigyaSci is a pioneering, mission-driven startup at the forefront of India's research and development evolution. We are architects of a comprehensive digital ecosystem designed to unify the nation's scientific and industrial communities. Our core identity is that of a catalyst and an enabler, committed to breaking down silos and building bridges within the innovation landscape. We are a technology-first company dedicated to creating a synergistic environment where knowledge, opportunity, and capital can converge seamlessly. Our team comprises experts passionate about fostering a culture of inquiry and enterprise, positioning JigyaSci as the foundational platform for India's next generation of innovators.
+            </p>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-16 items-center mb-28">
+        <div class="order-1 md:order-2">
+            <div class="relative">
+                <div class="absolute -top-6 -left-6 w-24 h-24 border-4 border-[#16a085] opacity-20 rounded-lg"></div>
+                <div class="absolute -bottom-6 -right-6 w-24 h-24 border-4 border-[#2c3e50] opacity-20 rounded-lg"></div>
+                <div class="relative bg-white p-2 rounded-lg shadow-xl border border-gray-100">
+                    <img src="/static/images/logo-shade_blue.png" alt="Bodhiϕ Platform" class="rounded-lg w-full h-auto object-cover">
+                </div>
+            </div>
+        </div>
+        <div class="order-2 md:order-1">
+            <!--            <span class="inline-block text-[#16a085] font-medium mb-4">OUR MISSION</span>-->
+            <h2 class="text-3xl font-bold text-[#2c3e50] mb-6 leading-tight">
+                Connecting Talent, Opportunity, and Capital
+            </h2>
+            <p class="text-gray-600 text-lg leading-relaxed mb-6">
+                Our primary activity is the development and management of an integrated digital platform that serves the entire R&D lifecycle. For students and aspiring researchers, we provide curated access to expert mentors and tangible career opportunities, including internships, project positions, and PhD openings that are often directly aligned with current industry demands. For academia and industry, we actively foster strategic partnerships and collaborations, creating a direct channel for academic research to address real-world industrial challenges. For innovators and deep-tech startups, we facilitate crucial access to capital by connecting them with corporate sponsorships, CSR funds, grants, and a network of investors, supporting them through the critical stages of scouting and due diligence.
+            </p>
+        </div>
+    </div>
+
+    <!-- Value Propositions -->
+    <div class="bg-gradient-to-br from-[#f8fafb] to-white rounded-2xl p-12 mb-28 border border-gray-100 shadow-sm">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-[#2c3e50] mb-6">The Engine for Change: Our Integrated Digital Platform</h2>
+            <p class="text-gray-600 max-w-3xl mx-auto text-lg">
+                Our strategy is executed through our multifaceted digital platform, which acts as a central nervous system for the R&D community. This platform functions as:
+            </p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-10">
+            <div class="bg-white p-8 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+                <div class="w-14 h-14 bg-[#e8f6f3] rounded-lg flex items-center justify-center mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-[#16a085]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                    </svg>
+                </div>
+                <h3 class="font-bold text-xl mb-3 text-[#2c3e50]">An Opportunity Marketplace:</h3>
+                <p class="text-gray-600">
+                    Where students and researchers can discover and apply for vetted positions.
+                </p>
+            </div>
+            <div class="bg-white p-8 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+                <div class="w-14 h-14 bg-[#e8f6f3] rounded-lg flex items-center justify-center mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-[#16a085]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </div>
+                <h3 class="font-bold text-xl mb-3 text-[#2c3e50]">A Collaboration Hub:</h3>
+                <p class="text-gray-600">
+                    A secure space for industries to post challenges and for academic institutions to propose solutions, fostering joint projects.
+                </p>
+            </div>
+            <div class="bg-white p-8 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+                <div class="w-14 h-14 bg-[#e8f6f3] rounded-lg flex items-center justify-center mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-[#16a085]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                </div>
+                <h3 class="font-bold text-xl mb-3 text-[#2c3e50]">A Funding Gateway:</h3>
+                <p class="text-gray-600">
+                    Streamlining the process for innovators to connect with diverse funding sources, from grants to venture capital.
+                </p>
+            </div>
+            <div class="bg-white p-8 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+                <div class="w-14 h-14 bg-[#e8f6f3] rounded-lg flex items-center justify-center mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-[#16a085]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                </div>
+                <h3 class="font-bold text-xl mb-3 text-[#2c3e50]">An Intelligence Engine:</h3>
+                <p class="text-gray-600">
+                    Delivering data-driven analytics and insights on emerging research trends to help stakeholders make informed decisions.
+                </p>
+            </div>
+            <div class="bg-white p-8 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+                <div class="w-14 h-14 bg-[#e8f6f3] rounded-lg flex items-center justify-center mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-[#16a085]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                    </svg>
+                </div>
+                <h3 class="font-bold text-xl mb-3 text-[#2c3e50]">A Resource Centre:</h3>
+                <p class="text-gray-600">
+                    Curating essential information like research protocols and supporting technology commercialization roadmaps.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vision Section -->
+    <div class="relative mb-28">
+        <div class="absolute inset-0 bg-gradient-to-r from-[#16a085] to-[#2c3e50] opacity-95 rounded-2xl"></div>
+        <div class="relative bg-[url('/static/images/research-bg.jpg')] bg-cover bg-center rounded-2xl overflow-hidden">
+            <div class="backdrop-blur-sm bg-black bg-opacity-30 px-16 py-8 text-center">
+                <h2 class="text-4xl font-bold text-white mb-8 leading-tight max-w-4xl mx-auto">
+                    Bridging the R&D Chasm: Our Driving Purpose
+                </h2>
+                <div class="max-w-3xl mx-auto">
+                    <p class="text-gray-200 text-lg leading-relaxed mb-8 text-justify">
+                        We are driven by the vision to unlock India's immense, yet fragmented, R&D potential. Currently, a significant chasm exists between academic research and its practical, industrial application. Talented students often struggle to find relevant opportunities, and groundbreaking innovations face immense hurdles in securing funding and achieving commercial viability. The ecosystem operates in isolated pockets, hindering collaborative progress and slowing down the pace of innovation. JigyaSci was founded to address these systemic inefficiencies. Our purpose is to create a cohesive, transparent, and accessible ecosystem where talent is nurtured, collaborations are simplified, and transformative ideas are given the resources they need to flourish and create real-world impact.
+                    </p>
+                </div>
+            </div>
+            <div class="backdrop-blur-sm bg-black bg-opacity-30 px-16 py-8 text-center">
+                <h2 class="text-4xl font-bold text-white mb-8 leading-tight max-w-4xl mx-auto">
+                    Fueling India's Ascent as a Global Innovator
+                </h2>
+                <div class="max-w-3xl mx-auto">
+                    <p class="text-gray-200 text-lg leading-relaxed mb-8 text-justify">
+                        JigyaSci’s work is pivotal to achieving India's ambition of becoming a self-reliant, knowledge-based global powerhouse. By directly aligning with national initiatives like 'Make in India' and 'Startup India,' our platform serves as critical infrastructure for building an Atmanirbhar Bharat. We help curb brain drain by creating compelling research and career opportunities within the country. By fostering a culture of deep-tech innovation and simplifying the path from lab to market, we accelerate the economy's transition from service-driven to innovation-led. Ultimately, JigyaSci is building a self-sustaining pipeline of talent and technology, ensuring India can not only compete but lead on the global scientific stage.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

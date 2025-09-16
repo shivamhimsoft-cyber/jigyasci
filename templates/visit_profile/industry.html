@@ -1,0 +1,1267 @@
+{% extends "frontBase.html" %}
+
+{% block title %}Research Collaboration Platform | Home{% endblock %}
+
+{% block content %}
+<h2>Industry####################</h2>
+
+<div class="w-full flex justify-center p-4 min-h-screen">
+    <div class="lg:w-[70%] md:w-[80%] sm:w-[80%] w-full">
+        <div class="p-4 flex lg:flex-row md:flex-row flex-col-reverse bg-white">
+            <div class="w-full grid lg:grid-cols-4 md:grid-cols-3 grid-cols-1 gap-4">
+                <!-- Left Sidebar with Tabs -->
+                <div class="w-full">
+                    <div class="bg-[#314a4a]-100">
+                        <button id="tab-student-prof" data-tab="industryProfile"
+                                class="industry-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-user text-sm mr-2"></i> Profile
+                        </button>
+                        <button id="tab-student-facility" data-tab="facility"
+                                class="industry-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-lightbulb text-sm mr-2"></i> Facility
+                        </button>
+                        <button id="tab-student-awards" data-tab="awards"
+                                class="industry-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-award text-sm mr-2"></i> Award & Recognition
+                        </button>
+                        <button id="tab-student-mentorship" data-tab="mentorship"
+                                class="industry-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-calendar-check text-sm mr-2"></i> Availability for Mentorship
+                        </button>
+                    </div>
+
+                    <!-- Latest Program/Initiative Section -->
+                    <div class="bg-white rounded-sm shadow-sm overflow-hidden mb-6 mt-6 border-[1px] border-gray-300">
+                        <div class="bg-[#314a4a] px-3 py-2 text-white font-medium flex items-center">
+                            <i class="fas fa-project-diagram mr-2"></i>
+                            <span>Latest Industry Program</span>
+                        </div>
+
+                        {% if current_user.is_authenticated %}
+                                <button class="bookmark-btn absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-yellow-50 transition-colors z-10"
+                                        data-type="industry"
+                                        data-id="{{ industry.id }}"
+                                        title="Bookmark this industry">
+                                    <i class="far fa-bookmark text-gray-400 hover:text-yellow-500"></i>
+                                </button>
+                                    {% else %}
+                                        <!-- Bookmark Button for Unauthenticated Users (redirects to login) -->
+                                        <a href="{{ url_for('auth.login') }}"
+                                        class="absolute top-3 right-3 p-2 rounded-full bg-white/80 border border-gray-200 
+                                                hover:bg-primary hover:text-secondary hover:border-primary 
+                                                transition-all duration-300 shadow-sm z-10 group"
+                                        title="Login to bookmark this profile">
+                                            <!-- Bookmark Icon always visible -->
+                                            <i class="far fa-bookmark text-gray-400 text-lg"></i>
+                                            <!-- Lock overlay (toggles on hover) -->
+                                            <span class="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 
+                                                        rounded-full bg-white border border-gray-300 shadow group-hover:bg-secondary">
+                                                <i class="fas fa-lock text-[10px] text-gray-600 group-hover:text-white"></i>
+                                            </span>
+                                        </a>
+                                    {% endif %}      
+                        <div class="p-4">
+                            <h4 class="font-bold text-gray-800 text-sm mb-1">{{ industry.company_name}}</h4>
+                            <p class="text-gray-600 text-xs mb-2">{{ industry.vision or "Leading Innovation Globally" }}</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-500">Launch: June 2023</span>
+                                <a href="#" class="text-[#314a4a] text-xs font-medium hover:underline flex items-center">
+                                    Details <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Facilities Section -->
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6 border-[1px] border-gray-300">
+                        <div class="bg-[#314a4a] px-3 py-2 text-white font-medium flex items-center">
+                            <i class="fas fa-microscope mr-2"></i>
+                            <span>Top Facilities</span>
+                        </div>
+                        <div class="divide-y divide-gray-100">
+                            <div class="p-3 hover:bg-gray-50 transition-colors">
+                                <h4 class="font-bold text-gray-800 text-sm mb-1">Advanced AI Research Lab</h4>
+                                <p class="text-gray-600 text-xs">50 GPU cluster with latest frameworks</p>
+                            </div>
+                            <div class="p-3 hover:bg-gray-50 transition-colors">
+                                <h4 class="font-bold text-gray-800 text-sm mb-1">Biotech Innovation Center</h4>
+                                <p class="text-gray-600 text-xs">BSL-2 certified facility</p>
+                            </div>
+                            <div class="p-3 hover:bg-gray-50 transition-colors">
+                                <h4 class="font-bold text-gray-800 text-sm mb-1">Clean Energy Testbed</h4>
+                                <p class="text-gray-600 text-xs">Solar/wind hybrid testing facility</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Awards Section -->
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6 border-[1px] border-gray-300">
+                        <div class="bg-[#314a4a] px-3 py-2 text-white font-medium flex items-center">
+                            <i class="fas fa-trophy mr-2"></i>
+                            <span>Recent Awards</span>
+                        </div>
+                        <div class="divide-y divide-gray-100">
+                            <div class="p-3">
+                                <h4 class="font-bold text-gray-800 text-sm mb-1">"Best Industry-Academia Collaboration 2023"</h4>
+                                <p class="text-gray-600 text-xs mb-1">Federation of Indian Chambers of Commerce</p>
+                                <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">National Level</span>
+                            </div>
+                            <div class="p-3">
+                                <h4 class="font-bold text-gray-800 text-sm mb-1">"Green Tech Innovator Award"</h4>
+                                <p class="text-gray-600 text-xs mb-1">Sustainable Development Council</p>
+                                <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Sustainability</span>
+                            </div>
+                        </div>
+                        <div class="p-3 text-center border-t border-gray-100">
+                            <a href="#" class="text-[#314a4a] text-sm font-medium hover:underline">View all awards</a>
+                        </div>
+                    </div>
+
+                    <!-- Current Mentorship Opportunities -->
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden border-[1px] border-gray-300">
+                        <div class="bg-[#314a4a] px-3 py-2 text-white font-medium flex items-center">
+                            <i class="fas fa-hands-helping mr-2"></i>
+                            <span>Mentorship Programs</span>
+                        </div>
+                        <div class="divide-y divide-gray-100">
+                            <div class="p-3">
+                                <h4 class="font-bold text-gray-800 text-sm mb-1">Startup Incubation Program</h4>
+                                <p class="text-gray-600 text-xs mb-2">Quarterly intake for early-stage startups</p>
+                                <span class="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">Next cohort: Aug 2023</span>
+                            </div>
+                            <div class="p-3">
+                                <h4 class="font-bold text-gray-800 text-sm mb-1">Women in STEM Mentorship</h4>
+                                <p class="text-gray-600 text-xs mb-2">6-month mentorship program</p>
+                                <span class="inline-block bg-pink-100 text-pink-800 text-xs px-2 py-1 rounded">Ongoing</span>
+                            </div>
+                        </div>
+                        <div class="p-3 text-center border-t border-gray-100">
+                            <a href="#" class="text-[#314a4a] text-sm font-medium hover:underline">View all mentorship programs</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Area -->
+                <div class="w-full lg:col-span-3 md:col-span-2 col-span-1">
+                    <!-- Profile Tab Content -->
+                    <div id="tab-content-industryProfile" data-tab-content="industryProfile" class="student-tab-content w-full">
+                        <!-- Hero Banner Section -->
+                        <div class="relative bg-gradient-to-r from-[#314a4a] to-[#314a4a]/80 rounded-xl shadow-lg overflow-hidden mb-8 h-48 flex items-center">
+                            <div class="absolute inset-0 bg-black/30"></div>
+                            <div class="relative z-10 px-8 w-full">
+                                <div class="flex items-center">
+                                    <div class="bg-white p-2 rounded-lg shadow-xl mr-6">
+                                        <!-- <img src="../static/images/logo-shade_blue.png" class="w-20 h-20 object-contain" alt="TechSolutions Inc."> -->
+                                        <img src="{{ url_for('static', filename=industry.logo or 'images/logo-shade_blue.png') }}" class="w-20 h-20 object-contain" alt="{{ industry.company_name }}">
+
+                                    </div>
+                                    <div>
+                                        <h1 class="text-3xl font-bold text-white">{{ industry.company_name }}</h1>
+                                        <p class="text-blue-100">{{ industry.sector }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Main Content Grid -->
+                        <div class="grid md:grid-cols-4 gap-6">
+                            <!-- Left Sidebar - Quick Facts -->
+                            <div class="md:col-span-1">
+                                <div class="bg-white rounded-lg shadow-md p-4 border-t-4 border-blue-600 mb-6">
+                                    <h3 class="font-bold text-gray-700 mb-3 text-sm uppercase tracking-wider">At a Glance</h3>
+                                    <ul class="space-y-3">
+                                        <li class="flex items-start">
+                                            <div class="bg-blue-100 p-1 rounded mr-2 mt-0.5">
+                                                <i class="fas fa-users text-blue-600 text-xs"></i>
+                                            </div>
+                                            <span class="text-sm"><strong>{{ industry.team_size}}</strong> Employees</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <div class="bg-blue-100 p-1 rounded mr-2 mt-0.5">
+                                                <i class="fas fa-hand-holding-usd text-blue-600 text-xs"></i>
+                                            </div>
+                                            <span class="text-sm"><strong>{{ industry.annual_turnover }}</strong> Annual Turnover</span>
+                                        </li>
+
+                                        <li class="flex items-start">
+                                            <div class="bg-blue-100 p-1 rounded mr-2 mt-0.5">
+                                                <i class="fas fa-globe text-blue-600 text-xs"></i>
+                                            </div>
+                                            <span class="text-sm"><strong>25+</strong> Countries</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <div class="bg-blue-100 p-1 rounded mr-2 mt-0.5">
+                                                <i class="fas fa-lightbulb text-blue-600 text-xs"></i>
+                                            </div>
+                                            <span class="text-sm"><strong>150+</strong> Patents</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <div class="bg-blue-100 p-1 rounded mr-2 mt-0.5">
+                                                <i class="fas fa-building text-blue-600 text-xs"></i>
+                                            </div>
+                                            <span class="text-sm"><strong>18</strong> Global Offices</span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-white rounded-lg shadow-md p-4 border-t-4 border-green-600">
+                                    <h3 class="font-bold text-gray-700 mb-3 text-sm uppercase tracking-wider">Contact</h3>
+                                    <address class="not-italic text-sm space-y-2">
+                                        <div class="flex items-start">
+                                            <i class="fas fa-user-tie text-gray-400 mt-0.5 mr-2"></i>
+                                            <span>{{ industry.contact_person }}</span>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <i class="fas fa-map-marker-alt text-gray-400 mt-0.5 mr-2"></i>
+                                            <span>{{ industry.address }}</span>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <i class="fas fa-phone text-gray-400 mt-0.5 mr-2"></i>
+                                            <span>+1 {{ industry.contact_phone }}</span>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <i class="fas fa-envelope text-gray-400 mt-0.5 mr-2"></i>
+                                            <span class="break-words max-w-full">
+                                                <a href="mailto:{{ industry.email }}" class="text-blue-600 hover:underline">
+                                                    {{ industry.email }}
+                                                </a>
+                                            </span>                                        
+                                        </div>
+
+                                        <div class="flex items-start">
+                                            <i class="fas fa-globe text-gray-400 mt-0.5 mr-2"></i>
+                                            <span>www.techsolutions.com</span>
+                                        </div>
+                                    </address>
+                                    <div class="flex space-x-3 mt-4 pt-3 border-t border-gray-100">
+                                        <a href="#" class="text-gray-500 hover:text-blue-600">
+                                            <i class="fab fa-linkedin-in"></i>
+                                        </a>
+                                        <a href="#" class="text-gray-500 hover:text-blue-400">
+                                            <i class="fab fa-twitter"></i>
+                                        </a>
+                                        <a href="#" class="text-gray-500 hover:text-gray-700">
+                                            <i class="fab fa-facebook-f"></i>
+                                        </a>
+                                        <a href="#" class="text-gray-500 hover:text-red-500">
+                                            <i class="fab fa-youtube"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Main Content Area -->
+                            <div class="md:col-span-3">
+                                <!-- About Section -->
+                                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                                    <div class="flex items-center mb-4">
+                                        <div class="w-1 h-8 bg-blue-600 mr-3"></div>
+                                        <h2 class="text-xl font-bold text-gray-800">Company Overview</h2>
+                                    </div>
+                                    <p class="text-gray-700 mb-4">
+                                        TechSolutions Inc. is a global leader in innovative technology solutions, serving clients across 25+ countries.
+                                        We specialize in developing cutting-edge AI and cloud-based solutions that transform businesses.
+                                        With over 150 patents and a team of 2500+ professionals, we're committed to driving digital transformation
+                                        through research, innovation, and strategic partnerships.
+                                    </p>
+                                    <div class="grid md:grid-cols-2 gap-4 mt-4">
+                                        <div class="border-l-2 border-blue-500 pl-3">
+                                            <h3 class="font-semibold text-gray-800">Our Vision</h3>
+                                            <p class="text-gray-600 text-sm">{{ industry.vision }}</p>
+                                        </div>
+                                        <div class="border-l-2 border-green-500 pl-3">
+                                            <h3 class="font-semibold text-gray-800">Our Mission</h3>
+                                            <p class="text-gray-600 text-sm">
+                                                To deliver exceptional technology solutions through continuous innovation,
+                                                collaborative partnerships, and a commitment to excellence.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Business Sectors -->
+                                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                                    <div class="flex items-center mb-4">
+                                        <div class="w-1 h-8 bg-green-600 mr-3"></div>
+                                        <h2 class="text-xl font-bold text-gray-800">Core Business Areas</h2>
+                                    </div>
+                                    <div class="grid md:grid-cols-2 gap-4">
+                                        {% for sector in industry.sectors %}
+                                        <div class="bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors">
+                                            <div class="flex items-center mb-2">
+                                                <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                                    <i class="{{ sector.icon_class }} text-blue-600"></i>
+                                                </div>
+                                                <h3 class="font-semibold">{{ sector.name }}</h3>
+                                            </div>
+                                            <p class="text-gray-600 text-sm">{{ sector.description }}</p>
+                                        </div>
+                                        {% endfor %}
+
+                                        <!-- <div class="bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors">
+                                            <div class="flex items-center mb-2">
+                                                <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                                    <i class="fas fa-brain text-blue-600"></i>
+                                                </div>
+                                                <h3 class="font-semibold">Artificial Intelligence</h3>
+                                            </div>
+                                            <p class="text-gray-600 text-sm">
+                                                Advanced machine learning solutions for predictive analytics, natural language processing,
+                                                and computer vision applications.
+                                            </p>
+                                        </div> -->
+                                        <!-- <div class="bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors">
+                                            <div class="flex items-center mb-2">
+                                                <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                                    <i class="fas fa-cloud text-blue-600"></i>
+                                                </div>
+                                                <h3 class="font-semibold">Cloud Computing</h3>
+                                            </div>
+                                            <p class="text-gray-600 text-sm">
+                                                Secure, scalable cloud infrastructure and platform services for enterprises of all sizes.
+                                            </p>
+                                        </div> -->
+                                        <!-- <div class="bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors">
+                                            <div class="flex items-center mb-2">
+                                                <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                                    <i class="fas fa-shield-alt text-blue-600"></i>
+                                                </div>
+                                                <h3 class="font-semibold">Cybersecurity</h3>
+                                            </div>
+                                            <p class="text-gray-600 text-sm">
+                                                Comprehensive security solutions including threat detection, vulnerability assessment,
+                                                and compliance management.
+                                            </p>
+                                        </div> -->
+                                        <!-- <div class="bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors">
+                                            <div class="flex items-center mb-2">
+                                                <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                                    <i class="fas fa-network-wired text-blue-600"></i>
+                                                </div>
+                                                <h3 class="font-semibold">IoT Solutions</h3>
+                                            </div>
+                                            <p class="text-gray-600 text-sm">
+                                                End-to-end IoT platforms for smart cities, industrial automation, and connected devices.
+                                            </p>
+                                        </div> -->
+                                    </div>
+                                </div>
+
+                                <!-- Opportunities & CSR -->
+
+                            </div>
+                        </div>
+
+                        <div class="w-full grid lg:grid-cols-2 gap-4">
+                            <div class="bg-white rounded-lg shadow-md p-6 lg:col-span-2">
+                                <div class="flex items-center mb-4">
+                                    <div class="w-1 h-8 bg-[#314a4a] mr-3"></div>
+                                    <h2 class="text-xl font-bold text-gray-800">Technology Transfer</h2>
+                                </div>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div class="bg-purple-50 p-4 rounded-lg">
+                                        <h3 class="font-semibold text-gray-800 mb-2 flex items-center">
+                                            <i class="fas fa-microchip text-purple-600 mr-2"></i>
+                                            Available Technologies
+                                        </h3>
+                                        <p class="text-gray-600 text-sm mb-3">
+                                            Our portfolio includes patented technologies available for licensing across multiple domains.
+                                        </p>
+                                        <ul class="text-sm space-y-1">
+                                            <li class="flex items-center">
+                                                <i class="fas fa-circle text-purple-600 text-xs mr-2"></i>
+                                                AI Algorithms
+                                            </li>
+                                            <li class="flex items-center">
+                                                <i class="fas fa-circle text-purple-600 text-xs mr-2"></i>
+                                                IoT Architectures
+                                            </li>
+                                            <li class="flex items-center">
+                                                <i class="fas fa-circle text-purple-600 text-xs mr-2"></i>
+                                                Security Frameworks
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-purple-50 p-4 rounded-lg">
+                                        <h3 class="font-semibold text-gray-800 mb-2 flex items-center">
+                                            <i class="fas fa-handshake text-purple-600 mr-2"></i>
+                                            Collaboration Models
+                                        </h3>
+                                        <p class="text-gray-600 text-sm mb-3">
+                                            Flexible partnership options tailored to your organization's needs.
+                                        </p>
+                                        <ul class="text-sm space-y-1">
+                                            <li class="flex items-center">
+                                                <i class="fas fa-circle text-purple-600 text-xs mr-2"></i>
+                                                Joint Development
+                                            </li>
+                                            <li class="flex items-center">
+                                                <i class="fas fa-circle text-purple-600 text-xs mr-2"></i>
+                                                Technology Transfer
+                                            </li>
+                                            <li class="flex items-center">
+                                                <i class="fas fa-circle text-purple-600 text-xs mr-2"></i>
+                                                Commercialization Partnerships
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-center">
+                                    <button class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors text-sm font-medium">
+                                        Contact Our Technology Transfer Office
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                                <div class="bg-blue-700 text-white px-6 py-3">
+                                    <h2 class="font-bold">Opportunities</h2>
+                                </div>
+                                <div class="p-6">
+                                    <div class="mb-4 pb-4 border-b border-gray-100">
+                                        <h3 class="font-semibold text-gray-800 mb-1">Career Opportunities</h3>
+                                        <p class="text-gray-600 text-sm mb-2">
+                                            We're always looking for talented individuals to join our global team.
+                                        </p>
+                                        <ul class="list-inside space-y-2 text-sm">
+                                            <li class="flex items-center">
+                                                <span class="w-1.5 h-1.5 bg-blue-600 rounded-full mr-2"></span>
+                                                Engineering & Development
+                                            </li>
+                                            <li class="flex items-center">
+                                                <span class="w-1.5 h-1.5 bg-blue-600 rounded-full mr-2"></span>
+                                                Research & Innovation
+                                            </li>
+                                            <li class="flex items-center">
+                                                <span class="w-1.5 h-1.5 bg-blue-600 rounded-full mr-2"></span>
+                                                Business & Operations
+                                            </li>
+                                        </ul>
+                                        <button class="mt-3 text-blue-600 text-sm font-medium hover:underline flex items-center">
+                                            View Open Positions <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-800 mb-1">Academic Collaborations</h3>
+                                        <p class="text-gray-600 text-sm mb-2">
+                                            Partner with us for research projects, technology transfer, and student programs.
+                                        </p>
+                                        <button class="mt-2 text-blue-600 text-sm font-medium hover:underline flex items-center">
+                                            Explore Partnership Options <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CSR -->
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                                <div class="bg-green-700 text-white px-6 py-3">
+                                    <h2 class="font-bold">Corporate Responsibility</h2>
+                                </div>
+                                <div class="p-6">
+                                    <div class="mb-4 pb-4 border-b border-gray-100">
+                                        <h3 class="font-semibold text-gray-800 mb-1">Tech for Good</h3>
+                                        <p class="text-gray-600 text-sm mb-2">
+                                            Providing technology solutions to NGOs and social enterprises at no cost.
+                                        </p>
+                                        <div class="flex items-center text-sm bg-green-50 p-2 rounded">
+                                            <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                            <span>50+ organizations supported since 2015</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-800 mb-1">STEM Education</h3>
+                                        <p class="text-gray-600 text-sm mb-2">
+                                            Annual programs to train students in emerging technologies.
+                                        </p>
+                                        <div class="flex items-center text-sm bg-green-50 p-2 rounded">
+                                            <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                            <span>10,000+ students trained annually</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-content-facility" data-tab-content="facility" class="student-tab-content w-full">
+                        <!-- Facilities Hero Section -->
+                        <div class="relative bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl shadow-xl overflow-hidden mb-8 h-64 flex items-end">
+                            <div class="absolute inset-0 bg-black/40"></div>
+                            <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab" class="absolute inset-0 w-full h-full object-cover" alt="TechSolutions Facilities">
+                            <div class="relative z-10 px-8 pb-8 w-full">
+                                <h1 class="text-4xl font-bold text-white mb-2">Global Facilities</h1>
+                                <p class="text-gray-200 max-w-2xl">State-of-the-art infrastructure powering innovation across 18 locations worldwide</p>
+                            </div>
+                        </div>
+
+                        <!-- Facilities Grid -->
+                        <div class="grid md:grid-cols-3 gap-6 mb-8">
+                            <!-- R&D Centers -->
+                            <div class="bg-white rounded-xl shadow-md overflow-hidden border-l-4 border-blue-600 transform hover:-translate-y-1 transition-transform">
+                                <div class="h-40 overflow-hidden">
+                                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71" class="w-full h-full object-cover" alt="R&D Center">
+                                </div>
+                                <div class="p-6">
+                                    <div class="flex items-center mb-3">
+                                        <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                            <i class="fas fa-flask text-blue-600"></i>
+                                        </div>
+                                        <h2 class="text-xl font-bold text-gray-800">Research & Development</h2>
+                                    </div>
+                                    <ul class="space-y-2 text-gray-600 text-sm">
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-blue-500 mt-0.5 mr-2"></i>
+                                            <span>12 specialized labs across 6 countries</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-blue-500 mt-0.5 mr-2"></i>
+                                            <span>$250M annual R&D investment</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-blue-500 mt-0.5 mr-2"></i>
+                                            <span>ISO 9001 certified facilities</span>
+                                        </li>
+                                    </ul>
+                                    <button class="mt-4 text-blue-600 text-sm font-medium hover:underline flex items-center">
+                                        Explore R&D Capabilities <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Manufacturing -->
+                            <div class="bg-white rounded-xl shadow-md overflow-hidden border-l-4 border-green-600 transform hover:-translate-y-1 transition-transform">
+                                <div class="h-40 overflow-hidden">
+                                    <img src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e" class="w-full h-full object-cover" alt="Manufacturing">
+                                </div>
+                                <div class="p-6">
+                                    <div class="flex items-center mb-3">
+                                        <div class="bg-green-100 p-2 rounded-full mr-3">
+                                            <i class="fas fa-industry text-green-600"></i>
+                                        </div>
+                                        <h2 class="text-xl font-bold text-gray-800">Manufacturing</h2>
+                                    </div>
+                                    <ul class="space-y-2 text-gray-600 text-sm">
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                            <span>5 LEED-certified production plants</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                            <span>Robotics and AI-driven assembly lines</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                            <span>500,000 sq.ft total production area</span>
+                                        </li>
+                                    </ul>
+                                    <button class="mt-4 text-green-600 text-sm font-medium hover:underline flex items-center">
+                                        Tour Our Facilities <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Global Offices -->
+                            <div class="bg-white rounded-xl shadow-md overflow-hidden border-l-4 border-purple-600 transform hover:-translate-y-1 transition-transform">
+                                <div class="h-40 overflow-hidden">
+                                    <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c" class="w-full h-full object-cover" alt="Global Offices">
+                                </div>
+                                <div class="p-6">
+                                    <div class="flex items-center mb-3">
+                                        <div class="bg-purple-100 p-2 rounded-full mr-3">
+                                            <i class="fas fa-globe-americas text-purple-600"></i>
+                                        </div>
+                                        <h2 class="text-xl font-bold text-gray-800">Global Offices</h2>
+                                    </div>
+                                    <ul class="space-y-2 text-gray-600 text-sm">
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-purple-500 mt-0.5 mr-2"></i>
+                                            <span>18 strategic locations worldwide</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-purple-500 mt-0.5 mr-2"></i>
+                                            <span>24/7 collaborative workspaces</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-purple-500 mt-0.5 mr-2"></i>
+                                            <span>Smart building technology</span>
+                                        </li>
+                                    </ul>
+                                    <button class="mt-4 text-purple-600 text-sm font-medium hover:underline flex items-center">
+                                        View Office Locations <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Specialized Facilities Section -->
+                        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                            <div class="bg-gray-800 text-white px-6 py-4">
+                                <h2 class="text-xl font-bold">Specialized Infrastructure</h2>
+                                <p class="text-gray-300 text-sm">Cutting-edge facilities supporting innovation</p>
+                            </div>
+                            <div class="p-6 grid md:grid-cols-2 gap-6">
+                                <!-- Data Centers -->
+                                <div class="flex">
+                                    <div class="bg-blue-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                                        <i class="fas fa-database text-blue-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-gray-800 mb-1">Tier-IV Data Centers</h3>
+                                        <p class="text-gray-600 text-sm mb-2">
+                                            99.995% uptime guaranteed across our global network of 8 ultra-secure data facilities.
+                                        </p>
+                                        <div class="flex items-center text-xs text-blue-600">
+                                            <i class="fas fa-shield-alt mr-1"></i>
+                                            <span>GDPR & HIPAA Compliant</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Testing Labs -->
+                                <div class="flex">
+                                    <div class="bg-green-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                                        <i class="fas fa-vial text-green-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-gray-800 mb-1">QA & Testing Labs</h3>
+                                        <p class="text-gray-600 text-sm mb-2">
+                                            15 specialized testing environments including electromagnetic, thermal, and stress testing.
+                                        </p>
+                                        <div class="flex items-center text-xs text-green-600">
+                                            <i class="fas fa-certificate mr-1"></i>
+                                            <span>ISO/IEC 17025 Accredited</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Innovation Hubs -->
+                                <div class="flex">
+                                    <div class="bg-purple-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                                        <i class="fas fa-lightbulb text-purple-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-gray-800 mb-1">Innovation Hubs</h3>
+                                        <p class="text-gray-600 text-sm mb-2">
+                                            Collaborative spaces with AR/VR capabilities, 3D printing labs, and ideation studios.
+                                        </p>
+                                        <div class="flex items-center text-xs text-purple-600">
+                                            <i class="fas fa-users mr-1"></i>
+                                            <span>Open to Academic Partners</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Sustainability -->
+                                <div class="flex">
+                                    <div class="bg-teal-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                                        <i class="fas fa-leaf text-teal-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-gray-800 mb-1">Sustainable Facilities</h3>
+                                        <p class="text-gray-600 text-sm mb-2">
+                                            LEED Platinum certified buildings with solar arrays and zero-waste initiatives.
+                                        </p>
+                                        <div class="flex items-center text-xs text-teal-600">
+                                            <i class="fas fa-award mr-1"></i>
+                                            <span>2023 Green Business Award</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Global Footprint Map -->
+                        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                            <div class="p-6 border-b border-gray-200">
+                                <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                                    <i class="fas fa-map-marked-alt text-red-500 mr-3"></i>
+                                    Our Global Footprint
+                                </h2>
+                            </div>
+                            <div class="p-6">
+                                <div class="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
+                                    <!-- Map placeholder - would be replaced with actual map component -->
+                                    <div class="text-center p-4">
+                                        <i class="fas fa-globe-americas text-gray-400 text-4xl mb-3"></i>
+                                        <p class="text-gray-500">Interactive map showing 18 facilities across North America, Europe, and Asia</p>
+                                        <button class="mt-3 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm">
+                                            View Full Facility Map
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="grid md:grid-cols-5 gap-4 mt-6 text-center">
+                                    <div class="p-3 bg-blue-50 rounded-lg">
+                                        <div class="text-blue-600 font-bold text-2xl mb-1">6</div>
+                                        <div class="text-xs text-gray-600">NORTH AMERICA</div>
+                                    </div>
+                                    <div class="p-3 bg-green-50 rounded-lg">
+                                        <div class="text-green-600 font-bold text-2xl mb-1">5</div>
+                                        <div class="text-xs text-gray-600">EUROPE</div>
+                                    </div>
+                                    <div class="p-3 bg-purple-50 rounded-lg">
+                                        <div class="text-purple-600 font-bold text-2xl mb-1">4</div>
+                                        <div class="text-xs text-gray-600">ASIA</div>
+                                    </div>
+                                    <div class="p-3 bg-yellow-50 rounded-lg">
+                                        <div class="text-yellow-600 font-bold text-2xl mb-1">2</div>
+                                        <div class="text-xs text-gray-600">MIDDLE EAST</div>
+                                    </div>
+                                    <div class="p-3 bg-red-50 rounded-lg">
+                                        <div class="text-red-600 font-bold text-2xl mb-1">1</div>
+                                        <div class="text-xs text-gray-600">AUSTRALIA</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Facility Specifications -->
+                        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                            <div class="p-6 border-b border-gray-200">
+                                <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                                    <i class="fas fa-clipboard-list text-indigo-500 mr-3"></i>
+                                    Technical Specifications
+                                </h2>
+                            </div>
+                            <div class="p-6">
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Facility Type</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Area</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Special Features</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Certifications</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">R&D Centers</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15,000-50,000 sq.ft each</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Clean rooms, vibration isolation</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">ISO 9001, ISO 14644</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Manufacturing Plants</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">100,000-300,000 sq.ft each</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Robotic assembly, automated logistics</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">LEED Gold, ISO 14001</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Data Centers</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">20,000-40,000 sq.ft each</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">N+2 redundancy, biometric access</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Tier IV, SOC 2 Type II</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-content-awards" data-tab-content="awards" class="student-tab-content w-full">
+                        <!-- Awards Hero Section -->
+                        <div class="relative bg-gradient-to-br from-amber-900 to-amber-700 rounded-xl shadow-xl overflow-hidden mb-8 h-64 flex items-end">
+                            <div class="absolute inset-0 bg-black/40"></div>
+                            <img src="https://images.unsplash.com/photo-1531545514256-b1400bc00f31" class="absolute inset-0 w-full h-full object-cover" alt="Awards and Recognition">
+                            <div class="relative z-10 px-8 pb-8 w-full">
+                                <h1 class="text-4xl font-bold text-white mb-2">Awards & Recognition</h1>
+                                <p class="text-amber-100 max-w-2xl">Celebrating excellence and industry leadership across global markets</p>
+                            </div>
+                        </div>
+
+                        <!-- Featured Awards Grid -->
+                        <div class="grid md:grid-cols-2 gap-6 mb-8">
+                            <!-- Prestigious Awards -->
+                            <div class="bg-white rounded-xl shadow-md overflow-hidden border-l-4 border-amber-500 transform hover:-translate-y-1 transition-transform">
+                                <div class="p-6">
+                                    <div class="flex items-center mb-4">
+                                        <div class="bg-amber-100 p-3 rounded-full mr-4">
+                                            <i class="fas fa-trophy text-amber-600 text-xl"></i>
+                                        </div>
+                                        <h2 class="text-xl font-bold text-gray-800">Prestigious Honors</h2>
+                                    </div>
+                                    <div class="space-y-4">
+                                        <div class="flex items-start">
+                                            <div class="bg-amber-50 p-2 rounded-lg mr-4 flex-shrink-0">
+                                                <i class="fas fa-award text-amber-500"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-bold text-gray-800">Global Innovation Award 2023</h3>
+                                                <p class="text-gray-600 text-sm">Recognized for breakthrough AI technology in manufacturing</p>
+                                                <div class="text-xs text-amber-600 mt-1 flex items-center">
+                                                    <i class="fas fa-calendar-alt mr-1"></i>
+                                                    <span>October 2023 • Berlin, Germany</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <div class="bg-amber-50 p-2 rounded-lg mr-4 flex-shrink-0">
+                                                <i class="fas fa-medal text-amber-500"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-bold text-gray-800">Fortune 500 Company</h3>
+                                                <p class="text-gray-600 text-sm">Ranked #127 in 2023 Fortune Global 500 list</p>
+                                                <div class="text-xs text-amber-600 mt-1 flex items-center">
+                                                    <i class="fas fa-chart-line mr-1"></i>
+                                                    <span>3 consecutive years on the list</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="mt-6 w-full py-2 bg-amber-100 text-amber-700 rounded-md hover:bg-amber-200 transition-colors text-sm font-medium">
+                                        View All Major Awards
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Industry Rankings -->
+                            <div class="bg-white rounded-xl shadow-md overflow-hidden border-l-4 border-blue-500 transform hover:-translate-y-1 transition-transform">
+                                <div class="p-6">
+                                    <div class="flex items-center mb-4">
+                                        <div class="bg-blue-100 p-3 rounded-full mr-4">
+                                            <i class="fas fa-star text-blue-600 text-xl"></i>
+                                        </div>
+                                        <h2 class="text-xl font-bold text-gray-800">Industry Rankings</h2>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="bg-blue-50 p-3 rounded-lg text-center">
+                                            <div class="text-blue-600 font-bold text-3xl mb-1">#1</div>
+                                            <div class="text-xs text-gray-600 font-medium">IN TECH INNOVATION (GARTNER 2023)</div>
+                                        </div>
+                                        <div class="bg-blue-50 p-3 rounded-lg text-center">
+                                            <div class="text-blue-600 font-bold text-3xl mb-1">TOP 5</div>
+                                            <div class="text-xs text-gray-600 font-medium">GLOBAL EMPLOYER (FORBES)</div>
+                                        </div>
+                                        <div class="bg-blue-50 p-3 rounded-lg text-center">
+                                            <div class="text-blue-600 font-bold text-3xl mb-1">AAA</div>
+                                            <div class="text-xs text-gray-600 font-medium">CORPORATE CREDIT RATING</div>
+                                        </div>
+                                        <div class="bg-blue-50 p-3 rounded-lg text-center">
+                                            <div class="text-blue-600 font-bold text-3xl mb-1">94%</div>
+                                            <div class="text-xs text-gray-600 font-medium">CUSTOMER SATISFACTION</div>
+                                        </div>
+                                    </div>
+                                    <button class="mt-6 w-full py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors text-sm font-medium">
+                                        See Detailed Rankings
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Recognitions -->
+                        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                            <div class="bg-gray-800 text-white px-6 py-4">
+                                <h2 class="text-xl font-bold">Recent Recognitions</h2>
+                                <p class="text-gray-300 text-sm">Highlighting our latest achievements and milestones</p>
+                            </div>
+                            <div class="p-6">
+                                <div class="grid md:grid-cols-3 gap-6">
+                                    <!-- Award 1 -->
+                                    <div class="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+                                        <div class="flex items-center mb-3">
+                                            <img src="https://via.placeholder.com/60x60?text=AWARD" class="w-12 h-12 object-contain mr-3" alt="Green Tech Award">
+                                            <div>
+                                                <h3 class="font-bold text-gray-800">Green Tech Leadership</h3>
+                                                <div class="flex items-center text-xs text-green-600">
+                                                    <i class="fas fa-leaf mr-1"></i>
+                                                    <span>Sustainability Award</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="text-gray-600 text-sm mb-3">Recognized for reducing carbon footprint by 42% across operations while maintaining growth.</p>
+                                        <div class="text-xs text-gray-500 flex items-center">
+                                            <i class="far fa-calendar mr-2"></i>
+                                            <span>Received: May 2023</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Award 2 -->
+                                    <div class="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+                                        <div class="flex items-center mb-3">
+                                            <img src="https://via.placeholder.com/60x60?text=AWARD" class="w-12 h-12 object-contain mr-3" alt="Best Workplace">
+                                            <div>
+                                                <h3 class="font-bold text-gray-800">Best Tech Workplace</h3>
+                                                <div class="flex items-center text-xs text-purple-600">
+                                                    <i class="fas fa-users mr-1"></i>
+                                                    <span>Employee Experience</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="text-gray-600 text-sm mb-3">Ranked #3 in Glassdoor's 2023 Best Places to Work for technology professionals.</p>
+                                        <div class="text-xs text-gray-500 flex items-center">
+                                            <i class="far fa-calendar mr-2"></i>
+                                            <span>Received: March 2023</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Award 3 -->
+                                    <div class="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+                                        <div class="flex items-center mb-3">
+                                            <img src="https://via.placeholder.com/60x60?text=AWARD" class="w-12 h-12 object-contain mr-3" alt="Innovation Prize">
+                                            <div>
+                                                <h3 class="font-bold text-gray-800">Disruptive Innovation</h3>
+                                                <div class="flex items-center text-xs text-blue-600">
+                                                    <i class="fas fa-bolt mr-1"></i>
+                                                    <span>Technology Breakthrough</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="text-gray-600 text-sm mb-3">Won CES 2023 Innovation Award for our next-generation industrial automation solution.</p>
+                                        <div class="text-xs text-gray-500 flex items-center">
+                                            <i class="far fa-calendar mr-2"></i>
+                                            <span>Received: January 2023</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Award Timeline -->
+                        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                            <div class="p-6 border-b border-gray-200">
+                                <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                                    <i class="fas fa-history text-indigo-500 mr-3"></i>
+                                    Award History Timeline
+                                </h2>
+                            </div>
+                            <div class="p-6">
+                                <div class="relative">
+                                    <!-- Timeline line -->
+                                    <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+
+                                    <!-- Timeline items -->
+                                    <div class="space-y-8">
+                                        <!-- 2023 -->
+                                        <div class="relative pl-12">
+                                            <div class="absolute left-0 w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                                                <div class="w-3 h-3 rounded-full bg-indigo-600"></div>
+                                            </div>
+                                            <div class="bg-gray-50 rounded-lg p-4">
+                                                <div class="flex justify-between items-start">
+                                                    <h3 class="font-bold text-gray-800">2023</h3>
+                                                    <span class="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full">6 Awards</span>
+                                                </div>
+                                                <div class="mt-2 space-y-2">
+                                                    <p class="text-sm text-gray-600 flex items-center">
+                                                        <i class="fas fa-trophy text-amber-500 mr-2"></i>
+                                                        <span>Global Tech Excellence Award - AI Category</span>
+                                                    </p>
+                                                    <p class="text-sm text-gray-600 flex items-center">
+                                                        <i class="fas fa-medal text-gray-400 mr-2"></i>
+                                                        <span>Top 100 Most Innovative Companies (Fast Company)</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- 2022 -->
+                                        <div class="relative pl-12">
+                                            <div class="absolute left-0 w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                                                <div class="w-3 h-3 rounded-full bg-indigo-600"></div>
+                                            </div>
+                                            <div class="bg-gray-50 rounded-lg p-4">
+                                                <div class="flex justify-between items-start">
+                                                    <h3 class="font-bold text-gray-800">2022</h3>
+                                                    <span class="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full">4 Awards</span>
+                                                </div>
+                                                <div class="mt-2 space-y-2">
+                                                    <p class="text-sm text-gray-600 flex items-center">
+                                                        <i class="fas fa-award text-blue-500 mr-2"></i>
+                                                        <span>Best Workplace for Diversity (Forbes)</span>
+                                                    </p>
+                                                    <p class="text-sm text-gray-600 flex items-center">
+                                                        <i class="fas fa-leaf text-green-500 mr-2"></i>
+                                                        <span>Environmental Leadership Award</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- 2021 -->
+                                        <div class="relative pl-12">
+                                            <div class="absolute left-0 w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                                                <div class="w-3 h-3 rounded-full bg-indigo-600"></div>
+                                            </div>
+                                            <div class="bg-gray-50 rounded-lg p-4">
+                                                <div class="flex justify-between items-start">
+                                                    <h3 class="font-bold text-gray-800">2021</h3>
+                                                    <span class="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full">3 Awards</span>
+                                                </div>
+                                                <div class="mt-2 space-y-2">
+                                                    <p class="text-sm text-gray-600 flex items-center">
+                                                        <i class="fas fa-trophy text-amber-500 mr-2"></i>
+                                                        <span>Manufacturing Innovation of the Year</span>
+                                                    </p>
+                                                    <p class="text-sm text-gray-600 flex items-center">
+                                                        <i class="fas fa-star text-purple-500 mr-2"></i>
+                                                        <span>First Fortune 500 Listing</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="mt-6 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-sm font-medium w-full">
+                                    Explore Full Award History
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-content-mentorship" data-tab-content="mentorship" class="student-tab-content w-full">
+                        <!-- Mentorship Hero Section -->
+                        <div class="relative bg-gradient-to-br from-teal-900 to-teal-600 rounded-xl shadow-xl overflow-hidden mb-8 h-64 flex items-end">
+                            <div class="absolute inset-0 bg-black/40"></div>
+                            <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f" class="absolute inset-0 w-full h-full object-cover" alt="Mentorship Program">
+                            <div class="relative z-10 px-8 pb-8 w-full">
+                                <h1 class="text-4xl font-bold text-white mb-2">Mentorship Availability</h1>
+                                <p class="text-teal-100 max-w-2xl">Guiding the next generation of professionals through personalized mentorship programs</p>
+                            </div>
+                        </div>
+
+                        <!-- Mentorship Programs Grid -->
+                        <div class="grid md:grid-cols-2 gap-6 mb-8">
+                            <!-- One-on-One Mentoring -->
+                            <div class="bg-white rounded-xl shadow-md overflow-hidden border-l-4 border-blue-500 transform hover:-translate-y-1 transition-transform">
+                                <div class="h-40 overflow-hidden">
+                                    <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf" class="w-full h-full object-cover" alt="One-on-One Mentoring">
+                                </div>
+                                <div class="p-6">
+                                    <div class="flex items-center mb-3">
+                                        <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                            <i class="fas fa-user-friends text-blue-600"></i>
+                                        </div>
+                                        <h2 class="text-xl font-bold text-gray-800">One-on-One Mentoring</h2>
+                                    </div>
+                                    <ul class="space-y-2 text-gray-600 text-sm">
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-blue-500 mt-0.5 mr-2"></i>
+                                            <span>Personalized 1:1 sessions with industry experts</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-blue-500 mt-0.5 mr-2"></i>
+                                            <span>Flexible scheduling (weekly/bi-weekly)</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-blue-500 mt-0.5 mr-2"></i>
+                                            <span>6-month minimum commitment</span>
+                                        </li>
+                                    </ul>
+                                    <div class="mt-4 pt-4 border-t border-gray-100">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm font-medium text-gray-700">Availability:</span>
+                                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">15 Slots Open</span>
+                                        </div>
+                                    </div>
+                                    <button class="mt-4 w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium">
+                                        Apply for Mentorship
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Group Mentorship -->
+                            <div class="bg-white rounded-xl shadow-md overflow-hidden border-l-4 border-purple-500 transform hover:-translate-y-1 transition-transform">
+                                <div class="h-40 overflow-hidden">
+                                    <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902" class="w-full h-full object-cover" alt="Group Mentorship">
+                                </div>
+                                <div class="p-6">
+                                    <div class="flex items-center mb-3">
+                                        <div class="bg-purple-100 p-2 rounded-full mr-3">
+                                            <i class="fas fa-users text-purple-600"></i>
+                                        </div>
+                                        <h2 class="text-xl font-bold text-gray-800">Group Mentorship</h2>
+                                    </div>
+                                    <ul class="space-y-2 text-gray-600 text-sm">
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-purple-500 mt-0.5 mr-2"></i>
+                                            <span>Small group sessions (5-8 mentees)</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-purple-500 mt-0.5 mr-2"></i>
+                                            <span>Thematic monthly workshops</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-purple-500 mt-0.5 mr-2"></i>
+                                            <span>Peer networking opportunities</span>
+                                        </li>
+                                    </ul>
+                                    <div class="mt-4 pt-4 border-t border-gray-100">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm font-medium text-gray-700">Next Cohort:</span>
+                                            <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">Starts June 15</span>
+                                        </div>
+                                    </div>
+                                    <button class="mt-4 w-full py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors text-sm font-medium">
+                                        Join Waiting List
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mentors Availability Section -->
+                        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                            <div class="bg-gray-800 text-white px-6 py-4">
+                                <h2 class="text-xl font-bold">Mentor Availability Calendar</h2>
+                                <p class="text-gray-300 text-sm">View and book sessions with our expert mentors</p>
+                            </div>
+                            <div class="p-6">
+                                <div class="flex flex-col md:flex-row gap-6">
+                                    <!-- Calendar Placeholder -->
+                                    <div class="bg-gray-100 rounded-lg p-4 flex-1 flex items-center justify-center min-h-64">
+                                        <div class="text-center">
+                                            <i class="fas fa-calendar-alt text-gray-400 text-4xl mb-3"></i>
+                                            <p class="text-gray-500">Interactive mentor availability calendar</p>
+                                            <p class="text-gray-400 text-sm mt-1">Color-coded by mentor specialization</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Mentor Specializations -->
+                                    <div class="flex-1">
+                                        <h3 class="font-bold text-gray-800 mb-4">Mentor Specializations</h3>
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div class="flex items-center p-2 bg-blue-50 rounded-lg">
+                                                <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+                                                <span class="text-sm text-gray-700">Technical Leadership</span>
+                                            </div>
+                                            <div class="flex items-center p-2 bg-purple-50 rounded-lg">
+                                                <div class="w-3 h-3 rounded-full bg-purple-500 mr-2"></div>
+                                                <span class="text-sm text-gray-700">Career Growth</span>
+                                            </div>
+                                            <div class="flex items-center p-2 bg-green-50 rounded-lg">
+                                                <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                                                <span class="text-sm text-gray-700">Startup Advice</span>
+                                            </div>
+                                            <div class="flex items-center p-2 bg-amber-50 rounded-lg">
+                                                <div class="w-3 h-3 rounded-full bg-amber-500 mr-2"></div>
+                                                <span class="text-sm text-gray-700">Industry Transition</span>
+                                            </div>
+                                            <div class="flex items-center p-2 bg-red-50 rounded-lg">
+                                                <div class="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                                                <span class="text-sm text-gray-700">Research Guidance</span>
+                                            </div>
+                                            <div class="flex items-center p-2 bg-teal-50 rounded-lg">
+                                                <div class="w-3 h-3 rounded-full bg-teal-500 mr-2"></div>
+                                                <span class="text-sm text-gray-700">Work-Life Balance</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-6">
+                                            <h3 class="font-bold text-gray-800 mb-3">Upcoming Mentor Office Hours</h3>
+                                            <div class="space-y-3">
+                                                <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                                    <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                                                        <i class="fas fa-user-tie text-blue-600"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h4 class="font-medium text-gray-800">Dr. Sarah Chen</h4>
+                                                        <p class="text-xs text-gray-600">May 15 • 2:00-4:00 PM (AI/ML Focus)</p>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                                    <div class="bg-purple-100 p-2 rounded-lg mr-3">
+                                                        <i class="fas fa-chart-line text-purple-600"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h4 class="font-medium text-gray-800">Mark Williams</h4>
+                                                        <p class="text-xs text-gray-600">May 18 • 10:00 AM-12:00 PM (Career Strategy)</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mentorship Stats -->
+                        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                            <div class="p-6 border-b border-gray-200">
+                                <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                                    <i class="fas fa-chart-pie text-teal-500 mr-3"></i>
+                                    Mentorship Impact
+                                </h2>
+                            </div>
+                            <div class="p-6">
+                                <div class="grid md:grid-cols-4 gap-4 text-center">
+                                    <div class="p-4 bg-teal-50 rounded-lg">
+                                        <div class="text-teal-600 font-bold text-3xl mb-1">200+</div>
+                                        <div class="text-xs text-gray-600 font-medium">ACTIVE MENTORSHIP PAIRS</div>
+                                    </div>
+                                    <div class="p-4 bg-blue-50 rounded-lg">
+                                        <div class="text-blue-600 font-bold text-3xl mb-1">85%</div>
+                                        <div class="text-xs text-gray-600 font-medium">CAREER PROGRESSION RATE</div>
+                                    </div>
+                                    <div class="p-4 bg-purple-50 rounded-lg">
+                                        <div class="text-purple-600 font-bold text-3xl mb-1">50</div>
+                                        <div class="text-xs text-gray-600 font-medium">EXPERT MENTORS</div>
+                                    </div>
+                                    <div class="p-4 bg-amber-50 rounded-lg">
+                                        <div class="text-amber-600 font-bold text-3xl mb-1">4.9/5</div>
+                                        <div class="text-xs text-gray-600 font-medium">SATISFACTION RATING</div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-8">
+                                    <h3 class="font-bold text-gray-800 mb-4">Testimonials</h3>
+                                    <div class="grid md:grid-cols-2 gap-4">
+                                        <div class="border border-gray-200 rounded-lg p-4">
+                                            <div class="flex items-center mb-3">
+                                                <img src="https://randomuser.me/api/portraits/women/44.jpg" class="w-10 h-10 rounded-full mr-3" alt="Mentee">
+                                                <div>
+                                                    <h4 class="font-medium text-gray-800">Jessica Tan</h4>
+                                                    <div class="flex text-amber-400 text-xs">
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <p class="text-gray-600 text-sm italic">"My mentor helped me navigate a difficult career transition with practical advice and industry connections I couldn't have accessed otherwise."</p>
+                                        </div>
+                                        <div class="border border-gray-200 rounded-lg p-4">
+                                            <div class="flex items-center mb-3">
+                                                <img src="https://randomuser.me/api/portraits/men/32.jpg" class="w-10 h-10 rounded-full mr-3" alt="Mentee">
+                                                <div>
+                                                    <h4 class="font-medium text-gray-800">Raj Patel</h4>
+                                                    <div class="flex text-amber-400 text-xs">
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <p class="text-gray-600 text-sm italic">"The technical mentorship I received directly contributed to my promotion to lead engineer within 9 months of joining the program."</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Become a Mentor CTA -->
+                        <div class="bg-gradient-to-r from-teal-600 to-teal-800 rounded-xl shadow-md overflow-hidden p-8 text-center">
+                            <h2 class="text-2xl font-bold text-white mb-3">Interested in Becoming a Mentor?</h2>
+                            <p class="text-teal-100 mb-6 max-w-2xl mx-auto">Join our network of industry leaders and help shape the next generation of professionals</p>
+                            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                                <button class="px-6 py-3 bg-white text-teal-700 rounded-md hover:bg-gray-100 transition-colors font-medium">
+                                    Mentor Application
+                                </button>
+                                <button class="px-6 py-3 border border-white text-white rounded-md hover:bg-teal-700 transition-colors font-medium">
+                                    Learn More
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

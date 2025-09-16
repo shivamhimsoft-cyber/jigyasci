@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% block title %}Technologies | Research Collaboration Platform{% endblock %}
+{% block content %}
+
+<div class="max-w-full">
+  <div class="container full-container max-w-full">
+
+    <!-- Add Button -->
+    <div class="flex justify-end mb-4">
+      <button onclick="toggleForm()" 
+              class="bg-green-500 hover:bg-green-600 text-black font-semibold py-2 px-4 rounded shadow">
+        Add Technology
+      </button>
+    </div>
+
+    <!-- Add/Edit Technology Form -->
+    <div id="technology-form" class="hidden">
+      <div class="card mb-6">
+        <div class="card-body">
+          <h5 class="card-title">Add / Edit Technology</h5>
+          <form method="POST" id="technologyForm" class="grid grid-cols-12 gap-4 mt-4">
+            <input type="hidden" name="technology_id" id="technology_id">
+            
+            <div class="col-span-12">
+              <label class="font-semibold block mb-1">Title*</label>
+              <input type="text" name="title" class="form-control py-2" required>
+            </div>
+            
+            <div class="col-span-12">
+              <label class="font-semibold block mb-1">Description</label>
+              <textarea name="description" class="form-control py-2" rows="5"></textarea>
+            </div>
+            
+            <div class="col-span-6">
+              <label class="font-semibold block mb-1">Keywords</label>
+              <input type="text" name="keywords" class="form-control py-2" placeholder="Comma separated keywords">
+            </div>
+            
+            <div class="col-span-3">
+              <label class="font-semibold block mb-1">TRL Level</label>
+              <select name="trl" class="form-control py-2">
+                <option value="">Select TRL</option>
+                {% for i in range(1, 10) %}
+                <option value="{{ i }}">TRL {{ i }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            
+            <div class="col-span-3">
+              <label class="font-semibold block mb-1">IP Status</label>
+              <select name="ip_status" class="form-control py-2">
+                <option value="">Select IP Status</option>
+                <option value="Patent Pending">Patent Pending</option>
+                <option value="Patented">Patented</option>
+                <option value="Trade Secret">Trade Secret</option>
+                <option value="Copyrighted">Copyrighted</option>
+                <option value="Open Source">Open Source</option>
+              </select>
+            </div>
+            
+            <div class="col-span-6">
+              <label class="font-semibold block mb-1">Unique Selling Proposition (USP)</label>
+              <textarea name="usp" class="form-control py-2" rows="3"></textarea>
+            </div>
+            
+            <div class="col-span-6">
+              <label class="font-semibold block mb-1">Target Industries</label>
+              <input type="text" name="target_industries" class="form-control py-2" placeholder="Comma separated industries">
+            </div>
+            
+            <div class="col-span-6">
+              <label class="font-semibold block mb-1">Licensing Intent</label>
+              <select name="licensing_intent" class="form-control py-2">
+                <option value="">Select Licensing Intent</option>
+                <option value="Available for License">Available for License</option>
+                <option value="Seeking Partners">Seeking Partners</option>
+                <option value="Not Currently Available">Not Currently Available</option>
+                <option value="Open Source">Open Source</option>
+              </select>
+            </div>
+            
+            <div class="col-span-12 flex justify-end gap-2 mt-4">
+              <button type="submit" id="submitBtn" class="bg-blue-500 hover:bg-blue-600 text-black font-semibold py-2 px-4 rounded shadow">
+                Save
+              </button>
+              <button type="button" onclick="cancelEdit()" class="btn btn-light-error">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+<!-- Technologies Table -->
+<div class="card">
+  <div class="card-body overflow-auto">
+    <h5 class="card-title">Technologies Portfolio</h5>
+    <div class="overflow-x-auto mt-4">
+      <table class="min-w-full divide-y divide-border dark:divide-darkborder">
+        <thead>
+          <tr>
+            <th class="text-start p-3 ps-0 font-semibold text-dark dark:text-white text-base">#</th>
+            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Title</th>
+            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Description</th>
+            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Keywords</th>
+            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">TRL</th>
+            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">USP</th>
+            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Target Industries</th>
+            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">IP Status</th>
+            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Licensing Intent</th>
+            <!-- <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Created</th>
+            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Updated</th> -->
+            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y">
+          {% for tech in technologies.items %}
+          <tr>
+            <td class="p-3 ps-0 whitespace-nowrap">{{ (technologies.page - 1) * technologies.per_page + loop.index }}</td>
+            <td class="p-3">{{ tech.title }}</td>
+            <td class="p-3">{{ tech.description|truncate(50) }}</td>
+            <td class="p-3">{{ tech.keywords|truncate(30) if tech.keywords else '-' }}</td>
+            <td class="p-3 whitespace-nowrap">
+              <span class="badge bg-lightinfo text-info">
+                TRL {{ tech.trl if tech.trl else '-' }}
+              </span>
+            </td>
+            <td class="p-3">{{ tech.usp|truncate(30) if tech.usp else '-' }}</td>
+            <td class="p-3">{{ tech.target_industries|truncate(30) if tech.target_industries else '-' }}</td>
+            <td class="p-3">{{ tech.ip_status if tech.ip_status else '-' }}</td>
+            <td class="p-3">{{ tech.licensing_intent if tech.licensing_intent else '-' }}</td>
+            <!-- <td class="p-3 whitespace-nowrap">{{ tech.created_at.strftime('%Y-%m-%d') }}</td>
+            <td class="p-3 whitespace-nowrap">{{ tech.updated_at.strftime('%Y-%m-%d') }}</td> -->
+            <td class="p-3 whitespace-nowrap">
+              <div class="hs-dropdown relative inline-flex">
+                <button class="hs-dropdown-toggle h-10 w-10 text-bodytext group bg-hover justify-center items-center rounded-full">
+                  <i class="ti ti-dots-vertical text-lg"></i>
+                </button>
+                <div class="hs-dropdown-menu hidden min-w-40 z-[1]">
+                  <div class="flex flex-col">
+                    <div class="py-1 px-4 bg-hover">
+                      <a class="font-medium flex gap-2 items-center cursor-pointer"
+                          onclick='populateEditForm({
+                            id: {{ tech.id }},
+                            title: `{{ tech.title|e }}`,
+                            description: `{{ tech.description|default("", true)|e }}`,
+                            keywords: `{{ tech.keywords|default("", true)|e }}`,
+                            trl: {{ tech.trl if tech.trl else "null" }},
+                            usp: `{{ tech.usp|default("", true)|e }}`,
+                            target_industries: `{{ tech.target_industries|default("", true)|e }}`,
+                            ip_status: `{{ tech.ip_status|default("", true)|e }}`,
+                            licensing_intent: `{{ tech.licensing_intent|default("", true)|e }}`
+                          })'>
+                        <i class="ti ti-edit text-base"></i>Edit
+                      </a>
+                    </div>
+                    <div class="py-1 px-4 bg-hover">
+                      <form method="POST" action="{{ url_for('pi.delete_technology', id=tech.id) }}"
+                            onsubmit="return confirm('Are you sure you want to delete this technology?');">
+                        <button type="submit" class="font-medium flex gap-2 items-center text-red-600 hover:text-red-800">
+                          <i class="ti ti-trash text-base"></i>Delete
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="12" class="p-3 text-center text-gray-500">No technologies found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+        <!-- Pagination -->
+        <div class="md:flex text-center pt-3 justify-between items-center border-t border-border dark:border-darkborder">
+          <p class="font-medium">
+            Showing {{ technologies.first }} to {{ technologies.last }} of {{ technologies.total }} entries
+          </p>
+          
+          <nav class="flex items-center gap-x-1">
+            {% if technologies.has_prev %}
+              <a href="{{ url_for('technologies', page=technologies.prev_num, per_page=request.args.get('per_page', '10')) }}"
+                class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-hover focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-darklink dark:focus:bg-white/10">
+                <i class="ti ti-chevron-left text-sm leading-tight font-medium"></i>
+                <span class="leading-tight">Previous</span>
+              </a>
+            {% else %}
+              <span class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-gray-200 cursor-not-allowed dark:text-darklink">
+                <i class="ti ti-chevron-left text-sm leading-tight font-medium"></i>
+                <span class="leading-tight">Previous</span>
+              </span>
+            {% endif %}
+            
+            <div class="flex items-center gap-x-1">
+              {% for page_num in technologies.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=3) %}
+                {% if page_num %}
+                  {% if technologies.page == page_num %}
+                    <span class="min-h-[38px] min-w-[38px] flex justify-center items-center text-white bg-primary py-2 px-3 text-sm rounded-lg focus:outline-none"
+                      aria-current="page">{{ page_num }}</span>
+                  {% else %}
+                    <a href="{{ url_for('technologies', page=page_num, per_page=request.args.get('per_page', '10')) }}"
+                      class="min-h-[38px] min-w-[38px] flex justify-center items-center text-dark bg-hover py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-100 dark:text-darklink dark:focus:bg-white/10">
+                      {{ page_num }}
+                    </a>
+                  {% endif %}
+                {% else %}
+                  <span class="min-h-[38px] min-w-[38px] flex justify-center items-center text-dark bg-hover py-2 px-3 text-sm rounded-lg">...</span>
+                {% endif %}
+              {% endfor %}
+            </div>
+            
+            {% if technologies.has_next %}
+              <a href="{{ url_for('technologies', page=technologies.next_num, per_page=request.args.get('per_page', '10')) }}"
+                class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-hover focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-darklink dark:focus:bg-white/10">
+                <span class="leading-tight">Next</span>
+                <i class="ti ti-chevron-right text-sm leading-tight font-medium"></i>
+              </a>
+            {% else %}
+              <span class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-gray-200 cursor-not-allowed dark:text-darklink">
+                <span class="leading-tight">Next</span>
+                <i class="ti ti-chevron-right text-sm leading-tight font-medium"></i>
+              </span>
+            {% endif %}
+          </nav>
+        </div>
+        <!-- End Pagination -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+function toggleForm() {
+  document.getElementById('technology-form').classList.toggle('hidden');
+}
+
+function populateEditForm(tech) {
+  document.getElementById('technology-form').classList.remove('hidden');
+  document.getElementById('technology_id').value = tech.id;
+  document.querySelector('[name="title"]').value = tech.title;
+  document.querySelector('[name="description"]').value = tech.description || '';
+  document.querySelector('[name="keywords"]').value = tech.keywords || '';
+  document.querySelector('[name="trl"]').value = tech.trl || '';
+  document.querySelector('[name="usp"]').value = tech.usp || '';
+  document.querySelector('[name="target_industries"]').value = tech.target_industries || '';
+  document.querySelector('[name="ip_status"]').value = tech.ip_status || '';
+  document.querySelector('[name="licensing_intent"]').value = tech.licensing_intent || '';
+  document.getElementById('submitBtn').textContent = 'Update';
+}
+
+function cancelEdit() {
+  document.getElementById('technology-form').classList.add('hidden');
+  document.getElementById('technologyForm').reset();
+  document.getElementById('technology_id').value = '';
+  document.getElementById('submitBtn').textContent = 'Save';
+}
+</script>
+{% endblock %}

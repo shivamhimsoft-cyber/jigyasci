@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="220995c0-8e96-4547-95f1-3deba4a35946" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/admin/admin_settings/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin/admin_settings/dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/admin/admin_settings/generic_management.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin/admin_settings/generic_management.html" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2xw0NMSCe8jEbLUKBcGcRgnDe2z" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.laravel-idea.search-composer-json&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="220995c0-8e96-4547-95f1-3deba4a35946" name="Changes" comment="" />
+      <created>1748833787778</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1748833787778</updated>
+      <workItem from="1748833791855" duration="902000" />
+      <workItem from="1748922197921" duration="12635000" />
+      <workItem from="1749013089457" duration="407000" />
+      <workItem from="1749034082717" duration="2575000" />
+      <workItem from="1749098205779" duration="341000" />
+      <workItem from="1749109120135" duration="66000" />
+      <workItem from="1749722297436" duration="4864000" />
+      <workItem from="1749790282438" duration="1441000" />
+      <workItem from="1749886009808" duration="4094000" />
+      <workItem from="1750001223592" duration="5729000" />
+      <workItem from="1757069676164" duration="6873000" />
+      <workItem from="1757578952922" duration="8982000" />
+      <workItem from="1757603684511" duration="3734000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

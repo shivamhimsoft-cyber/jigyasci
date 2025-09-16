@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-color-theme="Blue_Theme" class="light selected"
+      data-layout="vertical" data-boxed-layout="boxed" data-card="shadow">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Favicon icon-->
+    <link rel="shortcut icon" type="image/png" href="../static/images/logo-shade_blue.png" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+          rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Orienta&family=Public+Sans:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/assets/css/theme.css" />
+    <title>{% block title %}Research Collaboration Platform{% endblock %}</title>
+
+    <!-- Core Css -->
+    <link rel="stylesheet" href="../static/assets/css/theme.css" />
+    <title>Spike TailwindCSS HTML Admin Template</title>
+</head>
+
+<body class="DEFAULT_THEME bg-lightprimary dark:bg-darkbody">
+<main>
+    <div id="main-wrapper" class="flex ">
+        <div class="flex justify-center overflow-hidden h-full w-full min-h-screen">
+            <div class="auth-login container container-xl relative flex items-center justify-center px-7 rounded-none">
+                <div class="relative z-[1] container">
+                    <div class="card auth-login-wrapper ">
+                        <div class="card-body">
+                            <div class="md:flex justify-around py-8 items-center">
+                                <div class="lg:w-5/12 lg:flex hidden justify-center">
+                                    <img src="../static/images/logo-shade_blue.png" alt="security" class="w-full h-fit">
+                                </div>
+
+<!--                                right side content section here-->
+                                {% block content %}{% endblock %}
+<!--                                right side content secton ends here-->
+                            </div>
+                        </div>
+                        <!----Bottom Shape---->
+                        <div class="absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-error -z-[1]"></div>
+                        <!----Top Shape---->
+                        <img src="../static/assets/images/shaps/shap-login.png" alt="shape" class="absolute h-80 w-80 -right-20 -z-[1] -top-24 ">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="../static/assets/js/theme/app.init.js"></script>
+<script src="../static/assets/js/theme/app.min.js"></script>
+<script src="../static/assets/libs/simplebar/dist/simplebar.min.js"></script>
+<script src="../static/assets/libs/iconify-icon/dist/iconify-icon.min.js"></script>
+<script src="../static/assets/libs/preline/dist/preline.js"></script>
+<script src="../static/assets/libs/_preline/input-number/index.js"></script>
+<script src="https://bootstrapdemos.wrappixel.com/spike-tailwind/dist/assets/libs/_preline/tooltip/index.js"></script>
+<script src="https://bootstrapdemos.wrappixel.com/spike-tailwind/dist/assets/libs/_preline/stepper/index.js"></script>
+
+</body>
+</html>

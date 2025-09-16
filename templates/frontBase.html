@@ -1,0 +1,448 @@
+<!-- \templates\frontBase.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JigyaSci</title>
+    <link rel="icon" type="image/x-icon" href="../static/images/logo-shade_blue.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Roboto:ital,wght@0,100..900;1,100..900&family=WDXL+Lubrifont+TC&display=swap"
+            rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+          integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+    <link rel="stylesheet" type="text/css"
+          href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css"/>
+    <link rel="stylesheet" type="text/css"
+          href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css"/>
+<!--    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>-->
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#444342',
+                        secondary: '#66C0DC',
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+
+
+<body class="bg-[#ffffff]" style="font-family: 'Nunito Sans', sans-serif; ">
+    <div class="w-full  bg-[#ffffff] border-b-[1px] border-b-gray-200 sticky top-0 flex justify-center items-center shadow-md shadow-gray-600/10 z-50">
+            <div class="h-full {% block nav_bar_width %}{% endblock %}   px-4 py-[25px]  gap-4 flex lg:flex-row md:flex-row flex-col lg:justify-between md:justify-between lg:items-center md:items-center items-between">
+                    <div class="lg:hidden md:hidden flex w-full justify-between items-center">
+                        <div><img src="../static/images/logo-shade_blue.png" class="lg:h-[60px] md:h-[60px] h-[50px] w-auto " alt=""></div>
+
+                        <div class="w-max text-lg"
+                             onclick="document.getElementById('navLeft').classList.toggle('hidden');document.getElementById('navLeft').classList.toggle('flex');document.getElementById('navRight').classList.toggle('hidden');document.getElementById('navRight').classList.toggle('flex')">
+                            <i class="fa fa-bars"></i>
+                        </div>
+                    </div>
+
+                    <div id="navLeft" class="gap-6 lg:flex md:flex hidden lg:flex-row md:flex-row flex-col lg:items-center md:items-center items-end">
+                        <div class="lg:flex md:flex hidden">
+                            {% block navbar_extra_profile %}{% endblock %}
+                        </div>
+
+                        {% set nav_links = [
+                            ('index', 'Home'),
+                            ('about', 'About'),
+                            ('contact', 'How It Works')
+                        ] %}
+
+                        <div class="">
+                        {% for route, label in nav_links %}
+                            <a href="{{ url_for(route) }} "
+                            class="relative text-[18px] font-bold mr-6 {% if request.endpoint == route %}text-[#404452] {%else%} text-[#66C0DC] {% endif %}">
+                                {{ label }}
+
+                                <span class="absolute left-0 bottom-0 w-full h-[2px] {% if request.endpoint == route %}bg-[#404452] {%else%} bg-[#ffffff] {% endif %}"></span>
+                            </a>
+                        {% endfor %}
+                        </div>
+                    </div>
+
+                    <div id="navRight" class="gap-4 lg:flex md:flex hidden lg:flex-row md:flex-row flex-col lg:items-center md:items-center items-end">
+
+                         <!-- Bookmark Icon - Only show when user is authenticated -->
+                        {% if current_user.is_authenticated %}
+                        <div class="relative group nav-item">
+                            <a href="{{ url_for('bookmark.my_bookmarks') }}"
+                               class="bg-[#66C0DC] text-[#ffffff] text-[16px] rounded-[50px] px-4 py-3 h-max w-max bg-[#66C0DC] text-[#ffffff] text-[16px] rounded-[50px] border-[2px] border-[#66C0DC] px-12 py-3 h-max w-max hover:bg-[#ffffff] hover:text-[#404452] transition ease-in duration-2000"
+                               title="View my bookmarks">
+                                <i class="fas fa-heart "></i>
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        <div class="relative group">
+                            {% if current_user.is_authenticated %}
+                                {% if current_user.user_type == 'Admin' %}
+                                    <a href="{{ url_for('admin.admin_dashboard') }}"
+                                    class="bg-[#66C0DC] text-[#ffffff] text-[16px] rounded-[50px] px-12 py-3 h-max w-max bg-[#66C0DC] text-[#ffffff] text-[16px] rounded-[50px] border-[2px] border-[#66C0DC] px-12 py-3 h-max w-max hover:bg-[#ffffff] hover:text-[#404452] transition ease-in duration-2000 whitespace-nowrap">
+                                        ADMIN DASHBOARD
+
+                                    </a>
+                                {% elif current_user.user_type == 'PI' %}
+                                    <a href="{{ url_for('pi.faculty_dashboard') }}"
+                                    class="bg-[#66C0DC] text-[#ffffff] text-[16px] rounded-[50px] px-12 py-3 h-max w-max bg-[#66C0DC] text-[#ffffff] text-[16px] rounded-[50px] border-[2px] border-[#66C0DC] px-12 py-3 h-max w-max hover:bg-[#ffffff] hover:text-[#404452] transition ease-in duration-2000 whitespace-nowrap">
+                                        PI DASHBOARD
+
+                                    </a>
+                                {% elif current_user.user_type == 'Student' %}
+                                    <a href="{{ url_for('student.studentProfile') }}"
+                                    class="bg-[#66C0DC] text-[#ffffff] text-[16px] rounded-[50px] px-12 py-3 h-max w-max bg-[#66C0DC] text-[#ffffff] text-[16px] rounded-[50px] border-[2px] border-[#66C0DC] px-12 py-3 h-max w-max hover:bg-[#ffffff] hover:text-[#404452] transition ease-in duration-2000 whitespace-nowrap">
+                                        STUDENT DASHBOARD
+
+                                    </a>
+                                {% elif current_user.user_type == 'Industry' %}
+                                    <a href="{{ url_for('industry.industryProfile') }}"
+                                    class="bg-[#66C0DC] text-[#ffffff] text-[16px] rounded-[50px] px-12 py-3 h-max w-max bg-[#66C0DC] text-[#ffffff] text-[16px] rounded-[50px] border-[2px] border-[#66C0DC] px-12 py-3 h-max w-max hover:bg-[#ffffff] hover:text-[#404452] transition ease-in duration-2000 whitespace-nowrap">
+                                        INDUSTRY DASHBOARD
+
+                                    </a>
+                                {% elif current_user.user_type == 'Vendor' %}
+                                    <a href="{{ url_for('vendor.vendorProfile') }}"
+                                    class="bg-[#66C0DC] text-[#ffffff] text-[16px] rounded-[50px] px-12 py-3 h-max w-max bg-[#66C0DC] text-[#ffffff] text-[16px] rounded-[50px] border-[2px] border-[#66C0DC] px-12 py-3 h-max w-max hover:bg-[#ffffff] hover:text-[#404452] transition ease-in duration-2000 whitespace-nowrap">
+                                        VENDOR DASHBOARD
+
+                                    </a>
+                                {% endif %}
+                            {% else %}
+                                <a href="{{ url_for('auth.login') }}" class="bg-[#66C0DC] text-[#ffffff] text-[16px] rounded-[50px] px-12 py-3 h-max w-max bg-[#66C0DC] text-[#ffffff] text-[16px] rounded-[50px] border-[2px] border-[#66C0DC] px-12 py-3 h-max w-max hover:bg-[#ffffff] hover:text-[#404452] transition ease-in duration-2000 whitespace-nowrap">
+                                    Login/Signup
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        {% block navbar_extra %}{% endblock %}
+                    </div>
+
+            </div>
+    </div>
+
+    <div class="min-h-[calc(100vh-200px)] h-full flex flex-col  pb-32 pt-4">
+        {% block content %}{% endblock %}
+    </div>
+
+    <div class="w-full  bg-[#ffffff] border-t-[1px] border-t-gray-200 lg:fixed md:fixed relative bottom-0 flex justify-center items-center">
+        <div class="h-full {% block footer_width %}{% endblock %}  px-4  py-2  gap-2 flex flex-col items-center justify-center">
+                      <div class="flex justify-between flex-wrap w-full gap-2 ">
+
+                          <div class="flex flex-wrap gap-4">
+                              <a href="mailto:info@email.com" class="font-semibold text-gray-700 ">info@email.com</a>
+                              <a href="tel:+91 0123456789" class="font-semibold text-gray-700 ">+91 0123456789</a>
+                          </div>
+
+                          <div class="flex gap-4">
+                              <a href="" class="text-black font-medium hover:text-[#66c0dc] hover:underline transition ease-in duration-2000"><i class="fa-brands fa-facebook"></i></a>
+                              <a href="" class="text-black font-medium hover:text-[#66c0dc] hover:underline transition ease-in duration-2000"><i class="fa-brands fa-instagram"></i></a>
+                              <a href="" class="text-black font-medium hover:text-[#66c0dc] hover:underline transition ease-in duration-2000"><i class="fa-brands fa-linkedin"></i></a>
+                              <a href="" class="text-black font-medium hover:text-[#66c0dc] hover:underline transition ease-in duration-2000"><i class="fa-brands fa-twitter"></i></a>
+                          </div>
+
+
+                      </div>
+                      <div class="flex justify-between flex-wrap w-full gap-2 ">
+
+                          <div class="flex flex-wrap gap-4">
+                              <a href="javascript:void(0)" class="font-semibold text-gray-700 ">© Copyright 2025. All rights reserved.</a>
+                          </div>
+
+                          <div class="flex gap-4">
+                              <a href="javascript:void(0)" class="text-black font-medium hover:text-[#66c0dc] hover:underline transition ease-in duration-2000">Developed by: <a href="https://himsoftsolution.com" class="text-secondary hover:text-primary transition ease-in duration-2000 font-bold">Him Soft Solution</a></a>
+                          </div>
+                      </div>
+        </div>
+    </div>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        function activateTab(tabName) {
+            // Update buttons
+            tabButtons.forEach(btn => {
+                const isActive = btn.dataset.tab === tabName;
+                btn.classList.toggle('bg-[#66c0dc]/90', isActive);
+                btn.classList.toggle('text-white', isActive);
+                btn.classList.toggle('bg-white', !isActive);
+                btn.classList.toggle('text-[#66c0dc]', !isActive);
+            });
+
+            // Show/hide tab content
+            tabContents.forEach(content => {
+                content.classList.toggle('hidden', content.dataset.tabContent !== tabName);
+            });
+        }
+
+        // Add click listeners
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabName = button.dataset.tab;
+                activateTab(tabName);
+            });
+        });
+        activateTab('profile');
+
+
+
+
+
+        const facultyTabButtons = document.querySelectorAll('.faculty-tab-button');
+        const facultyTabContent = document.querySelectorAll('.faculty-tab-content');
+
+        function facultyActiveTab(tabName) {
+            // Update buttons
+            facultyTabButtons.forEach(btn => {
+                const isActive = btn.dataset.tab === tabName;
+                btn.classList.toggle('bg-[#66c0dc]', isActive);
+                btn.classList.toggle('text-white', isActive);
+                btn.classList.toggle('bg-gray-100', !isActive);
+                btn.classList.toggle('text-[#66c0dc]', !isActive);
+                btn.classList.toggle('border-t-[#66c0dc]/50', !isActive);
+                btn.classList.toggle('border-t-gray-100', isActive);
+
+            });
+
+            // Show/hide tab content
+            facultyTabContent.forEach(content => {
+                content.classList.toggle('hidden', content.dataset.tabContent !== tabName);
+            });
+        }
+
+        // Add click listeners
+        facultyTabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabName = button.dataset.tab;
+                facultyActiveTab(tabName);
+            });
+        });
+
+        // Set default active tab
+        facultyActiveTab('facultyProfile');
+    });
+</script>
+
+<script>
+    // Tab switching functionality
+    document.querySelectorAll('.student-tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons
+            document.querySelectorAll('.student-tab-button').forEach(btn => {
+                btn.classList.remove('bg-[#66c0dc]', 'text-white');
+                btn.classList.add('text-[#66c0dc]');
+            });
+
+            // Add active class to clicked button
+            button.classList.add('bg-[#66c0dc]', 'text-white');
+            button.classList.remove('text-[#66c0dc]');
+
+            // Hide all tab contents
+            document.querySelectorAll('.student-tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Show selected tab content
+            const tabId = button.getAttribute('data-tab');
+            document.querySelector(`#tab-content-${tabId}`).classList.remove('hidden');
+        });
+    });
+
+    // Activate first tab by default
+    document.querySelector('.student-tab-button').click();
+</script>
+<script>
+    $(document).ready(function () {
+        $('.carousel').slick({
+            slidesToShow: 4, // Number of visible slides at a time
+            slidesToScroll: 1,
+            prevArrow: '<button class="slick-prev">Previous</button>',
+            nextArrow: '<button class="slick-next">Next</button>',
+            responsive: [
+                {
+                    breakpoint: 1400,
+                    settings: {
+                        slidesToShow: 3, // Adjust for smaller screens
+                        slidesToScroll: 1
+                    }
+                },
+                {
+                    breakpoint: 768,
+                    settings: {
+                        slidesToShow: 2, // Adjust for smaller screens
+                        slidesToScroll: 1
+                    }
+                },
+                {
+                    breakpoint: 500,
+                    settings: {
+                        slidesToShow: 1, // Adjust for smaller screens
+                        slidesToScroll: 1
+                    }
+                }
+            ]
+        });
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Tab switching functionality
+        document.querySelectorAll('.industry-tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                document.querySelectorAll('.industry-tab-button').forEach(btn => {
+                    btn.classList.remove('bg-[#66c0dc]', 'text-white');
+                    btn.classList.add('text-[#66c0dc]');
+                });
+
+                // Add active class to clicked button
+                button.classList.add('bg-[#66c0dc]', 'text-white');
+                button.classList.remove('text-[#66c0dc]');
+
+                // Hide all tab contents
+                document.querySelectorAll('.student-tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+
+                // Show selected tab content
+                const tabId = button.getAttribute('data-tab');
+                const content = document.querySelector(`#tab-content-${tabId}`);
+                if (content) content.classList.remove('hidden');
+            });
+        });
+
+        // Activate first tab by default
+        const firstTab = document.querySelector('.industry-tab-button');
+        if (firstTab) firstTab.click();
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Tab switching functionality
+        document.querySelectorAll('.vendor-tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                document.querySelectorAll('.vendor-tab-button').forEach(btn => {
+                    btn.classList.remove('bg-[#66c0dc]', 'text-white');
+                    btn.classList.add('text-[#66c0dc]');
+                });
+
+                // Add active class to clicked button
+                button.classList.add('bg-[#66c0dc]', 'text-white');
+                button.classList.remove('text-[#66c0dc]');
+
+                // Hide all tab contents
+                document.querySelectorAll('.student-tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+
+                // Show selected tab content
+                const tabId = button.getAttribute('data-tab');
+                const content = document.querySelector(`#tab-content-${tabId}`);
+                if (content) content.classList.remove('hidden');
+            });
+        });
+
+        // Activate first tab by default
+        const firstTab = document.querySelector('.vendor-tab-button');
+        if (firstTab) firstTab.click();
+    });
+</script>
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    // Predefined random data for publications (2000-2025)
+    var publicationData = [
+        {x: '2016/Q1', y: 95}, {x: '2016/Q2', y: 102}, {x: '2016/Q3', y: 98}, {x: '2016/Q4', y: 105},
+        {x: '2017/Q1', y: 100}, {x: '2017/Q2', y: 108}, {x: '2017/Q3', y: 103}, {x: '2017/Q4', y: 110},
+        {x: '2018/Q1', y: 105}, {x: '2018/Q2', y: 112}, {x: '2018/Q3', y: 108}, {x: '2018/Q4', y: 115},
+        {x: '2019/Q1', y: 110}, {x: '2019/Q2', y: 118}, {x: '2019/Q3', y: 113}, {x: '2019/Q4', y: 120},
+        {x: '2020/Q1', y: 115}, {x: '2020/Q2', y: 122}, {x: '2020/Q3', y: 118}, {x: '2020/Q4', y: 125},
+        {x: '2021/Q1', y: 120}, {x: '2021/Q2', y: 128}, {x: '2021/Q3', y: 123}, {x: '2021/Q4', y: 130},
+        {x: '2022/Q1', y: 125}, {x: '2022/Q2', y: 132}, {x: '2022/Q3', y: 128}, {x: '2022/Q4', y: 135},
+        {x: '2023/Q1', y: 130}, {x: '2023/Q2', y: 138}, {x: '2023/Q3', y: 133}, {x: '2023/Q4', y: 140},
+        {x: '2024/Q1', y: 135}, {x: '2024/Q2', y: 142}, {x: '2024/Q3', y: 138}, {x: '2024/Q4', y: 145},
+        {x: '2025/Q1', y: 140}, {x: '2025/Q2', y: 148}, {x: '2025/Q3', y: 143}, {x: '2025/Q4', y: 150}
+    ];
+
+    var options = {
+        series: [{
+            name: "Publications",
+            data: publicationData
+        }],
+        chart: {
+            type: 'bar',
+            height: 200,
+            toolbar: {
+                show: false
+            }
+        },
+        colors: ['#66c0dc'],
+        plotOptions: {
+            bar: {
+                borderRadius: 0,
+                columnWidth: '80%'
+            }
+        },
+        xaxis: {
+            type: 'category',
+            labels: {
+                formatter: function(val) {
+                    return val.split('/')[1]; // Show just Q1, Q2, etc.
+                }
+            },
+            group: {
+                style: {
+                    fontSize: '10px',
+                    fontWeight: 700
+                },
+                groups: (function() {
+                    // Create groups for each year from 2000 to 2025
+                    const groups = [];
+                    for (let year = 2000; year <= 2025; year++) {
+                        groups.push({ title: year.toString(), cols: 4 });
+                    }
+                    return groups;
+                })()
+            }
+        },
+
+        tooltip: {
+            x: {
+                formatter: function(val) {
+                    return val.replace('/', ' '); // Format as "2000 Q1"
+                }
+            }
+        },
+        dataLabels: {
+            enabled: false
+        }
+    };
+
+    var chart = new ApexCharts(document.querySelector("#chart"), options);
+    chart.render();
+</script>
+</body>
+
+
+</html>

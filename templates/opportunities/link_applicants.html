@@ -1,0 +1,373 @@
+<!-- templates/opportunities/link_applicants.html -->
+{% extends "base.html" %}
+{% block title %}Applicants for {{ opportunity_link.title }} | Research Collaboration Platform{% endblock %}
+{% block content %}
+
+<div class="max-w-full">
+  <div class="container full-container max-w-full">
+    <div class="card">
+      <div class="card-body">
+        <div class="flex justify-between items-center mb-4">
+          <h5 class="card-title">Applicants for "{{ opportunity_link.title }}"</h5>
+          <div class="flex gap-2">
+            {% if current_user.user_type == 'Admin' %}
+            <a href="{{ url_for('admin.admin_opportunities') }}" 
+               class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded shadow transition-colors duration-200">
+              Back to Admin
+            </a>
+            {% else %}
+            <a href="{{ url_for('find_opportunities') }}" 
+               class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded shadow transition-colors duration-200">
+              Back to Opportunities
+            </a>
+            {% endif %}
+          </div>
+        </div>
+        
+        <!-- Opportunity Link Info -->
+        <div class="mb-6 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+          <h6 class="font-semibold mb-2 text-blue-800 dark:text-blue-200">Opportunity Link Details:</h6>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <span class="font-medium">Title:</span> {{ opportunity_link.title or 'Untitled' }}
+            </div>
+            <div>
+              <span class="font-medium">URL:</span> 
+              <a href="{{ opportunity_link.url }}" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline">
+                {{ opportunity_link.url|truncate(40) }}
+                <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+              </a>
+            </div>
+            <div>
+              <span class="font-medium">Description:</span> {{ opportunity_link.description or 'No description' }}
+            </div>
+            <div>
+              <span class="font-medium">Added By:</span> 
+              {% if opportunity_link.added_by_profile %}
+                {{ opportunity_link.added_by_profile.user.email }} ({{ opportunity_link.added_by_profile.profile_type }})
+              {% else %}
+                Unknown
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Status Filter -->
+        <div class="mb-6 bg-gray-50 dark:bg-darkborder p-4 rounded-lg">
+          <h6 class="font-semibold mb-3 text-dark dark:text-white">Filter by Status:</h6>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="filterApplications('all')" 
+                    class="filter-btn bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200"
+                    data-status="all">
+              All (<span class="count-all">{{ applicants|length }}</span>)
+            </button>
+            <button onclick="filterApplications('Pending')" 
+                    class="filter-btn bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200"
+                    data-status="Pending">
+              Pending (<span class="count-Pending">{{ applicants|selectattr('status', 'equalto', 'Pending')|list|length }}</span>)
+            </button>
+            <button onclick="filterApplications('Shortlisted')" 
+                    class="filter-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200"
+                    data-status="Shortlisted">
+              Shortlisted (<span class="count-Shortlisted">{{ applicants|selectattr('status', 'equalto', 'Shortlisted')|list|length }}</span>)
+            </button>
+            <button onclick="filterApplications('Accepted')" 
+                    class="filter-btn bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200"
+                    data-status="Accepted">
+              Accepted (<span class="count-Accepted">{{ applicants|selectattr('status', 'equalto', 'Accepted')|list|length }}</span>)
+            </button>
+            <button onclick="filterApplications('Rejected')" 
+                    class="filter-btn bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200"
+                    data-status="Rejected">
+              Rejected (<span class="count-Rejected">{{ applicants|selectattr('status', 'equalto', 'Rejected')|list|length }}</span>)
+            </button>
+          </div>
+        </div>
+        
+        {% if applicants %}
+        <div class="overflow-x-auto mt-4">
+          <table class="min-w-full divide-y divide-border dark:divide-darkborder">
+            <thead>
+              <tr>
+                <th class="text-start p-3 ps-0 font-semibold text-dark dark:text-white text-base">#</th>
+                <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Applicant</th>
+                <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Email</th>
+                <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Profile Type</th>
+                <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Application Date</th>
+                <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Status</th>
+                <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Documents</th>
+                <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Cover Letter</th>
+                <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Notes</th>
+                <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y" id="applicants-table-body">
+              {% for application in applicants %}
+              <tr class="application-row" data-status="{{ application.status }}">
+                <td class="p-3 ps-0">{{ loop.index }}</td>
+                <td class="p-3">
+                  <a href="{{ url_for('opp_view_profile', profile_id=application.applicant_profile_id) }}" 
+                     class="text-primary hover:underline transition-colors duration-200">
+                    {{ application.applicant_user.email }}
+                  </a>
+                </td>
+                <td class="p-3">{{ application.applicant_user.email }}</td>
+                <td class="p-3">{{ application.applicant_profile.profile_type }}</td>
+                <td class="p-3">{{ application.application_date.strftime('%Y-%m-%d') }}</td>
+                <td class="p-3">
+                  <span class="badge status-badge
+                    {% if application.status == 'Pending' %}bg-lightwarning text-warning
+                    {% elif application.status == 'Accepted' %}bg-lightsuccess text-success
+                    {% elif application.status == 'Shortlisted' %}bg-lightinfo text-info
+                    {% else %}bg-lighterror text-error{% endif %}">
+                    {{ application.status }}
+                  </span>
+                </td>
+
+                <td class="p-3">
+                  <div class="flex flex-col gap-1">
+                    {% if application.resume %}
+                    <a href="{{ url_for('download_application_file', filename=application.resume) }}" 
+                       class="text-xs text-primary hover:underline flex items-center transition-colors duration-200"
+                       title="Download Resume">
+                      <i class="ti ti-file-text mr-1"></i>
+                      Resume
+                    </a>
+                    {% else %}
+                    <span class="text-xs text-gray-500">No resume</span>
+                    {% endif %}
+                    
+                    {% if application.parsed_documents %}
+                      {% for doc in application.parsed_documents %}
+                        <a href="{{ url_for('download_application_file', filename=doc.filename) }}" 
+                           class="text-xs text-primary hover:underline flex items-center transition-colors duration-200"
+                           title="Download {{ doc.name }}">
+                          <i class="ti ti-file mr-1"></i>
+                          {{ doc.name|truncate(20) }}
+                        </a>
+                      {% endfor %}
+                    {% else %}
+                      <span class="text-xs text-gray-500">No additional documents</span>
+                    {% endif %}
+                  </div>
+                </td>
+                
+                <td class="p-3">{{ application.cover_letter|truncate(50) if application.cover_letter else 'No cover letter' }}</td>
+                <td class="p-3">{{ application.notes|truncate(50) if application.notes else 'No notes' }}</td>
+                <td class="p-3 whitespace-nowrap">
+                  <div class="flex flex-wrap gap-2">
+                    <!-- View Profile Button -->
+                    <a href="{{ url_for('opp_view_profile', profile_id=application.applicant_profile_id) }}" 
+                       target="_blank"
+                       class="inline-flex items-center bg-blue-100 hover:bg-blue-200 text-blue-800 font-medium py-1.5 px-3 rounded-lg transition-colors duration-200 shadow-sm">
+                      <i class="ti ti-user-circle mr-1.5"></i>
+                      Profile
+                    </a>
+                    
+                    <!-- Status update dropdown -->
+                    <div class="relative group">
+                      <button class="inline-flex items-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-1.5 px-3 rounded-lg transition-colors duration-200 shadow-sm">
+                        <i class="ti ti-edit-circle mr-1.5"></i>
+                        Status
+                        <i class="ti ti-chevron-down ml-1.5 text-xs"></i>
+                      </button>
+                      
+                      <!-- Dropdown menu -->
+                      <div class="absolute right-0 mt-1 w-48 bg-white dark:bg-dark rounded-md shadow-lg py-1 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-border dark:border-darkborder">
+                        <!-- Shortlist Option -->
+                        <form method="POST" action="{{ url_for('update_link_application_status', application_id=application.id) }}" class="w-full">
+                          <input type="hidden" name="status" value="Shortlisted">
+                          <button type="submit" class="w-full text-left px-4 py-2 text-sm text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/20 flex items-center">
+                            <i class="ti ti-star mr-2"></i>
+                            Shortlist
+                          </button>
+                        </form>
+                        
+                        <!-- Accept Option -->
+                        <form method="POST" action="{{ url_for('update_link_application_status', application_id=application.id) }}" class="w-full">
+                          <input type="hidden" name="status" value="Accepted">
+                          <button type="submit" class="w-full text-left px-4 py-2 text-sm text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20 flex items-center">
+                            <i class="ti ti-check mr-2"></i>
+                            Accept
+                          </button>
+                        </form>
+                        
+                        <!-- Reject Option -->
+                        <form method="POST" action="{{ url_for('update_link_application_status', application_id=application.id) }}" class="w-full">
+                          <input type="hidden" name="status" value="Rejected">
+                          <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center">
+                            <i class="ti ti-x mr-2"></i>
+                            Reject
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                    
+                    <!-- Quick action buttons -->
+                    <div class="hidden md:flex gap-1">
+                      <form method="POST" action="{{ url_for('update_link_application_status', application_id=application.id) }}">
+                        <input type="hidden" name="status" value="Shortlisted">
+                        <button type="submit" class="bg-amber-100 hover:bg-amber-200 text-amber-800 p-1.5 rounded-lg transition-colors duration-200 shadow-sm" title="Shortlist">
+                          <i class="ti ti-star text-sm"></i>
+                        </button>
+                      </form>
+                      <form method="POST" action="{{ url_for('update_link_application_status', application_id=application.id) }}">
+                        <input type="hidden" name="status" value="Accepted">
+                        <button type="submit" class="bg-green-100 hover:bg-green-200 text-green-800 p-1.5 rounded-lg transition-colors duration-200 shadow-sm" title="Accept">
+                          <i class="ti ti-check text-sm"></i>
+                        </button>
+                      </form>
+                      <form method="POST" action="{{ url_for('update_link_application_status', application_id=application.id) }}">
+                        <input type="hidden" name="status" value="Rejected">
+                        <button type="submit" class="bg-red-100 hover:bg-red-200 text-red-800 p-1.5 rounded-lg transition-colors duration-200 shadow-sm" title="Reject">
+                          <i class="ti ti-x text-sm"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-center text-gray-500 py-4">No applicants yet for this opportunity link.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .relative.group:hover .absolute {
+    display: block;
+  }
+  
+  .shadow-sm {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+  
+  .filter-btn.active {
+    transform: scale(1.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+</style>
+
+<script>
+// JavaScript for filtering applications
+let currentFilter = 'all';
+let applicationRows = [];
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  applicationRows = Array.from(document.querySelectorAll('.application-row'));
+  // Set 'All' as active filter initially
+  document.querySelector('.filter-btn').classList.add('active');
+});
+
+function filterApplications(status) {
+  currentFilter = status;
+  
+  // Update active button styling
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  event.target.classList.add('active');
+  
+  // Filter rows
+  applicationRows.forEach(row => {
+    if (status === 'all' || row.getAttribute('data-status') === status) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+  
+  // Update row numbers for visible rows only
+  updateRowNumbers();
+}
+
+function updateRowNumbers() {
+  let visibleRows = applicationRows.filter(row => row.style.display !== 'none');
+  visibleRows.forEach((row, index) => {
+    row.querySelector('td:first-child').textContent = index + 1;
+  });
+}
+
+// Handle form submissions to update status without page reload
+document.querySelectorAll('form[action*="update-link-application-status"]').forEach(form => {
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const url = this.action;
+    
+    fetch(url, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Update the status badge
+        const row = this.closest('.application-row');
+        const statusBadge = row.querySelector('.status-badge');
+        const newStatus = formData.get('status');
+        
+        // Update status attribute for filtering
+        row.setAttribute('data-status', newStatus);
+        
+        // Update badge text and styling
+        statusBadge.textContent = newStatus;
+        statusBadge.className = 'badge status-badge ' + getStatusClass(newStatus);
+        
+        // Update counts dynamically
+        updateCounts();
+
+        // Reapply current filter if needed
+        if (currentFilter !== 'all' && currentFilter !== newStatus) {
+          row.style.display = 'none';
+          updateRowNumbers();
+        }
+      } else {
+        alert('Error updating status: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred while updating the status');
+    });
+  });
+});
+
+function getStatusClass(status) {
+  switch(status) {
+    case 'Pending': return 'bg-lightwarning text-warning';
+    case 'Accepted': return 'bg-lightsuccess text-success';
+    case 'Shortlisted': return 'bg-lightinfo text-info';
+    case 'Rejected': return 'bg-lighterror text-error';
+    default: return 'bg-gray-200 text-gray-700';
+  }
+}
+
+function updateCounts() {
+  // Count all rows
+  const rows = document.querySelectorAll('.application-row');
+  const allCount = rows.length;
+  document.querySelector('.count-all').textContent = allCount;
+
+  // Count by status
+  const statuses = ["Pending", "Shortlisted", "Accepted", "Rejected"];
+  statuses.forEach(status => {
+    const count = document.querySelectorAll(`.application-row[data-status="${status}"]`).length;
+    const countEl = document.querySelector(`.count-${status}`);
+    if (countEl) countEl.textContent = count;
+  });
+}
+</script>
+
+{% endblock %}

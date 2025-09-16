@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Research Opportunities | Research Collaboration Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Research Opportunities</h1>
+        
+        {% if current_user.is_authenticated and current_user.profile and current_user.profile.profile_type in ['PI', 'Industry'] %}
+        <a href="{{ url_for('create_opportunity') }}" class="btn btn-primary">
+            <i class="fas fa-plus-circle me-1"></i> Post New Opportunity
+        </a>
+        {% endif %}
+    </div>
+    
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form action="{{ url_for('list_opportunities') }}" method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="type" class="form-label">Opportunity Type</label>
+                    <select name="type" id="type" class="form-select">
+                        <option value="" {% if not request.args.get('type') %}selected{% endif %}>All Types</option>
+                        <option value="Internship" {% if request.args.get('type') == 'Internship' %}selected{% endif %}>Internship</option>
+                        <option value="PhD" {% if request.args.get('type') == 'PhD' %}selected{% endif %}>PhD Position</option>
+                        <option value="PostDoc" {% if request.args.get('type') == 'PostDoc' %}selected{% endif %}>Post-Doctoral Position</option>
+                        <option value="Job" {% if request.args.get('type') == 'Job' %}selected{% endif %}>Job Opening</option>
+                        <option value="Project" {% if request.args.get('type') == 'Project' %}selected{% endif %}>Research Project</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-outline-primary">Apply Filters</button>
+                    <a href="{{ url_for('list_opportunities') }}" class="btn btn-outline-secondary">Clear Filters</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Opportunities List -->
+    {% if opportunities.items %}
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            {% for opportunity in opportunities.items %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <span class="badge {% if opportunity.type == 'Internship' %}bg-success{% elif opportunity.type == 'PhD' %}bg-primary{% elif opportunity.type == 'PostDoc' %}bg-info{% elif opportunity.type == 'Job' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                {{ opportunity.type }}
+                            </span>
+                            <small class="text-muted">Posted: {{ opportunity.created_at.strftime('%B %d, %Y') }}</small>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ opportunity.title }}</h5>
+                            <p class="card-text text-muted">{{ opportunity.domain }} | {{ opportunity.location }}</p>
+                            <p class="card-text">{{ opportunity.description[:150] }}{% if opportunity.description|length > 150 %}...{% endif %}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    {% if opportunity.deadline %}
+                                    <span class="text-muted"><i class="fas fa-calendar-alt me-1"></i> Deadline: {{ opportunity.deadline.strftime('%b %d, %Y') }}</span>
+                                    {% endif %}
+                                </div>
+                                <a href="{{ url_for('view_opportunity', opportunity_id=opportunity.id) }}" class="btn btn-sm btn-outline-primary">View Details</a>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <small class="text-muted">
+                                {% if opportunity.keywords %}
+                                    {% for keyword in opportunity.keywords.split(',')[:3] %}
+                                        <span class="badge bg-light text-dark me-1">{{ keyword.strip() }}</span>
+                                    {% endfor %}
+                                    {% if opportunity.keywords.split(',')|length > 3 %}
+                                        <span class="badge bg-light text-dark">...</span>
+                                    {% endif %}
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if opportunities.pages > 1 %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if opportunities.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('list_opportunities', page=opportunities.prev_num, type=request.args.get('type', '')) }}">Previous</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for page_num in opportunities.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                        {% if page_num %}
+                            {% if page_num == opportunities.page %}
+                                <li class="page-item active" aria-current="page">
+                                    <a class="page-link" href="#">{{ page_num }}</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('list_opportunities', page=page_num, type=request.args.get('type', '')) }}">{{ page_num }}</a>
+                                </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#">...</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if opportunities.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('list_opportunities', page=opportunities.next_num, type=request.args.get('type', '')) }}">Next</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle me-2"></i>
+            No opportunities found with the current filters. Try adjusting your search or check back later.
+        </div>
+    {% endif %}
+    
+    <!-- Information Cards -->
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-graduate fa-3x mb-3 text-primary"></i>
+                    <h5 class="card-title">For Students</h5>
+                    <p class="card-text">Browse through diverse research opportunities to find the perfect match for your academic journey.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-microscope fa-3x mb-3 text-success"></i>
+                    <h5 class="card-title">For PIs & Lab Directors</h5>
+                    <p class="card-text">Post opportunities to attract talented students and researchers to your lab.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-building fa-3x mb-3 text-info"></i>
+                    <h5 class="card-title">For Industry</h5>
+                    <p class="card-text">Post challenges, find academic collaborators, and recruit research talent.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

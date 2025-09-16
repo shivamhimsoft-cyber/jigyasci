@@ -1,0 +1,640 @@
+<!-- templates\partials\search_results.html -->
+<!-- <div id="tab-data" data-active-tab="{{ (active_tab or '').replace(' ', '-') }}"></div> -->
+
+
+<!-- PI Profile Results -->
+<div id="tab-content-PI-profile" class="tab-content w-full flex flex-col gap-4 mt-4 {% if active_tab != 'PI-profile' %}hidden{% endif %}">
+    {% if profiles and profiles|length > 0 %}
+        <div class="w-full flex">
+            <a href="{{ url_for('pi.faculty_full_table', query=query) }}" class="px-4 py-1 rounded-full bg-primary/70 text-secondary font-semibold border-[2px] border-primary/60 hover:bg-primary/70 hover:border-secondary/50 transition ease-in duration-2000">
+                View Full Table
+            </a>
+        </div>
+
+        <div class="w-full flex flex-col gap-4" id="pi-profiles-container">
+            {% for profile in profiles %}
+            {% set pi = profile.pi_profile %}
+            {% if pi %}
+            <div class="w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+                <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                    <!-- Profile Image Container -->
+                    <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
+                        <a href="{{ url_for('faculty_info', profile_id=profile.id) }}" class="absolute inset-0 rounded-full overflow-hidden">
+                            <img src="{{ pi.profile_image_url if pi.profile_image_url else url_for('static', filename='images/profile.png') }}"
+                                onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/profile.png') }}';"
+                                class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                alt="{{ pi.name }} Profile Picture">
+                            <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                        </a>
+                    </div>
+
+                    <!-- Profile Details Container -->
+                    <div class="w-full space-y-3">
+                        <!-- Name and Title -->
+                        <div class="space-y-1">
+                            <a href="{{ url_for('faculty_info', profile_id=profile.id) }}"
+                                class="text-secondary text-xl font-bold hover:text-black transition-colors duration-300 inline-block">
+                                <span class="bg-gradient-to-r from-primary/50 to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                    <i class="fas fa-user-circle mr-2 text-secondary"></i>{{ pi.name or 'N/A' }}
+                                </span>
+                            </a>
+                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                <span class="text-gray-700 flex items-center px-2 mt-2">
+                                    <i class="fas fa-briefcase mr-2 text-secondary"></i>
+                                    <span class="font-medium">{{ pi.current_designation or 'N/A' }}</span>
+                                </span>
+                                <span class="text-gray-600 flex items-center">
+                                    <i class="fas fa-university mr-2 text-secondary"></i>
+                                    {{ pi.department or 'N/A' }}
+                                </span>
+                                <span class="text-gray-600 flex items-center">
+                                    <i class="fas fa-building mr-2 text-secondary"></i>
+                                    {{ pi.affiliation_short or (pi.affiliation[:20] + '...' if pi.affiliation and pi.affiliation|length > 20 else pi.affiliation) if pi.affiliation else 'N/A'}}
+                                </span>
+                                <span class="text-gray-600 flex items-center">
+                                    <i class="fas fa-map-marker-alt mr-2 text-secondary"></i>
+                                    {{ pi.location or 'N/A' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="w-full flex lg:flex-row items-start gap-4">
+                            <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-secondary w-full">
+                                <p class="text-sm md:text-base text-gray-700">
+                                    <i class="fas fa-search mr-2 text-secondary"></i>
+                                    <span class="font-medium">Research Focus:</span> {{ pi.current_focus or 'N/A' }}
+                                </p>
+                            </div>
+                            <div class="flex justify-end gap-3 flex-none">
+                                <a href="{{ url_for('auth.login') }}"
+                                    class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                    title="Login to view open positions or collaboration opportunities">
+                                    <i class="fas fa-lock group-hover:hidden block mr-2"></i>
+                                    <i class="fas fa-lock-open group-hover:block hidden mr-2"></i>
+                                    <span class="hidden sm:inline">Opportunities</span>
+                                </a>
+                                <a href="{{ url_for('auth.login') }}"
+                                    class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                    title="Login to view open positions or collaboration opportunities">
+                                    <i class="fas fa-lock group-hover:hidden block mr-2"></i>
+                                    <i class="fas fa-lock-open group-hover:block hidden mr-2"></i>
+                                    <span class="hidden sm:inline">Metrics</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Show More Button -->
+        {% if profiles|length >= current_limit %}
+        <div class="w-full flex justify-center mt-4">
+            <button class="show-more-btn px-4 py-2 rounded-md bg-primary text-white font-semibold hover:bg-primary-dark transition"
+                    data-current-limit="{{ current_limit }}">
+                Show More ({{ profiles|length }} shown)
+            </button>
+        </div>
+        {% endif %}
+
+    {% else %}
+        <div class="bg-white rounded-full px-4 py-6">
+            <p class="text-center text-red-600 font-semibold">
+                <i class="fa fa-triangle-exclamation mr-2"></i> No PI profiles found for your search.
+            </p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Student Results -->
+<div id="tab-content-Student" data-tab-content="Student" class="tab-content w-full flex flex-col gap-4 mt-12 {% if active_tab != 'Student' %}hidden{% endif %}">
+    {% if students and students|length > 0 %}
+        <div class="w-full flex flex-col gap-4" id="student-profiles-container">
+            {% for student in students %}
+            <div class="w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+                <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                    <!-- Profile Image Container -->
+                    <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
+                        <div class="absolute inset-0 rounded-full overflow-hidden">
+                            <img src="{{ url_for('static', filename='images/profile.png') }}"
+                                 class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                 alt="{{ student.name }} Profile Picture">
+                            <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Details Container -->
+                    <div class="w-full space-y-3">
+                        <!-- Name and Program -->
+                        <div class="space-y-1">
+                            <span class="text-secondary text-xl font-bold hover:text-black transition-colors duration-300 inline-block">
+                                <span class="bg-gradient-to-r from-primary/50 to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                    <i class="fas fa-user-graduate mr-2 text-secondary"></i>{{ student.name }}
+                                </span>
+                            </span>
+                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                <span class="text-gray-700 flex items-center px-2 mt-2">
+                                    <i class="fas fa-graduation-cap mr-2 text-secondary"></i>
+                                    <span class="font-medium">{{ student.degree_program or 'N/A' }}</span>
+                                </span>
+                                <span class="text-gray-600 flex items-center">
+                                    <i class="fas fa-university mr-2 text-secondary"></i>
+                                    {{ student.affiliation or 'N/A' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="w-full flex lg:flex-row items-start gap-4">
+                            <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-secondary w-full">
+                                <p class="text-sm md:text-base text-gray-700">
+                                    <i class="fas fa-search mr-2 text-secondary"></i>
+                                    <span class="font-medium">Research Interests:</span> {{ student.research_interests or 'Not specified' }}
+                                </p>
+                                <p class="text-sm md:text-base text-gray-700 mt-1">
+                                    <i class="fas fa-tools mr-2 text-secondary"></i>
+                                    <span class="font-medium">Skills:</span> {{ student.skills or 'Not specified' }}
+                                </p>
+                            </div>
+
+                            <div class="flex justify-end gap-3 flex-none">
+                                <a href="{{ url_for('student.student_details', student_id=student.id) }}"
+                                   class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                   title="View full student profile or connect">
+                                    <i class="fas fa-user-plus mr-2 group-hover:hidden block"></i>
+                                    <i class="fas fa-user-check mr-2 group-hover:block hidden"></i>
+                                    <span class="hidden sm:inline">Connect</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Show More Button -->
+        {% if students|length >= current_limit %}
+        <div class="w-full flex justify-center mt-4">
+            <button class="show-more-btn px-4 py-2 rounded-md bg-primary text-white font-semibold hover:bg-primary-dark transition"
+                    data-current-limit="{{ current_limit }}">
+                Show More ({{ students|length }} shown)
+            </button>
+        </div>
+        {% endif %}
+    {% else %}
+        <p class="text-center text-gray-600">No students found for your search.</p>
+    {% endif %}
+</div>
+
+
+<!-- Vendor Results -->
+<div id="tab-content-Vendor" data-tab-content="Vendor" class="tab-content w-full flex flex-col gap-4 mt-12 {% if active_tab != 'Vendor' %}hidden{% endif %}">
+    {% if vendors and vendors|length > 0 %}
+        <div class="w-full flex flex-col gap-4" id="vendor-profiles-container">
+            {% for vendor in vendors %}
+            <div class="w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+                <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                    <!-- Logo Image -->
+                    <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
+                        <a href="{{ url_for('vendor.vendor_profile', vendor_id=vendor.id) }}" class="absolute inset-0 rounded-full overflow-hidden">
+                            <img src="{{ url_for('static', filename='images/profile.png') }}"
+                                 class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                 alt="{{ vendor.company_name }} Logo">
+                            <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                        </a>
+                    </div>
+
+                    <!-- Vendor Details -->
+                    <div class="w-full space-y-3">
+                        <div class="space-y-1">
+                            <a href="{{ url_for('vendor.vendor_profile', vendor_id=vendor.id) }}"
+                               class="text-secondary text-xl font-bold hover:text-black transition-colors duration-300 inline-block">
+                                <span class="bg-gradient-to-r from-primary/50 to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                    <i class="fas fa-store mr-2 text-secondary"></i>{{ vendor.company_name or 'N/A' }}
+                                </span>
+                            </a>
+                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                <span class="text-gray-700 flex items-center px-2 mt-2">
+                                    <i class="fas fa-tags mr-2 text-secondary"></i>
+                                    <span class="font-medium">{{ vendor.dealing_categories or 'N/A' }}</span>
+                                </span>
+                                <span class="text-gray-600 flex items-center">
+                                    <i class="fas fa-globe mr-2 text-secondary"></i>
+                                    {{ vendor.region or 'N/A' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="w-full flex lg:flex-row items-start gap-4">
+                            <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-secondary w-full">
+                                <p class="text-sm md:text-base text-gray-700">
+                                    <i class="fas fa-info-circle mr-2 text-secondary"></i>
+                                    <span class="font-medium">Description:</span> {{ vendor.description or 'Not provided' }}
+                                </p>
+                                <p class="text-sm md:text-base text-gray-700 mt-1">
+                                    <i class="fas fa-boxes mr-2 text-secondary"></i>
+                                    <span class="font-medium">Products/Services:</span> {{ vendor.products_services or 'Not specified' }}
+                                </p>
+                            </div>
+
+                            <div class="flex justify-end gap-3 flex-none">
+                                <a href="{{ url_for('vendor.vendor_profile', vendor_id=vendor.id) }}"
+                                   class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                   title="Contact or view vendor profile">
+                                    <i class="fas fa-envelope-open-text group-hover:hidden block mr-2"></i>
+                                    <i class="fas fa-handshake group-hover:block hidden mr-2"></i>
+                                    <span class="hidden sm:inline">Contact</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Show More Button -->
+        {% if vendors|length >= current_limit %}
+        <div class="w-full flex justify-center mt-4">
+            <button class="show-more-btn px-4 py-2 rounded-md bg-primary text-white font-semibold hover:bg-primary-dark transition"
+                    data-current-limit="{{ current_limit }}">
+                Show More ({{ vendors|length }} shown)
+            </button>
+        </div>
+        {% endif %}
+    {% else %}
+        <p class="text-center text-gray-600">No vendors found for your search.</p>
+    {% endif %}
+</div>
+
+
+<!-- Industry Results -->
+<div id="tab-content-Industry" data-tab-content="Industry" class="tab-content w-full flex flex-col gap-4 mt-12 {% if active_tab != 'Industry' %}hidden{% endif %}">
+    {% if industries and industries|length > 0 %}
+        <div class="w-full flex flex-col gap-4" id="industry-profiles-container">
+            {% for industry in industries %}
+            <div class="w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+                <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                    <!-- Industry Logo Container -->
+                    <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
+                        <a href="{{ url_for('industry.industry_profile', industry_id=industry.id) }}" class="absolute inset-0 rounded-full overflow-hidden">
+                            <img src="{{ url_for('static', filename='images/profile.png') }}"
+                                 class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                 alt="{{ industry.company_name }} Logo">
+                            <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                        </a>
+                    </div>
+
+                    <!-- Industry Details -->
+                    <div class="w-full space-y-3">
+                        <div class="space-y-1">
+                            <a href="{{ url_for('industry.industry_profile', industry_id=industry.id) }}"
+                               class="text-secondary text-xl font-bold hover:text-black transition-colors duration-300 inline-block">
+                                <span class="bg-gradient-to-r from-primary/50 to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                    <i class="fas fa-industry mr-2 text-secondary"></i>{{ industry.company_name or 'N/A' }}
+                                </span>
+                            </a>
+                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                <span class="text-gray-700 flex items-center px-2 mt-2">
+                                    <i class="fas fa-cubes mr-2 text-secondary"></i>
+                                    <span class="font-medium">{{ industry.sector or 'N/A' }}</span>
+                                </span>
+                                <span class="text-gray-600 flex items-center">
+                                    <i class="fas fa-map-marker-alt mr-2 text-secondary"></i>
+                                    {{ industry.region or 'N/A' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="w-full flex lg:flex-row items-start gap-4">
+                            <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-secondary w-full">
+                                <p class="text-sm md:text-base text-gray-700">
+                                    <i class="fas fa-lightbulb mr-2 text-secondary"></i>
+                                    <span class="font-medium">Vision:</span> {{ industry.vision or 'Not provided' }}
+                                </p>
+                                <p class="text-sm md:text-base text-gray-700 mt-1">
+                                    <i class="fas fa-flask mr-2 text-secondary"></i>
+                                    <span class="font-medium">Research Interests:</span> {{ industry.research_interest or 'Not specified' }}
+                                </p>
+                            </div>
+
+                            <div class="flex justify-end gap-3 flex-none">
+                                <a href="{{ url_for('industry.industry_profile', industry_id=industry.id) }}"
+                                   class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                   title="Collaborate or view industry profile">
+                                    <i class="fas fa-handshake group-hover:hidden block mr-2"></i>
+                                    <i class="fas fa-users group-hover:block hidden mr-2"></i>
+                                    <span class="hidden sm:inline">Collaborate</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Show More Button -->
+        {% if industries|length >= current_limit %}
+        <div class="w-full flex justify-center mt-4">
+            <button class="show-more-btn px-4 py-2 rounded-md bg-primary text-white font-semibold hover:bg-primary-dark transition"
+                    data-current-limit="{{ current_limit }}">
+                Show More ({{ industries|length }} shown)
+            </button>
+        </div>
+        {% endif %}
+    {% else %}
+        <p class="text-center text-gray-600">No industries found for your search.</p>
+    {% endif %}
+</div>
+
+
+<!-- Research Facilities Results -->
+<div id="tab-content-Research-Facilities" data-tab-content="Research-Facilities" class="tab-content w-full flex flex-col gap-4 mt-12 {% if active_tab != 'Research-Facilities' %}hidden{% endif %}">
+    {% if facilities and facilities|length > 0 %}
+        <div class="w-full flex flex-col gap-4" id="research-facilities-container">
+            {% for fac in facilities %}
+            <div class="w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+                <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                    <!-- Facility Image/Logo -->
+                    <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
+                        <a href="{{ url_for('faculty_info', profile_id=fac.pi.profile.id) }}" class="absolute inset-0 rounded-full overflow-hidden">
+                            <img src="{{ url_for('static', filename='images/profile.png') }}"
+                                 class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                 alt="{{ fac.equipment_name }} Logo">
+                            <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                        </a>
+                    </div>
+
+                    <!-- Facility Details -->
+                    <div class="w-full space-y-3">
+                        <div class="space-y-1">
+                            <a href="{{ url_for('faculty_info', profile_id=fac.pi.profile.id) }}"
+                               class="text-secondary text-xl font-bold hover:text-black transition-colors duration-300 inline-block">
+                                <span class="bg-gradient-to-r from-primary/50 to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                    <i class="fas fa-microscope mr-2 text-secondary"></i>{{ fac.equipment_name or 'N/A' }}
+                                </span>
+                            </a>
+                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                <span class="text-gray-700 flex items-center px-2 mt-2">
+                                    <i class="fas fa-tools mr-2 text-secondary"></i>
+                                    <span class="font-medium">{{ fac.make or 'N/A' }} - {{ fac.model or 'N/A' }}</span>
+                                </span>
+                                <span class="text-gray-600 flex items-center">
+                                    <i class="fas fa-map-marker-alt mr-2 text-secondary"></i>
+                                    {{ fac.location or 'Location not specified' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="w-full flex lg:flex-row items-start gap-4">
+                            <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-secondary w-full">
+                                <p class="text-sm md:text-base text-gray-700">
+                                    <i class="fas fa-align-left mr-2 text-secondary"></i>
+                                    <span class="font-medium">Description:</span> {{ fac.description or 'Not provided' }}
+                                </p>
+                                <p class="text-sm md:text-base text-gray-700 mt-1">
+                                    <i class="fas fa-check-circle mr-2 text-secondary"></i>
+                                    <span class="font-medium">Status:</span> {{ fac.working_status or 'Unknown' }}
+                                </p>
+                            </div>
+
+                            <div class="flex justify-end gap-3 flex-none">
+                                <a href="{{ url_for('faculty_info', profile_id=fac.pi.profile.id) }}"
+                                   class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                   title="Book this facility">
+                                    <i class="fas fa-calendar-plus group-hover:hidden block mr-2"></i>
+                                    <i class="fas fa-calendar-check group-hover:block hidden mr-2"></i>
+                                    <span class="hidden sm:inline">Book</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Show More Button -->
+        {% if facilities|length >= current_limit %}
+        <div class="w-full flex justify-center mt-4">
+            <button class="show-more-btn px-4 py-2 rounded-md bg-primary text-white font-semibold hover:bg-primary-dark transition"
+                    data-current-limit="{{ current_limit }}">
+                Show More ({{ facilities|length }} shown)
+            </button>
+        </div>
+        {% endif %}
+    {% else %}
+        <p class="text-center text-gray-600">No research facilities found for your search.</p>
+    {% endif %}
+</div>
+
+<!-- Publication Results -->
+<div id="tab-content-Publication" data-tab-content="Publication" class="tab-content w-full flex flex-col gap-4 mt-12 {% if active_tab != 'Publication' %}hidden{% endif %}">
+    {% if publications and publications|length > 0 %}
+        <div class="w-full flex flex-col gap-4" id="publication-container">
+            {% for pub in publications %}
+            <div class="w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+                <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                    <!-- Publication Thumbnail -->
+                    <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
+                        <div class="absolute inset-0 rounded-full overflow-hidden">
+                            <img src="{{ url_for('static', filename='images/profile.png') }}"
+                                 class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                 alt="Publication Image">
+                            <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                        </div>
+                    </div>
+
+                    <!-- Publication Details -->
+                    <div class="w-full space-y-3">
+                        <div class="space-y-1">
+                            <span class="text-secondary text-xl font-bold inline-block bg-gradient-to-r from-primary/50 to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                <i class="fas fa-book-open mr-2 text-secondary"></i>{{ pub.title or 'Untitled' }}
+                            </span>
+                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                <span class="text-gray-700 flex items-center px-2 mt-2">
+                                    <i class="fas fa-calendar-alt mr-2 text-secondary"></i>
+                                    <span class="font-medium">{{ pub.publication_date or 'Date not specified' }}</span>
+                                </span>
+                                <span class="text-gray-600 flex items-center">
+                                    <i class="fas fa-university mr-2 text-secondary"></i>
+                                    {{ pub.journal_or_conference or 'Venue not specified' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="w-full flex lg:flex-row items-start gap-4">
+                            <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-secondary w-full">
+                                <p class="text-sm md:text-base text-gray-700">
+                                    <i class="fas fa-align-left mr-2 text-secondary"></i>
+                                    <span class="font-medium">Abstract:</span> {{ pub.abstract|truncate(200) or 'Not available' }}
+                                </p>
+                                <p class="text-sm md:text-base text-gray-700 mt-1">
+                                    <i class="fas fa-tags mr-2 text-secondary"></i>
+                                    <span class="font-medium">Keywords:</span> {{ pub.keywords or 'Not specified' }}
+                                </p>
+                            </div>
+
+                            <div class="flex justify-end gap-3 flex-none">
+                                {% if pub.profile and pub.profile.user %}
+                                    {% if pub.profile.user.user_type == 'PI' %}
+                                        <a href="{{ url_for('faculty_info', profile_id=pub.profile.id) }}"
+                                           class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                           title="View PI profile">
+                                            <i class="fas fa-user group-hover:hidden block mr-2"></i>
+                                            <i class="fas fa-user-check group-hover:block hidden mr-2"></i>
+                                            <span class="hidden sm:inline">View PI</span>
+                                        </a>
+                                    {% elif pub.profile.user.user_type == 'Student' and pub.profile.student_profile %}
+                                        <a href="{{ url_for('student.student_details', student_id=pub.profile.student_profile.id) }}"
+                                           class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300 group"
+                                           title="View student profile">
+                                            <i class="fas fa-user-graduate group-hover:hidden block mr-2"></i>
+                                            <i class="fas fa-user-check group-hover:block hidden mr-2"></i>
+                                            <span class="hidden sm:inline">View Student</span>
+                                        </a>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-red-500 text-sm">Profile not linked</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Show More Button -->
+        {% if publications|length >= current_limit %}
+        <div class="w-full flex justify-center mt-4">
+            <button class="show-more-btn px-4 py-2 rounded-md bg-primary text-white font-semibold hover:bg-primary-dark transition"
+                    data-current-limit="{{ current_limit }}">
+                Show More ({{ publications|length }} shown)
+            </button>
+        </div>
+        {% endif %}
+    {% else %}
+        <p class="text-center text-gray-600">No publications found for your search.</p>
+    {% endif %}
+</div>
+
+
+<!-- Technologies Results -->
+<div id="tab-content-technologies" data-tab-content="technologies" class="tab-content w-full flex flex-col gap-4 mt-12 {% if active_tab != 'technologies' %}hidden{% endif %}">
+    {% if technologies and technologies|length > 0 %}
+        <div class="w-full flex flex-col gap-4">
+            {% for tech in technologies %}
+            <div class="w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+                <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                    <!-- Technology Icon -->
+                    <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
+                        <div class="absolute inset-0 rounded-full overflow-hidden">
+                            <img src="{{ url_for('static', filename='images/profile.png') }}"
+                                 class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                 alt="Technology Image">
+                            <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                        </div>
+                    </div>
+
+                    <!-- Technology Info -->
+                    <div class="w-full space-y-3">
+                        <div class="space-y-1">
+                            <span class="text-secondary text-xl font-bold inline-block bg-gradient-to-r from-primary/50 to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                <i class="fas fa-cogs mr-2 text-secondary"></i>{{ tech.title or 'Untitled Technology' }}
+                            </span>
+                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                <span class="text-gray-700 flex items-center px-2 mt-2">
+                                    <i class="fas fa-tag mr-2 text-secondary"></i>
+                                    <span class="font-medium">{{ tech.technology_type or 'Type not specified' }}</span>
+                                </span>
+                                <span class="text-gray-600 flex items-center">
+                                    <i class="fas fa-user mr-2 text-secondary"></i>
+                                    {{ tech.owner or 'Owner not specified' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-secondary w-full">
+                            <p class="text-sm md:text-base text-gray-700">
+                                <i class="fas fa-align-left mr-2 text-secondary"></i>
+                                <span class="font-medium">Description:</span> {{ tech.description|truncate(200) or 'Description not available' }}
+                            </p>
+                            <p class="text-sm md:text-base text-gray-700 mt-1">
+                                <i class="fas fa-industry mr-2 text-secondary"></i>
+                                <span class="font-medium">Target Industries:</span> {{ tech.target_industries or 'Not specified' }}
+                            </p>
+                        </div>
+
+                        <div class="flex justify-between items-center flex-wrap">
+                            <div class="flex gap-6 mt-2">
+                                <button class="text-sm text-black flex items-center gap-1 hover:text-primary">
+                                    <i class="fa-regular fa-heart"></i> Like
+                                </button>
+                                <button class="text-sm text-black flex items-center gap-1 hover:text-primary">
+                                    <i class="fa-regular fa-comment"></i> Comment
+                                </button>
+                            </div>
+
+                            <!-- Creator Profile Link -->
+                            <div class="flex justify-end">
+                                {% if tech.creator and tech.creator.user %}
+                                    {% set user_type = tech.creator.user.user_type %}
+                                    {% if user_type == 'PI' %}
+                                        <a href="{{ url_for('faculty_info', profile_id=tech.creator.id) }}"
+                                           class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-white transition-all duration-300 group"
+                                           title="View PI profile">
+                                            <i class="fas fa-user group-hover:mr-2"></i>
+                                            <span>View PI</span>
+                                        </a>
+                                    {% elif user_type == 'Student' and tech.creator.student_profile %}
+                                        <a href="{{ url_for('student.student_details', student_id=tech.creator.student_profile.id) }}"
+                                           class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-white transition-all duration-300 group"
+                                           title="View Student profile">
+                                            <i class="fas fa-user-graduate group-hover:mr-2"></i>
+                                            <span>View Student</span>
+                                        </a>
+                                    {% elif user_type == 'Vendor' and tech.creator.vendor_profile %}
+                                        <a href="{{ url_for('vendor.vendor_profile', vendor_id=tech.creator.vendor_profile.id) }}"
+                                           class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-white transition-all duration-300 group"
+                                           title="View Vendor profile">
+                                            <i class="fas fa-store group-hover:mr-2"></i>
+                                            <span>View Vendor</span>
+                                        </a>
+                                    {% elif user_type == 'Industry' and tech.creator.industry_profile %}
+                                        <a href="{{ url_for('industry.industry_profile', industry_id=tech.creator.industry_profile.id) }}"
+                                           class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-primary hover:text-white transition-all duration-300 group"
+                                           title="View Industry profile">
+                                            <i class="fas fa-industry group-hover:mr-2"></i>
+                                            <span>View Industry</span>
+                                        </a>
+                                    {% else %}
+                                        <span class="text-red-500 text-sm">Profile not found</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-red-500 text-sm">Creator missing</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Show More Button -->
+        {% if technologies|length >= current_limit %}
+        <div class="w-full flex justify-center mt-4">
+            <button class="show-more-btn px-4 py-2 rounded-md bg-primary text-white font-semibold hover:bg-primary-dark transition"
+                    data-current-limit="{{ current_limit }}">
+                Show More ({{ technologies|length }} shown)
+            </button>
+        </div>
+        {% endif %}
+    {% else %}
+        <p class="text-center text-gray-600">No technologies found for your search.</p>
+    {% endif %}
+</div>

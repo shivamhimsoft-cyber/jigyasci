@@ -1,0 +1,1183 @@
+<!-- templates/admin/opportunities.html -->
+{% extends "base.html" %}
+
+<style>
+.hs-dropdown-menu {
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+    transform-origin: top right;
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+}
+
+.hs-dropdown-menu:not(.hidden) {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+/* Prevent flash of unstyled content */
+.hs-dropdown-menu {
+    display: block !important;
+}
+.hs-dropdown-menu.hidden {
+    display: none !important;
+}
+</style>
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Toggle Button Bar -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="flex flex-wrap gap-3">
+                        <!-- View Toggles - Removed All Opportunities button -->
+                        <button onclick="showView('my')" 
+                                class="inline-flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-200 {{ 'bg-indigo-600 text-white shadow' if view_type == 'my' else 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                            <i class="fas fa-user"></i>
+                            My Opportunities
+                        </button>
+
+                        <!-- Action Buttons -->
+                        <button onclick="toggleSection('addForm')" 
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-black font-medium rounded-md shadow transition-all duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
+                            <i class="fas fa-plus"></i>
+                            Add Opportunity
+                        </button>
+
+                        <button onclick="toggleSection('bulkUpload')" 
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-black font-medium rounded-md shadow transition-all duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
+                            <i class="fas fa-upload"></i>
+                            Bulk Upload
+                        </button>
+                        
+                        <button onclick="openAddLinkModal()"
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-black font-medium rounded-md shadow transition-all duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
+                            <i class="fas fa-link"></i>
+                            Add Opportunity Link
+                        </button>
+
+                        <!-- ✅ New Download Template Button -->
+                        <a href="{{ url_for('admin.download_opportunity_template') }}"
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-black font-medium rounded-md shadow transition-all duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
+                            <i class="fas fa-download"></i>
+                            Download Template
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Opportunity Form (Initially Hidden) -->
+            <div id="addForm" class="card mb-4 hidden">
+                <div class="card-header bg-gray-50 border-b-0 flex justify-between items-center">
+                    <h4 class="card-title text-xl font-bold text-gray-800">
+                        <i class="fas fa-plus-circle mr-2 text-green-500"></i>
+                        Add New Opportunity
+                    </h4>
+                    <button onclick="toggleSection('addForm')" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <form id="addOpportunityForm" class="space-y-6">
+                        <!-- Form fields same as before -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Opportunity Type *</label>
+                                <select name="type" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Select Type</option>
+                                    <option value="Internship">Internship</option>
+                                    <option value="PhD">PhD</option>
+                                    <option value="Job">Job</option>
+                                    <option value="PostDoc">PostDoc</option>
+                                    <option value="Project">Project</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Title *</label>
+                                <input type="text" name="title" required 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                       placeholder="Enter opportunity title">
+                            </div>
+
+                            <!-- Add other form fields here -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Domain</label>
+                                <input type="text" name="domain"
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                       placeholder="e.g., Computer Science">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Location</label>
+                                <input type="text" name="location"
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                       placeholder="e.g., Remote, New York">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Deadline</label>
+                                <input type="date" name="deadline"
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Duration</label>
+                                <input type="text" name="duration"
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                       placeholder="e.g., 6 months">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Compensation</label>
+                                <input type="text" name="compensation"
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                       placeholder="e.g., $50,000 per year">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                                <select name="status" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <option value="Active">Active</option>
+                                    <option value="Closed">Closed</option>
+                                    <option value="Filled">Filled</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Eligibility Criteria</label>
+                            <textarea name="eligibility" rows="3"
+                                      class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                      placeholder="Required qualifications..."></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                            <textarea name="description" rows="4"
+                                      class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                      placeholder="Detailed description..."></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Keywords (comma separated)</label>
+                            <input type="text" name="keywords"
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                   placeholder="e.g., machine learning, research">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Advertisement Link</label>
+                            <input type="url" name="advertisement_link"
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                   placeholder="https://example.com/opportunity">
+                        </div>
+
+                        <div class="flex justify-end gap-3 pt-6">
+                            <button type="button" onclick="toggleSection('addForm')"
+                                    class="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium rounded-lg border border-gray-300 hover:bg-gray-50">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                    class="px-6 py-3 bg-green-600 text-black font-medium rounded-lg hover:bg-green-700 flex items-center gap-2">
+                                <i class="fas fa-save"></i>
+                                Create Opportunity
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Bulk Upload Section (Initially Hidden) -->
+            <div id="bulkUpload" class="card mb-4 hidden">
+                <div class="card-header bg-gray-50 border-b-0 flex justify-between items-center">
+                    <h4 class="card-title text-xl font-bold text-gray-800">
+                        <i class="fas fa-upload mr-2 text-purple-500"></i>
+                        Bulk Upload Opportunities
+                    </h4>
+                    <button onclick="toggleSection('bulkUpload')" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="max-w-2xl mx-auto">
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-info-circle text-blue-400"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-blue-700">
+                                        <strong>Supported formats:</strong> CSV, XLSX<br>
+                                        <strong>Required fields:</strong> Title, Type<br>
+                                        <strong>Optional fields:</strong> Domain, Description, Deadline, etc.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form id="bulkUploadForm" class="space-y-6">
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors duration-200" 
+                                 id="dropZone" onclick="document.getElementById('fileInput').click()">
+                                <input type="file" name="file" id="fileInput" class="hidden" accept=".csv,.xlsx,.xls">
+                                
+                                <div class="space-y-3">
+                                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400"></i>
+                                    <div>
+                                        <span class="cursor-pointer text-blue-600 hover:text-blue-800 font-medium">
+                                            Click to upload
+                                        </span>
+                                        <p class="text-sm text-gray-500">or drag and drop</p>
+                                    </div>
+                                    <p class="text-xs text-gray-400">CSV, XLSX up to 10MB</p>
+                                </div>
+                                
+                                <div id="fileName" class="mt-4 text-sm font-medium text-gray-700 hidden"></div>
+                            </div>
+
+                            <div class="flex justify-center">
+                                <button type="submit" 
+                                        class="px-6 py-3 bg-purple-600 text-black font-medium rounded-lg hover:bg-purple-700 flex items-center gap-2">
+                                    <i class="fas fa-upload"></i>
+                                    Upload and Process
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+
+            
+            {% if current_user.user_type == 'Admin' %}
+            <!-- My Opportunities Table -->
+            <div class="card mb-6">
+                <div class="card-header bg-gray-50 border-b-0 flex justify-between items-center">
+                    <h4 class="card-title text-xl font-bold text-gray-800">
+                        <i class="fas fa-briefcase mr-2 text-blue-500"></i>
+                        My Opportunities
+                    </h4>
+                </div>
+                <div class="card-body overflow-auto">
+                    <div class="overflow-x-auto mt-4">
+                    <table class="min-w-full divide-y divide-border dark:divide-darkborder">
+                        <thead>
+                        <tr>
+                            <th class="text-start p-3 ps-0 font-semibold text-dark dark:text-white text-base">#</th>
+                            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Title</th>
+                            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Type</th>
+                            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Domain</th>
+                            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Location</th>
+                            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Deadline</th>
+                            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Duration</th>
+                            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Status</th>
+                            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Created</th>
+                            <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y">
+                        {% for opportunity in opportunities.items %}
+                        <tr>
+                            <td class="p-3 ps-0 whitespace-nowrap">{{ (opportunities.page - 1) * opportunities.per_page + loop.index }}</td>
+                            <td class="p-3 text-dark font-medium">{{ opportunity.title }}</td>
+                            <td class="p-3">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {{ opportunity.type }}
+                            </span>
+                            </td>
+                            <td class="p-3">{{ opportunity.domain or 'N/A' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ opportunity.location or 'N/A' }}</td>
+                            <td class="p-3">
+                            {% if opportunity.deadline %}
+                            <span>{{ opportunity.deadline.strftime('%Y-%m-%d') }}</span>
+                            {% else %}
+                            <span class="text-gray-400">N/A</span>
+                            {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ opportunity.duration or 'N/A' }}</td>
+                            <td class="p-3">
+                            <span class="badge 
+                                {% if opportunity.status == 'Active' %}bg-lightsuccess text-success
+                                {% elif opportunity.status == 'Closed' %}bg-lightwarning text-warning
+                                {% else %}bg-gray-200 text-gray-700{% endif %}">
+                                {{ opportunity.status }}
+                            </span>
+                            </td>
+                            <td class="p-3">{{ opportunity.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td class="p-3 whitespace-nowrap">
+                            <div class="hs-dropdown relative inline-flex">
+                                <button class="hs-dropdown-toggle h-10 w-10 text-bodytext group bg-hover justify-center items-center rounded-full">
+                                <i class="ti ti-dots-vertical text-lg"></i>
+                                </button>
+                                <div class="hs-dropdown-menu transition-[opacity,margin] duration-[0.1ms] hidden min-w-40 bg-white shadow-md rounded-lg p-2 mt-2 z-50">
+                                <div class="flex flex-col">
+
+                                    <!-- Edit Option -->
+                                    <!-- Change the Edit Option to call editOpportunity instead of populateEditForm -->
+                                    <div class="py-1 px-4 bg-hover">
+                                        <a class="font-medium flex gap-2 items-center cursor-pointer"
+                                            onclick="editOpportunity({{ opportunity.id }})">
+                                            <i class="ti ti-edit text-base"></i>Edit
+                                        </a>
+                                    </div>
+                                    <!-- Delete Option -->
+                                    <div class="py-1 px-4 bg-hover">
+                                    <form method="POST" action="{{ url_for('delete_opportunity', id=opportunity.id) }}"
+                                        onsubmit="return confirm('Are you sure you want to delete this opportunity?');">
+                                        <button type="submit" class="font-medium flex gap-2 items-center text-red-600 hover:text-red-800">
+                                        <i class="ti ti-trash text-base"></i>Delete
+                                        </button>
+                                    </form>
+                                    </div>
+
+                                    <!-- View Applicants Option -->
+                                    <div class="py-1 px-4 bg-hover">
+                                    <a href="{{ url_for('opportunity_applicants', opportunity_id=opportunity.id) }}" 
+                                        class="font-medium flex gap-2 items-center text-blue-600 hover:text-blue-800">
+                                        <i class="ti ti-users text-base"></i>View Applicants
+                                    </a>
+                                    </div>
+
+                                </div>
+                                </div>
+                            </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Opportunity Links Table -->
+            <div class="card">
+                <div class="card-header bg-gray-50 border-b-0 flex justify-between items-center">
+                    <h4 class="card-title text-xl font-bold text-gray-800">
+                        <i class="fas fa-link mr-2 text-orange-500"></i>
+                        Opportunity Links
+                    </h4>
+                </div>
+                <div class="card-body overflow-auto">
+                    {% if opportunity_links %}
+                    <div class="overflow-x-auto mt-4">
+                        <table class="min-w-full divide-y divide-border dark:divide-darkborder">
+                            <thead>
+                                <tr>
+                                    <th class="text-start p-3 ps-0 font-semibold text-dark dark:text-white text-base">#</th>
+                                    <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Title</th>
+                                    <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">URL</th>
+                                    <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Description</th>
+                                    <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Added By</th>
+                                    <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Date Added</th>
+                                    <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Status</th>
+                                    <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Applicants</th>
+                                    <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y">
+                                {% for link in opportunity_links %}
+                                <tr>
+                                    <td class="p-3 ps-0 whitespace-nowrap">{{ loop.index }}</td>
+                                    <td class="p-3 text-dark font-medium">{{ link.title or 'Untitled' }}</td>
+                                    <td class="p-3">
+                                        <a href="{{ link.url }}" target="_blank" class="text-blue-600 hover:text-blue-800 break-all">
+                                            {{ link.url|truncate(40) }}
+                                            <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                                        </a>
+                                    </td>
+                                    <td class="p-3">{{ link.description|truncate(50) or 'No description' }}</td>
+                                    <td class="p-3">{{ link.added_by_profile.user.email if link.added_by_profile else 'Unknown' }}</td>
+                                    <td class="p-3">{{ link.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td class="p-3">
+                                        <span class="badge {% if link.is_active %}bg-lightsuccess text-success{% else %}bg-lightdanger text-danger{% endif %}">
+                                            {{ 'Active' if link.is_active else 'Inactive' }}
+                                        </span>
+                                    </td>
+                                    <td class="p-3">
+                                        {% set applicant_count = link.applications|length %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                            {% if applicant_count > 0 %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                            {{ applicant_count }} applicant{% if applicant_count != 1 %}s{% endif %}
+                                        </span>
+                                    </td>
+                                    <td class="p-3 whitespace-nowrap">
+                                        <div class="hs-dropdown relative inline-flex">
+                                            <button class="hs-dropdown-toggle h-10 w-10 text-bodytext group bg-hover justify-center items-center rounded-full">
+                                                <i class="ti ti-dots-vertical text-lg"></i>
+                                            </button>
+                                            <div class="hs-dropdown-menu transition-[opacity,margin] duration-[0.1ms] hidden min-w-40 bg-white shadow-md rounded-lg p-2 mt-2 z-50">
+                                                <div class="flex flex-col">
+                                                    <!-- View Applicants Option -->
+                                                    {% if link.applications|length > 0 %}
+                                                    <div class="py-1 px-4 bg-hover">
+                                                        <a href="{{ url_for('link_applicants', link_id=link.id) }}" 
+                                                        class="font-medium flex gap-2 items-center text-blue-600 hover:text-blue-800">
+                                                            <i class="ti ti-users text-base"></i>View Applicants
+                                                        </a>
+                                                    </div>
+                                                    {% endif %}
+                                                    
+                                                    <!-- Edit Option -->
+                                                    <div class="py-1 px-4 bg-hover">
+                                                        <a class="font-medium flex gap-2 items-center cursor-pointer"
+                                                        onclick='editLink({{ link.id }})'>
+                                                            <i class="ti ti-edit text-base"></i>Edit
+                                                        </a>
+                                                    </div>
+                                                    
+                                                    <!-- Delete Option -->
+                                                    <div class="py-1 px-4 bg-hover">
+                                                        <a class="font-medium flex gap-2 items-center text-red-600 hover:text-red-800 cursor-pointer"
+                                                        onclick='deleteLink({{ link.id }})'>
+                                                            <i class="ti ti-trash text-base"></i>Delete
+                                                        </a>
+                                                    </div>
+                                                    
+                                                    <!-- Toggle Status Option -->
+                                                    <div class="py-1 px-4 bg-hover">
+                                                        <a class="font-medium flex gap-2 items-center {% if link.is_active %}text-orange-600 hover:text-orange-800{% else %}text-green-600 hover:text-green-800{% endif %} cursor-pointer"
+                                                        onclick='toggleLinkStatus({{ link.id }}, {{ not link.is_active|lower }})'>
+                                                            <i class="ti ti-{% if link.is_active %}eye-off{% else %}eye{% endif %} text-base"></i>
+                                                            {{ 'Deactivate' if link.is_active else 'Activate' }}
+                                                        </a>
+                                                    </div>
+                                                    
+                                                    <!-- Copy Link Option -->
+                                                    <div class="py-1 px-4 bg-hover">
+                                                        <a class="font-medium flex gap-2 items-center text-blue-600 hover:text-blue-800 cursor-pointer"
+                                                        onclick='copyLink("{{ link.url }}")'>
+                                                            <i class="ti ti-copy text-base"></i>Copy Link
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-link text-4xl mb-3"></i>
+                        <p>No opportunity links added yet.</p>
+                        <button onclick="openAddLinkModal()" class="mt-4 px-4 py-2 bg-orange-600 text-black rounded-md hover:bg-orange-700">
+                            <i class="fas fa-plus mr-2"></i>Add Your First Link
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+
+
+
+
+
+            <!-- Edit Opportunity Modal -->
+            <div id="editOpportunityModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+                <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+                    <div class="flex justify-between items-center p-6 border-b">
+                        <h3 class="text-xl font-bold text-gray-800">
+                            <i class="fas fa-edit mr-2 text-blue-500"></i>
+                            Edit Opportunity
+                        </h3>
+                        <button type="button" onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="overflow-y-auto flex-1 p-6">
+                        <form id="editOpportunityForm" class="space-y-4">
+                            <input type="hidden" id="edit_id" name="id">
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Opportunity Type *</label>
+                                    <select id="edit_type" name="type" required class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-sm">
+                                        <option value="">Select Type</option>
+                                        <option value="Internship">Internship</option>
+                                        <option value="PhD">PhD</option>
+                                        <option value="Job">Job</option>
+                                        <option value="PostDoc">PostDoc</option>
+                                        <option value="Project">Project</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                                    <input type="text" id="edit_title" name="title" required 
+                                           class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-sm"
+                                           placeholder="Enter opportunity title">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Domain</label>
+                                    <input type="text" id="edit_domain" name="domain"
+                                           class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-sm"
+                                           placeholder="e.g., Computer Science">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                                    <input type="text" id="edit_location" name="location"
+                                           class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-sm"
+                                           placeholder="e.g., Remote, New York">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Deadline</label>
+                                    <input type="date" id="edit_deadline" name="deadline"
+                                           class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-sm">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+                                    <input type="text" id="edit_duration" name="duration"
+                                           class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-sm"
+                                           placeholder="e.g., 6 months">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Compensation</label>
+                                    <input type="text" id="edit_compensation" name="compensation"
+                                           class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-sm"
+                                           placeholder="e.g., $50,000 per year">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                    <select id="edit_status" name="status" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-sm">
+                                        <option value="Active">Active</option>
+                                        <option value="Closed">Closed</option>
+                                        <option value="Filled">Filled</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Eligibility Criteria</label>
+                                <textarea id="edit_eligibility" name="eligibility" rows="2"
+                                          class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-sm"
+                                          placeholder="Required qualifications..."></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea id="edit_description" name="description" rows="3"
+                                          class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-sm"
+                                          placeholder="Detailed description..."></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Keywords (comma separated)</label>
+                                <input type="text" id="edit_keywords" name="keywords"
+                                       class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-sm"
+                                       placeholder="e.g., machine learning, research">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Advertisement Link</label>
+                                <input type="url" id="edit_advertisement_link" name="advertisement_link"
+                                       class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-sm"
+                                       placeholder="https://example.com/opportunity">
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="flex justify-end gap-3 p-6 border-t">
+                        <button type="button" onclick="closeEditModal()"
+                                class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium rounded-md border border-gray-300 hover:bg-gray-50 text-sm">
+                            Cancel
+                        </button>
+                        <button type="button" onclick="submitEditForm()"
+                                class="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 flex items-center gap-2 text-sm">
+                            <i class="fas fa-save"></i>
+                            Update Opportunity
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+
+                    <!-- Edit Link Modal -->
+                    <div id="editLinkModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 mx-4">
+                            <h3 class="text-xl font-bold mb-4">Edit Opportunity Link</h3>
+                            <form id="editLinkForm">
+                                <input type="hidden" id="edit_link_id" name="id">
+                                
+                                <div class="mb-4">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
+                                    <input type="text" id="edit_link_title" name="title" 
+                                        class="w-full p-3 border border-gray-300 rounded-lg"
+                                        placeholder="Enter link title">
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">URL *</label>
+                                    <input type="url" id="edit_link_url" name="url" required
+                                        class="w-full p-3 border border-gray-300 rounded-lg"
+                                        placeholder="https://example.com">
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                                    <textarea id="edit_link_description" name="description" rows="3"
+                                            class="w-full p-3 border border-gray-300 rounded-lg"
+                                            placeholder="Brief description"></textarea>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                                    <select id="edit_link_status" name="is_active" class="w-full p-3 border border-gray-300 rounded-lg">
+                                        <option value="true">Active</option>
+                                        <option value="false">Inactive</option>
+                                    </select>
+                                </div>
+
+                                <div class="flex justify-end gap-3">
+                                    <button type="button" onclick="closeEditLinkModal()" 
+                                            class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
+                                    <button type="submit" 
+                                            class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+
+
+                    
+                    <!-- Pagination -->
+                    {% if opportunities.pages > 1 %}
+                    <div class="mt-6">
+                        <nav class="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
+                            <div class="flex flex-1 w-0">
+                                {% if opportunities.has_prev %}
+                                <a href="{{ url_for('admin.admin_opportunities', page=opportunities.prev_num, view='my') }}" 
+                                   class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    <i class="fas fa-arrow-left mr-2"></i>
+                                    Previous
+                                </a>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="hidden md:flex">
+                                {% for page_num in opportunities.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                                    {% if page_num %}
+                                        {% if page_num == opportunities.page %}
+                                        <a href="{{ url_for('admin.admin_opportunities', page=page_num, view='my') }}" 
+                                           class="inline-flex items-center px-4 py-2 border border-indigo-500 text-sm font-medium text-indigo-600 bg-indigo-50">
+                                            {{ page_num }}
+                                        </a>
+                                        {% else %}
+                                        <a href="{{ url_for('admin.admin_opportunities', page=page_num, view='my') }}" 
+                                           class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                                            {{ page_num }}
+                                        </a>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium text-gray-700">
+                                            ...
+                                        </span>
+                                    {% endif %}
+{% endfor %}
+                            </div>
+                            
+                            <div class="flex flex-1 justify-end w-0">
+                                {% if opportunities.has_next %}
+                                <a href="{{ url_for('admin.admin_opportunities', page=opportunities.next_num, view='my') }}" 
+                                   class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    Next
+                                    <i class="fas fa-arrow-right ml-2"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </nav>
+                    </div>
+                    {% endif %}
+
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}  <!-- Add this line to close the if current_user.user_type == 'Admin' condition -->
+
+    <!-- Include the modal and JavaScript -->
+    {% include 'admin/opportunities_modals.html' %}
+<script>
+// Dropdown management with optimized event handling
+let activeDropdown = null;
+
+// Initialize dropdown functionality
+function initDropdowns() {
+    // Close all dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        if (activeDropdown && !e.target.closest('.hs-dropdown')) {
+            activeDropdown.querySelector('.hs-dropdown-menu').classList.add('hidden');
+            activeDropdown = null;
+        }
+    });
+    
+    // Add click event listeners to all dropdown toggles
+    document.querySelectorAll('.hs-dropdown-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const dropdown = this.closest('.hs-dropdown');
+            const menu = dropdown.querySelector('.hs-dropdown-menu');
+            
+            // Close any currently open dropdown
+            if (activeDropdown && activeDropdown !== dropdown) {
+                activeDropdown.querySelector('.hs-dropdown-menu').classList.add('hidden');
+            }
+            
+            // Toggle current dropdown
+            menu.classList.toggle('hidden');
+            activeDropdown = menu.classList.contains('hidden') ? null : dropdown;
+        });
+    });
+}
+
+// Toggle sections
+function toggleSection(sectionId) {
+    const sections = ['addForm', 'bulkUpload'];
+    sections.forEach(id => {
+        const element = document.getElementById(id);
+        if (id === sectionId) {
+            element.classList.toggle('hidden');
+        } else {
+            element.classList.add('hidden');
+        }
+    });
+}
+
+// Form submissions
+document.getElementById('addOpportunityForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    // Show loading state
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+    submitBtn.disabled = true;
+    
+    try {
+        const response = await fetch('{{ url_for("admin.admin_add_opportunity") }}', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('success', result.message);
+            this.reset();
+            toggleSection('addForm');
+            // Reload the page to show new opportunity
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification('error', result.message);
+        }
+    } catch (error) {
+        showNotification('error', 'Network error: ' + error.message);
+    } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+});
+
+// Bulk upload form
+document.getElementById('bulkUploadForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    const fileInput = document.getElementById('fileInput');
+    
+    if (!fileInput.files.length) {
+        showNotification('error', 'Please select a file to upload');
+        return;
+    }
+    
+    formData.append('file', fileInput.files[0]);
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+    submitBtn.disabled = true;
+    
+    try {
+        const response = await fetch('{{ url_for("admin.admin_bulk_upload_opportunities") }}', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('success', result.message);
+            this.reset();
+            document.getElementById('fileName').classList.add('hidden');
+            toggleSection('bulkUpload');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification('error', result.message);
+        }
+    } catch (error) {
+        showNotification('error', 'Network error: ' + error.message);
+    } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+});
+
+// Delete opportunity
+async function deleteOpportunity(id) {
+    if (!confirm('Are you sure you want to delete this opportunity?')) return;
+    
+    try {
+        const response = await fetch('{{ url_for("admin.admin_delete_opportunity", id=0) }}'.replace('0', id), {
+            method: 'POST'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('success', result.message);
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification('error', result.message);
+        }
+    } catch (error) {
+        showNotification('error', 'Network error: ' + error.message);
+    }
+}
+
+// Notification function
+function showNotification(type, message) {
+    // Create a toast notification
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 p-4 rounded-md shadow-md z-50 ${
+        type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 
+        type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' : 
+        type === 'info' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+        'bg-gray-100 text-gray-800 border border-gray-200'
+    }`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'} mr-2"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    document.body.appendChild(notification);
+    
+    // Remove notification after 3 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 3000);
+}
+
+// Edit opportunity functions
+async function editOpportunity(opportunityId) {
+    try {
+        showNotification('info', 'Loading opportunity data...');
+        
+        const response = await fetch(`/admin/get-opportunity/${opportunityId}`);
+        const result = await response.json();
+        
+        if (result.success) {
+            populateEditForm(result.opportunity);
+            showNotification('success', 'Opportunity data loaded successfully!');
+        } else {
+            showNotification('error', result.message || 'Failed to load opportunity data');
+        }
+    } catch (error) {
+        showNotification('error', 'Network error: ' + error.message);
+    }
+}
+
+// Populate edit form with data
+function populateEditForm(data) {
+    // Set all form fields
+    document.getElementById('edit_id').value = data.id || '';
+    document.getElementById('edit_type').value = data.type || '';
+    document.getElementById('edit_title').value = data.title || '';
+    document.getElementById('edit_domain').value = data.domain || '';
+    document.getElementById('edit_location').value = data.location || '';
+    document.getElementById('edit_deadline').value = data.deadline || '';
+    document.getElementById('edit_duration').value = data.duration || '';
+    document.getElementById('edit_compensation').value = data.compensation || '';
+    document.getElementById('edit_status').value = data.status || 'Active';
+    document.getElementById('edit_eligibility').value = data.eligibility || '';
+    document.getElementById('edit_description').value = data.description || '';
+    document.getElementById('edit_keywords').value = data.keywords || '';
+    document.getElementById('edit_advertisement_link').value = data.advertisement_link || '';
+
+    // Show the modal
+    document.getElementById('editOpportunityModal').classList.remove('hidden');
+}
+
+function closeEditModal() {
+    document.getElementById('editOpportunityModal').classList.add('hidden');
+}
+
+async function submitEditForm() {
+    const form = document.getElementById('editOpportunityForm');
+    const formData = new FormData(form);
+    const submitBtn = document.querySelector('#editOpportunityModal button:last-child');
+    const originalText = submitBtn.innerHTML;
+
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+    submitBtn.disabled = true;
+
+    try {
+        const response = await fetch(`/admin/edit-opportunity/${formData.get('id')}`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showNotification('success', result.message);
+            closeEditModal();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification('error', result.message);
+        }
+    } catch (error) {
+        showNotification('error', 'Network error: ' + error.message);
+    } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+}
+
+// Link management functions
+async function editLink(linkId) {
+    try {
+        const response = await fetch(`/admin/get-opportunity-link/${linkId}`);
+        const result = await response.json();
+        
+        if (result.success) {
+            const link = result.link;
+            document.getElementById('edit_link_id').value = link.id;
+            document.getElementById('edit_link_title').value = link.title || '';
+            document.getElementById('edit_link_url').value = link.url;
+            document.getElementById('edit_link_description').value = link.description || '';
+            document.getElementById('edit_link_status').value = link.is_active.toString();
+            
+            // Show the edit link modal
+            document.getElementById('editLinkModal').classList.remove('hidden');
+        } else {
+            showNotification('error', result.message);
+        }
+    } catch (error) {
+        showNotification('error', 'Network error: ' + error.message);
+    }
+}
+
+function closeEditLinkModal() {
+    document.getElementById('editLinkModal').classList.add('hidden');
+}
+
+// Handle edit link form submission
+document.getElementById('editLinkForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const linkId = document.getElementById('edit_link_id').value;
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    submitBtn.disabled = true;
+
+    try {
+        const response = await fetch(`/admin/edit-opportunity-link/${linkId}`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showNotification('success', result.message);
+            closeEditLinkModal();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification('error', result.message);
+        }
+    } catch (error) {
+        showNotification('error', 'Network error: ' + error.message);
+    } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+});
+
+async function deleteLink(linkId) {
+    if (!confirm('Are you sure you want to delete this link?')) return;
+    
+    try {
+        const response = await fetch(`/admin/delete-opportunity-link/${linkId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('success', result.message);
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification('error', result.message);
+        }
+    } catch (error) {
+        showNotification('error', 'Network error: ' + error.message);
+    }
+}
+
+async function toggleLinkStatus(linkId, newStatus) {
+    try {
+        const response = await fetch(`/admin/toggle-opportunity-link/${linkId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ is_active: newStatus })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('success', result.message);
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification('error', result.message);
+        }
+    } catch (error) {
+        showNotification('error', 'Network error: ' + error.message);
+    }
+}
+
+function copyLink(url) {
+    navigator.clipboard.writeText(url).then(() => {
+        showNotification('success', 'Link copied to clipboard!');
+    }).catch(err => {
+        showNotification('error', 'Failed to copy link: ' + err);
+    });
+}
+
+// File input handling for bulk upload
+document.getElementById('fileInput').addEventListener('change', function(e) {
+    const fileName = document.getElementById('fileName');
+    if (this.files.length > 0) {
+        fileName.textContent = this.files[0].name;
+        fileName.classList.remove('hidden');
+    } else {
+        fileName.classList.add('hidden');
+    }
+});
+
+// Drag and drop functionality for bulk upload
+const dropZone = document.getElementById('dropZone');
+if (dropZone) {
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('border-blue-400', 'bg-blue-50');
+    });
+
+    dropZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('border-blue-400', 'bg-blue-50');
+    });
+
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('border-blue-400', 'bg-blue-50');
+        
+        if (e.dataTransfer.files.length) {
+            const fileInput = document.getElementById('fileInput');
+            fileInput.files = e.dataTransfer.files;
+            
+            const fileName = document.getElementById('fileName');
+            fileName.textContent = e.dataTransfer.files[0].name;
+            fileName.classList.remove('hidden');
+        }
+    });
+}
+
+// Initialize dropdowns when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initDropdowns();
+    
+    // Add debug helper
+    window.debugOpportunity = function(id) {
+        fetch(`/admin/get-opportunity/${id}`)
+            .then(response => response.json())
+            .then(data => console.log('Opportunity data:', data))
+            .catch(error => console.error('Error:', error));
+    };
+});
+
+// Reinitialize dropdowns after AJAX operations or modal closures
+function reinitDropdowns() {
+    // Small delay to ensure DOM is updated
+    setTimeout(initDropdowns, 50);
+}
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,419 @@
+<!-- templates/bookmarks/my_bookmarks.html -->
+{% extends "frontBase.html" %}
+
+{% block title %}Research Collaboration Platform | My Bookmarks{% endblock %}
+{% block navbar_extra_profile %}
+<div><img src="../static/images/logo-shade_blue.png" class="lg:h-[60px] md:h-[60px] h-[50px] w-auto " alt=""></div>
+{% endblock %}
+
+{% block nav_bar_width %}
+lg:w-[70%] md:w-[90%] w-full py-2
+{% endblock %}
+
+{% block footer_width %}
+lg:w-[70%] md:w-[90%] w-full
+{% endblock %}  
+
+{% block content %}
+<div class="w-full flex justify-center p-4 min-h-screen">
+    <div class="lg:w-[70%] md:w-[90%] w-full">
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-bookmark text-secondary mr-2"></i>
+                    My Bookmarks
+                </h1>
+                {% if bookmarks %}
+                <button onclick="clearAllBookmarks()" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm">
+                    <i class="fas fa-trash mr-1"></i> Clear All
+                </button>
+                {% endif %}
+            </div>
+
+            {% if bookmarks %}
+                {% for bookmark_type, items in bookmarks.items() %}
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4 capitalize flex items-center">
+                        <i class="fas fa-{% if bookmark_type == 'profile' %}user{% elif bookmark_type == 'publication' %}file-alt{% elif bookmark_type == 'project' %}list-check{% elif bookmark_type == 'education' %}graduation-cap{% elif bookmark_type == 'experience' %}briefcase{% elif bookmark_type == 'facility' %}flask{% elif bookmark_type == 'technology' %}microchip{% elif bookmark_type == 'skill' %}tools{% elif bookmark_type == 'award' %}trophy{% elif bookmark_type == 'team' %}users{% else %}bookmark{% endif %} mr-2 text-secondary"></i>
+                        {{ bookmark_type }}s ({{ items|length }})
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        {% for bookmark_item in items %}
+                            {% set bookmark = bookmark_item.bookmark %}
+                            {% set item = bookmark_item.item %}
+                            {% set item_type = bookmark_item.type %}
+                            {% set item_title = bookmark_item.title %}
+                            {% set item_description = bookmark_item.description %}
+                            
+                            <div class="border rounded-lg p-4 hover:shadow-md transition-shadow relative">
+                                <button class="bookmark-btn absolute top-3 right-3 p-1.5 rounded-full bg-red-50 text-red-500 hover:bg-red-100 transition-colors remove-bookmark"
+                                        data-type="{{ item_type }}" 
+                                        data-id="{{ item.id }}"
+                                        title="Remove bookmark">
+                                    <i class="fas fa-trash text-sm"></i>
+                                </button>
+                                
+                                {% if item_type == 'profile' %}
+                                    <!-- Profile Bookmark Card -->
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden mr-3">
+                                            {% if item.profile_picture %}
+                                            <img src="{{ url_for('static', filename='uploads/' + item.profile_picture) }}" class="w-full h-full object-cover">
+                                            {% else %}
+                                            <i class="fas fa-user text-gray-500"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-gray-800">{{ item.name }}</h3>
+                                            <p class="text-sm text-gray-600">
+                                                {{ item.current_designation if item.current_designation else 'N/A' }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <a href="{{ url_for('faculty_info', profile_id=item.profile.id) if item.profile else '#' }}" 
+                                           class="text-secondary text-sm hover:underline flex items-center">
+                                            <i class="fas fa-eye mr-1"></i> View Profile
+                                        </a>
+                                    </div>
+                                
+
+
+                                    <!-- templates/bookmarks/my_bookmarks.html - Update the profile section -->
+
+{% elif item_type == 'student' %}
+    <!-- Student Bookmark Card -->
+    <div class="flex items-center mb-3">
+        <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden mr-3">
+            {% if item.profile_picture %}
+            <img src="{{ url_for('static', filename='uploads/' + item.profile_picture) }}" class="w-full h-full object-cover">
+            {% else %}
+            <i class="fas fa-user-graduate text-gray-500"></i>
+            {% endif %}
+        </div>
+        <div>
+            <h3 class="font-bold text-gray-800">{{ item.name }}</h3>
+            <p class="text-sm text-gray-600">Student</p>
+        </div>
+    </div>
+    <div class="mt-3">
+        <a href="{{ url_for('student.student_details', student_id=item.id) if item.id else '#' }}" 
+           class="text-secondary text-sm hover:underline flex items-center">
+            <i class="fas fa-eye mr-1"></i> View Student Profile
+        </a>
+    </div>
+
+{% elif item_type == 'vendor' %}
+    <!-- Vendor Bookmark Card -->
+    <div class="flex items-center mb-3">
+        <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden mr-3">
+            {% if item.profile_picture %}
+            <img src="{{ url_for('static', filename='uploads/' + item.profile_picture) }}" class="w-full h-full object-cover">
+            {% else %}
+            <i class="fas fa-building text-gray-500"></i>
+            {% endif %}
+        </div>
+        <div>
+            <h3 class="font-bold text-gray-800">{{ item.name }}</h3>
+            <p class="text-sm text-gray-600">Vendor</p>
+        </div>
+    </div>
+    <div class="mt-3">
+        <a href="{{ url_for('vendor.vendor_profile', vendor_id=item.id) if item.id else '#' }}" 
+           class="text-secondary text-sm hover:underline flex items-center">
+            <i class="fas fa-eye mr-1"></i> View Vendor Profile
+        </a>
+    </div>
+
+{% elif item_type == 'industry' %}
+    <!-- Industry Bookmark Card -->
+    <div class="flex items-center mb-3">
+        <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden mr-3">
+            {% if item.profile_picture %}
+            <img src="{{ url_for('static', filename='uploads/' + item.profile_picture) }}" class="w-full h-full object-cover">
+            {% else %}
+            <i class="fas fa-industry text-gray-500"></i>
+            {% endif %}
+        </div>
+        <div>
+            <h3 class="font-bold text-gray-800">{{ item.name }}</h3>
+            <p class="text-sm text-gray-600">Industry</p>
+        </div>
+    </div>
+    <div class="mt-3">
+        <a href="{{ url_for('industry.industry_profile', industry_id=item.id) if item.id else '#' }}" 
+           class="text-secondary text-sm hover:underline flex items-center">
+            <i class="fas fa-eye mr-1"></i> View Industry Profile
+        </a>
+    </div>
+
+{% elif item_type == 'technology' %}
+    <!-- Technology Bookmark Card -->
+    <h3 class="font-bold text-gray-800 text-sm mb-2">{{ item.title }}</h3>
+    {% if item.description %}
+    <p class="text-gray-700 text-xs mb-3 line-clamp-2">{{ item.description }}</p>
+    {% endif %}
+    <p class="text-gray-500 text-xs">
+        TRL: {{ item.trl }}/9 | IP: {{ item.ip_status }} | Licensing: {{ item.licensing_intent }}
+    </p>
+    <div class="mt-3">
+        <a href="{{ url_for('technology.view_technology', tech_id=item.id) if item.id else '#' }}" 
+           class="text-secondary text-xs hover:underline flex items-center">
+            <i class="fas fa-eye mr-1"></i> View Technology Details
+        </a>
+    </div>
+
+
+    
+                                {% elif item_type == 'publication' %}
+                                    <!-- Publication Bookmark Card -->
+                                    <h3 class="font-bold text-gray-800 text-sm mb-2">"{{ item.title }}"</h3>
+                                    <p class="text-gray-600 text-xs mb-2">{{ item.authors }}</p>
+                                    <p class="text-gray-600 text-xs mb-3">{{ item.journal_or_conference }} ({{ item.year }})</p>
+                                    {% if item.doi %}
+                                    <div class="mt-3">
+                                        <a href="{{ item.doi }}" target="_blank" class="text-secondary text-xs hover:underline flex items-center">
+                                            <i class="fas fa-external-link-alt mr-1"></i> View Publication
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                
+                                {% elif item_type == 'project' %}
+                                    <!-- Project Bookmark Card -->
+                                    <h3 class="font-bold text-gray-800 text-sm mb-2">{{ item.title }}</h3>
+                                    <p class="text-gray-600 text-xs mb-2">
+                                        Status: <span class="font-medium {% if item.status == 'Active' %}text-green-600{% else %}text-blue-600{% endif %}">
+                                            {{ item.status }}
+                                        </span>
+                                    </p>
+                                    {% if item.description %}
+                                    <p class="text-gray-700 text-xs mb-3 line-clamp-2">{{ item.description }}</p>
+                                    {% endif %}
+                                    <p class="text-xs text-gray-500 mt-2">
+                                        <i class="fas fa-calendar mr-1"></i>
+                                        {{ item.start_date.strftime('%b %Y') if item.start_date else 'N/A' }} - 
+                                        {% if item.end_date %}
+                                            {{ item.end_date.strftime('%b %Y') }}
+                                        {% else %}
+                                            Ongoing
+                                        {% endif %}
+                                    </p>
+                                
+                                {% elif item_type == 'education' %}
+                                    <!-- Education Bookmark Card -->
+                                    <h3 class="font-bold text-gray-800 text-sm mb-2">{{ item.degree_name }}</h3>
+                                    <p class="text-gray-600 text-xs mb-2">{{ item.college }}, {{ item.university }}</p>
+                                    <p class="text-gray-500 text-xs mb-3">
+                                        <i class="fas fa-calendar mr-1"></i>
+                                        {{ item.start_year }} - {% if item.currently_pursuing %}Present{% else %}{{ item.end_year }}{% endif %}
+                                    </p>
+                                
+                                {% elif item_type == 'experience' %}
+                                    <!-- Experience Bookmark Card -->
+                                    <h3 class="font-bold text-gray-800 text-sm mb-2">{{ item.position }}</h3>
+                                    <p class="text-gray-600 text-xs mb-2">{{ item.project_title }}</p>
+                                    <p class="text-gray-500 text-xs mb-3">
+                                        <i class="fas fa-calendar mr-1"></i>
+                                        {{ item.start_date.strftime('%b %Y') if item.start_date else 'N/A' }} - 
+                                        {% if item.currently_working %}Present{% else %}{{ item.end_date.strftime('%b %Y') if item.end_date else 'N/A' }}{% endif %}
+                                    </p>
+                                
+                                {% elif item_type == 'facility' %}
+                                    <!-- Facility Bookmark Card -->
+                                    <h3 class="font-bold text-gray-800 text-sm mb-2">{{ item.equipment_name }}</h3>
+                                    <p class="text-gray-600 text-xs mb-2">{{ item.make }} {{ item.model }}</p>
+                                    <p class="text-gray-500 text-xs mb-3">
+                                        Type: {{ item.equipment_type }} | 
+                                        Status: <span class="{% if item.working_status == 'Working' %}text-green-600{% else %}text-red-600{% endif %}">
+                                            {{ item.working_status }}
+                                        </span>
+                                    </p>
+                                
+                                {% elif item_type == 'technology' %}
+                                    <!-- Technology Bookmark Card -->
+                                    <h3 class="font-bold text-gray-800 text-sm mb-2">{{ item.title }}</h3>
+                                    {% if item.description %}
+                                    <p class="text-gray-700 text-xs mb-3 line-clamp-2">{{ item.description }}</p>
+                                    {% endif %}
+                                    <p class="text-gray-500 text-xs">
+                                        TRL: {{ item.trl }}/9 | IP: {{ item.ip_status }} | Licensing: {{ item.licensing_intent }}
+                                    </p>
+                                
+                                {% elif item_type == 'skill' %}
+                                    <!-- Skill Bookmark Card -->
+                                    <h3 class="font-bold text-gray-800 text-sm mb-2">{{ item.skill_name }}</h3>
+                                    <p class="text-gray-600 text-xs mb-2">{{ item.skill_type }}</p>
+                                    <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                        <div class="bg-secondary h-2 rounded-full" 
+                                             style="width: {% if item.proficiency_level == 'Beginner' %}25%{% elif item.proficiency_level == 'Intermediate' %}50%{% elif item.proficiency_level == 'Advanced' %}75%{% else %}100%{% endif %}">
+                                        </div>
+                                    </div>
+                                    <p class="text-gray-500 text-xs mt-1">{{ item.proficiency_level }}</p>
+                                
+                                {% elif item_type == 'award' %}
+                                    <!-- Award Bookmark Card -->
+                                    <div class="text-center">
+                                        <div class="text-yellow-500 text-3xl mb-2">
+                                            <i class="fas fa-award"></i>
+                                        </div>
+                                        <h3 class="font-bold text-gray-800 text-sm mb-2">{{ item.title }}</h3>
+                                        <p class="text-gray-600 text-xs mb-2">{{ item.issuing_organization }}</p>
+                                        <p class="text-gray-500 text-xs">
+                                            <i class="fas fa-calendar mr-1"></i>
+                                            {{ item.date.strftime('%b %Y') if item.date else 'N/A' }}
+                                        </p>
+                                    </div>
+                                
+                                {% elif item_type == 'team' %}
+                                    <!-- Team Bookmark Card -->
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden mr-3">
+                                            {% if item.student and item.student.profile_picture %}
+                                            <img src="{{ url_for('static', filename='uploads/' + item.student.profile_picture) }}" class="w-full h-full object-cover">
+                                            {% else %}
+                                            <i class="fas fa-user text-gray-500"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-gray-800 text-sm">
+                                                {% if item.student %}
+                                                    {{ item.student.name }}
+                                                {% else %}
+                                                    {{ item.name }}
+                                                {% endif %}
+                                            </h3>
+                                            <p class="text-gray-600 text-xs">{{ item.position }}</p>
+                                            <p class="text-gray-500 text-xs">
+                                                <span class="{% if item.status == 'Current' %}text-green-600{% else %}text-gray-600{% endif %}">
+                                                    {{ item.status }}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                
+                                {% else %}
+                                    <!-- Generic Bookmark Card -->
+                                    <h3 class="font-bold text-gray-800 text-sm mb-2">
+                                        {{ item_title }}
+                                    </h3>
+                                    {% if item_description %}
+                                    <p class="text-gray-700 text-xs mb-3 line-clamp-3">{{ item_description }}</p>
+                                    {% endif %}
+                                {% endif %}
+                                
+                                <div class="mt-3 pt-2 border-t border-gray-100">
+                                    <p class="text-xs text-gray-400">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        Bookmarked on {{ bookmark.created_at.strftime('%b %d, %Y') }}
+                                    </p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-bookmark text-gray-300 text-4xl mb-4"></i>
+                    <p class="text-gray-500">You haven't bookmarked any items yet.</p>
+                    <p class="text-gray-400 text-sm mt-2">Start exploring and bookmark items that interest you!</p>
+                    <a href="{{ url_for('index') }}" class="inline-block mt-4 px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary-dark transition-colors">
+                        <i class="fas fa-search mr-1"></i> Explore Content
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Remove bookmark functionality
+    document.querySelectorAll('.remove-bookmark').forEach(button => {
+        button.addEventListener('click', function() {
+            const bookmarkType = this.dataset.type;
+            const itemId = this.dataset.id;
+            
+            fetch(`/bookmark/${bookmarkType}/${itemId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.closest('.border').remove();
+                    showNotification('Bookmark removed successfully', 'success');
+                    
+                    // Reload the page if no bookmarks left in this category
+                    setTimeout(() => {
+                        if (document.querySelectorAll('.border').length === 0) {
+                            window.location.reload();
+                        }
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error removing bookmark', 'error');
+            });
+        });
+    });
+    
+    function showNotification(message, type) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-transform transform translate-x-full ${type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'} text-white`;
+        notification.textContent = message;
+        
+        // Add to document
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+            notification.classList.add('translate-x-0');
+        }, 10);
+        
+        // Remove after delay
+        setTimeout(() => {
+            notification.classList.remove('translate-x-0');
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+});
+
+function clearAllBookmarks() {
+    if (confirm('Are you sure you want to clear all bookmarks? This action cannot be undone.')) {
+        fetch('/bookmarks/clear', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('All bookmarks cleared successfully', 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                showNotification('Error clearing bookmarks: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error clearing bookmarks', 'error');
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}{{ opportunity.title }} | Research Collaboration Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Opportunity Details -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="badge {% if opportunity.type == 'Internship' %}bg-success{% elif opportunity.type == 'PhD' %}bg-primary{% elif opportunity.type == 'PostDoc' %}bg-info{% elif opportunity.type == 'Job' %}bg-warning{% else %}bg-secondary{% endif %} fs-6">
+                        {{ opportunity.type }}
+                    </span>
+                    <div>
+                        {% if opportunity.deadline %}
+                        <span class="badge bg-danger">Deadline: {{ opportunity.deadline.strftime('%b %d, %Y') }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="card-title mb-3">{{ opportunity.title }}</h2>
+                    
+                    <div class="mb-4">
+                        <p class="text-muted">
+                            <i class="fas fa-flask me-1"></i> <strong>Domain:</strong> {{ opportunity.domain }}<br>
+                            <i class="fas fa-map-marker-alt me-1"></i> <strong>Location:</strong> {{ opportunity.location }}<br>
+                            <i class="fas fa-calendar-day me-1"></i> <strong>Duration:</strong> {{ opportunity.duration }}<br>
+                            {% if opportunity.compensation %}
+                            <i class="fas fa-money-bill-wave me-1"></i> <strong>Compensation:</strong> {{ opportunity.compensation }}<br>
+                            {% endif %}
+                            <i class="fas fa-clock me-1"></i> <strong>Posted:</strong> {{ opportunity.created_at.strftime('%B %d, %Y') }}
+                        </p>
+                    </div>
+                    
+                    <h5><i class="fas fa-file-alt me-2"></i>Description</h5>
+                    <div class="mb-4">
+                        <p>{{ opportunity.description|nl2br }}</p>
+                    </div>
+                    
+                    <h5><i class="fas fa-user-check me-2"></i>Eligibility Criteria</h5>
+                    <div class="mb-4">
+                        <p>{{ opportunity.eligibility|nl2br }}</p>
+                    </div>
+                    
+                    {% if opportunity.keywords %}
+                    <h5><i class="fas fa-tags me-2"></i>Keywords</h5>
+                    <div class="mb-4">
+                        {% for keyword in opportunity.keywords.split(',') %}
+                            <span class="badge bg-light text-dark me-2 mb-2">{{ keyword.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2">
+                        {% if current_user.is_authenticated and current_user.profile.profile_type == 'Student' %}
+                            {% if has_applied %}
+                                <button class="btn btn-success" disabled>
+                                    <i class="fas fa-check-circle me-1"></i> Application Submitted
+                                </button>
+                            {% else %}
+                                <form action="{{ url_for('apply_opportunity', opportunity_id=opportunity.id) }}" method="post">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-paper-plane me-1"></i> Apply Now
+                                    </button>
+                                </form>
+                            {% endif %}
+                        {% elif not current_user.is_authenticated %}
+                            <a href="{{ url_for('login', next=url_for('view_opportunity', opportunity_id=opportunity.id)) }}" class="btn btn-outline-primary">
+                                <i class="fas fa-sign-in-alt me-1"></i> Login to Apply
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Related Opportunities -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>Similar Opportunities</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% set related_opportunities = similar_opportunities if similar_opportunities is defined else [] %}
+                        {% if related_opportunities %}
+                            {% for related in related_opportunities %}
+                                <a href="{{ url_for('view_opportunity', opportunity_id=related.id) }}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ related.title }}</h6>
+                                        <small class="text-muted">{{ related.type }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ related.domain }}</p>
+                                    <small class="text-muted">{{ related.location }}</small>
+                                </a>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">No similar opportunities found at the moment.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Creator Profile -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Posted By</h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if creator_profile.profile_type == 'PI' %}
+                        {% set specific_profile = creator_profile.pi_profile %}
+                        <div class="mb-3">
+                            {% if specific_profile.profile_picture %}
+                            <img src="{{ specific_profile.profile_picture }}" class="rounded-circle img-fluid" style="width: 100px; height: 100px; object-fit: cover;" alt="Profile Picture">
+                            {% else %}
+                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto" style="width: 100px; height: 100px;">
+                                <i class="fas fa-microscope fa-3x text-white"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <h5>{{ specific_profile.name or 'PI/Lab Director' }}</h5>
+                        <p class="text-muted">{{ specific_profile.department or '' }} | {{ specific_profile.affiliation or '' }}</p>
+                    {% elif creator_profile.profile_type == 'Industry' %}
+                        {% set specific_profile = creator_profile.industry_profile %}
+                        <div class="mb-3">
+                            {% if specific_profile.logo %}
+                            <img src="{{ specific_profile.logo }}" class="img-fluid" style="max-height: 100px;" alt="Company Logo">
+                            {% else %}
+                            <div class="bg-secondary d-flex align-items-center justify-content-center mx-auto" style="width: 100px; height: 100px;">
+                                <i class="fas fa-building fa-3x text-white"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <h5>{{ specific_profile.company_name or 'Industry Partner' }}</h5>
+                        <p class="text-muted">{{ specific_profile.sector or '' }}</p>
+                    {% endif %}
+                    
+                    <div class="mt-3">
+                        <a href="{{ url_for('view_profile', user_id=creator_user.id) }}" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="fas fa-user me-1"></i> View Profile
+                        </a>
+                        <a href="{{ url_for('conversation', user_id=creator_user.id) }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-envelope me-1"></i> Contact
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Application Tips -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Application Tips</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Review eligibility criteria carefully
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Highlight relevant skills and experience
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Research the lab/organization beforehand
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Explain your interest in this specific opportunity
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Prepare for potential interviews
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Share -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-share-alt me-2"></i>Share This Opportunity</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="d-flex justify-content-around fs-4">
+                        <a href="#" class="text-primary" onclick="shareOnSocial('linkedin')"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-info" onclick="shareOnSocial('twitter')"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-success" onclick="shareOnSocial('whatsapp')"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" class="text-secondary" onclick="copyLink()"><i class="fas fa-link"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    function shareOnSocial(platform) {
+        const url = encodeURIComponent(window.location.href);
+        const title = encodeURIComponent('{{ opportunity.title }}');
+        const text = encodeURIComponent('Check out this research opportunity: {{ opportunity.title }}');
+        
+        let shareUrl = '';
+        
+        if (platform === 'linkedin') {
+            shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+        } else if (platform === 'twitter') {
+            shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
+        } else if (platform === 'whatsapp') {
+            shareUrl = `https://api.whatsapp.com/send?text=${text}%20${url}`;
+        }
+        
+        if (shareUrl) {
+            window.open(shareUrl, '_blank');
+        }
+        
+        return false;
+    }
+    
+    function copyLink() {
+        const el = document.createElement('textarea');
+        el.value = window.location.href;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        
+        alert('Link copied to clipboard!');
+        return false;
+    }
+</script>
+{% endblock %}
+{% endblock %}

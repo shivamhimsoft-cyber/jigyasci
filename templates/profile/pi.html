@@ -1,0 +1,151 @@
+
+
+{% extends "base.html" %}
+
+{% block title %}{{ specific_profile.name or 'PI Profile' }} | Research Collaboration Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    {% if specific_profile.profile_picture %}
+                    <img src="{{ specific_profile.profile_picture }}" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover;" alt="Profile Picture">
+                    {% else %}
+                    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 150px; height: 150px;">
+                        <i class="fas fa-microscope fa-4x text-white"></i>
+                    </div>
+                    {% endif %}
+                    <h3 class="card-title">{{ specific_profile.name or 'Name Not Provided' }}</h3>
+                    <p class="text-muted">{{ specific_profile.current_designation or 'Principal Investigator' }}</p>
+                    <p><i class="fas fa-university me-2"></i>{{ specific_profile.department or 'Department' }} | {{ specific_profile.affiliation or 'Affiliation Not Provided' }}</p>
+                    
+                    {% if current_user.is_authenticated and current_user.id == user.id %}
+                    <a href="{{ url_for('edit_profile') }}" class="btn btn-primary btn-sm"><i class="fas fa-edit me-1"></i> Edit Profile</a>
+                    {% else %}
+                    <a href="{{ url_for('conversation', user_id=user.id) }}" class="btn btn-primary btn-sm"><i class="fas fa-envelope me-1"></i> Message</a>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="d-flex justify-content-around">
+                        <div class="text-center">
+                            <h5>{{ profile.profile_completeness }}%</h5>
+                            <small class="text-muted">Profile</small>
+                        </div>
+                        <div class="text-center">
+                            <h5>{{ profile.created_opportunities.count() }}</h5>
+                            <small class="text-muted">Opportunities</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-address-card me-2"></i>Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    {% if specific_profile.email %}
+                    <p><i class="fas fa-envelope me-2"></i>{{ specific_profile.email }}</p>
+                    {% endif %}
+                    
+                    {% if specific_profile.contact_phone %}
+                    <p><i class="fas fa-phone me-2"></i>{{ specific_profile.contact_phone }}</p>
+                    {% endif %}
+                    
+                    {% if specific_profile.address %}
+                    <p><i class="fas fa-map-marker-alt me-2"></i>{{ specific_profile.address }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            {% if specific_profile.current_message %}
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-comment me-2"></i>Welcome Message</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ specific_profile.current_message|nl2br }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-flask me-2"></i>Current Research Focus</h5>
+                </div>
+                <div class="card-body">
+                    {% if specific_profile.current_focus %}
+                    <p>{{ specific_profile.current_focus|nl2br }}</p>
+                    {% else %}
+                    <p class="text-muted">No research focus provided.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>Lab Information</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="labTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="expectations-tab" data-bs-toggle="tab" data-bs-target="#expectations" type="button" role="tab" aria-controls="expectations" aria-selected="true">Expectations</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="why-join-tab" data-bs-toggle="tab" data-bs-target="#why-join" type="button" role="tab" aria-controls="why-join" aria-selected="false">Why Join</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content p-3" id="labTabsContent">
+                        <div class="tab-pane fade show active" id="expectations" role="tabpanel" aria-labelledby="expectations-tab">
+                            {% if specific_profile.expectations_from_students %}
+                            <p>{{ specific_profile.expectations_from_students|nl2br }}</p>
+                            {% else %}
+                            <p class="text-muted">No expectations information provided.</p>
+                            {% endif %}
+                        </div>
+                        <div class="tab-pane fade" id="why-join" role="tabpanel" aria-labelledby="why-join-tab">
+                            {% if specific_profile.why_join_lab %}
+                            <p>{{ specific_profile.why_join_lab|nl2br }}</p>
+                            {% else %}
+                            <p class="text-muted">No information provided on why to join this lab.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-briefcase me-2"></i>Research Opportunities</h5>
+                    {% if current_user.is_authenticated and current_user.id == user.id %}
+                    <a href="{{ url_for('create_opportunity') }}" class="btn btn-sm btn-outline-primary">Post New</a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% set opportunities = profile.created_opportunities.filter_by(status='Active').all() %}
+                    {% if opportunities %}
+                    <div class="list-group">
+                        {% for opportunity in opportunities %}
+                        <a href="{{ url_for('view_opportunity', opportunity_id=opportunity.id) }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ opportunity.title }}</h6>
+                                <small class="text-muted">{{ opportunity.type }}</small>
+                            </div>
+                            <p class="mb-1">{{ opportunity.description[:100] }}{% if opportunity.description|length > 100 %}...{% endif %}</p>
+                            <small class="text-muted">Deadline: {% if opportunity.deadline %}{{ opportunity.deadline.strftime('%Y-%m-%d') }}{% else %}Not specified{% endif %}</small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No active opportunities available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

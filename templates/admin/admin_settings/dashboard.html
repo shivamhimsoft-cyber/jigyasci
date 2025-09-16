@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .statsGrid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    @media screen and (max-width: 992px) {
+        .statsGrid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+    @media screen and (max-width: 768px) {
+        .statsGrid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+    @media screen and (max-width: 500px) {
+        .statsGrid {
+            display: grid;
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+    }
+</style>
+
+
+<div class="min-h-screen bg-gradient-to-br from-lightprimary to-gray-100 dark:from-darkbody dark:to-gray-900 p-4 lg:p-8">
+    <!-- Page Header -->
+    <div class="bg-white dark:bg-dark rounded-xl shadow-lg p-6 mb-8 backdrop-blur-sm bg-opacity-95">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h2 class="text-3xl font-bold text-dark dark:text-white mb-2">📊 Admin Dashboard</h2>
+                <p class="text-gray-600 dark:text-gray-400">Comprehensive system overview and statistics</p>
+            </div>
+            <div>
+                <button class="btn border border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300 px-4 py-2 rounded-lg">
+                    <i class="ti ti-download me-2"></i> Export Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards - First Row -->
+    <div class="statsGrid  gap-6 mb-8">
+        <div class="bg-white dark:bg-dark rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 p-6 border-t-4 border-primary group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-16 h-16 bg-warning rounded-xl flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform duration-300">
+                    <i class="ti ti-users"></i>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-dark dark:text-white mb-2">{{ stats.total_users }}</h3>
+            <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3">Total Users</p>
+            <div class="flex items-center text-sm font-medium text-success bg-lightsuccess dark:bg-darksuccess px-3 py-1 rounded-full w-fit">
+                <i class="ti ti-trending-up me-2"></i> 12.5% from last month
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-dark rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 p-6 border-t-4 border-success group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-16 h-16 bg-success rounded-xl flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform duration-300">
+                    <i class="ti ti-user"></i>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-dark dark:text-white mb-2">{{ stats.students }}</h3>
+            <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3">Students</p>
+            <div class="flex items-center text-sm font-medium text-success bg-lightsuccess dark:bg-darksuccess px-3 py-1 rounded-full w-fit">
+                <i class="ti ti-trending-up me-2"></i> 8.2% from last month
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-dark rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 p-6 border-t-4 border-info group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-16 h-16 bg-info rounded-xl flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform duration-300">
+                    <i class="ti ti-microscope"></i>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-dark dark:text-white mb-2">{{ stats.pis }}</h3>
+            <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3">Principal Investigators</p>
+            <div class="flex items-center text-sm font-medium text-success bg-lightsuccess dark:bg-darksuccess px-3 py-1 rounded-full w-fit">
+                <i class="ti ti-trending-up me-2"></i> 3.1% from last month
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-dark rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 p-6 border-t-4 border-warning group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-16 h-16 bg-warning rounded-xl flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform duration-300">
+                    <i class="ti ti-building"></i>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-dark dark:text-white mb-2">{{ stats.industry }}</h3>
+            <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3">Industry Users</p>
+            <div class="flex items-center text-sm font-medium text-success bg-lightsuccess dark:bg-darksuccess px-3 py-1 rounded-full w-fit">
+                <i class="ti ti-trending-up me-2"></i> 5.7% from last month
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-dark rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 p-6 border-t-4 border-red-500 group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-16 h-16 bg-warning rounded-xl flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform duration-300">
+                    <i class="ti ti-truck"></i>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-dark dark:text-white mb-2">{{ stats.vendors }}</h3>
+            <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3">Vendors</p>
+            <div class="flex items-center text-sm font-medium text-red-500 bg-red-100 dark:bg-red-900 px-3 py-1 rounded-full w-fit">
+                <i class="ti ti-trending-down me-2"></i> 2.3% from last month
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-dark rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 p-6 border-t-4 border-gray-500 group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-16 h-16 bg-gray-500 rounded-xl flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform duration-300">
+                    <i class="ti ti-briefcase"></i>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-dark dark:text-white mb-2">{{ stats.opportunities }}</h3>
+            <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3">Opportunities</p>
+            <div class="flex items-center text-sm font-medium text-success bg-lightsuccess dark:bg-darksuccess px-3 py-1 rounded-full w-fit">
+                <i class="ti ti-trending-up me-2"></i> 15.8% from last month
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-dark rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 p-6 border-t-4 border-success group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-16 h-16 bg-success rounded-xl flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform duration-300">
+                    <i class="ti ti-check"></i>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-dark dark:text-white mb-2">{{ stats.active_opportunities }}</h3>
+            <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3">Active Opportunities</p>
+            <div class="flex items-center text-sm font-medium text-success bg-lightsuccess dark:bg-darksuccess px-3 py-1 rounded-full w-fit">
+                <i class="ti ti-trending-up me-2"></i> 9.4% from last month
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-dark rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 p-6 border-t-4 border-info group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-16 h-16 bg-info rounded-xl flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform duration-300">
+                    <i class="ti ti-file-text"></i>
+                </div>
+            </div>
+            <h3 class="text-3xl font-bold text-dark dark:text-white mb-2">{{ stats.applications }}</h3>
+            <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3">Applications</p>
+            <div class="flex items-center text-sm font-medium text-success bg-lightsuccess dark:bg-darksuccess px-3 py-1 rounded-full w-fit">
+                <i class="ti ti-trending-up me-2"></i> 22.6% from last month
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Recent Tables Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+        <div class="bg-white dark:bg-dark rounded-xl shadow-lg overflow-hidden">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-center">
+                    <h5 class="text-xl font-bold text-dark dark:text-white relative">
+                        Recent Users
+                        <div class="absolute -bottom-2 left-0 w-12 h-1 bg-primary rounded-full"></div>
+                    </h5>
+                    <a href="#" class="text-primary hover:text-primaryemphasis font-medium text-sm transition-colors duration-200">View All</a>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 dark:bg-gray-800">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for user in recent_users %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-lightprimary dark:bg-darkprimary rounded-full flex items-center justify-center mr-3">
+                                        <i class="ti ti-user text-primary text-lg"></i>
+                                    </div>
+                                    <div class="text-sm font-medium text-dark dark:text-white">{{ user.email }}</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full
+                                    {% if user.user_type == 'Student' %}bg-lightsuccess text-success dark:bg-darksuccess
+                                    {% elif user.user_type == 'PI' %}bg-lightinfo text-info dark:bg-darkinfo
+                                    {% elif user.user_type == 'Industry' %}bg-lightwarning text-warning dark:bg-darkwarning
+                                    {% else %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% endif %}">
+                                    {{ user.user_type }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-dark rounded-xl shadow-lg overflow-hidden">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-center">
+                    <h5 class="text-xl font-bold text-dark dark:text-white relative">
+                        Recent Opportunities
+                        <div class="absolute -bottom-2 left-0 w-12 h-1 bg-primary rounded-full"></div>
+                    </h5>
+                    <a href="#" class="text-primary hover:text-primaryemphasis font-medium text-sm transition-colors duration-200">View All</a>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 dark:bg-gray-800">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Title</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Created</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for opportunity in recent_opportunities %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-lightwarning dark:bg-darkwarning rounded-full flex items-center justify-center mr-3">
+                                        <i class="ti ti-briefcase text-warning text-lg"></i>
+                                    </div>
+                                    <div class="text-sm font-medium text-dark dark:text-white">{{ opportunity.title|truncate(20) }}</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{{ opportunity.opportunity_type }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{{ opportunity.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full
+                                    {% if opportunity.status == 'Active' %}bg-lightsuccess text-success dark:bg-darksuccess
+                                    {% else %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200{% endif %}">
+                                    {{ opportunity.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

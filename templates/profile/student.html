@@ -1,0 +1,793 @@
+{% extends "frontBase.html" %}
+
+{% block title %}Research Collaboration Platform | {{ pi.name }}{% endblock %}
+
+{% block content %}
+<h2>PI############</h2>
+
+<div class="w-full flex justify-center p-4">
+    <div class="lg:w-[70%] md:w-[80%] sm:w-[80%] w-full ">
+        <div class="p-4 flex lg:flex-row md:flex-row flex-col-reverse bg-white">
+            <div class="w-full grid lg:grid-cols-4 md:grid-cols-3 grid-cols-1 gap-4">
+                <div class="w-full">
+                    <div class="bg-[#314a4a]-100">
+                        <button id="tab-prof" data-tab="facultyProfile"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-user text-sm mr-2"></i> Profile
+                        </button>
+                        <button id="tab-edu" data-tab="education"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-200">
+                            <i class="fa fa-graduation-cap text-sm mr-2"></i> Education
+                        </button>
+                        <button id="tab-exp" data-tab="experience"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-200">
+                            <i class="fa fa-briefcase text-sm mr-2"></i> Experience
+                        </button>
+                        <button id="tab-facilities" data-tab="facilities"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-200">
+                            <i class="fa fa-flask text-sm mr-2"></i> Research Facilities
+                        </button>
+                    
+                        <button id="tab-tech" data-tab="technologies"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-200">
+                            <i class="fa fa-microchip text-sm mr-2"></i> Technologies
+                        </button>
+                        <button id="tab-skills" data-tab="skills"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-200">
+                            <i class="fa fa-tools text-sm mr-2"></i> Skills
+                        </button>
+                        <button id="tab-awards" data-tab="awards"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-200">
+                            <i class="fa fa-trophy text-sm mr-2"></i> Awards
+                        </button>
+                       
+                        <button id="tab-pro" data-tab="projects"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-list-check text-sm mr-2"></i> Projects
+                        </button>
+                        <button id="tab-team" data-tab="team"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-users text-sm mr-2"></i> My Team
+                        </button>
+                    
+                        <!-- <button id="tab-award" data-tab="award"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-award text-sm mr-2"></i> Award & Recognition
+                        </button> -->
+                   
+                        <button id="tab-pub" data-tab="publications"
+                                type="button"
+                                class="faculty-tab-button w-full h-max text-left rounded-sm px-4 py-2 whitespace-nowrap text-[#314a4a] font-semibold border-t-[1px] hover:border-t-gray-100 hover:text-white hover:bg-[#314a4a] transition ease-in duration-2000">
+                            <i class="fa fa-file-shield text-sm mr-2"></i> Publications
+                        </button>
+                    </div>
+                    <div class="mt-6">
+                        <div
+                                class=" w-full h-max text-left  px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold ">
+                            <i class="fa fa-lightbulb text-sm mr-2"></i> Similar Experts
+                        </div>
+                        <div class=" bg-gray-100">
+                            <!-- Similar experts content would go here -->
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="w-full lg:col-span-3  md:col-span-2 col-span-1">
+                    <div id="tab-content-facultyProfile" data-tab-content="facultyProfile" class="faculty-tab-content w-full flex flex-col gap-4 ">
+                        <div class="w-full ">
+                            <div class="w-full flex lg:flex-row md:flex-row flex-col gap-1">
+                                <div class="flex flex-col items-center lg:w-max md:w-max w-full flex-none">
+                                    <img src="{{ url_for('static', filename='images/logo-shade_blue.png') }}" class="w-52 h-auto" alt="{{ pi.name }}">
+                                    <span class="text-[#314a4a] font-bold mt-2 text-lg">{{ pi.name }}</span>
+                                    <span class="text-black font-normal leading-4 text-sm">{{ pi.current_designation }}</span>
+                                    <span class="text-black font-normal leading-4 text-sm">{{ pi.affiliation }}</span>
+                                </div>
+                                <div class="w-full ">
+                                    <div class=" w-full h-max text-left  px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold ">
+                                        <i class="fa fa-person text-sm mr-2"></i> Profile Overview
+                                    </div>
+                                    <div class="w-full grid lg:grid-cols-4 md:grid-cols-1 sm:grid-cols-2 grid-cols-1">
+                                        <div class="w-full flex flex-col bg-gray-100 px-2 py-0.5 lg:border-r-[1px] lg:border-r-[#314a4a]/50 lg:border-b-0 md:border-b-[1px] md:border-b-[#314a4a]/50 ">
+                                            <span class="font-semibold text-[#314a4a] text-sm">Email</span>
+                                            <p class="font-normal text-xs">{{ pi.email }}</p>
+                                        </div>
+                                        <div class="w-full flex flex-col bg-gray-100 px-2 py-0.5 lg:border-r-[1px] lg:border-r-[#314a4a]/50 lg:border-b-0 md:border-b-[1px] md:border-b-[#314a4a]/50 ">
+                                            <span class="font-semibold text-[#314a4a] text-sm">Phone</span>
+                                            <p class="font-normal text-xs">{{ pi.contact_phone }}</p>
+                                        </div>
+                                        <div class="w-full flex flex-col bg-gray-100 px-2 py-0.5 lg:border-r-[1px] lg:border-r-[#314a4a]/50 lg:border-b-0 md:border-b-[1px] md:border-b-[#314a4a]/50 ">
+                                            <span class="font-semibold text-[#314a4a] text-sm">Department</span>
+                                            <p class="font-normal text-xs">{{ pi.department }}</p>
+                                        </div>
+                                        <div class="w-full flex flex-col bg-gray-100 px-2 py-0.5 ">
+                                            <span class="font-semibold text-[#314a4a] text-sm">Address</span>
+                                            <p class="font-normal text-xs">{{ pi.address }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4 mt-4">
+                                        <div class="w-full flex bg-blue-100 p-3 gap-3">
+                                            <i class="fa fa-list-check text-lg text-blue-800"></i>
+                                            <div class="w-full flex flex-col">
+                                                <span class="text-blue-800 text-sm font-semibold">Publications</span>
+                                                <span class="text-[#314a4a] font-bold lg:text-2xl">{{ profile.publications|length if profile.publications else '0' }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-full flex bg-green-100 p-3 gap-3">
+                                            <i class="fa fa-award text-lg text-green-800"></i>
+                                            <div class="w-full flex flex-col">
+                                                <span class="text-green-800 text-sm font-semibold">Awards</span>
+                                                <span class="text-[#314a4a] font-bold lg:text-2xl">{{ profile.awards|length if profile.awards else '0' }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-full flex bg-red-100 p-3 gap-3">
+                                            <i class="fa fa-headphones text-lg text-red-800"></i>
+                                            <div class="w-full flex flex-col">
+                                                <span class="text-red-800 text-sm font-semibold">Conference Proceedings</span>
+                                                <span class="text-[#314a4a] font-bold lg:text-2xl">{{ profile.conference_proceedings|length if profile.conference_proceedings else '0' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class=" w-full h-max text-left  px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold mt-4">
+                                        Research Focus
+                                    </div>
+                                    <div class="w-full bg-gray-100 p-2">
+                                        <p class="text-black text-sm">{{ pi.current_focus }}</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="w-full ">
+
+
+
+
+
+
+                            <!-- Chart would go here -->
+                            <div id="chart" class="w-full"></div>
+                        </div>
+                        <div class="w-full flex lg:flex-row md:flex-row sm:flex-row flex-col gap-6 mt-2">
+                            <div class="lg:w-[70%] md:w-[70%] sm:w-[60%] w-full bg-gray-100">
+                                <div
+                                        class=" w-full h-max text-left  px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold ">
+                                    <i class="fa fa-message text-sm mr-2"></i> Expectations from students
+                                </div>
+                                <div class=" bg-gray-100 p-2">
+                                    <p class="text-black text-sm">{{ pi.expectations_from_students }}</p>
+                                </div>
+
+                            </div>
+                            <div class="lg:w-[30%] md:w-[30%] sm:w-[40%] w-full bg-gray-100">
+                                <div
+                                        class=" w-full h-max text-left  px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold ">
+                                    <i class="fa fa-flask text-sm mr-2"></i> Research Area
+                                </div>
+                                <div class=" bg-gray-100 p-2">
+                                    <p class="text-black text-sm">{{ pi.current_focus }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <!-- <div id="tab-content-publications" data-tab-content="publications" class="faculty-tab-content w-full flex flex-col gap-4 ">
+                        <div class=" w-full h-max text-left  px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold ">
+                            <i class="fa fa-file text-sm mr-2"></i> Publications ({{ profile.publications|length if profile.publications else '0' }})
+                        </div>
+
+                        <div class="w-full flex justify-end flex-wrap gap-2">
+                            <input type="text" class="px-2 py-1 rounded-[3px] border-[1px] font-semibold text-sm border-[#314a4a]/70 placeholder-black focus:border-[#314a4a] focus:outline-none focus:ring-0" placeholder="Search publication....">
+                            <input type="date" class="px-2 py-1 rounded-[3px] border-[1px] font-semibold text-sm border-[#314a4a]/70 focus:border-[#314a4a] focus:outline-none focus:ring-0" placeholder="Search publication....">
+                        </div>
+
+                        <div class="w-full flex flex-col gap-6">
+                            {% if profile.publications %}
+                                {% for publication in profile.publications %}
+                                <div class="w-full flex flex-col p-4 justify-center shadow-lg shadow-black/10 border-l-[5px] border-l-[#314a4a]/50">
+                                    <span class="text-black font-bold lg:text-lg"><i class="fa fa-tag mr-2 text-red-700"></i> {{ publication.title }}</span>
+                                    <span class="text-blue-600 font-medium lg:text-sm mt-2"> <i class="fa fa-users mr-2"></i> {{ publication.authors }}</span>
+                                    <span class="text-[#314a4a] font-normal mt-1 text-sm"> 
+                                        <span class="bg-blue-600 text-white text-xs px-2 rounded-sm mr-2">{{ publication.type }}</span> 
+                                        {{ publication.journal }}, 
+                                        <span class="text-sm">Volume</span> <span class="font-bold underline">{{ publication.volume }}</span>, 
+                                        <span class="text-sm">Year</span> <span class="font-bold underline">{{ publication.year }}</span>
+                                        {% if publication.doi %}
+                                        <a href="{{ publication.doi }}" target="_blank"><i class="fa fa-up-right-from-square ml-4"></i></a>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="w-full text-center py-4">
+                                    <p class="text-gray-500">No publications available</p>
+                                </div>
+                            {% endif %}
+                            
+                            {% if profile.publications and profile.publications|length > 4 %}
+                            <div class="w-full flex justify-center mt-4">
+                                <button class="flex items-center bg-[#314a4a] text-white px-4 rounded-sm py-0.5 border-[1px] border-[#314a4a] hover:bg-white hover:text-[#314a4a] transition ease-in duration-2000"><i class="fa fa-spinner mr-2"></i> Load more</button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div> -->
+
+                    <!-- <div id="tab-content-award" data-tab-content="award" class="faculty-tab-content w-full flex flex-col gap-4 ">
+                        <div class=" w-full h-max text-left  px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold ">
+                            <i class="fa fa-award text-sm mr-2"></i> Award & Recognition ({{ profile.awards|length if profile.awards else '0' }})
+                        </div>
+                        <div class="w-full grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-2 grid-cols-1 gap-4">
+                            {% if profile.awards %}
+                                {% for award in profile.awards %}
+                                <div class="w-full shadow-lg shadow-black/10 p-2 pt-6 flex flex-col items-center relative">
+                                    <div class="absolute top-0 left-0 w-full flex justify-end">
+                                        <button class="font-bold px-2 bg-[#314a4a] text-white">{{ award.year }}</button>
+                                    </div>
+                                    <i class="fa fa-award lg:text-5xl md:text-4xl sm:text-4xl text-5xl text-yellow-600"></i>
+                                    <span class="text-center leading-4 font-semibold text-black mt-4">{{ award.name }}</span>
+                                    <span class="mt-2 font-normal text-sm">{{ award.organization }}</span>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="w-full text-center py-4 col-span-4">
+                                    <p class="text-gray-500">No awards available</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div> -->
+
+                    <!-- <div id="tab-content-team" data-tab-content="team" class="faculty-tab-content w-full flex flex-col gap-4 ">
+                        <div class=" w-full h-max text-left  px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold ">
+                            <i class="fa fa-users text-sm mr-2"></i> Team ({{ profile.team_members|length if profile.team_members else '0' }})
+                        </div>
+                        <div class="w-full grid lg:grid-cols-3 gap-4">
+                            {% if profile.team_members %}
+                                {% for member in profile.team_members %}
+                                <div class="w-full flex gap-2 items-center border-[1px] border-[#314a4a]/50 rounded-md p-2 bg-[#314a4a]/10">
+                                    <div class="w-16 h-16 rounded-full flex-none">
+                                        <img src="{{ url_for('static', filename='images/logo-shade_blue.png') }}" class="h-full w-full rounded-full" alt="{{ member.name }}">
+                                    </div>
+                                    <div class="w-full flex flex-col">
+                                        <span class="font-bold text-black text-lg leading-6">{{ member.name }}</span>
+                                        <span class="font-medium text-gray-600 text-sm leading-6">{{ member.position }}</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="w-full text-center py-4 col-span-3">
+                                    <p class="text-gray-500">No team members available</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div> -->
+
+
+<!-- Education Tab Content -->
+                    <div id="tab-content-education" data-tab-content="education" class="faculty-tab-content hidden w-full flex flex-col gap-4">
+                        <div class="w-full h-max text-left px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold">
+                            <i class="fa fa-graduation-cap text-sm mr-2"></i> Education
+                        </div>
+                        <div class="w-full bg-gray-100 p-4">
+                            {% if profile.educations.count() > 0 %}
+                                <div class="space-y-4">
+                                    {% for edu in profile.educations %}
+<div class="border-l-4 border-[#314a4a] pl-4 py-2 edu-item" data-index="{{ loop.index0 }}">
+                                        <h3 class="font-bold text-lg">{{ edu.degree_name }}</h3>
+                                        <p class="text-gray-700">
+                                            <i class="fa fa-university mr-2"></i>{{ edu.college }}, {{ edu.university }}
+                                        </p>
+                                        <p class="text-sm text-gray-600">
+                                            <i class="fa fa-calendar mr-2"></i>
+                                            {{ edu.start_year }} - 
+                                            {% if edu.currently_pursuing %}
+                                                Present
+                                            {% else %}
+                                                {{ edu.end_year }}
+                                            {% endif %}
+                                        </p>
+                                        {% if edu.university_address %}
+                                        <p class="text-sm text-gray-600">
+                                            <i class="fa fa-map-marker mr-2"></i>{{ edu.university_address }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="flex justify-between items-center mt-4" id="edu-pagination">
+                                    <button class="edu-prev px-4 py-2 bg-[#314a4a] text-white rounded disabled:opacity-50">Previous</button>
+                                    <span class="edu-page-count text-sm text-gray-700 font-semibold"></span>
+                                    <button class="edu-next px-4 py-2 bg-[#314a4a] text-white rounded disabled:opacity-50">Next</button>
+                                </div>
+
+                            {% else %}
+                                <p class="text-gray-500">No education information available</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+
+<!-- Experience Tab Content -->
+                    <div id="tab-content-experience" data-tab-content="experience" class="faculty-tab-content hidden w-full flex flex-col gap-4">
+                        <div class="w-full h-max text-left px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold">
+                            <i class="fa fa-briefcase text-sm mr-2"></i> Experience
+                        </div>
+                        <div class="w-full bg-gray-100 p-4">
+                            {% if profile.experiences.count() > 0 %}
+                                <div class="space-y-4">
+                                    {% for exp in profile.experiences %}
+<div class="border-l-4 border-[#314a4a] pl-4 py-2 exp-item" data-index="{{ loop.index0 }}">
+                                        <h3 class="font-bold text-lg">{{ exp.project_title }}</h3>
+                                        <p class="text-gray-700">
+                                            <i class="fa fa-user-tie mr-2"></i>{{ exp.position }}
+                                        </p>
+                                        <p class="text-sm text-gray-600">
+                                            <i class="fa fa-building mr-2"></i>
+                                            {{ exp.college }}, {{ exp.university_or_industry }}
+                                        </p>
+                                        <p class="text-sm text-gray-600">
+                                            <i class="fa fa-calendar mr-2"></i>
+                                            {{ exp.start_date.strftime('%b %Y') }} - 
+                                            {% if exp.currently_working %}
+                                                Present
+                                            {% else %}
+                                                {{ exp.end_date.strftime('%b %Y') if exp.end_date else 'N/A' }}
+                                            {% endif %}
+                                        </p>
+                                        {% if exp.pi %}
+                                        <p class="text-sm text-gray-600">
+                                            <i class="fa fa-user-graduate mr-2"></i>PI: {{ exp.pi }}, {{ exp.pi_affiliation }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="flex justify-between items-center mt-4" id="exp-pagination">
+                                    <button class="exp-prev px-4 py-2 bg-[#314a4a] text-white rounded disabled:opacity-50">Previous</button>
+                                    <span class="exp-page-count text-sm text-gray-700 font-semibold"></span>
+                                    <button class="exp-next px-4 py-2 bg-[#314a4a] text-white rounded disabled:opacity-50">Next</button>
+                                </div>
+
+
+                            {% else %}
+                                <p class="text-gray-500">No experience information available</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                                    
+
+<!-- Research Facilities Tab Content -->
+                    <div id="tab-content-facilities" data-tab-content="facilities" class="faculty-tab-content hidden w-full flex flex-col gap-4">
+                        <div class="w-full h-max text-left px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold">
+                            <i class="fa fa-flask text-sm mr-2"></i> Research Facilities ({{ pi.research_facilities.count() }})
+                        </div>
+                        <div class="w-full bg-gray-100 p-4">
+                            {% if pi.research_facilities.count() > 0 %}
+                                <div class="grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-4">
+                                    {% for facility in pi.research_facilities %}
+<div class="border rounded p-4 shadow-sm facility-item" data-index="{{ loop.index0 }}">
+                                        <h3 class="font-bold text-lg">{{ facility.equipment_name }}</h3>
+                                        <div class="grid grid-cols-2 gap-2 mt-2">
+                                            <div>
+                                                <p class="text-sm text-gray-600">Make: <span class="font-medium">{{ facility.make }}</span></p>
+                                                <p class="text-sm text-gray-600">Model: <span class="font-medium">{{ facility.model }}</span></p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-600">Type: <span class="font-medium">{{ facility.equipment_type }}</span></p>
+                                                <p class="text-sm text-gray-600">Status: 
+                                                    <span class="font-medium {% if facility.working_status == 'Working' %}text-green-600{% else %}text-red-600{% endif %}">
+                                                        {{ facility.working_status }}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        {% if facility.sop_file %}
+                                        <div class="mt-2">
+                                            <a href="{{ url_for('static', filename='uploads/' + facility.sop_file) }}" 
+                                               class="text-blue-600 text-sm hover:underline">
+                                                <i class="fa fa-file-pdf mr-1"></i>SOP Document
+                                            </a>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="flex justify-between items-center mt-4" id="facilities-pagination">
+                                    <button class="facility-prev px-4 py-2 bg-[#314a4a] text-white rounded disabled:opacity-50">Previous</button>
+                                        <span class="facility-page-count text-sm text-gray-700 font-semibold"></span>
+                                    <button class="facility-next px-4 py-2 bg-[#314a4a] text-white rounded disabled:opacity-50">Next</button>
+                                </div>
+
+                            {% else %}
+                                <p class="text-gray-500">No research facilities available</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+<!-- Technologies Tab Content -->
+                    <div id="tab-content-technologies" data-tab-content="technologies" class="faculty-tab-content hidden w-full flex flex-col gap-4">
+                        <div class="w-full h-max text-left px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold">
+                            <i class="fa fa-microchip text-sm mr-2"></i> Technologies ({{ profile.technologies|length }})
+                        </div>
+                        <div class="w-full bg-gray-100 p-4">
+                            {% if profile.technologies %}
+                                <div class="space-y-4">
+                                    {% for tech in profile.technologies %}
+<div class="border rounded p-4 shadow-sm technology-item" data-index="{{ loop.index0 }}">
+                                        <h3 class="font-bold text-lg">{{ tech.title }}</h3>
+                                        <p class="text-gray-700">{{ tech.description }}</p>
+                                        <div class="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-2 mt-2">
+                                            <div>
+                                                <p class="text-sm text-gray-600">TRL: <span class="font-medium">{{ tech.trl }}/9</span></p>
+                                                <p class="text-sm text-gray-600">IP Status: <span class="font-medium">{{ tech.ip_status }}</span></p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-600">Target Industries: <span class="font-medium">{{ tech.target_industries }}</span></p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-600">Licensing: <span class="font-medium">{{ tech.licensing_intent }}</span></p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 rounded mr-1">Keywords: {{ tech.keywords }}</span>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="flex justify-between items-center mt-4" id="technologies-pagination">
+                                    <button class="tech-prev px-4 py-2 bg-[#314a4a] text-white rounded disabled:opacity-50">Previous</button>
+                                        <span class="tech-page-count text-sm text-gray-700 font-semibold"></span>
+                                    <button class="tech-next px-4 py-2 bg-[#314a4a] text-white rounded disabled:opacity-50">Next</button>
+                                </div>
+
+                            {% else %}
+                                <p class="text-gray-500">No technologies listed</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+
+
+                    <!-- Skills Tab Content -->
+                    <div id="tab-content-skills" data-tab-content="skills" class="faculty-tab-content hidden w-full flex flex-col gap-4">
+                        <div class="w-full h-max text-left px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold">
+                            <i class="fa fa-tools text-sm mr-2"></i> Skills ({{ profile.skills|length }})
+                        </div>
+                        <div class="w-full bg-gray-100 p-4">
+                            {% if profile.skills %}
+                                <div class="space-y-3">
+                                    {% for skill in profile.skills %}
+<div class="flex justify-between items-center border-b pb-2 skill-item" data-index="{{ loop.index0 }}">
+                                        <div>
+                                            <h4 class="font-medium">{{ skill.skill_name }}</h4>
+                                            <p class="text-sm text-gray-600">{{ skill.skill_type }}</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-sm font-medium">{{ skill.proficiency_level }}</span>
+                                            <div class="w-24 h-2 bg-gray-300 rounded-full mt-1">
+                                                <div class="h-full rounded-full 
+                                                    {% if skill.proficiency_level == 'Beginner' %}bg-blue-400 w-1/4
+                                                    {% elif skill.proficiency_level == 'Intermediate' %}bg-green-400 w-1/2
+                                                    {% elif skill.proficiency_level == 'Advanced' %}bg-yellow-400 w-3/4
+                                                    {% else %}bg-red-400 w-full{% endif %}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="flex justify-between items-center mt-4" id="skills-pagination">
+                                    <button class="skill-prev px-4 py-2 bg-[#314a4a] text-white rounded disabled:opacity-50">Previous</button>
+                                        <span class="skill-page-count text-sm text-gray-700 font-semibold"></span>
+                                    <button class="skill-next px-4 py-2 bg-[#314a4a] text-white rounded disabled:opacity-50">Next</button>
+                                </div>
+
+                            {% else %}
+                                <p class="text-gray-500">No skills listed</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+
+
+
+                    <!-- Awards Tab Content -->
+                    <div id="tab-content-awards" data-tab-content="awards" class="faculty-tab-content hidden w-full flex flex-col gap-4">
+                        <div class="w-full h-max text-left px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold">
+                            <i class="fa fa-trophy text-sm mr-2"></i> Awards & Recognition ({{ profile.awards|length }})
+                        </div>
+                        <div class="w-full bg-gray-100 p-4">
+                            {% if profile.awards %}
+                                <div class="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4">
+                                    {% for award in profile.awards %}
+<div class="border rounded p-4 shadow-sm text-center award-item" data-index="{{ loop.index0 }}">
+                                        <div class="text-yellow-500 text-4xl mb-2">
+                                            <i class="fa fa-award"></i>
+                                        </div>
+                                        <h3 class="font-bold">{{ award.title }}</h3>
+                                        <p class="text-sm text-gray-600 mt-1">{{ award.issuing_organization }}</p>
+                                        <p class="text-sm text-gray-600 mt-1">
+                                            <i class="fa fa-calendar mr-1"></i>{{ award.date.strftime('%b %Y') }}
+                                        </p>
+                                        {% if award.description %}
+                                        <p class="text-sm mt-2">{{ award.description }}</p>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="flex justify-between items-center mt-4" id="awards-pagination">
+                                    <button class="award-prev px-4 py-2 bg-[#314a4a] text-white rounded disabled:opacity-50">Previous</button>
+                                        <span class="award-page-count text-sm text-gray-700 font-semibold"></span>
+                                    <button class="award-next px-4 py-2 bg-[#314a4a] text-white rounded disabled:opacity-50">Next</button>
+                                </div>
+
+                            {% else %}
+                                <p class="text-gray-500">No awards available</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+
+
+
+                    <!-- Projects Tab Content -->
+                    <div id="tab-content-projects" data-tab-content="projects" class="faculty-tab-content hidden w-full flex flex-col gap-4">
+                        <div class="w-full h-max text-left px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold">
+                            <i class="fa fa-list-check text-sm mr-2"></i> Projects ({{ pi.projects.count() }})
+                        </div>
+                        <div class="w-full bg-gray-100 p-4">
+                            {% if pi.projects.count() > 0 %}
+                                <div class="space-y-4">
+                                    {% for project in pi.projects %}
+<div class="border rounded p-4 shadow-sm project-item" data-index="{{ loop.index0 }}">
+                                        <h3 class="font-bold text-lg">{{ project.title }}</h3>
+                                        <div class="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-2 mt-2">
+                                            <div>
+                                                <p class="text-sm text-gray-600">Funding Agency: <span class="font-medium">{{ project.funding_agency or 'N/A' }}</span></p>
+                                                <p class="text-sm text-gray-600">Status: 
+                                                    <span class="font-medium 
+                                                        {% if project.status == 'Active' %}text-green-600
+                                                        {% elif project.status == 'Completed' %}text-blue-600
+                                                        {% else %}text-gray-600{% endif %}">
+                                                        {{ project.status }}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-600">Start Date: <span class="font-medium">{{ project.start_date.strftime('%d %b %Y') if project.start_date else 'N/A' }}</span></p>
+                                                <p class="text-sm text-gray-600">End Date: <span class="font-medium">{{ project.end_date.strftime('%d %b %Y') if project.end_date else 'Ongoing' }}</span></p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-600">Keywords: <span class="font-medium">{{ project.keywords or 'N/A' }}</span></p>
+                                            </div>
+                                        </div>
+                                        {% if project.description %}
+                                        <div class="mt-3">
+                                            <h4 class="text-sm font-semibold">Description:</h4>
+                                            <p class="text-sm">{{ project.description }}</p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="flex justify-between items-center mt-4" id="projects-pagination">
+                                    <button class="project-prev px-4 py-2 bg-[#314a4a] text-white rounded disabled:opacity-50">Previous</button>
+                                        <span class="project-page-count text-sm text-gray-700 font-semibold"></span>
+                                    <button class="project-next px-4 py-2 bg-[#314a4a] text-white rounded disabled:opacity-50">Next</button>
+                                </div>
+
+                            {% else %}
+                                <p class="text-gray-500">No projects available</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+
+
+                    <!-- Team Tab Content -->
+                    <div id="tab-content-team" data-tab-content="team" class="faculty-tab-content hidden w-full flex flex-col gap-4">
+                        <div class="w-full h-max text-left px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold">
+                            <i class="fa fa-users text-sm mr-2"></i> Team ({{ pi.team_members.count() }})
+                        </div>
+                        <div class="w-full bg-gray-100 p-4">
+                            {% if pi.team_members.count() > 0 %}
+                                <div class="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4">
+                                    {% for member in pi.team_members %}
+<div class="border rounded p-4 shadow-sm team-item" data-index="{{ loop.index0 }}">
+                                        <div class="flex items-center">
+                                            <div class="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
+                                                {% if member.student and member.student.profile_picture %}
+                                                <img src="{{ url_for('static', filename='uploads/' + member.student.profile_picture) }}" class="w-full h-full object-cover">
+                                                {% else %}
+                                                <i class="fa fa-user text-2xl text-gray-500"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div class="ml-3">
+                                                <h3 class="font-bold">
+                                                    {% if member.student %}
+                                                        {{ member.student.name }}
+                                                    {% else %}
+                                                        {{ member.name }}
+                                                    {% endif %}
+                                                </h3>
+                                                <p class="text-sm text-gray-600">{{ member.position }}</p>
+                                                <p class="text-xs text-gray-500">
+                                                    <span class="{% if member.status == 'Current' %}text-green-600{% else %}text-gray-600{% endif %}">
+                                                        {{ member.status }}
+                                                    </span>
+                                                    {% if member.start_date %}
+                                                        | Since {{ member.start_date.strftime('%b %Y') }}
+                                                    {% endif %}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        {% if member.student %}
+                                        <div class="mt-3">
+                                            <p class="text-sm">
+                                                <i class="fa fa-graduation-cap mr-1"></i>
+                                                {{ member.student.affiliation or 'N/A' }}
+                                            </p>
+                                            {% if member.student.research_interests %}
+                                            <p class="text-sm mt-1">
+                                                <i class="fa fa-search mr-1"></i>
+                                                {{ member.student.research_interests|truncate(50) }}
+                                            </p>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="flex justify-between items-center mt-4" id="team-pagination">
+                                    <button class="team-prev px-4 py-2 bg-[#314a4a] text-white rounded disabled:opacity-50">Previous</button>
+                                        <span class="team-page-count text-sm text-gray-700 font-semibold"></span>
+                                    <button class="team-next px-4 py-2 bg-[#314a4a] text-white rounded disabled:opacity-50">Next</button>
+                                </div>
+
+                            {% else %}
+                                <p class="text-gray-500">No team members available</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+
+
+                    <!-- Publications Tab Content -->
+                    <div id="tab-content-publications" data-tab-content="publications" class="faculty-tab-content hidden w-full flex flex-col gap-4">
+                        <div class="w-full h-max text-left px-4 py-2 whitespace-nowrap text-white bg-[#314a4a] font-semibold">
+                            <i class="fa fa-file text-sm mr-2"></i> Publications ({{ profile.publications|length }})
+                        </div>
+
+                        <div class="w-full flex justify-end flex-wrap gap-2">
+                            <input type="text" class="px-2 py-1 rounded-[3px] border-[1px] font-semibold text-sm border-[#314a4a]/70 placeholder-black focus:border-[#314a4a] focus:outline-none focus:ring-0" placeholder="Search publication...">
+                            <input type="date" class="px-2 py-1 rounded-[3px] border-[1px] font-semibold text-sm border-[#314a4a]/70 focus:border-[#314a4a] focus:outline-none focus:ring-0">
+                        </div>
+
+                        <div class="w-full flex flex-col gap-6">
+                            {% if profile.publications %}
+                                {% for pub in profile.publications %}
+<div class="w-full flex flex-col p-4 justify-center shadow-lg shadow-black/10 border-l-[5px] border-l-[#314a4a]/50 publication-item" data-index="{{ loop.index0 }}">
+                                    <span class="text-black font-bold lg:text-lg"><i class="fa fa-tag mr-2 text-red-700"></i> {{ pub.title }}</span>
+                                    <span class="text-blue-600 font-medium lg:text-sm mt-2"> <i class="fa fa-users mr-2"></i> {{ pub.authors }}</span>
+                                    <span class="text-[#314a4a] font-normal mt-1 text-sm"> 
+                                        <span class="bg-blue-600 text-white text-xs px-2 rounded-sm mr-2">{{ pub.journal_or_conference }}</span> 
+                                        Year: <span class="font-bold underline">{{ pub.year }}</span>
+                                        {% if pub.doi %}
+                                        <a href="{{ pub.doi }}" target="_blank" class="ml-4 text-blue-600 hover:underline">
+                                            <i class="fa fa-up-right-from-square"></i> DOI
+                                        </a>
+                                        {% endif %}
+                                    </span>
+                                    {% if pub.abstract %}
+                                    <div class="mt-3">
+                                        <button class="text-sm text-blue-600 font-medium toggle-abstract">Show Abstract <i class="fa fa-chevron-down ml-1"></i></button>
+                                        <div class="abstract-content hidden mt-2 text-sm text-gray-700">
+                                            {{ pub.abstract }}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if pub.keywords %}
+                                    <div class="mt-2">
+                                        <span class="text-sm font-medium">Keywords:</span>
+                                        <div class="flex flex-wrap gap-1 mt-1">
+                                            {% for keyword in pub.keywords.split(',') %}
+                                            <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">{{ keyword.strip() }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                                <div class="flex justify-between items-center mt-4" id="publications-pagination">
+                                    <button class="publication-prev px-4 py-2 bg-[#314a4a] text-white rounded disabled:opacity-50">Previous</button>
+                                        <span class="publication-page-count text-sm text-gray-700 font-semibold"></span>
+                                    <button class="publication-next px-4 py-2 bg-[#314a4a] text-white rounded disabled:opacity-50">Next</button>
+                                </div>
+
+                            {% else %}
+                                <div class="w-full text-center py-4">
+                                    <p class="text-gray-500">No publications available</p>
+                                </div>
+                            {% endif %}
+                            
+                            
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const paginateItems = (selector, prevBtnClass, nextBtnClass, perPage = 3, counterSelector = null) => {
+        let currentPage = 0;
+        const items = Array.from(document.querySelectorAll(selector));
+        const totalPages = Math.ceil(items.length / perPage);
+        const prevBtn = document.querySelector(prevBtnClass);
+        const nextBtn = document.querySelector(nextBtnClass);
+        const counter = counterSelector ? document.querySelector(counterSelector) : null;
+
+        const update = () => {
+            items.forEach((item, idx) => {
+                item.style.display = (idx >= currentPage * perPage && idx < (currentPage + 1) * perPage) ? "block" : "none";
+            });
+
+            if (prevBtn) prevBtn.disabled = currentPage === 0;
+            if (nextBtn) nextBtn.disabled = currentPage === totalPages - 1;
+
+            if (counter) {
+                counter.textContent = `Page ${currentPage + 1} of ${totalPages}`;
+            }
+        };
+
+        if (prevBtn && nextBtn) {
+            prevBtn.addEventListener("click", () => {
+                if (currentPage > 0) {
+                    currentPage--;
+                    update();
+                }
+            });
+
+            nextBtn.addEventListener("click", () => {
+                if (currentPage < totalPages - 1) {
+                    currentPage++;
+                    update();
+                }
+            });
+        }
+
+        update();
+    };
+
+    paginateItems(".edu-item", ".edu-prev", ".edu-next", 3, ".edu-page-count");
+    paginateItems(".exp-item", ".exp-prev", ".exp-next", 3, ".exp-page-count");
+    paginateItems(".facility-item", ".facility-prev", ".facility-next", 2, ".facility-page-count");
+    paginateItems(".technology-item", ".tech-prev", ".tech-next", 2, ".tech-page-count");
+    paginateItems(".skill-item", ".skill-prev", ".skill-next", 3, ".skill-page-count");
+    paginateItems(".award-item", ".award-prev", ".award-next", 3, ".award-page-count");
+    paginateItems(".project-item", ".project-prev", ".project-next", 2, ".project-page-count");
+    paginateItems(".team-item", ".team-prev", ".team-next", 3, ".team-page-count");
+    paginateItems(".publication-item", ".publication-prev", ".publication-next", 2, ".publication-page-count");
+});
+</script>
+
+
+{% endblock %}
+

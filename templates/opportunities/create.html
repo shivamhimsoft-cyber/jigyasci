@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}Post Opportunity | Research Collaboration Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Post a Research Opportunity</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.type.label(class="form-label") }}
+                            {% if form.type.errors %}
+                                {{ form.type(class="form-select is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.type.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.type(class="form-select") }}
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label") }}
+                            {% if form.title.errors %}
+                                {{ form.title(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.title.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.title(class="form-control") }}
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.domain.label(class="form-label") }}
+                                {% if form.domain.errors %}
+                                    {{ form.domain(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.domain.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.domain(class="form-control") }}
+                                {% endif %}
+                                <div class="form-text">E.g., Biochemistry, Computer Science, Materials Science, etc.</div>
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.deadline.label(class="form-label") }}
+                                {% if form.deadline.errors %}
+                                    {{ form.deadline(class="form-control is-invalid", type="date") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.deadline.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.deadline(class="form-control", type="date") }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.eligibility.label(class="form-label") }}
+                            {% if form.eligibility.errors %}
+                                {{ form.eligibility(class="form-control is-invalid", rows=3) }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.eligibility.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.eligibility(class="form-control", rows=3) }}
+                            {% endif %}
+                            <div class="form-text">Specify required qualifications, skills, education level, etc.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {% if form.description.errors %}
+                                {{ form.description(class="form-control is-invalid", rows=5) }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.description.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.description(class="form-control", rows=5) }}
+                            {% endif %}
+                            <div class="form-text">Provide a detailed description of the opportunity, responsibilities, and expected outcomes.</div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.location.label(class="form-label") }}
+                                {% if form.location.errors %}
+                                    {{ form.location(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.location.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.location(class="form-control") }}
+                                {% endif %}
+                                <div class="form-text">Physical location or indicate if remote/hybrid</div>
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.duration.label(class="form-label") }}
+                                {% if form.duration.errors %}
+                                    {{ form.duration(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.duration.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.duration(class="form-control") }}
+                                {% endif %}
+                                <div class="form-text">E.g., 3 months, 1 year, 4 years, etc.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.compensation.label(class="form-label") }}
+                            {% if form.compensation.errors %}
+                                {{ form.compensation(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.compensation.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.compensation(class="form-control") }}
+                            {% endif %}
+                            <div class="form-text">Stipend, salary, or other benefits (leave blank if not applicable)</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.keywords.label(class="form-label") }}
+                            {% if form.keywords.errors %}
+                                {{ form.keywords(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.keywords.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.keywords(class="form-control") }}
+                            {% endif %}
+                            <div class="form-text">Enter relevant keywords separated by commas to improve searchability</div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('list_opportunities') }}" class="btn btn-secondary">Cancel</a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Tips for Creating Effective Opportunity Listings</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Be specific about required skills and qualifications
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Clearly outline the research scope and objectives
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Include benefits and learning opportunities
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Mention supervision and support available
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Provide information about your lab/company
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Use relevant keywords for better discoverability
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

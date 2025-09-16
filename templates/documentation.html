@@ -1,0 +1,756 @@
+{% extends "base.html" %}
+
+{% block title %}Documentation | Research Collaboration Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-10">
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold">Research Collaboration Platform</h1>
+                <p class="lead text-muted">Complete documentation and usage guide</p>
+            </div>
+            
+            <!-- Table of Contents -->
+            <div class="card mb-5">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-list me-2"></i>Table of Contents</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <ul class="list-unstyled">
+                                <li><a href="#overview">Platform Overview</a></li>
+                                <li><a href="#features">Key Features</a></li>
+                                <li><a href="#user-types">User Types</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <ul class="list-unstyled">
+                                <li><a href="#route-map">Platform Route Map</a></li>
+                                <li><a href="#demo-accounts">Demo Accounts</a></li>
+                                <li><a href="#opportunities">Research Opportunities</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <ul class="list-unstyled">
+                                <li><a href="#deployment">Deployment Guide</a></li>
+                                <li><a href="#admin">Administrator Guide</a></li>
+                                <li><a href="#faq">FAQ</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Platform Overview -->
+            <div id="overview" class="doc-section">
+                <h2><i class="fas fa-info-circle me-2"></i>Platform Overview</h2>
+                <p class="lead">The Research Collaboration Platform is a comprehensive web-based system designed to connect different stakeholders in the research ecosystem:</p>
+                
+                <div class="card bg-dark mb-4">
+                    <div class="card-body">
+                        <p>Our platform facilitates collaboration between students seeking research opportunities, principal investigators (PIs) looking for talented researchers, industry partners seeking academic collaborations, and vendors providing specialized services and equipment for research labs.</p>
+                        
+                        <p>With a focus on creating a streamlined ecosystem for research collaboration, the platform helps to eliminate traditional barriers by providing a centralized system for finding opportunities, showcasing research profiles, and establishing meaningful connections.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Key Features -->
+            <div id="features" class="doc-section">
+                <h2><i class="fas fa-star me-2"></i>Key Features</h2>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card feature-card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <i class="fas fa-user-graduate feature-icon"></i>
+                                </div>
+                                <h4 class="card-title text-center">User Profiles</h4>
+                                <p class="card-text">Customized profiles for students, PIs, industry partners, and vendors to showcase relevant information, expertise, and research interests.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="card feature-card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <i class="fas fa-search feature-icon"></i>
+                                </div>
+                                <h4 class="card-title text-center">Opportunity Discovery</h4>
+                                <p class="card-text">Browse and search for research opportunities including internships, PhD positions, post-doctoral positions, and industry collaborations.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="card feature-card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <i class="fas fa-envelope feature-icon"></i>
+                                </div>
+                                <h4 class="card-title text-center">Messaging System</h4>
+                                <p class="card-text">Direct communication between users, allowing for seamless collaboration discussions and opportunity inquiries.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="card feature-card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <i class="fas fa-clipboard-check feature-icon"></i>
+                                </div>
+                                <h4 class="card-title text-center">Application Management</h4>
+                                <p class="card-text">Streamlined process for applying to opportunities with tracking and notification features for all parties.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="card feature-card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <i class="fas fa-users-cog feature-icon"></i>
+                                </div>
+                                <h4 class="card-title text-center">Admin Dashboard</h4>
+                                <p class="card-text">Comprehensive admin controls for platform management, user oversight, and content moderation.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="card feature-card">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <i class="fas fa-chart-line feature-icon"></i>
+                                </div>
+                                <h4 class="card-title text-center">Analytics</h4>
+                                <p class="card-text">Insights into platform usage, popular research areas, and collaboration trends.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Types -->
+            <div id="user-types" class="doc-section">
+                <h2><i class="fas fa-users me-2"></i>User Types</h2>
+                
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>User Type</th>
+                                <th>Description</th>
+                                <th>Primary Features</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge badge-student">Student</span></td>
+                                <td>Graduate and undergraduate students seeking research opportunities</td>
+                                <td>
+                                    <ul>
+                                        <li>Create student profile</li>
+                                        <li>Browse & apply for opportunities</li>
+                                        <li>Message PIs and lab directors</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-pi">PI / Lab Director</span></td>
+                                <td>Principal Investigators and research laboratory directors</td>
+                                <td>
+                                    <ul>
+                                        <li>Create lab profile</li>
+                                        <li>Post research opportunities</li>
+                                        <li>Review applications</li>
+                                        <li>Manage lab members</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-industry">Industry Partner</span></td>
+                                <td>Companies seeking academic collaborations or looking to hire researchers</td>
+                                <td>
+                                    <ul>
+                                        <li>Create company profile</li>
+                                        <li>Post industry positions</li>
+                                        <li>Find research collaborations</li>
+                                        <li>Connect with academic labs</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-vendor">Vendor</span></td>
+                                <td>Service providers and equipment suppliers for research labs</td>
+                                <td>
+                                    <ul>
+                                        <li>Create vendor profile</li>
+                                        <li>Showcase products/services</li>
+                                        <li>Connect with potential clients</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-danger">Admin</span></td>
+                                <td>Platform administrators with full system access</td>
+                                <td>
+                                    <ul>
+                                        <li>Manage all users</li>
+                                        <li>Moderate content</li>
+                                        <li>System configuration</li>
+                                        <li>Analytics access</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Platform Route Map -->
+            <div id="route-map" class="doc-section">
+                <h2><i class="fas fa-route me-2"></i>Platform Route Map</h2>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Public Routes</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Route</th>
+                                        <th>Description</th>
+                                        <th>Method</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>/</code></td>
+                                        <td>Homepage with platform introduction</td>
+                                        <td><span class="badge bg-primary">GET</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/login</code></td>
+                                        <td>User login page</td>
+                                        <td><span class="badge bg-primary">GET/POST</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/register</code></td>
+                                        <td>New user registration</td>
+                                        <td><span class="badge bg-primary">GET/POST</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/opportunities</code></td>
+                                        <td>Browse all research opportunities</td>
+                                        <td><span class="badge bg-primary">GET</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/search</code></td>
+                                        <td>Search platform for opportunities, profiles, etc.</td>
+                                        <td><span class="badge bg-primary">GET</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/documentation</code></td>
+                                        <td>Platform documentation (this page)</td>
+                                        <td><span class="badge bg-primary">GET</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Authenticated User Routes</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Route</th>
+                                        <th>Description</th>
+                                        <th>Method</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>/profile/&lt;user_id&gt;</code></td>
+                                        <td>View user profile</td>
+                                        <td><span class="badge bg-primary">GET</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/edit_profile</code></td>
+                                        <td>Edit your profile information</td>
+                                        <td><span class="badge bg-primary">GET/POST</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/opportunity/&lt;id&gt;</code></td>
+                                        <td>View opportunity details</td>
+                                        <td><span class="badge bg-primary">GET</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/apply/&lt;opportunity_id&gt;</code></td>
+                                        <td>Apply for an opportunity</td>
+                                        <td><span class="badge bg-success">POST</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/messages</code></td>
+                                        <td>View all conversations</td>
+                                        <td><span class="badge bg-primary">GET</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/conversation/&lt;user_id&gt;</code></td>
+                                        <td>View/send messages to a specific user</td>
+                                        <td><span class="badge bg-primary">GET/POST</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/logout</code></td>
+                                        <td>Log out of the platform</td>
+                                        <td><span class="badge bg-primary">GET</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">PI/Industry Routes</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Route</th>
+                                        <th>Description</th>
+                                        <th>Method</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>/create_opportunity</code></td>
+                                        <td>Create a new research opportunity</td>
+                                        <td><span class="badge bg-primary">GET/POST</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/manage_applications</code></td>
+                                        <td>Review and manage applications</td>
+                                        <td><span class="badge bg-primary">GET</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Admin Routes</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Route</th>
+                                        <th>Description</th>
+                                        <th>Method</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>/admin_dashboard</code></td>
+                                        <td>Admin control panel</td>
+                                        <td><span class="badge bg-primary">GET</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/admin/users</code></td>
+                                        <td>Manage platform users</td>
+                                        <td><span class="badge bg-primary">GET</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/admin/opportunities</code></td>
+                                        <td>Manage all opportunities</td>
+                                        <td><span class="badge bg-primary">GET</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Demo Accounts -->
+            <div id="demo-accounts" class="doc-section">
+                <h2><i class="fas fa-user-circle me-2"></i>Demo Accounts</h2>
+                
+                <div class="alert alert-info">
+                    <p class="mb-0"><i class="fas fa-info-circle me-2"></i>The following demo accounts are available for testing the platform functionality:</p>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>User Type</th>
+                                <th>Email</th>
+                                <th>Password</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge badge-student">Student</span></td>
+                                <td>student@example.com</td>
+                                <td>password123</td>
+                                <td>Demo student account with complete profile</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-pi">PI</span></td>
+                                <td>pi@example.com</td>
+                                <td>password123</td>
+                                <td>Demo PI account with lab information</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-industry">Industry</span></td>
+                                <td>industry@example.com</td>
+                                <td>password123</td>
+                                <td>Demo industry partner account</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-vendor">Vendor</span></td>
+                                <td>vendor@example.com</td>
+                                <td>password123</td>
+                                <td>Demo vendor account</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-danger">Admin</span></td>
+                                <td>admin@example.com</td>
+                                <td>admin123</td>
+                                <td>Administrator account with full access</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Research Opportunities -->
+            <div id="opportunities" class="doc-section">
+                <h2><i class="fas fa-flask me-2"></i>Research Opportunities</h2>
+                
+                <p>The platform supports various types of research opportunities:</p>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">PhD Positions</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Doctoral research positions in academic labs with defined research domains.</p>
+                                <ul>
+                                    <li>Long-term (3-5 years)</li>
+                                    <li>Typically includes stipend</li>
+                                    <li>May include teaching responsibilities</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">Internships</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Short-term research experiences for undergraduate or graduate students.</p>
+                                <ul>
+                                    <li>Short-term (2-6 months)</li>
+                                    <li>May be paid or unpaid</li>
+                                    <li>Focused on specific projects</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">Job Openings</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Full-time research positions in academic labs or industry partners.</p>
+                                <ul>
+                                    <li>Permanent or contract positions</li>
+                                    <li>Research staff or scientist roles</li>
+                                    <li>Industry or academic settings</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header" style="background-color: #6f42c1; color: white;">
+                                <h5 class="mb-0">Post-Doctoral Positions</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Advanced research positions for PhD graduates to further their expertise.</p>
+                                <ul>
+                                    <li>Medium-term (1-3 years)</li>
+                                    <li>Specialized research focus</li>
+                                    <li>Publishing and grant writing experience</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Deployment Guide -->
+            <div id="deployment" class="doc-section">
+                <h2><i class="fas fa-server me-2"></i>Deployment Guide</h2>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="mb-0">Local Development Setup</h3>
+                    </div>
+                    <div class="card-body">
+                        <ol>
+                            <li class="mb-3">
+                                <strong>Clone the repository</strong>
+                                <pre><code>git clone https://github.com/your-organization/research-collaboration-platform.git
+cd research-collaboration-platform</code></pre>
+                            </li>
+                            <li class="mb-3">
+                                <strong>Create a virtual environment</strong>
+                                <pre><code>python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate</code></pre>
+                            </li>
+                            <li class="mb-3">
+                                <strong>Install dependencies</strong>
+                                <pre><code>pip install -r requirements.txt</code></pre>
+                            </li>
+                            <li class="mb-3">
+                                <strong>Set up environment variables</strong>
+                                <pre><code># Create a .env file with the following variables:
+DATABASE_URL=postgresql://username:password@localhost:5432/database_name
+SESSION_SECRET=your_secure_secret_key</code></pre>
+                            </li>
+                            <li class="mb-3">
+                                <strong>Initialize the database</strong>
+                                <pre><code>python initialize_database.py</code></pre>
+                            </li>
+                            <li class="mb-3">
+                                <strong>Create demo users (optional)</strong>
+                                <pre><code>python create_demo_users.py</code></pre>
+                            </li>
+                            <li class="mb-3">
+                                <strong>Run the development server</strong>
+                                <pre><code>flask run</code></pre>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="mb-0">Production Deployment</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>For production deployment, follow these steps:</p>
+                        
+                        <h5 class="mt-3">Option 1: Deploy using Gunicorn</h5>
+                        <pre><code># Install Gunicorn
+pip install gunicorn
+
+# Start the server
+gunicorn --bind 0.0.0.0:5000 --workers 4 main:app</code></pre>
+                        
+                        <h5 class="mt-4">Option 2: Deploy to a cloud platform</h5>
+                        <p>The application can be deployed to various cloud platforms:</p>
+                        <ul>
+                            <li><strong>Heroku</strong>: Use the provided Procfile</li>
+                            <li><strong>AWS</strong>: Deploy using Elastic Beanstalk or EC2</li>
+                            <li><strong>Google Cloud</strong>: Use App Engine or Cloud Run</li>
+                        </ul>
+                        
+                        <div class="alert alert-warning mt-3">
+                            <h5><i class="fas fa-exclamation-triangle me-2"></i>Important Production Considerations</h5>
+                            <ul class="mb-0">
+                                <li>Use environment variables for all sensitive information</li>
+                                <li>Set DEBUG=False in production</li>
+                                <li>Use HTTPS with a valid SSL certificate</li>
+                                <li>Set up database backups</li>
+                                <li>Implement proper logging</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Administrator Guide -->
+            <div id="admin" class="doc-section">
+                <h2><i class="fas fa-user-shield me-2"></i>Administrator Guide</h2>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="mb-0">Admin Dashboard Features</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>The admin dashboard provides the following capabilities:</p>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="card bg-dark">
+                                    <div class="card-body">
+                                        <h5><i class="fas fa-users me-2"></i>User Management</h5>
+                                        <ul>
+                                            <li>View all registered users</li>
+                                            <li>Edit user information</li>
+                                            <li>Suspend or delete accounts</li>
+                                            <li>Reset user passwords</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="card bg-dark">
+                                    <div class="card-body">
+                                        <h5><i class="fas fa-flask me-2"></i>Opportunity Management</h5>
+                                        <ul>
+                                            <li>Review all posted opportunities</li>
+                                            <li>Approve/reject new opportunities</li>
+                                            <li>Edit opportunity details</li>
+                                            <li>Remove expired opportunities</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="card bg-dark">
+                                    <div class="card-body">
+                                        <h5><i class="fas fa-shield-alt me-2"></i>Content Moderation</h5>
+                                        <ul>
+                                            <li>Review flagged content</li>
+                                            <li>Moderate user profiles</li>
+                                            <li>Enforce platform guidelines</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="card bg-dark">
+                                    <div class="card-body">
+                                        <h5><i class="fas fa-chart-bar me-2"></i>Platform Analytics</h5>
+                                        <ul>
+                                            <li>User registration statistics</li>
+                                            <li>Platform activity metrics</li>
+                                            <li>Usage patterns and trends</li>
+                                            <li>Popular research areas</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- FAQ -->
+            <div id="faq" class="doc-section">
+                <h2><i class="fas fa-question-circle me-2"></i>Frequently Asked Questions</h2>
+                
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                How do I create a research opportunity?
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="faqOne" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>Only PI and Industry user types can create research opportunities. After logging in, click on "Post Opportunity" in the navigation menu. Fill out the required fields in the opportunity form and submit. Your opportunity will be visible to all users of the platform.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                How do I apply for a research opportunity?
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="faqTwo" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>Browse the opportunities page to find positions that interest you. Click on an opportunity to view its details. On the opportunity detail page, click the "Apply" button. You may need to provide additional information specific to that opportunity's application process.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                Can I message other users directly?
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="faqThree" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>Yes, you can message any user on the platform. Visit their profile page and click the "Message" button. This will start a conversation thread that you can access from your Messages page. The messaging system is designed to facilitate direct communication between all platform users.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqFour">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                How do I update my profile information?
+                            </button>
+                        </h2>
+                        <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="faqFour" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>Click on your email address in the top navigation bar, then select "Edit Profile" from the dropdown menu. You'll be taken to a form where you can update your profile information based on your user type. Be sure to complete all relevant fields to maximize your visibility on the platform.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqFive">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                What is the difference between user types?
+                            </button>
+                        </h2>
+                        <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="faqFive" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>The platform supports five user types with different capabilities:</p>
+                                <ul>
+                                    <li><strong>Students</strong>: Can browse and apply for opportunities, and message other users.</li>
+                                    <li><strong>PIs</strong>: Can create lab profiles, post research opportunities, and review applications.</li>
+                                    <li><strong>Industry Partners</strong>: Can create company profiles, post industry positions, and find academic collaborations.</li>
+                                    <li><strong>Vendors</strong>: Can showcase research-related products and services and connect with potential clients.</li>
+                                    <li><strong>Admins</strong>: Have full access to manage the platform, including user management and content moderation.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
