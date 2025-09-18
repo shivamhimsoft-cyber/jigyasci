@@ -517,6 +517,8 @@ def add_institute():
     # Fetch dropdown options for manual addition
     ownerships = InstituteOwnership.query.filter_by(status='Active').all()
     sectors = Sector.query.filter_by(status='Active').all()
+    # research_areas = ResearchArea.query.filter_by(status='Active').all()  # This line already exists
+
 
      # Debug output - remove this after testing
     print(f"Ownerships found: {[o.name for o in ownerships]}")
@@ -609,7 +611,8 @@ def add_institute():
     return render_template('admin/institute/add_institute.html', 
                          institutes=institutes,
                          ownerships=ownerships,
-                         sectors=sectors)   
+                         sectors=sectors)
+
 
 
 
@@ -1636,6 +1639,51 @@ def admin_required(func):
         return func(*args, **kwargs)
     return decorated_view
 
+# def manage_model(model, redirect_endpoint, display_name, slug, button_text_class='text-black', form_data=None):
+#     status_filter = request.args.get('status', 'all')
+#     query = model.query
+    
+#     if status_filter == 'active':
+#         query = query.filter_by(status='Active')
+#     elif status_filter == 'inactive':
+#         query = query.filter_by(status='Inactive')
+    
+#     items = query.order_by(model.id).all()
+    
+#     # Derive variables for template
+#     lower_name = display_name.lower().rstrip('s')  # e.g., 'user type' from 'User Types'
+#     title = f"Manage {display_name}"
+#     description = f"Add or disable {display_name.lower()}"
+#     add_placeholder = f"Add new {lower_name}"
+    
+#     # Improved singularization logic
+#     if slug in ['institute_autonomous', 'current_designations']:  # Special cases where slug is already singular
+#         add_slug = slug
+#     elif slug.endswith('ies'):  # Handle plurals like 'eligibilities' -> 'eligibility'
+#         add_slug = slug[:-3] + 'y'
+#     elif slug.endswith('es') and len(slug) > 3 and (slug[-3] in 'sx' or slug[-4:-2] in ['sh', 'ch'] or (slug[-3] == 'z' and len(slug) > 4 and slug[-4] not in 'aeiou')):  # Handle 'statuses' -> 'status', 'buses' -> 'bus', etc.
+#         add_slug = slug[:-2]
+#     else:  # Default case: remove 's' if present
+#         add_slug = slug.rstrip('s')
+    
+#     add_action = url_for(f"admin.add_{add_slug}")  # e.g., 'admin.add_user_type' or 'admin.add_opportunity_status'
+    
+#     no_found = f"No {display_name.lower()} found"
+    
+#     return render_template(
+#         'admin/admin_settings/generic_management.html',
+#         items=items,
+#         title=title,
+#         description=description,
+#         add_placeholder=add_placeholder,
+#         add_action=add_action,
+#         no_found=no_found,
+#         model_slug=slug,
+#         button_text_class=button_text_class
+#     )
+
+
+
 def manage_model(model, redirect_endpoint, display_name, slug, button_text_class='text-black', form_data=None):
     status_filter = request.args.get('status', 'all')
     query = model.query
@@ -1653,17 +1701,60 @@ def manage_model(model, redirect_endpoint, display_name, slug, button_text_class
     description = f"Add or disable {display_name.lower()}"
     add_placeholder = f"Add new {lower_name}"
     
-    # Improved singularization logic
-    if slug in ['institute_autonomous', 'current_designations']:  # Special cases where slug is already singular
-        add_slug = slug
-    elif slug.endswith('ies'):  # Handle plurals like 'eligibilities' -> 'eligibility'
-        add_slug = slug[:-3] + 'y'
-    elif slug.endswith('es') and len(slug) > 3 and (slug[-3] in 'sx' or slug[-4:-2] in ['sh', 'ch'] or (slug[-3] == 'z' and len(slug) > 4 and slug[-4] not in 'aeiou')):  # Handle 'statuses' -> 'status', 'buses' -> 'bus', etc.
-        add_slug = slug[:-2]
-    else:  # Default case: remove 's' if present
-        add_slug = slug.rstrip('s')
+    # Use the actual endpoint names instead of trying to construct them
+    # This maps the slug to the correct endpoint name
+    endpoint_map = {
+        'current_designations': 'admin.add_current_designation',
+        'sectors': 'admin.add_sector',
+        'equipment_types': 'admin.add_equipment_type',
+        'funding_agencies': 'admin.add_funding_agency',
+        'team_positions': 'admin.add_team_position',
+        'opportunity_types': 'admin.add_opportunity_type',
+        'opportunity_domains': 'admin.add_opportunity_domain',
+        'compensation_currencies': 'admin.add_compensation_currency',
+        'csr_fund_categories': 'admin.add_csr_fund_category',
+        'interest_areas': 'admin.add_interest_area',
+        'institute_ownerships': 'admin.add_institute_ownership',
+        'institute_types': 'admin.add_institute_type',
+        'departments': 'admin.add_new_department',
+        'degrees': 'admin.add_degree',
+        'publishers': 'admin.add_publisher',
+        'skill_types': 'admin.add_skill_type',
+        'research_areas': 'admin.add_research_area',
+        'user_types': 'admin.add_user_type',
+        'account_statuses': 'admin.add_account_status',
+        'verification_statuses': 'admin.add_verification_status',
+        'profile_types': 'admin.add_profile_type',
+        'visibility_settings': 'admin.add_visibility_setting',
+        'genders': 'admin.add_gender',
+        'research_profiles': 'admin.add_research_profile',
+        'current_statuses': 'admin.add_current_status',
+        'team_sizes': 'admin.add_team_size',
+        'annual_turnovers': 'admin.add_annual_turnover',
+        'warranty_statuses': 'admin.add_warranty_status',
+        'working_statuses': 'admin.add_working_status',
+        'project_statuses': 'admin.add_project_status',
+        'team_statuses': 'admin.add_team_status',
+        'opportunity_eligibilities': 'admin.add_opportunity_eligibility',
+        'opportunity_statuses': 'admin.add_opportunity_status',
+        'durations': 'admin.add_duration',
+        'compensation_types': 'admin.add_compensation_type',
+        'application_statuses': 'admin.add_application_status',
+        'message_statuses': 'admin.add_message_status',
+        'notification_types': 'admin.add_notification_type',
+        'notification_read_statuses': 'admin.add_notification_read_status',
+        'csr_availabilities': 'admin.add_csr_availability',
+        'institute_autonomous': 'admin.add_institute_autonomous',
+        'currently_pursuing_options': 'admin.add_currently_pursuing_option',
+        'currently_working_options': 'admin.add_currently_working_option',
+        'trl_levels': 'admin.add_trl_level',
+        'ip_statuses': 'admin.add_ip_status',
+        'licensing_intents': 'admin.add_licensing_intent',
+        'proficiency_levels': 'admin.add_proficiency_level'
+    }
     
-    add_action = url_for(f"admin.add_{add_slug}")  # e.g., 'admin.add_user_type' or 'admin.add_opportunity_status'
+    # Get the correct endpoint from the map, or fall back to a default pattern
+    add_action = url_for(endpoint_map.get(slug, 'admin.index'))
     
     no_found = f"No {display_name.lower()} found"
     
@@ -1679,6 +1770,8 @@ def manage_model(model, redirect_endpoint, display_name, slug, button_text_class
         button_text_class=button_text_class
     )
 
+
+    
 def add_model_item(model, name_field, success_message, redirect_endpoint, additional_fields=None):
     name = request.form.get(name_field)
     if name:

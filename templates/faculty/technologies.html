@@ -40,21 +40,20 @@
               <label class="font-semibold block mb-1">TRL Level</label>
               <select name="trl" class="form-control py-2">
                 <option value="">Select TRL</option>
-                {% for i in range(1, 10) %}
-                <option value="{{ i }}">TRL {{ i }}</option>
+                {% for trl in trl_levels %}
+                <option value="{{ trl.name }}">{{ trl.name }}</option>
                 {% endfor %}
               </select>
             </div>
             
+            <!-- Replace the static IP Status dropdown with this -->
             <div class="col-span-3">
               <label class="font-semibold block mb-1">IP Status</label>
               <select name="ip_status" class="form-control py-2">
                 <option value="">Select IP Status</option>
-                <option value="Patent Pending">Patent Pending</option>
-                <option value="Patented">Patented</option>
-                <option value="Trade Secret">Trade Secret</option>
-                <option value="Copyrighted">Copyrighted</option>
-                <option value="Open Source">Open Source</option>
+                {% for ip in ip_statuses %}
+                <option value="{{ ip.name }}">{{ ip.name }}</option>
+                {% endfor %}
               </select>
             </div>
             
@@ -72,10 +71,9 @@
               <label class="font-semibold block mb-1">Licensing Intent</label>
               <select name="licensing_intent" class="form-control py-2">
                 <option value="">Select Licensing Intent</option>
-                <option value="Available for License">Available for License</option>
-                <option value="Seeking Partners">Seeking Partners</option>
-                <option value="Not Currently Available">Not Currently Available</option>
-                <option value="Open Source">Open Source</option>
+                {% for intent in licensing_intents %}
+                <option value="{{ intent.name }}">{{ intent.name }}</option>
+                {% endfor %}
               </select>
             </div>
             
@@ -250,6 +248,10 @@ function populateEditForm(tech) {
   document.querySelector('[name="ip_status"]').value = tech.ip_status || '';
   document.querySelector('[name="licensing_intent"]').value = tech.licensing_intent || '';
   document.getElementById('submitBtn').textContent = 'Update';
+
+  
+  // Scroll to form for better UX
+  document.getElementById('technology-form').scrollIntoView({ behavior: 'smooth' });
 }
 
 function cancelEdit() {
