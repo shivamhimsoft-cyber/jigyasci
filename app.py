@@ -85,9 +85,9 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 
 # Configure database
-# app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql+psycopg2://postgres:bbb07ak47@localhost:5432/shivamdb"   # Local Database URL
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://postgres:bbb07ak47@localhost:5432/shivamdb"   # Local Database URL
 # app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://shivamdb2:peIpDSI8JJ6tONyYEufjqUPz6cYAafEj@dpg-d34g43ruibrs73ages70-a.oregon-postgres.render.com/shivamdb2"   # External Database URL
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://shivamdb2:peIpDSI8JJ6tONyYEufjqUPz6cYAafEj@dpg-d34g43ruibrs73ages70-a/shivamdb2"      # Internal Database URL
+# app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://shivamdb2:peIpDSI8JJ6tONyYEufjqUPz6cYAafEj@dpg-d34g43ruibrs73ages70-a/shivamdb2"      # Internal Database URL
  
 
 
@@ -97,6 +97,36 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 
 }
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # Disable modification tracking
+
+
+
+
+
+# -----------------------
+# ✅ Database Config
+# -----------------------
+# db_url = os.environ.get("DATABASE_URL")
+
+# if db_url:
+#     # Render ke external Postgres ke liye sslmode=require add kar do
+#     if "render.com" in db_url and "?sslmode=require" not in db_url:
+#         db_url += "?sslmode=require"
+# else:
+#     # Local fallback
+#     db_url = "postgresql://postgres:bbb07ak47@localhost:5432/shivamdb2"
+
+# app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+# app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+#     "pool_pre_ping": True,
+#     "pool_recycle": 300,
+# }
+# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+
+
+
+
+
 
 # In your app.py or wherever you initialize your app
 app.config['BULK_UPLOAD_FOLDER'] = 'uploads/bulk_opportunities'
@@ -120,7 +150,35 @@ def nl2br(value):
         return value.replace('\n', '<br>')
 
 # Import models and forms after db is initialized to avoid circular imports
-from models import User, Profile, StudentProfile, PIProfile, IndustryProfile, VendorProfile, Opportunity, OpportunityLink, Message, Application, Notification, Register, ResearchFacility, Publication, TeamMember, Education, Experience,Technology, Skill, Award, ApplicationLink
+from models import (
+    User,
+    Profile,
+    StudentProfile,
+    PIProfile,
+    IndustryProfile,
+    VendorProfile,
+    Opportunity,
+    OpportunityLink,
+    Message,
+    Application,
+    Notification,
+    Register,
+    ResearchFacility,
+    Publication,
+    TeamMember,
+    Education,
+    Experience,
+    Technology,
+    Skill,
+    Award,
+    ApplicationLink,
+    OpportunityType,
+    OpportunityDomain,
+    OpportunityStatus,
+    Duration,
+    CompensationType,
+    OpportunityEligibility
+)
 from forms import LoginForm, RegistrationForm, StudentProfileForm, PIProfileForm, IndustryProfileForm, VendorProfileForm, OpportunityForm, MessageForm, SearchForm
 
 @login_manager.user_loader
@@ -225,7 +283,24 @@ def my_opportunities():
         .order_by(Opportunity.created_at.desc())\
         .paginate(page=page, per_page=per_page, error_out=False)
     
-    return render_template('opportunities/my_opportunities.html', opportunities=opportunities)
+    # Get dynamic options from database
+    opportunity_types = OpportunityType.query.filter_by(status='Active').all()
+    opportunity_domains = OpportunityDomain.query.filter_by(status='Active').all()
+    opportunity_statuses = OpportunityStatus.query.filter_by(status='Active').all()
+    durations = Duration.query.filter_by(status='Active').all()
+    compensation_types = CompensationType.query.filter_by(status='Active').all()
+    eligibility_options = OpportunityEligibility.query.filter_by(status='Active').all()
+
+    
+    return render_template('opportunities/my_opportunities.html', 
+                         opportunities=opportunities,
+                         opportunity_types=opportunity_types,
+                         opportunity_domains=opportunity_domains,
+                         opportunity_statuses=opportunity_statuses,
+                         durations=durations,
+                         compensation_types=compensation_types,
+                         eligibility_options=eligibility_options)
+
 
 
 @app.route('/add-opportunity', methods=['GET', 'POST'])
@@ -252,9 +327,14 @@ def add_opportunity():
         opportunity.type = form_data['type']
         opportunity.title = form_data['title']
         
+        # Handle eligibility - get selected values from checkboxes
+        eligibility_values = form_data.getlist('eligibility')
+        # Filter out any empty values and join with commas
+        eligibility_str = ', '.join([v for v in eligibility_values if v.strip()])
+        opportunity.eligibility = eligibility_str if eligibility_str else None
+        
         # Optional fields
         opportunity.domain = clean_field(form_data.get('domain'))
-        opportunity.eligibility = clean_field(form_data.get('eligibility'))
         opportunity.description = clean_field(form_data.get('description'))
         opportunity.advertisement_link = clean_field(form_data.get('advertisement_link'))
         opportunity.location = clean_field(form_data.get('location'))

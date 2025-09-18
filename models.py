@@ -24,7 +24,13 @@ class User(UserMixin, db.Model):
                                        foreign_keys='Message.receiver_user_id', cascade="all, delete-orphan")
     applications = db.relationship('Application', backref='applicant', lazy='dynamic', 
                                   foreign_keys='Application.applicant_user_id', cascade="all, delete-orphan")
-    notifications = db.relationship('Notification', backref='user', lazy='dynamic', cascade="all, delete-orphan")
+    notifications = db.relationship('Notification', backref='user', lazy='dynamic', cascade="all, delete-orphan")   
+
+    def set_password(self, password):
+        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self.password_hash, password)
 
     def __repr__(self):
         return f'<User {self.email}>'
@@ -452,6 +458,8 @@ class Institute(db.Model):
     state = db.Column(db.String(255))
     link = db.Column(db.String(500))
     ownership = db.Column(db.String(100))
+
+    
     
     def __repr__(self):
         return f'<Institute {self.name}>'

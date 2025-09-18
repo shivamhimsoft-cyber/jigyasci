@@ -27,11 +27,9 @@
               <label class="font-semibold block mb-1">Opportunity Type*</label>
               <select name="type" class="form-control py-2" required>
                 <option value="">Select Type</option>
-                <option value="Internship">Internship</option>
-                <option value="PhD">PhD</option>
-                <option value="Job">Job</option>
-                <option value="PostDoc">PostDoc</option>
-                <option value="Project">Project</option>
+                {% for opt_type in opportunity_types %}
+                <option value="{{ opt_type.name }}">{{ opt_type.name }}</option>
+                {% endfor %}
               </select>
             </div>
             
@@ -40,9 +38,19 @@
               <input type="text" name="title" class="form-control py-2" required>
             </div>
             
-            <div class="col-span-6">
+            <!-- <div class="col-span-6">
               <label class="font-semibold block mb-1">Domain</label>
               <input type="text" name="domain" class="form-control py-2">
+            </div> -->
+            <!-- Replace the static Domain input with this -->
+            <div class="col-span-6">
+              <label class="font-semibold block mb-1">Domain</label>
+              <select name="domain" class="form-control py-2">
+                <option value="">Select Domain</option>
+                {% for domain in opportunity_domains %}
+                <option value="{{ domain.name }}">{{ domain.name }}</option>
+                {% endfor %}
+              </select>
             </div>
             
             <div class="col-span-6">
@@ -55,29 +63,91 @@
               <input type="date" name="deadline" class="form-control py-2">
             </div>
             
-            <div class="col-span-6">
+            <!-- <div class="col-span-6">
               <label class="font-semibold block mb-1">Duration</label>
               <input type="text" name="duration" class="form-control py-2">
-            </div>
-            
+            </div> -->
+            <!-- Replace the static Duration input with this -->
             <div class="col-span-6">
+              <label class="font-semibold block mb-1">Duration</label>
+              <select name="duration" class="form-control py-2">
+                <option value="">Select Duration</option>
+                {% for duration in durations %}
+                <option value="{{ duration.name }}">{{ duration.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- <div class="col-span-6">
               <label class="font-semibold block mb-1">Compensation</label>
               <input type="text" name="compensation" class="form-control py-2">
-            </div>
-            
+            </div> -->
+
             <div class="col-span-6">
+              <label class="font-semibold block mb-1">Compensation</label>
+              <select name="compensation" class="form-control py-2">
+                <option value="">Select Compensation</option>
+                {% for comp_type in compensation_types %}
+                <option value="{{ comp_type.name }}">{{ comp_type.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            
+            <!-- <div class="col-span-6">
               <label class="font-semibold block mb-1">Status</label>
               <select name="status" class="form-control py-2">
                 <option value="Active">Active</option>
                 <option value="Closed">Closed</option>
                 <option value="Filled">Filled</option>
               </select>
+            </div> -->
+
+            <!-- Replace the static Status dropdown with this -->
+            <div class="col-span-6">
+              <label class="font-semibold block mb-1">Status</label>
+              <select name="status" class="form-control py-2">
+                <option value="">Select Status</option>
+                {% for status in opportunity_statuses %}
+                <option value="{{ status.name }}">{{ status.name }}</option>
+                {% endfor %}
+              </select>
             </div>
             
-            <div class="col-span-12">
+            <!-- <div class="col-span-12">
               <label class="font-semibold block mb-1">Eligibility</label>
               <textarea name="eligibility" class="form-control py-2" rows="2"></textarea>
+            </div> -->
+
+            <div class="col-span-12">
+              <!-- Title -->
+              <label class="font-semibold text-gray-800 text-base block mb-2">Eligibility Criteria</label>
+
+              <!-- Multi-select Container -->
+              <div class="border border-gray-300 rounded-md p-4 max-h-60 overflow-y-auto flex flex-wrap gap-3" id="eligibility-container">
+                {% for eligibility in eligibility_options %}
+                <div class="flex items-center space-x-2 eligibility-option hover:bg-gray-50 px-3 py-2 rounded border border-gray-200 transition">
+                  <input type="checkbox" name="eligibility" value="{{ eligibility.name }}" 
+                        id="eligibility-{{ loop.index }}" 
+                        class="form-checkbox text-indigo-600 focus:ring-indigo-500">
+                  <label for="eligibility-{{ loop.index }}" class="text-sm text-gray-700 cursor-pointer">
+                    {{ eligibility.name }}
+                  </label>
+                </div>
+                {% endfor %}
+              </div>
+
+              <!-- Helper Text -->
+              <small class="text-gray-500 block mt-1">Select all applicable eligibility criteria</small>
+
+              <!-- Selected Items Display -->
+              <div id="selected-eligibility" class="mt-3 flex flex-wrap gap-2 hidden">
+                <span class="text-sm font-medium text-gray-700">Selected:</span>
+                <!-- Selected items will be inserted here -->
+              </div>
             </div>
+
+
             
             <div class="col-span-12">
               <label class="font-semibold block mb-1">Description</label>
@@ -143,13 +213,17 @@
                     <td class="p-3">{{ opportunity.location }}</td>
                     <td class="p-3">{{ opportunity.duration }}</td>
                     <td class="p-3">{{ opportunity.compensation }}</td>
+                    <!-- Updated Status Cell with Full Color Implementation -->
                     <td class="p-3">
-                        <span class="badge 
-                            {% if opportunity.status == 'Active' %}bg-lightsuccess text-success
-                            {% elif opportunity.status == 'Closed' %}bg-lightwarning text-warning
-                            {% else %}bg-gray-200 text-gray-700{% endif %}">
-                            {{ opportunity.status }}
-                        </span>
+                      <span class="px-2 py-1 rounded-full text-xs font-medium 
+                        {% if opportunity.status == 'Active' %}bg-green-100 text-green-800
+                        {% elif opportunity.status == 'Closed' %}bg-red-100 text-red-800
+                        {% elif opportunity.status == 'Filled' %}bg-blue-100 text-blue-800
+                        {% elif opportunity.status == 'Draft' %}bg-gray-100 text-gray-800
+                        {% elif opportunity.status == 'Pending' %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ opportunity.status }}
+                      </span>
                     </td>
               
 
@@ -288,14 +362,50 @@
 </div>
 
 <!-- JavaScript -->
+<!-- JavaScript -->
 <script>
 function toggleForm() {
   document.getElementById('opportunity-form').classList.toggle('hidden');
 }
 
+function filterEligibilityOptions() {
+  const searchTerm = document.getElementById('eligibility-search').value.toLowerCase();
+  const options = document.querySelectorAll('.eligibility-option');
+  
+  options.forEach(option => {
+    const text = option.textContent.toLowerCase();
+    if (text.includes(searchTerm)) {
+      option.style.display = 'flex';
+    } else {
+      option.style.display = 'none';
+    }
+  });
+}
+
+function updateSelectedEligibilityDisplay() {
+  const selectedContainer = document.getElementById('selected-eligibility');
+  const selectedCheckboxes = document.querySelectorAll('input[name="eligibility"]:checked');
+  
+  if (selectedCheckboxes.length > 0) {
+    selectedContainer.classList.remove('hidden');
+    selectedContainer.innerHTML = '<span class="text-sm font-medium">Selected: </span>';
+    
+    selectedCheckboxes.forEach(checkbox => {
+      const badge = document.createElement('span');
+      badge.className = 'bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded';
+      badge.textContent = checkbox.value;
+      selectedContainer.appendChild(badge);
+    });
+  } else {
+    selectedContainer.classList.add('hidden');
+  }
+}
+
 function populateEditForm(opportunity) {
   document.getElementById('opportunity-form').classList.remove('hidden');
   document.getElementById('opportunity_id').value = opportunity.id;
+  
+  // Set basic fields
   document.querySelector('[name="type"]').value = opportunity.type;
   document.querySelector('[name="title"]').value = opportunity.title;
   document.querySelector('[name="domain"]').value = opportunity.domain;
@@ -304,18 +414,56 @@ function populateEditForm(opportunity) {
   document.querySelector('[name="duration"]').value = opportunity.duration;
   document.querySelector('[name="compensation"]').value = opportunity.compensation;
   document.querySelector('[name="status"]').value = opportunity.status;
-  document.querySelector('[name="eligibility"]').value = opportunity.eligibility;
   document.querySelector('[name="description"]').value = opportunity.description;
   document.querySelector('[name="keywords"]').value = opportunity.keywords;
   document.querySelector('[name="advertisement_link"]').value = opportunity.advertisement_link;
+  
+  // Handle eligibility - uncheck all first
+  document.querySelectorAll('input[name="eligibility"]').forEach(checkbox => {
+    checkbox.checked = false;
+  });
+  
+  // Check the appropriate eligibility checkboxes
+  if (opportunity.eligibility) {
+    const eligibilityValues = opportunity.eligibility.split(',').map(item => item.trim());
+    eligibilityValues.forEach(value => {
+      const checkbox = document.querySelector(`input[name="eligibility"][value="${value}"]`);
+      if (checkbox) {
+        checkbox.checked = true;
+      }
+    });
+  }
+  
+  // Update the selected display
+  updateSelectedEligibilityDisplay();
+  
   document.getElementById('submitBtn').textContent = 'Update';
+  document.getElementById('opportunity-form').scrollIntoView({ behavior: 'smooth' });
 }
 
 function cancelEdit() {
   document.getElementById('opportunity-form').classList.add('hidden');
   document.getElementById('opportunityForm').reset();
+  
+  // Clear eligibility selections
+  document.querySelectorAll('input[name="eligibility"]').forEach(checkbox => {
+    checkbox.checked = false;
+  });
+  document.getElementById('selected-eligibility').classList.add('hidden');
+  
   document.getElementById('opportunity_id').value = '';
   document.getElementById('submitBtn').textContent = 'Save';
 }
+
+// Add event listeners to update display when eligibility changes
+document.addEventListener('DOMContentLoaded', function() {
+  const eligibilityCheckboxes = document.querySelectorAll('input[name="eligibility"]');
+  eligibilityCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', updateSelectedEligibilityDisplay);
+  });
+});
+
+
 </script>
+
 {% endblock %}

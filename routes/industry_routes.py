@@ -2,7 +2,7 @@
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
-from models import Profile, IndustryProfile
+from models import Profile, IndustryProfile, IPStatus, TRLLevel
 from extensions import db  # yeh alag se import karo
 from werkzeug.utils import secure_filename
 from sqlalchemy import or_

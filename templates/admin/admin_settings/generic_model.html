@@ -178,6 +178,14 @@ Admin Settings | {{ title }}
                     <span class="hide-menu flex-shrink-0">Faculty</span>
                   </a>
                 </li>
+                 <!-- New Students Sidebar Item -->
+                                    <li class="sidebar-item">
+                                        <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('admin.adminstudents') }}">
+                                            <iconify-icon icon="mdi:account-school-outline" class="text-xl p-2"></iconify-icon>
+                                            <span class="hide-menu flex-shrink-0">Students</span>
+                                        </a>
+                                    </li>
+
               {% endif %}
 
               <!-- Opportunities -->

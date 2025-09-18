@@ -2,7 +2,7 @@
 
 from flask import Blueprint, render_template, abort, request, flash, redirect, url_for
 from flask_login import login_required, current_user
-from models import PIProfile, Profile, TeamMember, Education, Experience, ResearchFacility, Publication, Technology, Skill, SkillType, Award, Project, StudentProfile, EquipmentType
+from models import PIProfile, Profile, TeamMember, Education, Experience, ResearchFacility, Publication, Technology, Skill, SkillType, Award, Project, StudentProfile, EquipmentType, IPStatus, TRLLevel, LicensingIntent, ProficiencyLevel, OpportunityType, WorkingStatus
 from extensions import db
 from sqlalchemy import func, or_
 from datetime import datetime
@@ -445,6 +445,11 @@ def delete_project(id):
 def technologies():
     if not current_user.profile:
         abort(403)
+
+    # Get dynamic options from database
+    ip_statuses = IPStatus.query.filter_by(status='Active').all()
+    trl_levels = TRLLevel.query.filter_by(status='Active').all()
+    licensing_intents = LicensingIntent.query.filter_by(status='Active').all()
         
     if request.method == 'POST':
         technology_id = request.form.get('technology_id')
@@ -506,7 +511,12 @@ def technologies():
                          .order_by(Technology.updated_at.desc())\
                          .paginate(page=page, per_page=per_page, error_out=False)
     
-    return render_template('faculty/technologies.html', technologies=technologies)
+    return render_template('faculty/technologies.html', 
+                            technologies=technologies,
+                            ip_statuses=ip_statuses,
+                            trl_levels=trl_levels,
+                            licensing_intents=licensing_intents)
+
 
 @pi_bp.route('/technologies/delete/<int:id>', methods=['POST'])
 @login_required
@@ -523,8 +533,11 @@ def delete_technology(id):
 
 # RESEACH FACILITIES
 
-UPLOAD_SUBDIR = os.path.join('uploads', 'sops')  # Relative for DB
-UPLOAD_FOLDER = os.path.join('static', UPLOAD_SUBDIR)  # Full path
+import os
+from werkzeug.utils import secure_filename
+
+UPLOAD_SUBDIR = 'uploads/sops'  # Use forward slashes for consistency
+UPLOAD_FOLDER = os.path.join('static', UPLOAD_SUBDIR)  # Full path for file system
 ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx'}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -554,7 +567,8 @@ def research_facilities():
                     filepath = os.path.join(UPLOAD_FOLDER, filename)
                     try:
                         file.save(filepath)
-                        sop_file = os.path.join('uploads', 'sops', filename)
+                        # Store path with forward slashes for database
+                        sop_file = os.path.join('uploads', 'sops', filename).replace('\\', '/')
                     except Exception as e:
                         flash(f"File save error: {str(e)}", "error")
                 else:
@@ -575,7 +589,7 @@ def research_facilities():
             facility.equipment_type = equipment_type
             if sop_file:
                 if facility.sop_file:
-                    old_path = os.path.join('static', facility.sop_file)
+                    old_path = os.path.join('static', facility.sop_file).replace('\\', '/')
                     if os.path.exists(old_path):
                         os.remove(old_path)
                 facility.sop_file = sop_file
@@ -608,13 +622,13 @@ def research_facilities():
         .order_by(ResearchFacility.equipment_name.asc())\
         .paginate(page=page, per_page=per_page, error_out=False)
 
-    # Get equipment types from database
     equipment_types = EquipmentType.query.filter_by(status='Active').all()
+    working_statuses = WorkingStatus.query.filter_by(status='Active').all()
 
-    return render_template('faculty/research_facilities.html', 
-                         facilities=facilities, 
-                         equipment_types=equipment_types)
-
+    return render_template('faculty/research_facilities.html',
+                         facilities=facilities,
+                         equipment_types=equipment_types,
+                         working_statuses=working_statuses)
 
 
 @pi_bp.route('/research-facilities/delete/<int:id>', methods=['POST'])
@@ -708,7 +722,16 @@ def skills():
     # Get skill types from database
     skill_types = SkillType.query.filter_by(status='Active').all()
     
-    return render_template('faculty/skills.html', skills=skills, skill_types=skill_types)
+    # Get proficiency levels from database
+    proficiency_levels = ProficiencyLevel.query.filter_by(status='Active').all()
+
+    return render_template(
+        'faculty/skills.html', 
+        skills=skills, 
+        skill_types=skill_types, 
+        proficiency_levels=proficiency_levels
+    )
+
 
 @pi_bp.route('/skills/delete/<int:id>', methods=['POST'])
 @login_required

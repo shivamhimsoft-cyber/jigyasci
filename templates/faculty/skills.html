@@ -38,16 +38,16 @@
               <input type="text" name="skill_name" class="form-control py-2" required>
             </div>
             
-            <div class="col-span-6">
+           <div class="col-span-6">
               <label class="font-semibold block mb-1">Proficiency Level</label>
               <select name="proficiency_level" class="form-control py-2">
                 <option value="">Select Level</option>
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Advanced">Advanced</option>
-                <option value="Expert">Expert</option>
+                {% for level in proficiency_levels %}
+                <option value="{{ level.name }}">{{ level.name }}</option>
+                {% endfor %}
               </select>
             </div>
+
             
             <div class="col-span-12 flex justify-end gap-2 mt-4">
               <button type="submit" id="submitBtn" class="bg-blue-500 hover:bg-blue-600 text-black font-semibold py-2 px-4 rounded shadow">
