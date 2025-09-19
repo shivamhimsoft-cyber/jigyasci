@@ -62,10 +62,62 @@ def industryProfile():
 
 
 
+# @industry_bp.route('/<int:industry_id>')
+# def industry_profile(industry_id):
+#     industry = IndustryProfile.query.get_or_404(industry_id)
+#     # Convert careers query to a list to avoid AppenderQuery issue
+#     industry.careers = industry.careers.all() if industry.careers else []
+#     return render_template('visit_profile/industry.html', industry=industry)
+
+
 @industry_bp.route('/<int:industry_id>')
 def industry_profile(industry_id):
     industry = IndustryProfile.query.get_or_404(industry_id)
-    return render_template('visit_profile/industry.html', industry=industry)
+    
+    # Convert relationships to lists for template use
+    template_vars = {
+        'industry': industry,
+        'careers': [],
+        'technologies': [],
+        'collaboration_models_list': [],
+        'regions': [],
+        'rankings': [],
+        'sectors': [],
+        'overview': industry.vision or "No overview available",
+        'mission': industry.vision or "No mission available",
+        'available_technologies': "No technologies information available",
+        'collaboration_models_text': "No collaboration models information available",
+        'career_opportunities': "No career opportunities information available",
+        'academic_collaborations': "No academic collaborations information available",
+        'csr_tech_for_good': "No CSR tech for good information available",
+        'csr_tech_impact': "N/A",
+        'csr_stem_education': "No STEM education information available",
+        'csr_stem_impact': "N/A",
+        'countries': "N/A",
+        'patents': "N/A",
+        'offices': "N/A",
+        'website': "N/A",
+        'facility_image': "images/facility_default.jpg",
+        'facility_description': "No facility description available",
+        'footprint_description': "No footprint information available",
+        'awards_image': "images/awards_default.jpg",
+        'awards_description': "No awards description available",
+        'mentorship_image': "images/mentorship_default.jpg",
+        'mentorship_description': "No mentorship description available",
+        'mentor_calendar_description': "No calendar description available",
+        'facilities': [],
+        'infrastructure': [],
+        'facility_specs': [],
+        'awards_by_year': {},
+        'mentorship_programs': [],
+        'mentor_specializations': [],
+        'mentor_sessions': [],
+        'mentorship_stats': [],
+        'testimonials': [],
+        'industry_programs': []
+    }
+    
+    return render_template('visit_profile/industry.html', **template_vars)
 
 def search_industries(query):
     """Search industries by company name, sector or vision"""

@@ -96,25 +96,25 @@
                                 <li class="sidebar-item">
                                     <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
                                     href="{{ url_for('student.student_profile') }}">
-                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                    <iconify-icon icon="mdi:account-outline" class="text-xl p-2"></iconify-icon>
                                         <span class="hide-menu flex-shrink-0">Student Profile</span>
                                     </a>
                                 </li>
                             {% endif %}
                                 {% if current_user.is_authenticated and current_user.user_type == 'PI' %}
 
-                               <li class="sidebar-item">
+                               <!-- <li class="sidebar-item">
                                     <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
                                     href="{{ url_for('pi.view_pi_profile') }}">
-                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                      <iconify-icon icon="mdi:account-outline" class="text-xl p-2"></iconify-icon>  
                                         <span class="hide-menu flex-shrink-0">Profile</span>
                                     </a>
-                                </li>
+                                </li> -->
 
                                 <li class="sidebar-item">
                                     <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
                                     href="{{ url_for('pi.publications') }}">
-                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                      <iconify-icon icon="mdi:book-open-page-variant" class="text-xl p-2"></iconify-icon>
                                         <span class="hide-menu flex-shrink-0">Publications</span>
                                     </a>
                                 </li>
@@ -122,7 +122,7 @@
                                 <li class="sidebar-item">
                                     <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
                                     href="{{ url_for('pi.technologies') }}">
-                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                      <iconify-icon icon="mdi:chip" class="text-xl p-2"></iconify-icon> 
                                         <span class="hide-menu flex-shrink-0">Technologies</span>
                                     </a>
                                 </li>
@@ -140,7 +140,7 @@
                                 <a class="sidebar-link before:bg-lightindigo hover:text-indigo
                                     " href="{{ url_for('list_opportunities') }}"
                                 >
-                                    <iconify-icon icon="solar:lightbulb-bolt-broken" class="text-xl p-2"></iconify-icon>
+                                  <iconify-icon icon="solar:lightbulb-bolt-broken" class="text-xl p-2"></iconify-icon>
                                     <span class="hide-menu flex-shrink-0 ">Opportunities</span>
                                 </a>
                             </li>
@@ -198,7 +198,7 @@
                                 <li class="sidebar-item">
                                     <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
                                     href="{{ url_for('pi.education')}}">
-                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <iconify-icon icon="mdi:school" class="text-xl p-2"></iconify-icon>
                                         <span class="hide-menu flex-shrink-0">Education</span>
                                     </a>
                                 </li>
@@ -206,7 +206,7 @@
                                 <li class="sidebar-item">
                                     <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
                                     href="{{ url_for('pi.experience') }}">
-                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <iconify-icon icon="mdi:briefcase-outline" class="text-xl p-2"></iconify-icon>
                                         <span class="hide-menu flex-shrink-0">Experience</span>
                                     </a>
                                 </li>
@@ -230,7 +230,7 @@
                                 <li class="sidebar-item">
                                     <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
                                     href="{{ url_for('pi.skills') }}">
-                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <iconify-icon icon="mdi:star-outline" class="text-xl p-2"></iconify-icon>
                                         <span class="hide-menu flex-shrink-0">Skills</span>
                                     </a>
                                 </li>
@@ -238,7 +238,7 @@
                                 <li class="sidebar-item">
                                     <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
                                     href="{{ url_for('pi.awards') }}">
-                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <iconify-icon icon="mdi:trophy-outline" class="text-xl p-2"></iconify-icon>
                                         <span class="hide-menu flex-shrink-0">Awards</span>
                                     </a>
                                 </li>
@@ -250,7 +250,7 @@
                                  <li class="sidebar-item">
                                     <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
                                     href="{{ url_for('pi.research_facilities') }}">
-                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <iconify-icon icon="mdi:flask-outline" class="text-xl p-2"></iconify-icon>
                                         <span class="hide-menu flex-shrink-0">Research Facilities</span>
                                     </a>
                                 </li>
@@ -258,7 +258,7 @@
                                 <li class="sidebar-item">
                                     <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
                                     href="{{ url_for('pi.basic_info') }}">
-                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <iconify-icon icon="mdi:information-outline" class="text-xl p-2"></iconify-icon>
                                         <span class="hide-menu flex-shrink-0">Basic Information</span>
                                     </a>
                                 </li>
@@ -266,7 +266,7 @@
                                 <li class="sidebar-item">
                                     <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
                                     href="{{ url_for('pi.projects') }}">
-                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <iconify-icon icon="mdi:folder-open-outline" class="text-xl p-2"></iconify-icon>
                                         <span class="hide-menu flex-shrink-0">Projects</span>
                                     </a>
                                 </li>
@@ -274,7 +274,7 @@
                                 <li class="sidebar-item">
                                     <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
                                     href="{{ url_for('pi.team_members') }}">
-                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <iconify-icon icon="mdi:account-group-outline" class="text-xl p-2"></iconify-icon>
                                         <span class="hide-menu flex-shrink-0">Team Members</span>
                                     </a>
                                 </li>
@@ -294,14 +294,14 @@
                                 <li class="sidebar-item">
                                     <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
                                     href="{{ url_for('vendor.vendorProfile') }}">
-                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <iconify-icon icon="mdi:account-outline" class="text-xl p-2"></iconify-icon>
                                         <span class="hide-menu flex-shrink-0">Vendor Profile</span>
                                     </a>
                                 </li>
                                  <li class="sidebar-item">
                                     <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
                                     href="{{ url_for('pi.technologies') }}">
-                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <iconify-icon icon="mdi:chip" class="text-xl p-2"></iconify-icon>
                                         <span class="hide-menu flex-shrink-0">Technologies</span>
                                     </a>
                                 </li>
@@ -313,14 +313,14 @@
                                 <li class="sidebar-item">
                                     <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
                                     href="{{ url_for('industry.industryProfile') }}">
-                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                        <iconify-icon icon="mdi:account-outline" class="text-xl p-2"></iconify-icon>
                                         <span class="hide-menu flex-shrink-0">Industry Profile</span>
                                     </a>
                                 </li>
                                  <li class="sidebar-item">
                                     <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
                                     href="{{ url_for('pi.technologies') }}">
-                                        <iconify-icon icon="solar:smart-home-line-duotone" class="text-xl p-2"></iconify-icon>
+                                            <iconify-icon icon="mdi:chip" class="text-xl p-2"></iconify-icon>
                                         <span class="hide-menu flex-shrink-0">Technologies</span>
                                     </a>
                                 </li>
@@ -357,7 +357,7 @@
                                     <!-- New Students Sidebar Item -->
                                     <li class="sidebar-item">
                                         <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('admin.adminstudents') }}">
-                                            <iconify-icon icon="mdi:account-school-outline" class="text-xl p-2"></iconify-icon>
+                                              <iconify-icon icon="mdi:account-school-outline" class="text-xl p-2"></iconify-icon>
                                             <span class="hide-menu flex-shrink-0">Students</span>
                                         </a>
                                     </li>
@@ -374,31 +374,31 @@
                                 
 
                                 
-                                 <!-- Add this to the sidebar menu in base.html -->
-                                <div class="caption">
-                                    <i class="ti ti-dots nav-small-cap-icon text-lg hidden text-center leading-[16px]"></i>
-                                    <span class="hide-menu">Opportunities</span>
-                                </div>
+                                <!-- Add this to the sidebar menu in base.html -->
+                            <div class="caption">
+                                <i class="ti ti-dots nav-small-cap-icon text-lg hidden text-center leading-[16px]"></i>
+                                <span class="hide-menu">Opportunities</span>
+                            </div>
 
-                                {% if current_user.is_authenticated %}
-                                    <!-- Show "My Opportunities" only for non-Admin users -->
-                                    {% if current_user.user_type != 'Admin' %}
-                                    <li class="sidebar-item">
-                                        <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('my_opportunities') }}">
-                                            <iconify-icon icon="solar:lightbulb-bolt-broken" class="text-xl p-2"></iconify-icon>
-                                            <span class="hide-menu flex-shrink-0">My Opportunities</span>
-                                        </a>
-                                    </li>
-                                    {% endif %}
-
-                                    <!-- Show "Find Opportunities" for all authenticated users -->
-                                    <li class="sidebar-item">
-                                        <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('find_opportunities') }}">
-                                            <iconify-icon icon="solar:magnifer-line-duotone" class="text-xl p-2"></iconify-icon>
-                                            <span class="hide-menu flex-shrink-0">Find Opportunities</span>
-                                        </a>
-                                    </li>
+                            {% if current_user.is_authenticated %}
+                                <!-- Show "My Opportunities" only for non-Admin users -->
+                                {% if current_user.user_type != 'Admin' %}
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('my_opportunities') }}">
+                                        <iconify-icon icon="mdi:lightbulb-outline" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">My Opportunities</span>
+                                    </a>
+                                </li>
                                 {% endif %}
+
+                                <!-- Show "Find Opportunities" for all authenticated users -->
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('find_opportunities') }}">
+                                        <iconify-icon icon="mdi:magnify" class="text-xl p-2"></iconify-icon>
+                                        <span class="hide-menu flex-shrink-0">Find Opportunities</span>
+                                    </a>
+                                </li>
+                            {% endif %}
 
 
 
@@ -1285,11 +1285,8 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-
-
                                                     </div>
                                                     <!-- Notifications DD -->
-
                                                     <div
                                                             class="hs-dropdown xl:[--strategy:absolute] [--adaptive:none] md:[--trigger:hover] sm:relative group/menu">
                                                         <a id="hs-dropdown-hover-event-notification"

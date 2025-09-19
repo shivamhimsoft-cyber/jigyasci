@@ -4,6 +4,10 @@ from extensions import db  #  direct yaha se lo
 
 from flask_login import UserMixin
 
+from werkzeug.security import generate_password_hash
+from io import TextIOWrapper
+from sqlalchemy import or_
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     
@@ -150,12 +154,58 @@ class IndustryProfile(db.Model):
     team_size = db.Column(db.Integer)
     annual_turnover = db.Column(db.String(50))
     
+    # Add these relationships
+    careers = db.relationship('IndustryCareer', backref='industry', lazy='dynamic', cascade="all, delete-orphan")
+    technologies = db.relationship('IndustryTechnology', backref='industry', lazy='dynamic', cascade="all, delete-orphan")
+    collaboration_models = db.relationship('CollaborationModel', backref='industry', lazy='dynamic', cascade="all, delete-orphan")
+    regions = db.relationship('IndustryRegion', backref='industry', lazy='dynamic', cascade="all, delete-orphan")
+    rankings = db.relationship('IndustryRanking', backref='industry', lazy='dynamic', cascade="all, delete-orphan")
+    
     # Relationships
     csr_funds = db.relationship('CSRFund', backref='industry', lazy='dynamic', cascade="all, delete-orphan")
     
     def __repr__(self):
         return f'<IndustryProfile {self.company_name}>'
 
+# Add these supporting models
+class IndustryCareer(db.Model):
+    __tablename__ = 'industry_careers'
+    id = db.Column(db.Integer, primary_key=True)
+    industry_id = db.Column(db.Integer, db.ForeignKey('industry_profiles.id'), nullable=False)
+    title = db.Column(db.String(200))
+    description = db.Column(db.Text)
+    
+class IndustryTechnology(db.Model):
+    __tablename__ = 'industry_technologies'
+    id = db.Column(db.Integer, primary_key=True)
+    industry_id = db.Column(db.Integer, db.ForeignKey('industry_profiles.id'), nullable=False)
+    name = db.Column(db.String(200))
+    description = db.Column(db.Text)
+    
+class CollaborationModel(db.Model):
+    __tablename__ = 'collaboration_models'
+    id = db.Column(db.Integer, primary_key=True)
+    industry_id = db.Column(db.Integer, db.ForeignKey('industry_profiles.id'), nullable=False)
+    name = db.Column(db.String(200))
+    description = db.Column(db.Text)
+    
+class IndustryRegion(db.Model):
+    __tablename__ = 'industry_regions'
+    id = db.Column(db.Integer, primary_key=True)
+    industry_id = db.Column(db.Integer, db.ForeignKey('industry_profiles.id'), nullable=False)
+    name = db.Column(db.String(100))
+    count = db.Column(db.Integer)
+    
+class IndustryRanking(db.Model):
+    __tablename__ = 'industry_rankings'
+    id = db.Column(db.Integer, primary_key=True)
+    industry_id = db.Column(db.Integer, db.ForeignKey('industry_profiles.id'), nullable=False)
+    value = db.Column(db.String(50))
+    description = db.Column(db.String(200))
+
+
+
+    
 class VendorProfile(db.Model):
     __tablename__ = 'vendor_profiles'
     
