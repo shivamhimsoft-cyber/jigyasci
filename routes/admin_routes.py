@@ -6,6 +6,10 @@ from datetime import datetime
 from extensions import db
 import os
 
+from werkzeug.security import generate_password_hash
+from io import TextIOWrapper
+from sqlalchemy import or_
+
 # Add these imports to routes/admin_routes.py
 from models import (
     UserType, AccountStatus, VerificationStatus, ProfileType, VisibilitySetting, Gender,
@@ -838,14 +842,13 @@ def adminstudents():
         abort(403)
     
     if request.method == 'POST':
-        action = request.form.get('action')
-        
-        if action == 'csv_upload':
+        # Check if it's CSV upload or manual add
+        if 'student_csv' in request.files and request.files['student_csv'].filename:
             return handle_student_csv_upload()
-        elif action == 'manual_add':
+        else:
             return handle_manual_student_addition()
     
-    # GET request handling (same as before)
+    # GET request - display students
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
     query = request.args.get('query', '')
@@ -871,90 +874,63 @@ def adminstudents():
                          students=students,
                          query=query)
 
-@admin_bp.route('/students', methods=['POST'])
+@admin_bp.route('/add-student', methods=['POST'])
 @login_required
 def add_student():
+    """Separate route for manual student addition"""
     if current_user.user_type != 'Admin':
         abort(403)
     
-    try:
-        # Handle CSV upload
-        if 'student_csv' in request.files and request.files['student_csv'].filename:
-            return handle_student_csv_upload()
-        
-        # Handle manual student addition
-        # Create user account first
-        email = request.form.get('email')
-        if User.query.filter_by(email=email).first():
-            flash(f"User with email {email} already exists.", "danger")
-            return redirect(url_for('admin.adminstudents'))
-        
-        # Create new user
-        user = User(
-            email=email,
-            user_type='Student'
-        )
-        user.set_password('temppassword123')  # Set temporary password
-        db.session.add(user)
-        db.session.flush()  # Get user ID
-        
-        # Create profile
-        profile = Profile(user_id=user.id)
-        db.session.add(profile)
-        db.session.flush()  # Get profile ID
-        
-        # Create student profile
-        student_profile = StudentProfile(
-            profile_id=profile.id,
-            name=request.form.get('name', ''),
-            affiliation=request.form.get('affiliation', ''),
-            contact_email=request.form.get('contact_email', ''),
-            contact_phone=request.form.get('contact_phone', ''),
-            address=request.form.get('address', ''),
-            research_interests=request.form.get('research_interests', ''),
-            why_me=request.form.get('why_me', ''),
-            current_status=request.form.get('current_status', ''),
-        )
-        
-        # Handle date and gender fields
-        if request.form.get('dob'):
-            student_profile.dob = datetime.strptime(request.form['dob'], '%Y-%m-%d')
-        
-        if request.form.get('gender'):
-            student_profile.gender = request.form['gender']
-        
-        db.session.add(student_profile)
-        db.session.commit()
-        
-        flash(f"Student {student_profile.name} added successfully! Temporary password: temppassword123", "success")
-        
-    except Exception as e:
-        db.session.rollback()
-        flash(f"Error adding student: {str(e)}", "danger")
-    
-    return redirect(url_for('admin.adminstudents'))
+    return handle_manual_student_addition()
 
 def handle_manual_student_addition():
+    """Handle manual student addition"""
     try:
-        # Handle manual student addition
-        email = request.form.get('email')
-        if User.query.filter_by(email=email).first():
-            flash(f"User with email {email} already exists.", "danger")
+        # Get form data
+        name = request.form.get('name', '').strip()
+        affiliation = request.form.get('affiliation', '').strip()
+        contact_email = request.form.get('contact_email', '').strip()
+        
+        # Validate required fields
+        if not name:
+            flash("Name is required for manual addition", "error")
+            return redirect(url_for('admin.adminstudents'))
+        
+        if not affiliation:
+            flash("Affiliation is required for manual addition", "error")
+            return redirect(url_for('admin.adminstudents'))
+        
+        # Create email if not provided (you might want to change this logic)
+        if not contact_email:
+            # Generate a temporary email or require it
+            flash("Contact email is required", "error")
+            return redirect(url_for('admin.adminstudents'))
+        
+        # Check if user with this email already exists
+        if User.query.filter_by(email=contact_email).first():
+            flash(f"User with email {contact_email} already exists.", "error")
             return redirect(url_for('admin.adminstudents'))
         
         # Create new user
         user = User(
-            email=email,
-            user_type='Student'
+            email=contact_email,
+            user_type='Student',
+            password_hash=generate_password_hash('temppassword123'),  # Use proper password hashing
+            account_status='Active',
+            verification_status='Verified',
+            created_at=datetime.utcnow(),
+            last_login=datetime.utcnow()
         )
-        user.set_password('temppassword123')  # Set temporary password
         db.session.add(user)
         db.session.flush()  # Get user ID
         
         # Create profile
         profile = Profile(
             user_id=user.id,
-            profile_type='Student'
+            profile_type='Student',
+            profile_completeness=50,
+            visibility_settings='Public',
+            last_updated=datetime.utcnow()
         )
         db.session.add(profile)
         db.session.flush()  # Get profile ID
@@ -962,72 +938,113 @@ def handle_manual_student_addition():
         # Create student profile
         student_profile = StudentProfile(
             profile_id=profile.id,
-            name=request.form.get('name', ''),
-            affiliation=request.form.get('affiliation', ''),
-            contact_email=request.form.get('contact_email', ''),
-            contact_phone=request.form.get('contact_phone', ''),
-            address=request.form.get('address', ''),
-            research_interests=request.form.get('research_interests', ''),
-            why_me=request.form.get('why_me', ''),
-            current_status=request.form.get('current_status', ''),
+            name=name,
+            affiliation=affiliation,
+            contact_email=contact_email,
+            contact_phone=request.form.get('contact_phone', '').strip(),
+            address=request.form.get('address', '').strip(),
+            research_interests=request.form.get('research_interests', '').strip(),
+            why_me=request.form.get('why_me', '').strip(),
+            current_status=request.form.get('current_status', '').strip(),
         )
         
-        # Handle date and gender fields
-        if request.form.get('dob'):
-            student_profile.dob = datetime.strptime(request.form['dob'], '%Y-%m-%d').date()
+        # Handle date field
+        dob_str = request.form.get('dob', '').strip()
+        if dob_str:
+            try:
+                student_profile.dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
+            except ValueError:
+                flash("Invalid date format for Date of Birth", "warning")
         
-        if request.form.get('gender'):
-            student_profile.gender = request.form['gender']
+        # Handle gender field
+        gender = request.form.get('gender', '').strip()
+        if gender and gender != '':
+            student_profile.gender = gender
         
         db.session.add(student_profile)
         db.session.commit()
         
-        flash(f"Student {student_profile.name} added successfully! Temporary password: temppassword123", "success")
+        flash(f"Student {student_profile.name} added successfully! Login email: {contact_email}, Temporary password: temppassword123", "success")
         
     except Exception as e:
         db.session.rollback()
-        flash(f"Error adding student: {str(e)}", "danger")
+        current_app.logger.error(f"Error adding student manually: {str(e)}")
+        flash(f"Error adding student: {str(e)}", "error")
     
     return redirect(url_for('admin.adminstudents'))
 
 def handle_student_csv_upload():
+    """Handle CSV file upload for bulk student addition"""
     try:
         csv_file = request.files['student_csv']
-        if not csv_file or not csv_file.filename.endswith('.csv'):
-            flash("Please upload a valid CSV file.", "danger")
+        
+        # Validate file
+        if not csv_file or csv_file.filename == '':
+            flash("No file selected", "error")
             return redirect(url_for('admin.adminstudents'))
         
-        # Read CSV file
+        if not csv_file.filename.lower().endswith('.csv'):
+            flash("Please upload a valid CSV file", "error")
+            return redirect(url_for('admin.adminstudents'))
+        
+        # Read and process CSV
         stream = TextIOWrapper(csv_file.stream, encoding='utf-8')
         csv_reader = csv.DictReader(stream)
+        
+        # Validate CSV headers
+        required_headers = ['name', 'affiliation', 'contact_email']
+        missing_headers = [h for h in required_headers if h not in csv_reader.fieldnames]
+        if missing_headers:
+            flash(f"CSV missing required columns: {', '.join(missing_headers)}", "error")
+            return redirect(url_for('admin.adminstudents'))
         
         added_count = 0
         errors = []
         
         for row_num, row in enumerate(csv_reader, start=2):
             try:
-                email = row.get('email', '').strip()
-                if not email:
-                    errors.append(f"Row {row_num}: Email is required")
+                # Clean and validate data
+                name = row.get('name', '').strip()
+                affiliation = row.get('affiliation', '').strip()
+                contact_email = row.get('contact_email', '').strip().lower()
+                
+                if not name:
+                    errors.append(f"Row {row_num}: Name is required")
                     continue
                 
-                if User.query.filter_by(email=email).first():
-                    errors.append(f"Row {row_num}: User with email {email} already exists")
+                if not affiliation:
+                    errors.append(f"Row {row_num}: Affiliation is required")
+                    continue
+                
+                if not contact_email:
+                    errors.append(f"Row {row_num}: Contact email is required")
+                    continue
+                
+                # Check if user already exists
+                if User.query.filter_by(email=contact_email).first():
+                    errors.append(f"Row {row_num}: User with email {contact_email} already exists")
                     continue
                 
                 # Create user
                 user = User(
-                    email=email,
-                    user_type='Student'
+                    email=contact_email,
+                    user_type='Student',
+                    password_hash=generate_password_hash('temppassword123'),
+                    account_status='Active',
+                    verification_status='Verified',
+                    created_at=datetime.utcnow(),
+                    last_login=datetime.utcnow()
                 )
-                user.set_password('temppassword123')
                 db.session.add(user)
                 db.session.flush()
                 
                 # Create profile
                 profile = Profile(
                     user_id=user.id,
-                    profile_type='Student'
+                    profile_type='Student',
+                    profile_completeness=50,
+                    visibility_settings='Public',
+                    last_updated=datetime.utcnow()
                 )
                 db.session.add(profile)
                 db.session.flush()
@@ -1035,9 +1052,9 @@ def handle_student_csv_upload():
                 # Create student profile
                 student_profile = StudentProfile(
                     profile_id=profile.id,
-                    name=row.get('name', '').strip(),
-                    affiliation=row.get('affiliation', '').strip(),
-                    contact_email=row.get('contact_email', '').strip(),
+                    name=name,
+                    affiliation=affiliation,
+                    contact_email=contact_email,
                     contact_phone=row.get('contact_phone', '').strip(),
                     address=row.get('address', '').strip(),
                     research_interests=row.get('research_interests', '').strip(),
@@ -1046,16 +1063,18 @@ def handle_student_csv_upload():
                 )
                 
                 # Handle date field
-                if row.get('dob'):
+                dob_str = row.get('dob', '').strip()
+                if dob_str:
                     try:
-                        student_profile.dob = datetime.strptime(row['dob'].strip(), '%Y-%m-%d').date()
+                        student_profile.dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
                     except ValueError:
                         errors.append(f"Row {row_num}: Invalid date format for DOB (use YYYY-MM-DD)")
                         continue
                 
                 # Handle gender field
-                if row.get('gender'):
-                    student_profile.gender = row['gender'].strip()
+                gender = row.get('gender', '').strip()
+                if gender and gender.lower() not in ['', 'none', 'n/a']:
+                    student_profile.gender = gender
                 
                 db.session.add(student_profile)
                 added_count += 1
@@ -1066,19 +1085,24 @@ def handle_student_csv_upload():
         
         if added_count > 0:
             db.session.commit()
-            flash(f"Successfully added {added_count} students.", "success")
+            flash(f"Successfully added {added_count} students from CSV", "success")
+        else:
+            db.session.rollback()
+            flash("No students were added from the CSV", "warning")
         
         if errors:
-            flash("Some errors occurred: " + "; ".join(errors[:5]), "warning")
+            error_msg = "; ".join(errors[:5])  # Show first 5 errors
+            if len(errors) > 5:
+                error_msg += f" ... and {len(errors) - 5} more errors"
+            flash(f"Some errors occurred: {error_msg}", "warning")
         
     except Exception as e:
         db.session.rollback()
-        flash(f"Error processing CSV file: {str(e)}", "danger")
+        current_app.logger.error(f"Error processing CSV file: {str(e)}")
+        flash(f"Error processing CSV file: {str(e)}", "error")
     
     return redirect(url_for('admin.adminstudents'))
 
-
-    
 @admin_bp.route('/students/<int:student_id>/delete', methods=['POST'])
 @login_required
 def delete_student(student_id):
@@ -1099,9 +1123,46 @@ def delete_student(student_id):
         flash("Student deleted successfully.", "success")
     except Exception as e:
         db.session.rollback()
-        flash(f"Error deleting student: {str(e)}", "danger")
+        current_app.logger.error(f"Error deleting student: {str(e)}")
+        flash(f"Error deleting student: {str(e)}", "error")
     
     return redirect(url_for('admin.adminstudents'))
+
+# Helper route to download CSV template
+@admin_bp.route('/download-student-template')
+@login_required
+def download_student_template():
+    if current_user.user_type != 'Admin':
+        abort(403)
+    
+    # Create CSV template
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    # Write header
+    headers = [
+        'name', 'affiliation', 'contact_email', 'contact_phone', 
+        'dob', 'gender', 'address', 'research_interests', 
+        'why_me', 'current_status'
+    ]
+    writer.writerow(headers)
+    
+    # Write sample data
+    sample_data = [
+        'John Doe', 'University of Example', 'john.doe@example.com', '1234567890',
+        '1995-01-15', 'Male', '123 Example St, City', 'Machine Learning, AI',
+        'Passionate about research', 'PhD Student'
+    ]
+    writer.writerow(sample_data)
+    
+    # Create response
+    output.seek(0)
+    return send_file(
+        io.BytesIO(output.getvalue().encode('utf-8')),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name='student_template.csv'
+    )
 # ==============================================================================================================FACULTY FACULTY FACULTY FACULTY
 
 import pandas as pd

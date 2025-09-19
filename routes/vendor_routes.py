@@ -61,11 +61,35 @@ def vendorProfile():
     return render_template('vendor/profile.html', vendor=vendor)
 
 
-
 @vendor_bp.route('/vendor/<int:vendor_id>')
 def vendor_profile(vendor_id):
     vendor = VendorProfile.query.get_or_404(vendor_id)
-    return render_template('visit_profile/vendor.html', vendor=vendor)
+
+    # Dummy orders
+    orders = [
+        {'id': '24567', 'date': '2023-06-15', 'total': '$12,450', 'status': 'Processing'},
+        {'id': '7890',  'date': '2023-06-10', 'total': '$25,000', 'status': 'Shipped'},
+        {'id': '4567',  'date': '2023-06-05', 'total': '$8,750',  'status': 'Completed'},
+    ]
+
+    order_stats = {
+        'processing_count': sum(1 for o in orders if o['status'] == 'Processing'),
+        'shipped_count':    sum(1 for o in orders if o['status'] == 'Shipped'),
+        'completed_count':  sum(1 for o in orders if o['status'] == 'Completed'),
+    }
+
+    # Inject dummy rating (out of 5)
+    rating = 4  # or any int 0–5
+
+    return render_template(
+        'visit_profile/vendor.html',
+        vendor=vendor,
+        rating=rating,
+        orders=orders,
+        order_stats=order_stats,
+        orders_description="Manage and track your vendor orders"
+    )
+
 
 
 
