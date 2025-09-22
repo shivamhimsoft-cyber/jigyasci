@@ -584,8 +584,20 @@ class Publication(db.Model):
 
     profile = db.relationship('Profile', backref='publications')
 
+    @property
+    def doi_url(self):
+        """Return a full DOI URL if doi exists."""
+        if self.doi:
+            # If DOI already starts with http(s), return as is
+            if self.doi.startswith("http"):
+                return self.doi
+            # Otherwise, prepend the standard DOI resolver
+            return f"https://doi.org/{self.doi}"
+        return None
+
     def __repr__(self):
         return f"<Publication {self.title} ({self.year})>"
+
 
 
 # class ResearchFacility(db.Model):
@@ -622,7 +634,11 @@ class Technology(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationship
-    creator = db.relationship('Profile', backref='technologies')
+    # creator = db.relationship('Profile', backref='technologies')
+     # ✅ Single clear relationship
+    profile = db.relationship("Profile", backref="technologies", foreign_keys=[creator_profile_id])
+
+
     
     def __repr__(self):
         return f'<Technology {self.title}>'
@@ -682,75 +698,6 @@ class StudentProfile(db.Model):
 
     def __repr__(self):
         return f'<StudentProfile {self.name}>'
-
-# Add these fields to your StudentProfile model in models.py
-
-# class StudentProfile(db.Model):
-#     __tablename__ = 'student_profiles'
-    
-#     id = db.Column(db.Integer, primary_key=True)
-#     profile_id = db.Column(db.Integer, db.ForeignKey('profiles.id'), nullable=False)
-    
-#     # Personal Information
-#     name = db.Column(db.String(255), nullable=True)
-#     email = db.Column(db.String(255), nullable=True)  # Contact email (may differ from user email)
-#     department = db.Column(db.String(255), nullable=True)
-#     gender = db.Column(db.String(50), nullable=True)
-#     dob = db.Column(db.Date, nullable=True)
-#     contact_phone = db.Column(db.String(50), nullable=True)
-#     address = db.Column(db.Text, nullable=True)
-    
-#     # Academic Information
-#     affiliation = db.Column(db.String(500), nullable=True)
-#     affiliation_short = db.Column(db.String(100), nullable=True)
-#     location = db.Column(db.String(255), nullable=True)
-#     enrollment_date = db.Column(db.Date, nullable=True)
-#     current_year = db.Column(db.Integer, nullable=True)  # 1, 2, 3, 4, etc.
-#     cgpa = db.Column(db.Float, nullable=True)
-    
-#     # Research and Academic Details
-#     education = db.Column(db.Text, nullable=True)  # Education summary
-#     research_interests = db.Column(db.Text, nullable=True)
-#     current_status = db.Column(db.Text, nullable=True)  # Current academic status
-#     why_me = db.Column(db.Text, nullable=True)  # Personal statement
-    
-#     # Additional Information
-#     profile_url = db.Column(db.String(500), nullable=True)
-    
-#     # Timestamps
-#     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-#     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-#     # Relationships
-#     # profile = db.relationship('Profile', backref=db.backref('student_profile', uselist=False))
-    
-#     def __repr__(self):
-#         return f'<StudentProfile {self.name}>'
-
-
-# STUDENTS MODELS : =============>
-
-# class StudentProfile(db.Model):
-#     __tablename__ = 'student_profiles'
-
-#     id = db.Column(db.Integer, primary_key=True)  # StudentProfileID
-#     profile_id = db.Column(db.Integer, db.ForeignKey('profiles.id'), nullable=False)
-#     name = db.Column(db.String(120), nullable=False)
-#     affiliation = db.Column(db.String(120))
-#     contact_email = db.Column(db.String(120))
-#     contact_phone = db.Column(db.String(20))
-#     dob = db.Column(db.Date)
-#     gender = db.Column(db.String(10))
-#     address = db.Column(db.Text)
-#     profile_picture = db.Column(db.String(200))  # path to image
-#     research_interests = db.Column(db.Text)
-#     why_me = db.Column(db.Text)
-#     current_status = db.Column(db.String(120))
-
-#     profile = db.relationship('Profile', backref='student_profile', uselist=False)
-
-
-
 
 
 

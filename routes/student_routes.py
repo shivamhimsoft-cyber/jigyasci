@@ -118,5 +118,3 @@ def full_table():
 
 
 
-
-

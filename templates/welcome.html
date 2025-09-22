@@ -33,19 +33,19 @@ lg:w-[60%] md:w-[90%] w-full
                         {% for tab_id, tab_label in tabs %}
                             {% set safe_tab = tab_id.replace(' ', '-') %}
                             {% set is_active = (safe_tab == (active_tab or '').replace(' ', '-')) %}
-<button
-    id="tab-{{ safe_tab }}"
-    data-tab="{{ tab_id }}"
-    type="button"
-    class="tab-button px-4 py-1 rounded-full text-16 border-[2px] border-[#66C0DC] font-bold transition ease-in duration-2000
-        {% if is_active %}
-            bg-secondary !text-white
-        {% else %}
-            bg-white text-secondary hover:bg-[#66C0DC] hover:text-[#ffffff]
-        {% endif %}
-    ">
-    {{ tab_label }}
-</button>
+                            <button
+                                id="tab-{{ safe_tab }}"
+                                data-tab="{{ tab_id }}"
+                                type="button"
+                                class="tab-button px-4 py-1 rounded-full text-16 border-[2px] border-[#66C0DC] font-bold transition ease-in duration-2000
+                                    {% if is_active %}
+                                        bg-secondary !text-white
+                                    {% else %}
+                                        bg-white text-secondary hover:bg-[#66C0DC] hover:text-[#ffffff]
+                                    {% endif %}
+                                ">
+                                {{ tab_label }}
+                            </button>
 
                         {% endfor %}
                     </div>
@@ -436,11 +436,14 @@ lg:w-[60%] md:w-[90%] w-full
                                             <!-- Bookmark Icon always visible -->
                                             <i class="far fa-bookmark"></i>
                                             <!-- Lock overlay (toggles on hover) -->
-                                            <span class="">
+                                            <span class="absolute -top-1 -right-1 text-[13px] text-[red] ">
                                                 <i class="fas fa-lock"></i>
                                             </span>
                                         </a>
-                                    {% endif %}                                   <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                                    {% endif %}      
+
+                                   
+                                     <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
                                     <!-- Industry Logo Container -->
                                     <div class="relative h-28 w-28 flex-none rounded-full border-4 border-secondary/20 shadow-md hover:border-secondary/50 transition-all duration-500 group">
                                         <a href="{{ url_for('industry.industry_profile', industry_id=industry.id) }}" class="absolute inset-0 rounded-full overflow-hidden">
@@ -543,7 +546,7 @@ lg:w-[60%] md:w-[90%] w-full
                                         <!-- Bookmark Icon always visible -->
                                         <i class="far fa-bookmark"></i>
                                         <!-- Lock overlay (toggles on hover) -->
-                                        <span class="">
+                                        <span class="absolute -top-1 -right-1 text-[13px] text-[red] ">
                                             <i class="fas fa-lock"></i>
                                         </span>
                                     </a>
@@ -641,7 +644,7 @@ lg:w-[60%] md:w-[90%] w-full
                                     <!-- Bookmark Icon always visible -->
                                     <i class="far fa-bookmark"></i>
                                     <!-- Lock overlay (toggles on hover) -->
-                                    <span class="">
+                                    <span class="absolute -top-1 -right-1 text-[13px] text-[red] ">
                                         <i class="fas fa-lock"></i>
                                     </span>
                                 </a>
@@ -738,7 +741,7 @@ lg:w-[60%] md:w-[90%] w-full
                          <!-- Bookmark Button -->
                         {% if current_user.is_authenticated %}
                         <button class="bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full  z-10 bg-white border-[1px] border-secondary text-secondary text-sm hover:bg-secondary hover:text-white transition ease-in duration-2000"
-                                data-type="technologies"
+                                data-type="technology"
                                 data-id="{{ tech.id }}"
                                 title="Bookmark this technologies">
                             <i class="far fa-bookmark"></i>
@@ -751,7 +754,7 @@ lg:w-[60%] md:w-[90%] w-full
                                     <!-- Bookmark Icon always visible -->
                                     <i class="far fa-bookmark"></i>
                                     <!-- Lock overlay (toggles on hover) -->
-                                    <span class="">
+                                    <span class="absolute -top-1 -right-1 text-[13px] text-[red] ">
                                         <i class="fas fa-lock"></i>
                                     </span>
                                 </a>
@@ -940,154 +943,153 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
+    // Bookmark functionality - Optimized version
+    document.addEventListener('DOMContentLoaded', function() {
+        // Track which items we've already checked to prevent repeated API calls
+        const checkedItems = new Set();
 
-
-
-// Bookmark functionality - Optimized version
-document.addEventListener('DOMContentLoaded', function() {
-    // Track which items we've already checked to prevent repeated API calls
-    const checkedItems = new Set();
-
-    // Function to handle bookmark toggling
-    async function toggleBookmark(itemType, itemId) {
-        try {
-            const response = await fetch(`/bookmark/${itemType}/${itemId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                const bookmarkBtn = document.querySelector(`.bookmark-btn[data-type="${itemType}"][data-id="${itemId}"]`);
-                if (bookmarkBtn) {
-                    if (data.bookmarked) {
-                        bookmarkBtn.innerHTML = '<i class="fas fa-bookmark "></i>';
-                        bookmarkBtn.title = 'Remove bookmark';
-                        showNotification('Bookmarked successfully!', 'success');
-                    } else {
-                        bookmarkBtn.innerHTML = '<i class="far fa-bookmark"></i>';
-                        bookmarkBtn.title = 'Add bookmark';
-                        showNotification('Bookmark removed', 'info');
-                    }
-                }
-            } else {
-                showNotification(data.message || 'Error bookmarking item', 'error');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            showNotification('Error bookmarking item', 'error');
-        }
-    }
-
-    // Add event listeners to all bookmark buttons
-    function setupBookmarkButtons() {
-        document.querySelectorAll('.bookmark-btn').forEach(btn => {
-            // Only add event listener if not already added
-            if (!btn.hasAttribute('data-listener-added')) {
-                btn.setAttribute('data-listener-added', 'true');
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const itemType = btn.dataset.type;
-                    const itemId = btn.dataset.id;
-                    toggleBookmark(itemType, itemId);
-                });
-            }
-        });
-    }
-
-    // Check bookmark status for all items - optimized to prevent repeated calls
-    async function checkBookmarkStatus() {
-        const bookmarkButtons = document.querySelectorAll('.bookmark-btn');
-
-        for (const button of bookmarkButtons) {
-            const itemType = button.dataset.type;
-            const itemId = button.dataset.id;
-            const itemKey = `${itemType}-${itemId}`;
-
-            // Skip if we've already checked this item
-            if (checkedItems.has(itemKey)) continue;
-
-            checkedItems.add(itemKey);
-
+        // Function to handle bookmark toggling
+        async function toggleBookmark(itemType, itemId) {
             try {
-                const response = await fetch(`/bookmark/status/${itemType}/${itemId}`);
+                const response = await fetch(`/bookmark/${itemType}/${itemId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
                 const data = await response.json();
 
-                if (data.bookmarked) {
-                    button.innerHTML = '<i class="fas fa-bookmark"></i>';
-                    button.title = 'Remove bookmark';
+                if (data.success) {
+                    const bookmarkBtn = document.querySelector(`.bookmark-btn[data-type="${itemType}"][data-id="${itemId}"]`);
+                    if (bookmarkBtn) {
+                        if (data.bookmarked) {
+                            bookmarkBtn.innerHTML = '<i class="fas fa-bookmark "></i>';
+                            bookmarkBtn.title = 'Remove bookmark';
+                            showNotification('Bookmarked successfully!', 'success');
+                        } else {
+                            bookmarkBtn.innerHTML = '<i class="far fa-bookmark"></i>';
+                            bookmarkBtn.title = 'Add bookmark';
+                            showNotification('Bookmark removed', 'info');
+                        }
+                    }
+                } else {
+                    showNotification(data.message || 'Error bookmarking item', 'error');
                 }
             } catch (error) {
-                console.error('Error checking bookmark status:', error);
-                // Remove from checked items so we can try again later
-                checkedItems.delete(itemKey);
-            }
-        }
-    }
-
-    // Initialize bookmark functionality
-    function initializeBookmarks() {
-        setupBookmarkButtons();
-        checkBookmarkStatus();
-    }
-
-    // Initialize when page loads
-    setTimeout(initializeBookmarks, 100);
-
-    // Reinitialize when new content is loaded (for "Show More" buttons)
-    const observer = new MutationObserver((mutations) => {
-        let shouldCheck = false;
-
-        for (const mutation of mutations) {
-            if (mutation.addedNodes.length > 0) {
-                shouldCheck = true;
-                break;
+                console.error('Error:', error);
+                showNotification('Error bookmarking item', 'error');
             }
         }
 
-        if (shouldCheck) {
+        // Add event listeners to all bookmark buttons
+        function setupBookmarkButtons() {
+            document.querySelectorAll('.bookmark-btn').forEach(btn => {
+                // Skip if it's an <a> tag (unauthenticated user)
+                if (btn.tagName.toLowerCase() === 'a') return;
+
+                if (!btn.hasAttribute('data-listener-added')) {
+                    btn.setAttribute('data-listener-added', 'true');
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const itemType = btn.dataset.type;
+                        const itemId = btn.dataset.id;
+                        toggleBookmark(itemType, itemId);
+                    });
+                }
+            });
+        }
+
+
+        // Check bookmark status for all items - optimized to prevent repeated calls
+        async function checkBookmarkStatus() {
+            const bookmarkButtons = document.querySelectorAll('.bookmark-btn');
+
+            for (const button of bookmarkButtons) {
+                const itemType = button.dataset.type;
+                const itemId = button.dataset.id;
+                const itemKey = `${itemType}-${itemId}`;
+
+                // Skip if we've already checked this item
+                if (checkedItems.has(itemKey)) continue;
+
+                checkedItems.add(itemKey);
+
+                try {
+                    const response = await fetch(`/bookmark/status/${itemType}/${itemId}`);
+                    const data = await response.json();
+
+                    if (data.bookmarked) {
+                        button.innerHTML = '<i class="fas fa-bookmark"></i>';
+                        button.title = 'Remove bookmark';
+                    }
+                } catch (error) {
+                    console.error('Error checking bookmark status:', error);
+                    // Remove from checked items so we can try again later
+                    checkedItems.delete(itemKey);
+                }
+            }
+        }
+
+        // Initialize bookmark functionality
+        function initializeBookmarks() {
             setupBookmarkButtons();
             checkBookmarkStatus();
         }
-    });
 
-    observer.observe(document.body, { childList: true, subtree: true });
+        // Initialize when page loads
+        setTimeout(initializeBookmarks, 100);
 
-    // Notification function
-    function showNotification(message, type) {
-        // Check if notification already exists
-        const existingNotification = document.querySelector('.bookmark-notification');
-        if (existingNotification) {
-            existingNotification.remove();
-        }
+        // Reinitialize when new content is loaded (for "Show More" buttons)
+        const observer = new MutationObserver((mutations) => {
+            let shouldCheck = false;
 
-        const notification = document.createElement('div');
-        notification.className = `bookmark-notification fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-transform transform translate-x-full ${type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'} text-white`;
-        notification.textContent = message;
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.classList.remove('translate-x-full');
-            notification.classList.add('translate-x-0');
-        }, 10);
-
-        setTimeout(() => {
-            notification.classList.remove('translate-x-0');
-            notification.classList.add('translate-x-full');
-            setTimeout(() => {
-                if (document.body.contains(notification)) {
-                    document.body.removeChild(notification);
+            for (const mutation of mutations) {
+                if (mutation.addedNodes.length > 0) {
+                    shouldCheck = true;
+                    break;
                 }
-            }, 300);
-        }, 3000);
-    }
-});
+            }
 
+            if (shouldCheck) {
+                setupBookmarkButtons();
+                checkBookmarkStatus();
+            }
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        // Notification function
+        function showNotification(message, type) {
+            // Check if notification already exists
+            const existingNotification = document.querySelector('.bookmark-notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            const notification = document.createElement('div');
+            notification.className = `bookmark-notification fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-transform transform translate-x-full ${type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'} text-white`;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+                notification.classList.add('translate-x-0');
+            }, 10);
+
+            setTimeout(() => {
+                notification.classList.remove('translate-x-0');
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+    });
 
 
 // Fixed "Load More" functionality for PI profiles
@@ -1709,123 +1711,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-
-
-
-                <!-- PI Profile Results -->
-                <!-- <div id="tab-content-PI-profile" data-tab-content="PI-profile" class="tab-content w-full flex flex-col gap-4 mt-12">
-                    {% for profile in profiles %}
-                        {% set pi = profile.pi_profile %}
-                        {% if pi %}
-                        <div class="w-full bg-white rounded-lg border-[2px] border-[#314a4a]/10 p-4 flex flex-col gap-4">
-                            <div class="flex w-full justify-between flex-wrap gap-2">
-                                <div class="flex gap-2 w-max">
-                                    <div class="rounded-full h-16 w-16 overflow-hidden">
-                                        <img src="{{ url_for('static', filename='images/logo-shade_blue.png') }}"
-                                             class="w-full h-full object-cover" alt="Profile Pic">
-                                    </div>
-                                    <div class="flex flex-col">
-                                        <span class="font-bold text-[14px] text-[#314a4a]">{{ pi.name }}</span>
-                                        <span class="font-medium text-[12px]">{{ pi.current_designation or 'Designation not specified' }}</span>
-                                        <span class="text-gray-500 text-[11px]">{{ pi.affiliation or 'Affiliation not specified' }}</span>
-                                    </div>
-                                </div>
-                                <a href="{{ url_for('faculty_info', profile_id=profile.id) }}"
-                                    class="flex gap-2 items-center w-max h-max rounded-sm text-blue-500 px-3 py-0.5 hover:bg-[#314a4a] hover:text-white transition">
-                                        <i class="fa fa-plus text-[14px]"></i>
-                                        <span class="text-[14px] font-bold">FOLLOW</span>
-                                </a>
-                            </div>
-
-                            <div class="w-full flex flex-col">
-                                <span class="font-semibold lg:text-xl text-black">{{ pi.current_message or 'No research message.' }}</span>
-                                <span class="font-medium lg:text-md text-black">{{ pi.current_focus or 'Focus area not specified.' }}</span>
-                                <button class="flex gap-2 items-center w-max h-max rounded-sm text-blue-500 hover:border-b border-b-blue-500 transition">
-                                    <i class="fa fa-plus text-[14px]"></i>
-                                    <span class="text-[14px] font-bold">More</span>
-                                </button>
-                            </div>
-
-                            <div class="w-full flex justify-between gap-2 flex-wrap pb-4 border-b border-b-[#314a4a]/20">
-                                <button class="text-sm text-[#314a4a]">
-                                    <i class="fa fa-heart"></i> <span>5</span>
-                                </button>
-                                <button class="text-sm text-[#314a4a]">
-                                    <span>0</span> <span>comments</span>
-                                </button>
-                            </div>
-
-                            <div class="w-full flex gap-6">
-                                <button class="text-sm text-black">
-                                    <i class="fa-regular fa-heart"></i> Like
-                                </button>
-                                <button class="text-sm text-black">
-                                    <i class="fa-regular fa-comment"></i> Comments
-                                </button>
-                            </div>
-                        </div>
-                        {% endif %}
-                    {% else %}
-                        <p class="text-center text-gray-600">No PI profiles found for your search.</p>
-                    {% endfor %}
-                </div> -->
-
-
-
-
-
-<!-- Replace the existing PI-profile tab content with this
-<div id="tab-content-PI-profile" data-tab-content="PI-profile" class="tab-content w-full flex flex-col gap-4 mt-12">
-    {% if profiles %}
-    <div class="overflow-x-auto">
-        <table class="min-w-full bg-white border border-gray-200">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="py-3 px-4 border-b text-left">Name</th>
-                    <th class="py-3 px-4 border-b text-left">Current Focus</th>
-                    <th class="py-3 px-4 border-b text-left">Designation</th>
-                    <th class="py-3 px-4 border-b text-left">Affiliation</th>
-                    <th class="py-3 px-4 border-b text-left">Department</th>
-                    <th class="py-3 px-4 border-b text-left">Location</th>
-                    <th class="py-3 px-4 border-b text-left">Opportunities</th>
-                    <th class="py-3 px-4 border-b text-left">Research Metrics</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for profile in profiles %}
-                {% set pi = profile.pi_profile %}
-                {% if pi %}
-                <tr class="hover:bg-gray-50">
-                    <td class="py-3 px-4 border-b">
-                        <a href="{{ url_for('faculty_info', profile_id=profile.id) }}" class="text-blue-600 hover:underline">
-                            {{ pi.name }}
-                        </a>
-                    </td>
-                    <td class="py-3 px-4 border-b">{{ pi.current_focus or 'N/A' }}</td>
-                    <td class="py-3 px-4 border-b">{{ pi.current_designation or 'N/A' }}</td>
-                    <td class="py-3 px-4 border-b">{{ pi.affiliation_short or (pi.affiliation|truncate(30) if pi.affiliation else 'N/A') }}</td>
-                    <td class="py-3 px-4 border-b">{{ pi.department or 'N/A' }}</td>
-                    <td class="py-3 px-4 border-b">{{ pi.location or 'N/A' }}</td>
-                    <td class="py-3 px-4 border-b">
-                        <a href="{{ url_for('auth.login') }}" class="text-gray-400 hover:text-gray-600">
-                            <i class="fas fa-lock"></i> Login to view
-                        </a>
-                    </td>
-                    <td class="py-3 px-4 border-b">
-                        <a href="{{ url_for('auth.login') }}" class="text-gray-400 hover:text-gray-600">
-                            <i class="fas fa-lock"></i> Login to view
-                        </a>
-                    </td>
-                </tr>
-                {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <p class="text-center text-gray-600">No PI profiles found for your search.</p>
-    {% endif %}
-</div> -->
 
 
 
