@@ -1,6 +1,6 @@
 # routes\technology_routes.py
 
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, url_for, redirect
 from models import Technology, Profile
 from sqlalchemy import or_
 from extensions import db
@@ -32,3 +32,41 @@ def full_table():
         technologies=technologies,
         query=query
     )
+
+
+
+
+
+@tech_bp.route('/<int:tech_id>')
+def view_technology(tech_id):
+    technology = Technology.query.get_or_404(tech_id)
+    profile = technology.profile  # ✅ Now works
+
+    # Find the profile that owns this technology
+    profile = technology.profile
+
+    if not profile:
+        return render_template(
+            'faculty/technologies/view.html',
+            technology=technology
+        )
+
+    # PI profile
+    if profile.pi_profile:
+        return redirect(url_for('faculty_info', profile_id=profile.id))
+
+    # Student profile
+    if profile.student_profile:
+        return redirect(url_for('student.student_details', student_id=profile.student_profile.id))
+
+    # Vendor profile
+    if profile.vendor_profile:
+        return redirect(url_for('vendor.vendor_profile', vendor_id=profile.vendor_profile.id))
+
+    # Industry profile
+    if profile.industry_profile:
+        return redirect(url_for('industry.industry_profile', industry_id=profile.industry_profile.id))
+
+    # fallback → show generic view page
+    return render_template('faculty/technologies/full_table.html', technology=technology)
+

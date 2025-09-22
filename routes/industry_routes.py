@@ -140,3 +140,4 @@ def full_table():
     return render_template('industry/full_table.html', 
                          industries=industries,
                          query=query)
+

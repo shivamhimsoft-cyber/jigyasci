@@ -1,4 +1,6 @@
-from flask import Blueprint, render_template, request
+# routes\publication_routes.py
+
+from flask import Blueprint, render_template, request, redirect, url_for
 from models import Publication, Profile, PIProfile, StudentProfile
 from sqlalchemy import or_, and_
 from extensions import db
@@ -48,3 +50,27 @@ def full_table():
         query=query,
         current_year=datetime.now().year  # ✅ This fixes the undefined variable
     )
+
+
+
+@pub_bp.route('/view/<int:pub_id>')
+def view_publication(pub_id):
+    publication = Publication.query.get_or_404(pub_id)
+    author_profile = Profile.query.get(publication.profile_id)
+
+    if not author_profile or not author_profile.user:
+        abort(404, "Author profile not found")
+
+    user_type = author_profile.user.user_type
+
+    if user_type == 'PI':
+        return redirect(url_for('profile.view_pi_profile', profile_id=author_profile.id))
+    elif user_type == 'Student':
+        return redirect(url_for('profile.view_student_profile', profile_id=author_profile.id))
+    elif user_type == 'Vendor':
+        return redirect(url_for('profile.view_vendor_profile', profile_id=author_profile.id))
+    elif user_type == 'Industry':
+        return redirect(url_for('profile.view_industry_profile', profile_id=author_profile.id))
+    else:
+        abort(404, "Profile type not supported")
+

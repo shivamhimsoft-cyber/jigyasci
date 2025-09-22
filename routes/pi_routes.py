@@ -77,6 +77,11 @@ def view_pi_profile():
     return render_template('faculty/profile.html', profile=profile)
 
 
+
+
+
+
+
 # EDUCATION
 @pi_bp.route('/education', methods=['GET', 'POST'])
 @login_required
@@ -1032,7 +1037,6 @@ def faculty_full_table():
         min_experience=min_experience,
         min_hindex=min_hindex
     )
-
 
 
 
