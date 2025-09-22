@@ -32,14 +32,21 @@ lg:w-[60%] md:w-[90%] w-full
 
                         {% for tab_id, tab_label in tabs %}
                             {% set safe_tab = tab_id.replace(' ', '-') %}
-                            <button
-                                id="tab-{{ safe_tab }}"
-                                data-tab="{{ tab_id }}"
-                                type="button"
-                                class="tab-button px-4 py-1 rounded-full  text-16 border-[2px] border-[#66C0DC] font-bold hover:bg-[#66C0DC] hover:text-[#ffffff] transition ease-in duration-2000
-                                ">
-                                {{ tab_label }}
-                            </button>
+                            {% set is_active = (safe_tab == (active_tab or '').replace(' ', '-')) %}
+<button
+    id="tab-{{ safe_tab }}"
+    data-tab="{{ tab_id }}"
+    type="button"
+    class="tab-button px-4 py-1 rounded-full text-16 border-[2px] border-[#66C0DC] font-bold transition ease-in duration-2000
+        {% if is_active %}
+            bg-secondary !text-white
+        {% else %}
+            bg-white text-secondary hover:bg-[#66C0DC] hover:text-[#ffffff]
+        {% endif %}
+    ">
+    {{ tab_label }}
+</button>
+
                         {% endfor %}
                     </div>
                 </div>
@@ -883,7 +890,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Reset all tab buttons to inactive styles
         document.querySelectorAll('.tab-button').forEach(b => {
-            b.classList.remove('bg-secondary', 'text-white');
+            b.classList.remove('bg-secondary', '!text-white');
             b.classList.add('bg-white', 'text-secondary');
         });
 
@@ -891,7 +898,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const activeBtn = document.querySelector(`#tab-${normalizedTab}`);
         if (activeBtn) {
             activeBtn.classList.remove('bg-white', 'text-secondary');
-            activeBtn.classList.add('bg-secondary', 'text-white');
+            activeBtn.classList.add('bg-secondary', '!text-white');
 
             // Smooth scroll to ensure button is visible
             setTimeout(() => {
