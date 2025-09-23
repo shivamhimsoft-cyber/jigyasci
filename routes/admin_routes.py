@@ -492,196 +492,229 @@ def admin_dashboard():
 # ===========================================================================================================INSTITUDE INSTITUDE INSTITUDE INSTITUDE
 
 
-@admin_bp.route('/institute')
-def institute():
-    return render_template('admin/institute/institute.html')  # Make sure institute.html exists in your templates folder
-
-
-from models import Institute, Department 
-
-# @admin_bp.route('/add-institute')
-# def add_institute():
-#     page = request.args.get('page', 1, type=int)
-#     per_page = 10  # You can adjust this number
-    
-#     # Update the query to use pagination
-#     institutes = Institute.query.paginate(page=page, per_page=per_page)
-    
-#     return render_template('admin/institute/add_institute.html', institutes=institutes)
-
-
-
-# routes/admin_routes.py - Update the add_institute route
-
-@admin_bp.route('/add-institute', methods=['GET', 'POST'])
-def add_institute():
-    page = request.args.get('page', 1, type=int)
-    per_page = 10
-    
-    # Fetch dropdown options for manual addition
-    ownerships = InstituteOwnership.query.filter_by(status='Active').all()
-    sectors = Sector.query.filter_by(status='Active').all()
-    # research_areas = ResearchArea.query.filter_by(status='Active').all()  # This line already exists
-
-
-     # Debug output - remove this after testing
-    print(f"Ownerships found: {[o.name for o in ownerships]}")
-    print(f"Number of ownerships: {len(ownerships)}")
-    print(f"Sectors found: {[s.name for s in sectors]}")
-    
-    if request.method == 'POST':
-        # Check if it's a CSV upload or manual addition
-        if 'file' in request.files:
-            # CSV upload logic
-            file = request.files['file']
-            if file.filename == '':
-                flash("No selected file", 'error')
-                return redirect(url_for('admin.add_institute'))
-
-            try:
-                stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
-                csv_input = csv.DictReader(stream, delimiter=',')
-
-                if not set(REQUIRED_COLUMNS).issubset(csv_input.fieldnames):
-                    flash("Invalid CSV format. Please download and use the sample template.", 'error')
-                    return redirect(url_for('admin.add_institute'))
-
-                for row in csv_input:
-                    if all(value.strip().lower() == 'none' or value.strip() == '' for value in row.values()):
-                        continue
-
-                    def clean(val):
-                        return val.strip() if val and val.strip().lower() != 'none' else None
-
-                    lab_sector = ', '.join([x.strip() for x in row.get("Lab Sector", "").split(',') if x.strip()])
-                    focus_area = ', '.join([x.strip() for x in row.get("FocusArea", "").split(',') if x.strip()])
-                    key_resources = ', '.join([x.strip() for x in row.get("KeyResources", "").split(',') if x.strip()])
-
-                    institute = Institute(
-                        name=clean(row.get("Name")),
-                        centers=clean(row.get("Centers")),
-                        lab_sector=lab_sector,
-                        focus_area=focus_area,
-                        key_resources=key_resources,
-                        researchers=clean(row.get("Researchers")),
-                        director=clean(row.get("Director")),
-                        city=clean(row.get("City")),
-                        state=clean(row.get("State")),
-                        link=clean(row.get("Link")),
-                        ownership=clean(row.get("Ownership"))
-                    )
-                    db.session.add(institute)
-
-                db.session.commit()
-                flash("CSV uploaded successfully.", 'success')
-                
-            except Exception as e:
-                db.session.rollback()
-                flash(f"Error processing CSV: {str(e)}", 'error')
-                
-        else:
-            # Manual addition logic
-            try:
-                name = request.form.get('name')
-                if not name:
-                    flash("Name is required for manual addition", 'error')
-                    return redirect(url_for('admin.add_institute'))
-                
-                institute = Institute(
-                    name=name,
-                    centers=request.form.get('centers'),
-                    lab_sector=request.form.get('lab_sector'),
-                    focus_area=request.form.get('focus_area'),
-                    key_resources=request.form.get('key_resources'),
-                    researchers=request.form.get('researchers'),
-                    director=request.form.get('director'),
-                    city=request.form.get('city'),
-                    state=request.form.get('state'),
-                    link=request.form.get('link'),
-                    ownership=request.form.get('ownership')
-                )
-                db.session.add(institute)
-                db.session.commit()
-                flash('Institute added successfully!', 'success')
-                
-            except Exception as e:
-                db.session.rollback()
-                flash(f"Error adding institute: {str(e)}", 'error')
-        
-        return redirect(url_for('admin.add_institute'))
-    
-    institutes = Institute.query.paginate(page=page, per_page=per_page)
-    
-    return render_template('admin/institute/add_institute.html', 
-                         institutes=institutes,
-                         ownerships=ownerships,
-                         sectors=sectors)
-
-
-
-
 REQUIRED_COLUMNS = [
     "Name", "Centers", "Lab Sector", "FocusArea", "KeyResources", 
     "Researchers", "Director", "City", "State", "Link", "Ownership"
 ]
 
-@admin_bp.route('/upload_csv', methods=['POST'])
-def upload_csv():
-    if 'file' not in request.files:
-        flash("No file part")
-        return redirect(request.url)
+@admin_bp.route('/add-institute', methods=['GET', 'POST'])
+@login_required
+def add_institute():
+    if current_user.user_type != 'Admin':
+        abort(403)
     
-    file = request.files['file']
-    if file.filename == '':
-        flash("No selected file")
-        return redirect(url_for('admin.add_institute'))
-
-    stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
-    csv_input = csv.DictReader(stream, delimiter=',')
-
-    # Check for required columns
-    if not set(REQUIRED_COLUMNS).issubset(csv_input.fieldnames):
-        flash("Invalid CSV format. Please download and use the sample template.")
-        return redirect(url_for('admin.add_institute'))
-
-    for row in csv_input:
-        if all(value.strip().lower() == 'none' or value.strip() == '' for value in row.values()):
-            continue
-
-        def clean(val):
-            return val.strip() if val and val.strip().lower() != 'none' else None
-
-        lab_sector = ', '.join([x.strip() for x in row.get("Lab Sector", "").split(',') if x.strip()])
-        focus_area = ', '.join([x.strip() for x in row.get("FocusArea", "").split(',') if x.strip()])
-        key_resources = ', '.join([x.strip() for x in row.get("KeyResources", "").split(',') if x.strip()])
-
-        institute = Institute(
-            name=clean(row.get("Name")),
-            centers=clean(row.get("Centers")),
-            lab_sector=lab_sector,
-            focus_area=focus_area,
-            key_resources=key_resources,
-            researchers=clean(row.get("Researchers")),
-            director=clean(row.get("Director")),
-            city=clean(row.get("City")),
-            state=clean(row.get("State")),
-            link=clean(row.get("Link")),
-            ownership=clean(row.get("Ownership"))
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    query = request.args.get('query', '')
+    
+    # Fetch dropdown options for manual addition
+    ownerships = InstituteOwnership.query.filter_by(status='Active').all()
+    sectors = Sector.query.filter_by(status='Active').all()
+    
+    # Get all institutes for admin view
+    institutes_query = Institute.query
+    
+    if query:
+        institutes_query = institutes_query.filter(
+            or_(
+                Institute.name.ilike(f'%{query}%'),
+                Institute.centers.ilike(f'%{query}%'),
+                Institute.lab_sector.ilike(f'%{query}%'),
+                Institute.director.ilike(f'%{query}%')
+            )
         )
-        db.session.add(institute)
+    
+    institutes = institutes_query.order_by(Institute.name).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+    
+    if request.method == 'POST':
+        # Check if it's CSV upload or manual add
+        if 'file' in request.files and request.files['file'].filename:
+            return handle_institute_csv_upload()
+        else:
+            return handle_manual_institute_addition()
+    
+    return render_template('admin/institute/add_institute.html', 
+                         institutes=institutes,
+                         ownerships=ownerships,
+                         sectors=sectors,
+                         query=query)
 
-    db.session.commit()
-    flash("CSV uploaded successfully.")
+def handle_manual_institute_addition():
+    """Handle manual institute addition"""
+    try:
+        # Get form data
+        name = request.form.get('name', '').strip()
+        
+        # Validate required fields
+        required_fields = ['name', 'centers', 'lab_sector', 'focus_area', 'key_resources', 
+                           'researchers', 'director', 'city', 'state', 'link', 'ownership']
+        for field in required_fields:
+            if not request.form.get(field, '').strip():
+                flash(f"{field.capitalize().replace('_', ' ')} is required for manual addition", "error")
+                return redirect(url_for('admin.add_institute'))
+        
+        # Create institute
+        institute = Institute(
+            name=name,
+            centers=request.form.get('centers', '').strip(),
+            lab_sector=request.form.get('lab_sector', '').strip(),
+            focus_area=request.form.get('focus_area', '').strip(),
+            key_resources=request.form.get('key_resources', '').strip(),
+            researchers=request.form.get('researchers', '').strip(),
+            director=request.form.get('director', '').strip(),
+            city=request.form.get('city', '').strip(),
+            state=request.form.get('state', '').strip(),
+            link=request.form.get('link', '').strip(),
+            ownership=request.form.get('ownership', '').strip()
+        )
+        
+        db.session.add(institute)
+        db.session.commit()
+        
+        flash(f"Institute {institute.name} added successfully!", "success")
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error adding institute manually: {str(e)}")
+        flash(f"Error adding institute: {str(e)}", "error")
+    
+    return redirect(url_for('admin.add_institute'))
+
+def handle_institute_csv_upload():
+    """Handle CSV file upload for bulk institute addition"""
+    try:
+        csv_file = request.files['file']
+        
+        # Validate file
+        if not csv_file or csv_file.filename == '':
+            flash("No file selected. Please choose a valid CSV file.", "error")
+            return redirect(url_for('admin.add_institute'))
+        
+        if not csv_file.filename.lower().endswith('.csv'):
+            flash("Invalid file format. Please upload a valid CSV file.", "error")
+            return redirect(url_for('admin.add_institute'))
+        
+        # Read and process CSV
+        stream = io.StringIO(csv_file.stream.read().decode("UTF8"), newline=None)
+        csv_reader = csv.DictReader(stream, delimiter=',')
+        
+        # Validate CSV headers
+        missing_headers = [h for h in REQUIRED_COLUMNS if h not in csv_reader.fieldnames]
+        if missing_headers:
+            flash(f"CSV missing required columns: {', '.join(missing_headers)}", "error")
+            return redirect(url_for('admin.add_institute'))
+        
+        added_count = 0
+        errors = []
+        row_num = 2
+        
+        for row in csv_reader:
+            try:
+                # Clean and validate data
+                name = row.get('Name', '').strip()
+                
+                if not name:
+                    errors.append(f"Row {row_num}: Name is required")
+                    row_num += 1
+                    continue
+                
+                # No duplicate check for name as per requirement
+                
+                lab_sector = ', '.join([x.strip() for x in row.get("Lab Sector", "").split(',') if x.strip()])
+                focus_area = ', '.join([x.strip() for x in row.get("FocusArea", "").split(',') if x.strip()])
+                key_resources = ', '.join([x.strip() for x in row.get("KeyResources", "").split(',') if x.strip()])
+                
+                institute = Institute(
+                    name=name,
+                    centers=row.get('Centers', '').strip(),
+                    lab_sector=lab_sector,
+                    focus_area=focus_area,
+                    key_resources=key_resources,
+                    researchers=row.get('Researchers', '').strip(),
+                    director=row.get('Director', '').strip(),
+                    city=row.get('City', '').strip(),
+                    state=row.get('State', '').strip(),
+                    link=row.get('Link', '').strip(),
+                    ownership=row.get('Ownership', '').strip()
+                )
+                
+                db.session.add(institute)
+                added_count += 1
+                
+            except Exception as e:
+                errors.append(f"Row {row_num}: {str(e)}")
+            
+            row_num += 1
+        
+        if added_count > 0:
+            db.session.commit()
+            flash(f"Successfully imported {added_count} institute{'s' if added_count != 1 else ''} from the CSV file.", "success")
+        else:
+            db.session.rollback()
+            flash("No institutes were imported from the CSV file. Please check the file format and data.", "warning")
+        
+        if errors:
+            error_msg = "; ".join(errors[:5])
+            if len(errors) > 5:
+                error_msg += f"; and {len(errors) - 5} more error{'s' if len(errors) - 5 != 1 else ''}."
+            flash(f"Some issues were encountered during import: {error_msg}", "warning")
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error processing CSV file: {str(e)}")
+        flash(f"Failed to import institute data due to an error: {str(e)}. Please ensure the CSV file is correctly formatted.", "error")
+    
     return redirect(url_for('admin.add_institute'))
 
 @admin_bp.route('/delete_institute/<int:institute_id>', methods=['POST'])
+@login_required
 def delete_institute(institute_id):
-    institute = Institute.query.get_or_404(institute_id)
-    db.session.delete(institute)
-    db.session.commit()
-    flash('Institute deleted successfully.')
-    return redirect(url_for('admin.add_institute'))  # or the route that shows the institute list
+    if current_user.user_type != 'Admin':
+        abort(403)
+    
+    try:
+        institute = Institute.query.get_or_404(institute_id)
+        db.session.delete(institute)
+        db.session.commit()
+        flash("Institute deleted successfully.", "success")
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error deleting institute: {str(e)}")
+        flash(f"Error deleting institute: {str(e)}", "error")
+    
+    return redirect(url_for('admin.add_institute'))
 
+@admin_bp.route('/download-institute-template')
+@login_required
+def download_institute_template():
+    if current_user.user_type != 'Admin':
+        abort(403)
+    
+    # Create CSV template
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    # Write header
+    headers = REQUIRED_COLUMNS
+    writer.writerow(headers)
+    
+    # Write sample data
+    sample_data = [
+        'Example Institute', 'Research Center 1, Center 2', 'Computer Science', 'AI, Machine Learning', 'High-performance computers, Datasets',
+        'John Doe, Jane Smith', 'Dr. Director', 'New York', 'NY', 'https://example.com', 'Public'
+    ]
+    writer.writerow(sample_data)
+    
+    # Create response
+    output.seek(0)
+    return send_file(
+        io.BytesIO(output.getvalue().encode('utf-8')),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name='institute_template.csv'
+    )
 
 
 # DEPARTMENT =============================================================================================== DEPARTMENT DEPARTMENT DEPARTMENT DEPARTMENT 
@@ -1187,7 +1220,7 @@ def clean_str(val):
 # Update the adminfaculty route to handle both CSV and manual addition
 @admin_bp.route('/faculty', methods=['GET', 'POST'])
 def adminfaculty():
-    upload_folder = os.path.join(current_app.root_path, 'uploads')
+    upload_folder = os.path.join(current_app.root_path, 'Uploads')
 
     if not os.path.exists(upload_folder):
         os.makedirs(upload_folder)
@@ -1199,10 +1232,9 @@ def adminfaculty():
 
     if request.method == 'POST':
         if 'faculty_csv' in request.files:
-            # CSV upload logic (existing code)
             file = request.files['faculty_csv']
             if file.filename == '':
-                flash('No file selected', 'error')
+                flash('No file selected. Please choose a valid CSV file.', 'error')
                 return redirect(request.url)
 
             if file and allowed_file(file.filename):
@@ -1212,23 +1244,24 @@ def adminfaculty():
 
                 try:
                     process_faculty_csv(filepath)
-                    flash('Faculty data imported successfully!', 'success')
                 except Exception as e:
                     db.session.rollback()
-                    flash(f'Error importing faculty data: {str(e)}', 'error')
+                    flash(f'Failed to import faculty data due to an error: {str(e)}. Please ensure the CSV file is correctly formatted.', 'error')
                 finally:
                     if os.path.exists(filepath):
                         os.remove(filepath)
+            else:
+                flash('Invalid file format. Please upload a valid CSV file.', 'error')
         else:
             # Manual addition logic
             email = request.form.get('email', '').lower()
             
             if not email:
-                flash('Email is required!', 'error')
+                flash('Email is required for manual addition.', 'error')
                 return redirect(url_for('admin.adminfaculty'))
             
             if User.query.filter_by(email=email).first():
-                flash('Email already exists!', 'error')
+                flash(f'A user with the email {email} already exists.', 'error')
                 return redirect(url_for('admin.adminfaculty'))
             
             # Create user
@@ -1292,7 +1325,7 @@ def adminfaculty():
             )
             db.session.add(pi_profile)
             db.session.commit()
-            flash('Faculty added successfully!', 'success')
+            flash(f'Faculty profile for {pi_profile.name} added successfully.', 'success')
         
         return redirect(url_for('admin.adminfaculty'))
 
@@ -1322,14 +1355,17 @@ def process_faculty_csv(filepath):
     # Normalize columns: lower case, underscores, no spaces, etc.
     df.columns = [col.strip().lower().replace(' ', '_').replace('/', '_') for col in df.columns]
 
+    added_count = 0
+    errors = []
+    
     for idx, row in df.iterrows():
         email = clean_str(row.get('email')).lower()
         if not email:
-            print(f"Skipping row {idx}: missing email")
+            errors.append(f"Row {idx + 2}: Missing email")
             continue
 
         if User.query.filter_by(email=email).first():
-            print(f"Skipping row {idx}: email {email} already exists")
+            errors.append(f"Row {idx + 2}: Email {email} already exists")
             continue
 
         user = User(
@@ -1381,11 +1417,11 @@ def process_faculty_csv(filepath):
             profile_id=profile.id,
             name=clean_str(row.get('name')),
             department=clean_str(row.get('department')),
-            affiliation=clean_str(row.get('affiliation_(full_form)')),  # column name adjusted to CSV header
+            affiliation=clean_str(row.get('affiliation_(full_form)')),
             affiliation_short=clean_str(row.get('affiliation_(short_form)')),
             location=clean_str(row.get('location_(city)')),
             education_summary=clean_str(row.get('education')),
-            research_interest=clean_str(row.get('research_intrest')),  # note spelling as per CSV
+            research_interest=clean_str(row.get('research_intrest')),
             papers_published=parse_int(row.get('papers')),
             total_citations=parse_int(row.get('citations')),
             research_experience_years=parse_int(row.get('research_experience_(number_of_years)')),
@@ -1406,8 +1442,20 @@ def process_faculty_csv(filepath):
             last_updated=last_updated_dt
         )
         db.session.add(pi_profile)
+        added_count += 1
 
-    db.session.commit()
+    if added_count > 0:
+        db.session.commit()
+        flash(f"Successfully imported {added_count} faculty profile{'s' if added_count != 1 else ''} from the CSV file.", "success")
+    else:
+        db.session.rollback()
+        flash("No faculty profiles were imported from the CSV file. Please check the file format and data.", "warning")
+
+    if errors:
+        error_msg = "; ".join(errors[:5])  # Show up to 5 errors
+        if len(errors) > 5:
+            error_msg += f"; and {len(errors) - 5} more error{'s' if len(errors) - 5 != 1 else ''}."
+        flash(f"Some issues were encountered during import: {error_msg}", "warning")
 
 
 @admin_bp.route('/faculty/delete/<int:id>', methods=['POST'])
@@ -1428,6 +1476,49 @@ def delete_faculty(id):
         flash(f'Error deleting faculty: {str(e)}', 'error')
 
     return redirect(url_for('admin.adminfaculty'))
+
+@admin_bp.route('/download-faculty-template')
+@login_required
+def download_faculty_template():
+    if current_user.user_type != 'Admin':
+        abort(403)
+    
+    # Create CSV template
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    # Write header (adjust headers to match faculty CSV processing in process_faculty_csv)
+    headers = [
+        'name', 'email', 'department', 'affiliation_(full_form)', 'affiliation_(short_form)',
+        'location_(city)', 'education', 'research_intrest', 'papers', 'citations',
+        'research_experience_(number_of_years)', 'h_index', 'gender', 'dob',
+        'current_designation', 'start_date', 'contact_phone', 'address',
+        'profile_picture', 'current_message', 'current_focus_(research_area)',
+        'expectations_from_student', 'why_join_my_lab', 'profile_url'
+    ]
+    writer.writerow(headers)
+    
+    # Write sample data
+    sample_data = [
+        'Jane Doe', 'jane.doe@example.com', 'Computer Science', 'University of Example', 'UoE',
+        'New York', 'PhD in Computer Science', 'Artificial Intelligence, Data Science', '50', '1000',
+        '10', '20', 'Female', '1985-05-20', 'Professor', '2015-01-01', '1234567890',
+        '123 Example St, City', '', 'Looking for motivated students', 'AI Research',
+        'Strong analytical skills', 'Innovative lab environment', 'http://example.com/janedoe'
+    ]
+    writer.writerow(sample_data)
+    
+    # Create response
+    output.seek(0)
+    return send_file(
+        io.BytesIO(output.getvalue().encode('utf-8')),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name='faculty_template.csv'
+    )
+
+
+
 
 @admin_bp.route('/pi_profile')
 @login_required
@@ -1662,33 +1753,11 @@ def get_or_create_admin_profile():
 
 
 
-# admin_routes.py   
 # =======================================================================
 
 # ADMIN settings
 
 # ======================================================================
-
-
-
-# from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
-# from flask_login import login_required, current_user
-# from functools import wraps
-# from models import (
-#     UserType, AccountStatus, VerificationStatus, ProfileType, VisibilitySetting, Gender,
-#     ResearchProfile, CurrentStatus, TeamSize, AnnualTurnover, WarrantyStatus, WorkingStatus,
-#     ProjectStatus, TeamStatus, OpportunityEligibility, OpportunityStatus, Duration,
-#     CompensationType, ApplicationStatus, MessageStatus, NotificationType,
-#     NotificationReadStatus, CSRAvailability, InstituteAutonomous, CurrentlyPursuingOption,
-#     CurrentlyWorkingOption, TRLLevel, IPStatus, LicensingIntent, ProficiencyLevel,
-#     CurrentDesignation, Sector, EquipmentType, DealingCategory, FundingAgency,
-#     TeamPosition, OpportunityType, OpportunityDomain, CompensationCurrency,
-#     CSRFundCategory, InterestArea, InstituteOwnership, InstituteType,
-#     AdminSettingDepartment, Degree, Publisher, SkillType, ResearchArea, User, Opportunity, Application
-# )
-# from extensions import db
-
-# admin_bp = Blueprint('admin', __name__)
 
 # Helper function to check if user is admin
 def admin_required(func):
@@ -1699,49 +1768,6 @@ def admin_required(func):
             return redirect(url_for('index'))
         return func(*args, **kwargs)
     return decorated_view
-
-# def manage_model(model, redirect_endpoint, display_name, slug, button_text_class='text-black', form_data=None):
-#     status_filter = request.args.get('status', 'all')
-#     query = model.query
-    
-#     if status_filter == 'active':
-#         query = query.filter_by(status='Active')
-#     elif status_filter == 'inactive':
-#         query = query.filter_by(status='Inactive')
-    
-#     items = query.order_by(model.id).all()
-    
-#     # Derive variables for template
-#     lower_name = display_name.lower().rstrip('s')  # e.g., 'user type' from 'User Types'
-#     title = f"Manage {display_name}"
-#     description = f"Add or disable {display_name.lower()}"
-#     add_placeholder = f"Add new {lower_name}"
-    
-#     # Improved singularization logic
-#     if slug in ['institute_autonomous', 'current_designations']:  # Special cases where slug is already singular
-#         add_slug = slug
-#     elif slug.endswith('ies'):  # Handle plurals like 'eligibilities' -> 'eligibility'
-#         add_slug = slug[:-3] + 'y'
-#     elif slug.endswith('es') and len(slug) > 3 and (slug[-3] in 'sx' or slug[-4:-2] in ['sh', 'ch'] or (slug[-3] == 'z' and len(slug) > 4 and slug[-4] not in 'aeiou')):  # Handle 'statuses' -> 'status', 'buses' -> 'bus', etc.
-#         add_slug = slug[:-2]
-#     else:  # Default case: remove 's' if present
-#         add_slug = slug.rstrip('s')
-    
-#     add_action = url_for(f"admin.add_{add_slug}")  # e.g., 'admin.add_user_type' or 'admin.add_opportunity_status'
-    
-#     no_found = f"No {display_name.lower()} found"
-    
-#     return render_template(
-#         'admin/admin_settings/generic_management.html',
-#         items=items,
-#         title=title,
-#         description=description,
-#         add_placeholder=add_placeholder,
-#         add_action=add_action,
-#         no_found=no_found,
-#         model_slug=slug,
-#         button_text_class=button_text_class
-#     )
 
 
 
