@@ -1,397 +1,507 @@
-<!-- templates\admin\institute\add_institute.html -->
-
+<!-- templates/admin/institute/add_institute.html -->
 {% extends "base.html" %}
-{% block title %}Admin Dashboard | Research Collaboration Platform{% endblock %}
+{% block title %}Institutes Management | Research Collaboration Platform{% endblock %}
 {% block content %}
-<div class="max-w-full">
-<div class="container full-container max-w-full">
-<!-- <div class="flex justify-end mb-4">
-    <a href="{{ url_for('admin.add_institute') }}" 
-       class="bg-green-500 hover:bg-green-600 text-black font-semibold py-2 px-4 rounded shadow">
-        Add Institute
-    </a>
-</div> -->
-    <!-- Button Group -->
-        <div class="flex flex-wrap items-center space-x-6 mb-4">
-            <button onclick="showUploadForm()" 
-                    class="bg-green-500 hover:bg-green-600 text-black font-semibold py-2 px-4 rounded shadow">
-                Add Institute
-            </button>
+<div class="container mx-auto px-4 py-6">
+    <!-- Flash Messages Popup -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-messages" class="fixed top-16 right-4 z-50 w-80 max-w-[90%] space-y-3">
+                {% for category, message in messages %}
+                    <div class="flex items-start p-4 rounded-lg shadow-lg border transition-all duration-300 transform 
+                                {% if category == 'success' %}bg-green-100 border-green-300 text-green-800{% endif %}
+                                {% if category == 'error' %}bg-red-100 border-red-300 text-red-800{% endif %}
+                                {% if category == 'warning' %}bg-yellow-100 border-yellow-300 text-yellow-800{% endif %}
+                                flash-message animate-slide-in" 
+                                style="{% if category == 'success' %}background-color: #d1fae5; border-color: #6ee7b7; color: #065f46;{% endif %}
+                                       {% if category == 'error' %}background-color: #fee2e2; border-color: #f87171; color: #991b1b;{% endif %}
+                                       {% if category == 'warning' %}background-color: #fef3c7; border-color: #fcd34d; color: #92400e;{% endif %}"
+                                role="alert">
+                        <div class="flex-shrink-0">
+                            {% if category == 'success' %}
+                                <i class="ti ti-check text-xl"></i>
+                            {% elif category == 'error' %}
+                                <i class="ti ti-alert-circle text-xl"></i>
+                            {% elif category == 'warning' %}
+                                <i class="ti ti-alert-triangle text-xl"></i>
+                            {% endif %}
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <p class="text-sm font-medium">{{ message }}</p>
+                        </div>
+                        <button onclick="dismissMessage(this)" class="ml-2 p-1 hover:bg-opacity-20 rounded-full focus:outline-none">
+                            <i class="ti ti-x text-lg"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
-            <a href="{{ url_for('static', filename='example_of_csv_file_formate.csv') }}"
-               download
-               class="bg-blue-500 hover:bg-blue-600 text-black font-semibold py-2 px-4 rounded shadow">
-                Download CSV Template
-            </a>
-
-            <button onclick="showManualForm()"
-                    class="bg-blue-500 hover:bg-blue-600 text-black font-semibold py-2 px-4 rounded shadow">
-                Manually Add Institute
-            </button>
-        </div>
-
+    <!-- Action Buttons -->
+    <div class="flex flex-wrap items-center gap-4 mb-6">
+        <button onclick="showManualForm()"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-md transition-colors duration-200">
+            <i class="ti ti-user-plus mr-2"></i>Manually Add Institute
+        </button>
+        <button onclick="showUploadForm()"
+                class="bg-white text-warning border border-warning hover:text-white hover:bg-warning font-semibold py-2.5 px-6 rounded-lg shadow-md transition-colors duration-200">
+            <i class="ti ti-upload mr-2"></i>Import CSV
+        </button>
+        <a href="{{ url_for('admin.download_institute_template') }}"
+           class="bg-white text-success border border-success hover:text-white hover:bg-success font-semibold py-2.5 px-6 rounded-lg shadow-md transition-colors duration-200">
+            <i class="ti ti-download mr-2"></i>Download CSV Template
+        </a>
+    </div>
 
     <!-- CSV Upload Form -->
-<div id="upload-form" class="mb-6 bg-gray-50 p-4 rounded-lg">
-    <form action="{{ url_for('admin.add_institute') }}" method="POST" enctype="multipart/form-data" class="flex items-center">
-        <input type="file" name="file" class="border p-2 mr-2" required>
-        <button type="submit" class="bg-green-500 text-black px-4 py-2 rounded hover:bg-green-600">
-            Upload CSV
-        </button>
-    </form>
-</div>
- 
-
-<!-- Manual Addition Form -->
-<div id="manual-form" class="hidden mb-6 bg-gray-50 p-4 rounded-lg">
-    <form method="POST" action="{{ url_for('admin.add_institute') }}">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="form-group">
-                <label class="block text-sm font-medium mb-1">Name *</label>
-                <input type="text" name="name" class="form-control" required>
+    <div id="upload-form" class="hidden mb-6 bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
+        <h3 class="text-lg font-semibold text-black mb-4">Import Institutes from CSV</h3>
+        <form method="POST" enctype="multipart/form-data" class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div class="flex-1">
+                <input type="file" name="file"
+                       class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                       accept=".csv" required>
+                <small class="text-gray-600 mt-1 block">CSV should include columns: Name, Centers, Lab Sector, FocusArea, KeyResources, Researchers, Director, City, State, Link, Ownership</small>
             </div>
-            
-            <div class="form-group">
-                <label class="block text-sm font-medium mb-1">Centers *</label>
-                <input type="text" name="centers" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label class="block text-sm font-medium mb-1">Lab Sector *</label>
-                <select name="lab_sector" class="form-control" required>
-                    <option value="">Select Sector</option>
-                    {% for sector in sectors %}
-                    <option value="{{ sector.name }}">{{ sector.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label class="block text-sm font-medium mb-1">Focus Area *</label>
-                <textarea name="focus_area" class="form-control" rows="2" required></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label class="block text-sm font-medium mb-1">Key Resources *</label>
-                <textarea name="key_resources" class="form-control" rows="2" required></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label class="block text-sm font-medium mb-1">Researchers *</label>
-                <input type="text" name="researchers" class="form-control" required>
-            </div>
-
-
-            
-            <div class="form-group">
-                <label class="block text-sm font-medium mb-1">Director *</label>
-                <input type="text" name="director" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label class="block text-sm font-medium mb-1">City *</label>
-                <input type="text" name="city" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label class="block text-sm font-medium mb-1">State *</label>
-                <input type="text" name="state" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label class="block text-sm font-medium mb-1">Link *</label>
-                <input type="url" name="link" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label class="block text-sm font-medium mb-1">Ownership *</label>
-                <select name="ownership" class="form-control" required>
-                    <option value="">Select Ownership</option>
-                    {% for ownership in ownerships %}
-                    <option value="{{ ownership.name }}">{{ ownership.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-        
-        <div class="mt-4 flex gap-3">
-            <button type="submit" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
-                Add Institute
-            </button>
-            <button type="button" onclick="hideManualForm()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
+            <button type="button" onclick="hideUploadForm()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors duration-200">
                 Cancel
             </button>
-        </div>
-    </form>
-</div>
+            <button type="submit" class="bg-success text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-colors duration-200 mt-6 sm:mt-0">
+                <i class="ti ti-upload me-2"></i>Upload CSV
+            </button>
+        </form>
+    </div>
 
-
-
-
-<div class="grid grid-cols-12 gap-6 mt-6">
-    <div class="col-span-12">
-        <div class="card">
-            <div class="card-body">
-                <div class="sm:flex items-center justify-between mb-4">
-                    <div>
-                        <h5 class="card-title">Institutes</h5>
-                        <p class="card-subtitle">List of all registered institutes</p>
-                    </div>
-                    <div class="flex items-center gap-3 md:mt-0 mt-3">
-                        <!-- Search Form -->
-                        <form class="relative">
-                            <input type="text"
-                                   class="form-control rounded-full py-[9px] ps-12 border-bordergray text-dark dark:text-darklink text-fs_15 font-medium"
-                                   placeholder="Search">
-                            <iconify-icon icon="solar:magnifer-linear"
-                                          class="text-dark dark:text-darklink absolute top-3 start-1 text-lg ms-3"></iconify-icon>
-                        </form>
-                        
-                        <!-- Per Page Dropdown -->
-                        <form method="GET" action="{{ url_for('admin.add_institute') }}" class="flex items-center">
-                            <select name="per_page" onchange="this.form.submit()" 
-                                    class="form-control rounded-full py-[9px] px-4 border-bordergray text-dark dark:text-darklink text-fs_15 font-medium">
-                                <option value="5" {% if request.args.get('per_page', '10') == '5' %}selected{% endif %}>5</option>
-                                <option value="10" {% if request.args.get('per_page', '10') == '10' %}selected{% endif %}>10</option>
-                                <option value="25" {% if request.args.get('per_page', '10') == '25' %}selected{% endif %}>25</option>
-                                <option value="50" {% if request.args.get('per_page', '10') == '50' %}selected{% endif %}>50</option>
-                            </select>
-                            <input type="hidden" name="page" value="{{ request.args.get('page', '1') }}">
-                        </form>
-                    </div>
+    <!-- Manual Add Form -->
+    <div id="manual-form" class="hidden mb-6 bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
+        <h3 class="text-lg font-semibold text-black mb-6">Add Institute Manually</h3>
+        <form method="POST" action="{{ url_for('admin.add_institute') }}">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div class="form-group">
+                    <label class="block text-sm font-semibold text-black mb-2">Name *</label>
+                    <input type="text" name="name"
+                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                           placeholder="Enter institute name" required>
                 </div>
-                
-                <div class="flex flex-col">
-                    <div class="-m-1.5 overflow-x-auto">
-                        <div class="p-1.5 min-w-full inline-block align-middle">
-                            <div class="overflow-hidden">
-                                <table class="min-w-full divide-y divide-border dark:divide-darkborder">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col" class="text-start p-3 ps-0 font-semibold text-dark dark:text-white text-base">#</th>
-                                            <th scope="col" class="text-start p-3 font-semibold text-dark dark:text-white text-base">Name</th>
-                                            <th scope="col" class="text-start p-3 font-semibold text-dark dark:text-white text-base">Centers</th>
-                                            <th scope="col" class="text-start p-3 font-semibold text-dark dark:text-white text-base">Lab Sector</th>
-                                            <th scope="col" class="text-start p-3 font-semibold text-dark dark:text-white text-base">Focus Area</th>
-                                            <th scope="col" class="text-start p-3 font-semibold text-dark dark:text-white text-base">Key Resources</th>
-                                            <th scope="col" class="text-start p-3 font-semibold text-dark dark:text-white text-base">Researchers</th>
-                                            <th scope="col" class="text-start p-3 font-semibold text-dark dark:text-white text-base">Director</th>
-                                            <th scope="col" class="text-start p-3 font-semibold text-dark dark:text-white text-base">City</th>
-                                            <th scope="col" class="text-start p-3 font-semibold text-dark dark:text-white text-base">State</th>
-                                            <th scope="col" class="text-start p-3 font-semibold text-dark dark:text-white text-base">Link</th>
-                                            <th scope="col" class="text-start p-3 font-semibold text-dark dark:text-white text-base">Ownership</th>
-                                            <th scope="col" class="text-start p-3 font-semibold text-dark dark:text-white text-base">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-border dark:divide-darkborder">
-                                        {% for inst in institutes.items %}
-                                        <tr>
-                                            <td class="p-3 ps-0 whitespace-nowrap text-center">
-                                                {{ (institutes.page - 1) * institutes.per_page + loop.index }}
-                                            </td>
-                                            <td class="p-3 whitespace-nowrap">
-                                                <div class="flex gap-4 items-center truncate">
-                                                    <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                                                        <img src="{{ url_for('static', filename='images/profile.png') }}" alt="Profile" class="w-full h-full object-cover">
-                                                    </div>
-
-                                                    <h6 class="text-base">{{ inst.name }}</h6>
-                                                </div>
-                                            </td>
-                                            <td class="p-3 whitespace-nowrap">
-                                                <p class="text-dark dark:text-darklink">{{ inst.centers }}</p>
-                                            </td>
-                                            <td class="p-3 whitespace-nowrap">
-                                                <p class="text-dark dark:text-darklink">{{ inst.lab_sector }}</p>
-                                            </td>
-                                            <td class="p-3">
-                                                <div class="flex flex-wrap gap-1 max-w-[200px]">
-                                                    {% if inst.focus_area %}
-                                                        {% for area in inst.focus_area.split(',') %}
-                                                        <span class="badge bg-lightprimary dark:bg-darkprimary border-primary text-primary">{{ area.strip() }}</span>
-                                                        {% endfor %}
-                                                    {% endif %}
-                                                </div>
-                                            </td>
-                                            <td class="p-3 whitespace-nowrap">
-                                                <p class="text-dark dark:text-darklink">{{ inst.key_resources }}</p>
-                                            </td>
-                                            <td class="p-3 whitespace-nowrap">
-                                                <p class="text-dark dark:text-darklink">{{ inst.researchers }}</p>
-                                            </td>
-                                            <td class="p-3 whitespace-nowrap">
-                                                <p class="text-dark dark:text-darklink">{{ inst.director }}</p>
-                                            </td>
-                                            <td class="p-3 whitespace-nowrap">
-                                                <p class="text-dark dark:text-darklink">{{ inst.city }}</p>
-                                            </td>
-                                            <td class="p-3 whitespace-nowrap">
-                                                <p class="text-dark dark:text-darklink">{{ inst.state }}</p>
-                                            </td>
-                                            <td class="p-3 whitespace-nowrap">
-                                                {% if inst.link %}
-                                                <a href="{{ inst.link }}" target="_blank" class="text-blue-600 hover:text-blue-800">
-                                                    <iconify-icon icon="solar:link-linear" class="text-lg"></iconify-icon>
-                                                </a>
-                                                {% else %}
-                                                <span class="text-gray-400">-</span>
-                                                {% endif %}
-                                            </td>
-                                            <td class="p-3 whitespace-nowrap">
-                                                <div class="badge bg-lightinfo dark:bg-darkinfo border-info text-info">
-                                                    {{ inst.ownership }}
-                                                </div>
-                                            </td>
-                                            <td class="p-3 whitespace-nowrap">
-                                                <div class="hs-dropdown relative inline-flex">
-                                                    <button id="hs-dropdown-custom-icon-trigger"
-                                                            class="hs-dropdown-toggle h-10 w-10 text-bodytext dark:text-darklink hover:text-primary dark:hover:text-primary group bg-hover justify-center items-center rounded-full">
-                                                        <i class="ti ti-dots-vertical text-lg"></i>
-                                                    </button>
-                                                    <div class="hs-dropdown-menu overflow-hidden z-[1] transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 min-w-40 hidden"
-                                                         aria-labelledby="hs-dropdown-custom-icon-trigger">
-                                                        <div class="flex flex-col">
-                                                            <div class="py-1 px-4 bg-hover">
-                                                                <a class="font-medium flex gap-2 items-center" href="#">
-                                                                    <i class="ti ti-eye text-base"></i>View
-                                                                </a>
-                                                            </div>
-                                                            <div class="py-1 px-4 bg-hover">
-                                                                <a class="font-medium flex gap-2 items-center" href="#">
-                                                                    <i class="ti ti-edit text-base"></i>Edit
-                                                                </a>
-                                                            </div>
-                                                            <div class="py-1 px-4 bg-hover">
-                                                                <!-- <a class="font-medium flex gap-2 items-center" href="#">
-                                                                    <i class="ti ti-trash text-base"></i>Delete
-                                                                </a> -->
-                                                                
-                                                                <!-- Find this section in your template and update it -->
-<div class="py-1 px-4 bg-hover">
-    <form action="{{ url_for('admin.delete_institute', institute_id=inst.id) }}" method="POST"
-        onsubmit="return confirm('Are you sure you want to delete this institute?');">
-        <button type="submit" class="font-medium flex gap-2 items-center text-red-600 hover:text-red-800">
-            <i class="ti ti-trash text-base"></i>Delete
-        </button>
-    </form>
-</div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label class="block text-sm font-semibold text-black mb-2">Centers *</label>
+                    <input type="text" name="centers"
+                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                           placeholder="Enter centers (comma-separated)" required>
                 </div>
-                
-                <!-- Pagination -->
-                <div class="md:flex text-center pt-3 justify-between items-center border-t border-border dark:border-darkborder">
-                    <p class="font-medium">
-                        Showing {{ institutes.first }} to {{ institutes.last }} of {{ institutes.total }} entries
-                    </p>
-                    
-                    <nav class="flex items-center gap-x-1">
-                        {% if institutes.has_prev %}
-                            <a href="{{ url_for('admin.add_institute', page=institutes.prev_num, per_page=request.args.get('per_page', '10')) }}"
-                               class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-hover focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-darklink dark:focus:bg-white/10">
-                                <i class="ti ti-chevron-left text-sm leading-tight font-medium"></i>
-                                <span class="leading-tight">Previous</span>
-                            </a>
-                        {% else %}
-                            <span class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-gray-200 cursor-not-allowed dark:text-darklink">
-                                <i class="ti ti-chevron-left text-sm leading-tight font-medium"></i>
-                                <span class="leading-tight">Previous</span>
-                            </span>
-                        {% endif %}
-                        
-                        <div class="flex items-center gap-x-1">
-                            {% for page_num in institutes.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=3) %}
-                                {% if page_num %}
-                                    {% if institutes.page == page_num %}
-                                        <span class="min-h-[38px] min-w-[38px] flex justify-center items-center text-white bg-primary py-2 px-3 text-sm rounded-lg focus:outline-none"
-                                              aria-current="page">{{ page_num }}</span>
-                                    {% else %}
-                                        <a href="{{ url_for('admin.add_institute', page=page_num, per_page=request.args.get('per_page', '10')) }}"
-                                           class="min-h-[38px] min-w-[38px] flex justify-center items-center text-dark bg-hover py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-100 dark:text-darklink dark:focus:bg-white/10">
-                                            {{ page_num }}
+                <div class="form-group">
+                    <label class="block text-sm font-semibold text-black mb-2">Lab Sector *</label>
+                    <select name="lab_sector"
+                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black" required>
+                        <option value="">Select Sector</option>
+                        {% for sector in sectors %}
+                        <option value="{{ sector.name }}">{{ sector.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="block text-sm font-semibold text-black mb-2">Focus Area *</label>
+                    <textarea name="focus_area"
+                              class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                              rows="2" placeholder="Enter focus areas (comma-separated)" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="block text-sm font-semibold text-black mb-2">Key Resources *</label>
+                    <textarea name="key_resources"
+                              class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                              rows="2" placeholder="Enter key resources (comma-separated)" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="block text-sm font-semibold text-black mb-2">Researchers *</label>
+                    <input type="text" name="researchers"
+                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                           placeholder="Enter researchers (comma-separated)" required>
+                </div>
+                <div class="form-group">
+                    <label class="block text-sm font-semibold text-black mb-2">Director *</label>
+                    <input type="text" name="director"
+                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                           placeholder="Enter director name" required>
+                </div>
+                <div class="form-group">
+                    <label class="block text-sm font-semibold text-black mb-2">City *</label>
+                    <input type="text" name="city"
+                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                           placeholder="Enter city" required>
+                </div>
+                <div class="form-group">
+                    <label class="block text-sm font-semibold text-black mb-2">State *</label>
+                    <input type="text" name="state"
+                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                           placeholder="Enter state" required>
+                </div>
+                <div class="form-group">
+                    <label class="block text-sm font-semibold text-black mb-2">Link *</label>
+                    <input type="url" name="link"
+                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                           placeholder="Enter website link" required>
+                </div>
+                <div class="form-group">
+                    <label class="block text-sm font-semibold text-black mb-2">Ownership *</label>
+                    <select name="ownership"
+                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black" required>
+                        <option value="">Select Ownership</option>
+                        {% for ownership in ownerships %}
+                        <option value="{{ ownership.name }}">{{ ownership.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="mt-6 flex flex-wrap gap-3">
+                <button type="button" onclick="hideManualForm()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-6 py-2.5 rounded-lg shadow-md transition-colors duration-200">
+                    <i class="ti ti-x me-2"></i>Cancel
+                </button>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg shadow-md transition-colors duration-200">
+                    <i class="ti ti-check me-2"></i>Add Institute
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Institutes Table -->
+    <div id="institutes-table" class="w-full card bg-white border border-gray-200 rounded-lg shadow-sm">
+        <div class="card-body p-6">
+            <div class="sm:flex items-center justify-between mb-6">
+                <div>
+                    <h5 class="text-xl font-semibold text-black mb-1">Institutes List</h5>
+                    <p class="text-sm text-gray-600">All registered institutes</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 md:mt-0 mt-4">
+                    <form class="relative" method="GET">
+                        <input type="text" name="query" value="{{ query or '' }}"
+                               class="border border-black/80 rounded-sm px-4 py-1.5 pl-10 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black w-64"
+                               placeholder="Search institutes...">
+                    </form>
+                    <form method="GET" action="{{ url_for('admin.add_institute') }}" class="flex items-center">
+                        <select name="per_page" onchange="this.form.submit()"
+                                class="border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black" style="min-width: 150px">
+                            <option value="5" {% if request.args.get('per_page', '10') == '5' %}selected{% endif %}>5 per page</option>
+                            <option value="10" {% if request.args.get('per_page', '10') == '10' %}selected{% endif %}>10 per page</option>
+                            <option value="25" {% if request.args.get('per_page', '10') == '25' %}selected{% endif %}>25 per page</option>
+                            <option value="50" {% if request.args.get('per_page', '10') == '50' %}selected{% endif %}>50 per page</option>
+                        </select>
+                        <input type="hidden" name="page" value="{{ request.args.get('page', '1') }}">
+                        <input type="hidden" name="query" value="{{ query or '' }}">
+                    </form>
+                </div>
+            </div>
+
+            <div class="flex flex-col">
+                <div id="table-container" class="overflow-auto cursor-grab">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">S. No.</th>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Name</th>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Centers</th>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Lab Sector</th>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Focus Area</th>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Key Resources</th>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Researchers</th>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Director</th>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">City</th>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">State</th>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Link</th>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Ownership</th>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% if institutes.items %}
+                                {% for inst in institutes.items %}
+                                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                    <td class="px-4 py-3 whitespace-nowrap text-center text-sm text-black">
+                                        {{ (institutes.page - 1) * institutes.per_page + loop.index }}
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex gap-3 items-center">
+                                            <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                                                <img src="{{ url_for('static', filename='images/profile.png') }}" alt="Profile" class="w-full h-full object-cover">
+                                            </div>
+                                            <span class="text-sm font-medium text-black">{{ inst.name or '-' }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="max-w-xs">
+                                            <span class="text-sm text-black line-clamp-2">
+                                                {{ inst.centers or '-' }}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-sm text-black">{{ inst.lab_sector or '-' }}</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex flex-wrap gap-1 max-w-xs">
+                                            {% if inst.focus_area %}
+                                                {% for area in inst.focus_area.split(',') %}
+                                                <span class="text-sm bg-gray-100 text-gray-800 px-2 py-1 rounded">{{ area.strip() }}</span>
+                                                {% endfor %}
+                                            {% else %}
+                                                <span class="text-sm text-black">-</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="max-w-xs">
+                                            <span class="text-sm text-black line-clamp-2">
+                                                {{ inst.key_resources or '-' }}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-sm text-black">{{ inst.researchers or '-' }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-sm text-black">{{ inst.director or '-' }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-sm text-black">{{ inst.city or '-' }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-sm text-black">{{ inst.state or '-' }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        {% if inst.link %}
+                                        <a href="{{ inst.link }}" target="_blank" class="text-blue-600 hover:text-blue-800">
+                                            Link
                                         </a>
-                                    {% endif %}
-                                {% else %}
-                                    <span class="min-h-[38px] min-w-[38px] flex justify-center items-center text-dark bg-hover py-2 px-3 text-sm rounded-lg">...</span>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                        
-                        {% if institutes.has_next %}
-                            <a href="{{ url_for('admin.add_institute', page=institutes.next_num, per_page=request.args.get('per_page', '10')) }}"
-                               class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-hover focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-darklink dark:focus:bg-white/10">
-                                <span class="leading-tight">Next</span>
-                                <i class="ti ti-chevron-right text-sm leading-tight font-medium"></i>
-                            </a>
-                        {% else %}
-                            <span class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-gray-200 cursor-not-allowed dark:text-darklink">
-                                <span class="leading-tight">Next</span>
-                                <i class="ti ti-chevron-right text-sm leading-tight font-medium"></i>
-                            </span>
-                        {% endif %}
-                    </nav>
+                                        {% else %}
+                                        <span class="text-sm text-black">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-sm bg-gray-100 text-gray-800 px-2 py-1 rounded">{{ inst.ownership or '-' }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex items-center gap-2">
+                                            <button class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors duration-200" title="View">
+                                                <i class="ti ti-eye text-base"></i>
+                                            </button>
+                                            <button class="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors duration-200" title="Edit">
+                                                <i class="ti ti-edit text-base"></i>
+                                            </button>
+                                            <form action="{{ url_for('admin.delete_institute', institute_id=inst.id) }}" method="POST" class="inline"
+                                                  onsubmit="return confirm('Are you sure you want to delete this institute?');">
+                                                <button type="submit" class="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors duration-200" title="Delete">
+                                                    <i class="ti ti-trash text-base"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                            <tr>
+                                <td colspan="13" class="px-4 py-8 text-center text-gray-500">
+                                    <div class="flex flex-col items-center">
+                                        <i class="ti ti-building text-4xl text-gray-300 mb-2"></i>
+                                        <span class="text-sm">No institutes found</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
                 </div>
+            </div>
 
+            <!-- Pagination -->
+            <div class="md:flex text-center pt-3 justify-between items-center border-t border-border dark:border-darkborder">
+                <p class="font-medium">
+                    Showing {{ institutes.first }} to {{ institutes.last }} of {{ institutes.total }} entries
+                </p>
+                <nav class="flex items-center gap-x-1">
+                    {% if institutes.has_prev %}
+                    <a href="{{ url_for('admin.add_institute', page=institutes.prev_num, per_page=request.args.get('per_page', '10'), query=query) }}"
+                       class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-hover focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-darklink dark:focus:bg-white/10">
+                        <i class="ti ti-chevron-left text-sm leading-tight font-medium"></i>
+                        <span class="leading-tight">Previous</span>
+                    </a>
+                    {% else %}
+                    <span class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-gray-200 cursor-not-allowed dark:text-darklink">
+                        <i class="ti ti-chevron-left text-sm leading-tight font-medium"></i>
+                        <span class="leading-tight">Previous</span>
+                    </span>
+                    {% endif %}
+                    <div class="flex items-center gap-x-1">
+                        {% for page_num in institutes.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=3) %}
+                        {% if page_num %}
+                            {% if institutes.page == page_num %}
+                            <span class="min-h-[38px] min-w-[38px] flex justify-center items-center text-white bg-primary py-2 px-3 text-sm rounded-lg focus:outline-none"
+                                  aria-current="page">{{ page_num }}</span>
+                            {% else %}
+                            <a href="{{ url_for('admin.add_institute', page=page_num, per_page=request.args.get('per_page', '10'), query=query) }}"
+                               class="min-h-[38px] min-w-[38px] flex justify-center items-center text-dark bg-hover py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-100 dark:text-darklink dark:focus:bg-white/10">
+                                {{ page_num }}
+                            </a>
+                            {% endif %}
+                        {% else %}
+                        <span class="min-h-[38px] min-w-[38px] flex justify-center items-center text-dark bg-hover py-2 px-3 text-sm rounded-lg">...</span>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% if institutes.has_next %}
+                    <a href="{{ url_for('admin.add_institute', page=institutes.next_num, per_page=request.args.get('per_page', '10'), query=query) }}"
+                       class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-hover focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-darklink dark:focus:bg-white/10">
+                        <span class="leading-tight">Next</span>
+                        <i class="ti ti-chevron-right text-sm leading-tight font-medium"></i>
+                    </a>
+                    {% else %}
+                    <span class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-gray-200 cursor-not-allowed dark:text-darklink">
+                        <span class="leading-tight">Next</span>
+                        <i class="ti ti-chevron-right text-sm leading-tight font-medium"></i>
+                    </span>
+                    {% endif %}
+                </nav>
             </div>
         </div>
     </div>
 </div>
 
-</div>
-</div>
+<!-- JavaScript for Flash Message Auto-Dismiss and Animation -->
+<script>
+    function dismissMessage(element) {
+        const message = element.closest('.flash-message');
+        message.classList.remove('animate-slide-in');
+        message.classList.add('animate-slide-out');
+        setTimeout(() => message.remove(), 300);
+    }
 
+    document.addEventListener('DOMContentLoaded', () => {
+        const messages = document.querySelectorAll('.flash-message');
+        messages.forEach((message) => {
+            setTimeout(() => {
+                if (message && document.body.contains(message)) {
+                    message.classList.remove('animate-slide-in');
+                    message.classList.add('animate-slide-out');
+                    setTimeout(() => message.remove(), 300);
+                }
+            }, 5000);
+        });
+    });
+</script>
+
+<!-- Tailwind CSS Animation Styles and Fallback Colors -->
+<style>
+    .animate-slide-in {
+        animation: slideIn 0.3s ease-out forwards;
+    }
+    .animate-slide-out {
+        animation: slideOut 0.3s ease-in forwards;
+    }
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+    .flash-message {
+        min-height: 3rem;
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    .flash-message button:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<!-- JavaScript for Form Toggling and Table Scrolling -->
 <script>
     function showUploadForm() {
         const uploadForm = document.getElementById('upload-form');
         const manualForm = document.getElementById('manual-form');
-        
-        // Toggle upload form
+        const institutesTable = document.getElementById('institutes-table');
         if (uploadForm.classList.contains('hidden')) {
             uploadForm.classList.remove('hidden');
             manualForm.classList.add('hidden');
+            institutesTable.classList.add('hidden');
         } else {
             uploadForm.classList.add('hidden');
+            institutesTable.classList.remove('hidden');
         }
     }
-    
+
     function showManualForm() {
         const uploadForm = document.getElementById('upload-form');
         const manualForm = document.getElementById('manual-form');
-        
-        // Toggle manual form
+        const institutesTable = document.getElementById('institutes-table');
         if (manualForm.classList.contains('hidden')) {
             manualForm.classList.remove('hidden');
             uploadForm.classList.add('hidden');
+            institutesTable.classList.add('hidden');
         } else {
             manualForm.classList.add('hidden');
+            institutesTable.classList.remove('hidden');
         }
     }
-    
+
     function hideManualForm() {
         document.getElementById('manual-form').classList.add('hidden');
+        document.getElementById('institutes-table').classList.remove('hidden');
     }
-    
+
     function hideUploadForm() {
         document.getElementById('upload-form').classList.add('hidden');
+        document.getElementById('institutes-table').classList.remove('hidden');
     }
-    
-    // Hide both forms initially
-    document.getElementById('upload-form').classList.add('hidden');
-    document.getElementById('manual-form').classList.add('hidden');
 
+    const container = document.getElementById('table-container');
+    let isDown = false;
+    let startX;
+    let scrollLeft;
 
-    
+    container.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        isDown = true;
+        container.classList.add('cursor-grabbing');
+        container.classList.remove('cursor-grab');
+        startX = e.pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
+        e.preventDefault();
+    });
+
+    container.addEventListener('mouseleave', () => {
+        isDown = false;
+        container.classList.remove('cursor-grabbing');
+        container.classList.add('cursor-grab');
+    });
+
+    container.addEventListener('mouseup', () => {
+        isDown = false;
+        container.classList.remove('cursor-grabbing');
+        container.classList.add('cursor-grab');
+    });
+
+    container.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startX) * 1;
+        container.scrollLeft = scrollLeft - walk;
+    });
 </script>
-
 {% endblock %}
-

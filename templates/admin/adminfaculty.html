@@ -1,7 +1,39 @@
 {% extends "base.html" %}
 {% block title %}Faculty Dashboard | Research Collaboration Platform{% endblock %}
 {% block content %}
-<div class="">
+<div class="container mx-auto px-4 py-6">
+    <!-- Flash Messages Popup -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-messages" class="fixed top-4 right-4 z-50 w-80 max-w-full space-y-3">
+                {% for category, message in messages %}
+                    <div class="flex items-start p-4 rounded-lg shadow-lg border transition-all duration-300 transform 
+                                {% if category == 'success' %}bg-green-100 border-green-300 text-green-800{% endif %}
+                                {% if category == 'error' %}bg-red-100 border-red-300 text-red-800{% endif %}
+                                {% if category == 'warning' %}bg-yellow-100 border-yellow-300 text-yellow-800{% endif %}
+                                flash-message animate-slide-in">
+                        <div class="flex-shrink-0">
+                            {% if category == 'success' %}
+                                <i class="ti ti-check text-xl"></i>
+                            {% elif category == 'error' %}
+                                <i class="ti ti-alert-circle text-xl"></i>
+                            {% elif category == 'warning' %}
+                                <i class="ti ti-alert-triangle text-xl"></i>
+                            {% endif %}
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <p class="text-sm font-medium">{{ message }}</p>
+                        </div>
+                        <button onclick="dismissMessage(this)" class="ml-2 p-1 hover:bg-opacity-20 rounded-full focus:outline-none">
+                            <i class="ti ti-x text-lg"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+
         <div class="flex flex-wrap items-center gap-4 mb-6">
             <button onclick="showManualForm()"
                     class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-md transition-colors duration-200">
@@ -11,8 +43,8 @@
                     class="bg-white  text-warning border border-warning hover:text-white hover:bg-warning font-semibold py-2.5 px-6 rounded-lg shadow-md transition-colors duration-200">
                 <i class="ti ti-upload mr-2"></i>Import CSV
             </button>
-            <a href="{{ url_for('static', filename='sample_faculty.csv') }}" download
-               class="bg-white  text-success border border-success hover:text-white hover:bg-success font-semibold py-2.5 px-6 rounded-lg shadow-md transition-colors duration-200">
+            <a href="{{ url_for('admin.download_faculty_template') }}"
+            class="bg-white text-success border border-success hover:text-white hover:bg-success font-semibold py-2.5 px-6 rounded-lg shadow-md transition-colors duration-200">
                 <i class="ti ti-download mr-2"></i>Download CSV Template
             </a>
         </div>
@@ -411,6 +443,81 @@
             </div>
         </div>
 </div>
+<!-- JavaScript for Flash Message Auto-Dismiss and Animation -->
+<script>
+    // Function to dismiss a single message
+    function dismissMessage(element) {
+        const message = element.closest('.flash-message');
+        message.classList.remove('animate-slide-in');
+        message.classList.add('animate-slide-out');
+        setTimeout(() => message.remove(), 300); // Match animation duration
+    }
+
+    // Auto-dismiss messages after 5 seconds
+    document.addEventListener('DOMContentLoaded', () => {
+        const messages = document.querySelectorAll('.flash-message');
+        messages.forEach((message) => {
+            setTimeout(() => {
+                if (message && document.body.contains(message)) {
+                    message.classList.remove('animate-slide-in');
+                    message.classList.add('animate-slide-out');
+                    setTimeout(() => message.remove(), 300); // Match animation duration
+                }
+            }, 9000); // Auto-dismiss after 5 seconds
+        });
+    });
+</script>
+
+<!-- Tailwind CSS Animation Styles and Fallback Colors -->
+<style>
+    /* Animations */
+    .animate-slide-in {
+        animation: slideIn 0.3s ease-out forwards;
+    }
+
+    .animate-slide-out {
+        animation: slideOut 0.3s ease-in forwards;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
+    /* Fallback styles for flash messages */
+    .flash-message {
+        min-height: 3rem;
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Ensure button hover effect works even without Tailwind */
+    .flash-message button:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<!-- Existing JavaScript for form toggling and table scrolling -->
 <script>
     function showUploadForm() {
         const uploadForm = document.getElementById('upload-form');
@@ -457,10 +564,8 @@
         uploadForm.classList.add('hidden');
         facultyTable.classList.remove('hidden');
     }
-</script>
-<script>
-    const container = document.getElementById('table-container');
 
+    const container = document.getElementById('table-container');
     let isDown = false;
     let startX;
     let scrollLeft;
