@@ -1,31 +1,33 @@
-<!-- templates\base.html -->
+  <!-- templates\base.html -->
 
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='images/logo-shade_blue.png') }}" />
+  <!DOCTYPE html>
+  <html>
+  <head>
+      <meta charset="UTF-8"/>
+      <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='images/logo-shade_blue.png') }}" />
 
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
-          rel="stylesheet"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+      <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+            rel="stylesheet"/>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 
-    <!-- <link rel="stylesheet" href="../static/assets/css/theme.css"/> -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/theme.css') }}"/>
+      <!-- <link rel="stylesheet" href="../static/assets/css/theme.css"/> -->
+      <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/theme.css') }}"/>
 
-    <title>{% block title %}Research Collaboration Platform{% endblock %}</title>
-    <!-- <link rel="stylesheet" href="../static/assets/libs/jvectormap/jquery-jvectormap.css"> -->
-    <link rel="stylesheet"
-        href="{{ url_for('static', filename='assets/libs/jvectormap/jquery-jvectormap.css') }}"/>
+      <title>{% block title %}Research Collaboration Platform{% endblock %}</title>
+      <!-- <link rel="stylesheet" href="../static/assets/libs/jvectormap/jquery-jvectormap.css"> -->
+      <link rel="stylesheet"
+          href="{{ url_for('static', filename='assets/libs/jvectormap/jquery-jvectormap.css') }}"/>
 
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+      <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
 
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-      
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
+      <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        
+      <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  </head>
 
 <body class="DEFAULT_THEME bg-lightprimary dark:bg-darkbody">
 <main>
@@ -1726,6 +1728,8 @@
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 </body>

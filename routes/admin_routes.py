@@ -37,7 +37,6 @@ def check_admin_profile():
         return jsonify({'success': False, 'message': 'Access denied. Admin privileges required.'})
     
     if not current_user.profile:
-        # Auto-create profile for Admin
         profile = Profile(user_id=current_user.id, profile_type="Admin")
         db.session.add(profile)
         db.session.commit()
@@ -51,77 +50,127 @@ def check_admin_profile_redirect():
         return redirect(url_for('index'))
     
     if not current_user.profile:
-        # Auto-create profile for Admin
         profile = Profile(user_id=current_user.id, profile_type="Admin")
         db.session.add(profile)
         db.session.commit()
     
     return None
 
-
-
-
+def initialize_opportunity_types_and_statuses():
+    """Initialize OpportunityType and OpportunityStatus tables with default values"""
+    types = ['Internship', 'Fellowship', 'PhD', 'Job', 'PostDoc', 'Project']
+    statuses = ['Active', 'Closed', 'Filled']
+    
+    for t in types:
+        if not OpportunityType.query.filter_by(name=t).first():
+            db.session.add(OpportunityType(name=t, status='Active'))
+        else:
+            opp_type = OpportunityType.query.filter_by(name=t).first()
+            opp_type.status = 'Active'
+    
+    for s in statuses:
+        if not OpportunityStatus.query.filter_by(name=s).first():
+            db.session.add(OpportunityStatus(name=s, status='Active'))
+        else:
+            opp_status = OpportunityStatus.query.filter_by(name=s).first()
+            opp_status.status = 'Active'
+    
+    db.session.commit()
+    current_app.logger.info("Initialized OpportunityType and OpportunityStatus tables")
 
 @admin_bp.route('/download-opportunity-template')
-def download_opportunity_template():
-    # Example template fields
-    columns = ["Title", "Type", "Domain", "Description", "Deadline", "Duration", "Compensation", "Status", "Eligibility", "Keywords", "Advertisement Link"]
-
-    # Create empty dataframe with headers
-    df = pd.DataFrame(columns=columns)
-
-    # Save to Excel in memory
-    output = io.BytesIO()
-    df.to_excel(output, index=False, sheet_name="Template")
-    output.seek(0)
-
-    return send_file(output,
-                     as_attachment=True,
-                     download_name="opportunity_template.xlsx",
-                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-
-# Admin opportunities management
-@admin_bp.route('/opportunities')
 @login_required
-def admin_opportunities():
-    # Check admin profile first
+def download_opportunity_template():
     redirect_check = check_admin_profile_redirect()
     if redirect_check:
         return redirect_check
-    
+
+    columns = [
+        "Title", "Type", "Domain", "Description", "Deadline", "Duration",
+        "Compensation", "Status", "Eligibility", "Keywords", "Advertisement Link"
+    ]
+
+    sample_data = [
+        {
+            "Title": "Machine Learning Research Internship",
+            "Type": "Internship",
+            "Domain": "Computer Science",
+            "Description": "Work on cutting-edge ML projects with our team.",
+            "Deadline": "2025-12-31",
+            "Duration": "6 months",
+            "Compensation": "$2000/month",
+            "Status": "Active",
+            "Eligibility": "Pursuing MSc/PhD in Computer Science or related field",
+            "Keywords": "machine learning, AI, research",
+            "Advertisement Link": "https://example.com/internship"
+        },
+        {
+            "Title": "Data Science Fellowship",
+            "Type": "Fellowship",
+            "Domain": "Data Science",
+            "Description": "Collaborate on data-driven research projects.",
+            "Deadline": "2025-11-15",
+            "Duration": "12 months",
+            "Compensation": "$50000/year",
+            "Status": "Active",
+            "Eligibility": "BSc/MSc in Data Science, Statistics, or related field",
+            "Keywords": "data science, analytics, research",
+            "Advertisement Link": "https://example.com/fellowship"
+        }
+    ]
+
+    df = pd.DataFrame(sample_data, columns=columns)
+    output = io.StringIO()
+    df.to_csv(output, index=False)
+    output.seek(0)
+
+    return send_file(
+        io.BytesIO(output.getvalue().encode('utf-8')),
+        as_attachment=True,
+        download_name="opportunity_template.csv",
+        mimetype="text/csv"
+    )
+
+@admin_bp.route('/opportunities')
+@login_required
+def admin_opportunities():
+    redirect_check = check_admin_profile_redirect()
+    if redirect_check:
+        return redirect_check
+
     page = request.args.get('page', 1, type=int)
     per_page = 10
 
-    # Show only current admin's opportunities
+    # Initialize OpportunityType and OpportunityStatus tables
+    initialize_opportunity_types_and_statuses()
+
     opportunities = Opportunity.query.filter_by(
         creator_profile_id=current_user.profile.id
     ).order_by(
         Opportunity.created_at.desc()
     ).paginate(page=page, per_page=per_page, error_out=False)
 
-    # Fetch all opportunity links
-    opportunity_links = OpportunityLink.query.order_by(
-        OpportunityLink.created_at.desc()
-    ).all()
+    opportunity_types = OpportunityType.query.filter_by(status='Active').order_by(OpportunityType.name).all()
+    opportunity_statuses = OpportunityStatus.query.filter_by(status='Active').order_by(OpportunityStatus.name).all()
+    opportunity_links = OpportunityLink.query.order_by(OpportunityLink.created_at.desc()).all()
 
     return render_template(
         'admin/opportunities.html',
         opportunities=opportunities,
         opportunity_links=opportunity_links,
+        opportunity_types=opportunity_types,
+        opportunity_statuses=opportunity_statuses,
         title='My Opportunities'
     )
 
-# Add opportunity (handles both GET and POST)
 @admin_bp.route('/add-opportunity', methods=['POST'])
 @login_required
 def admin_add_opportunity():
-    # Check admin profile first
     profile_check = check_admin_profile()
     if profile_check:
         return profile_check
     
     try:
-        # Create new opportunity from form data
         opportunity = Opportunity(
             creator_profile_id=current_user.profile.id,
             type=request.form.get('type'),
@@ -137,7 +186,6 @@ def admin_add_opportunity():
             status=request.form.get('status', 'Active')
         )
         
-        # Handle deadline
         deadline_str = request.form.get('deadline')
         if deadline_str:
             opportunity.deadline = datetime.strptime(deadline_str, '%Y-%m-%d')
@@ -157,6 +205,272 @@ def admin_add_opportunity():
             'success': False, 
             'message': f'Error adding opportunity: {str(e)}'
         })
+
+@admin_bp.route('/bulk-upload-opportunities', methods=['POST'])
+@login_required
+def admin_bulk_upload_opportunities():
+    profile_check = check_admin_profile()
+    if profile_check:
+        return profile_check
+    
+    try:
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'message': 'No file selected'})
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'success': False, 'message': 'No file selected'})
+        
+        current_app.logger.info(f"Uploaded file: {file.filename}")
+        if file and allowed_file(file.filename):
+            result = process_opportunities_file(file, current_user.profile.id)
+            response = {
+                'success': True, 
+                'message': f'Successfully uploaded {result["processed_count"]} opportunities!'
+            }
+            if result.get('errors'):
+                response['errors'] = result['errors']
+            return jsonify(response)
+        else:
+            return jsonify({
+                'success': False, 
+                'message': f'Invalid file type: {file.filename}. Please upload an .xlsx, .xls, or .csv file.'
+            })
+            
+    except Exception as e:
+        current_app.logger.error(f"Error in bulk upload: {str(e)}")
+        return jsonify({
+            'success': False, 
+            'message': f'Error processing file: {str(e)}'
+        })
+
+def allowed_file(filename):
+    """Check if the file extension is allowed"""
+    allowed_extensions = {'csv', 'xlsx', 'xls'}
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
+def process_opportunities_file(file, creator_profile_id):
+    """Process the uploaded Excel or CSV file and create opportunities."""
+    try:
+        extension = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+        current_app.logger.info(f"Processing file: {file.filename}, extension: {extension}")
+
+        if extension not in {'xlsx', 'xls', 'csv'}:
+            raise ValueError(f"Unsupported file extension: {extension}")
+
+        df = None
+        if extension in {'xlsx', 'xls'}:
+            try:
+                df = pd.read_excel(file, sheet_name="Template")
+            except ValueError as e:
+                current_app.logger.error(f"Excel sheet 'Template' not found: {str(e)}")
+                raise ValueError("Excel file must contain a sheet named 'Template'")
+            except Exception as e:
+                current_app.logger.error(f"Error reading Excel file: {str(e)}")
+                raise ValueError(f"Failed to read Excel file: {str(e)}")
+        else:
+            try:
+                df = pd.read_csv(file, encoding='utf-8')
+            except Exception as e:
+                current_app.logger.error(f"Error reading CSV file: {str(e)}")
+                raise ValueError(f"Failed to read CSV file: {str(e)}")
+
+        if df is None:
+            current_app.logger.error("DataFrame could not be created")
+            raise ValueError("Failed to create DataFrame from file")
+
+        current_app.logger.info(f"File columns: {list(df.columns)}")
+
+        expected_columns = [
+            "Title", "Type", "Domain", "Description", "Deadline", "Duration",
+            "Compensation", "Status", "Eligibility", "Keywords", "Advertisement Link"
+        ]
+
+        if not all(col in df.columns for col in expected_columns):
+            missing_cols = [col for col in expected_columns if col not in df.columns]
+            current_app.logger.error(f"Missing columns: {missing_cols}")
+            raise ValueError(f"File does not contain all required columns: {', '.join(expected_columns)}")
+
+        processed_count = 0
+        errors = []
+        for index, row in df.iterrows():
+            try:
+                if pd.isna(row["Title"]) or pd.isna(row["Type"]) or pd.isna(row["Domain"]):
+                    errors.append(f"Row {index + 2}: Missing required fields (Title, Type, or Domain)")
+                    current_app.logger.warning(f"Row {index + 2}: Missing required fields")
+                    continue
+
+                opportunity_type = OpportunityType.query.filter_by(name=str(row["Type"]), status="Active").first()
+                opportunity_status = OpportunityStatus.query.filter_by(name=str(row["Status"]), status="Active").first()
+                if not opportunity_type:
+                    errors.append(f"Row {index + 2}: Invalid OpportunityType '{row['Type']}'")
+                    current_app.logger.warning(f"Row {index + 2}: Invalid OpportunityType '{row['Type']}'")
+                    continue
+                if not opportunity_status:
+                    errors.append(f"Row {index + 2}: Invalid OpportunityStatus '{row['Status']}'")
+                    current_app.logger.warning(f"Row {index + 2}: Invalid OpportunityStatus '{row['Status']}'")
+                    continue
+
+                opportunity = Opportunity(
+                    creator_profile_id=creator_profile_id,
+                    title=str(row["Title"]),
+                    type=str(row["Type"]),
+                    domain=str(row["Domain"]),
+                    description=str(row.get("Description", "")) if pd.notna(row.get("Description")) else "",
+                    duration=str(row.get("Duration", "")) if pd.notna(row.get("Duration")) else "",
+                    compensation=str(row.get("Compensation", "")) if pd.notna(row.get("Compensation")) else "",
+                    status=str(row.get("Status", "Active")) if pd.notna(row.get("Status")) else "Active",
+                    eligibility=str(row.get("Eligibility", "")) if pd.notna(row.get("Eligibility")) else "",
+                    keywords=str(row.get("Keywords", "")) if pd.notna(row.get("Keywords")) else "",
+                    advertisement_link=str(row.get("Advertisement Link", "")) if pd.notna(row.get("Advertisement Link")) else ""
+                )
+
+                deadline = row.get("Deadline")
+                if pd.notna(deadline):
+                    try:
+                        if isinstance(deadline, str):
+                            opportunity.deadline = datetime.strptime(deadline.strip(), '%Y-%m-%d')
+                        else:
+                            opportunity.deadline = pd.to_datetime(deadline).to_pydatetime()
+                    except (ValueError, TypeError) as e:
+                        errors.append(f"Row {index + 2}: Invalid deadline format '{deadline}'")
+                        current_app.logger.warning(f"Row {index + 2}: Invalid deadline format '{deadline}'")
+                        continue
+
+                db.session.add(opportunity)
+                processed_count += 1
+                db.session.flush()
+                current_app.logger.info(f"Row {index + 2}: Successfully added opportunity '{row['Title']}'")
+            except Exception as e:
+                errors.append(f"Row {index + 2}: Error processing row - {str(e)}")
+                current_app.logger.error(f"Row {index + 2}: Error processing row - {str(e)}")
+                continue
+
+        if processed_count > 0:
+            db.session.commit()
+            current_app.logger.info(f"Committed {processed_count} opportunities")
+        else:
+            current_app.logger.warning("No opportunities to commit")
+
+        response = {'processed_count': processed_count}
+        if errors:
+            response['errors'] = errors
+        return response
+
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error processing file {file.filename}: {str(e)}")
+        return {'success': False, 'message': f"Error processing file: {str(e)}"}
+
+@admin_bp.route('/get-opportunity/<int:id>')
+@login_required
+def admin_get_opportunity(id):
+    profile_check = check_admin_profile()
+    if profile_check:
+        return profile_check
+    
+    try:
+        opportunity = Opportunity.query.get_or_404(id)
+        
+        deadline_str = opportunity.deadline.strftime('%Y-%m-%d') if opportunity.deadline else ''
+        created_at_str = opportunity.created_at.strftime('%Y-%m-%d') if opportunity.created_at else ''
+        
+        return jsonify({
+            'success': True, 
+            'opportunity': {
+                'id': opportunity.id,
+                'type': opportunity.type or '',
+                'title': opportunity.title or '',
+                'domain': opportunity.domain or '',
+                'location': opportunity.location or '',
+                'deadline': deadline_str,
+                'duration': opportunity.duration or '',
+                'compensation': opportunity.compensation or '',
+                'status': opportunity.status or 'Active',
+                'eligibility': opportunity.eligibility or '',
+                'description': opportunity.description or '',
+                'keywords': opportunity.keywords or '',
+                'advertisement_link': opportunity.advertisement_link or '',
+                'created_at': created_at_str
+            }
+        })
+    except Exception as e:
+        current_app.logger.error(f'Error fetching opportunity {id}: {str(e)}')
+        return jsonify({
+            'success': False, 
+            'message': f'Error fetching opportunity: {str(e)}'
+        })
+
+@admin_bp.route('/edit-opportunity/<int:id>', methods=['POST'])
+@login_required
+def admin_edit_opportunity(id):
+    profile_check = check_admin_profile()
+    if profile_check:
+        return profile_check
+    
+    try:
+        opportunity = Opportunity.query.get_or_404(id)
+        
+        opportunity.type = request.form.get('type')
+        opportunity.title = request.form.get('title')
+        opportunity.domain = request.form.get('domain')
+        opportunity.location = request.form.get('location')
+        opportunity.duration = request.form.get('duration')
+        opportunity.compensation = request.form.get('compensation')
+        opportunity.eligibility = request.form.get('eligibility')
+        opportunity.description = request.form.get('description')
+        opportunity.keywords = request.form.get('keywords')
+        opportunity.advertisement_link = request.form.get('advertisement_link')
+        opportunity.status = request.form.get('status', 'Active')
+        
+        deadline_str = request.form.get('deadline')
+        if deadline_str:
+            opportunity.deadline = datetime.strptime(deadline_str, '%Y-%m-%d')
+        else:
+            opportunity.deadline = None
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True, 
+            'message': 'Opportunity updated successfully!'
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False, 
+            'message': f'Error updating opportunity: {str(e)}'
+        })
+
+@admin_bp.route('/delete-opportunity/<int:id>', methods=['POST'])
+@login_required
+def admin_delete_opportunity(id):
+    profile_check = check_admin_profile()
+    if profile_check:
+        return profile_check
+    
+    try:
+        opportunity = Opportunity.query.get_or_404(id)
+        db.session.delete(opportunity)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True, 
+            'message': 'Opportunity deleted successfully!'
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False, 
+            'message': f'Error deleting opportunity: {str(e)}'
+        })
+
+
+# =========================================================================================
+#                     ADD OPPORTUNITIES LINK ROUTES
+# =========================================================================================
 
 # Add opportunity link (modal form)
 @admin_bp.route('/add-opportunity-link', methods=['POST'])
@@ -178,6 +492,15 @@ def admin_add_opportunity_link():
             if not link_data.get('url'):
                 continue
                 
+            # Check if link already exists for this user
+            existing_link = OpportunityLink.query.filter_by(
+                url=link_data.get('url'),
+                added_by=current_user.profile.id
+            ).first()
+            
+            if existing_link:
+                continue  # Skip if link already exists
+                
             # Create opportunity link
             opportunity_link = OpportunityLink(
                 title=link_data.get('title', ''),
@@ -189,6 +512,12 @@ def admin_add_opportunity_link():
             db.session.add(opportunity_link)
             added_count += 1
         
+        if added_count == 0:
+            return jsonify({
+                'success': False,
+                'message': 'No new links were added (possible duplicates detected)'
+            })
+            
         db.session.commit()
         
         return jsonify({
@@ -204,111 +533,6 @@ def admin_add_opportunity_link():
             'message': f'Error adding links: {str(e)}'
         })
 
-# Bulk upload opportunities
-@admin_bp.route('/bulk-upload-opportunities', methods=['POST'])
-@login_required
-def admin_bulk_upload_opportunities():
-    # Check admin profile first
-    profile_check = check_admin_profile()
-    if profile_check:
-        return profile_check
-    
-    try:
-        # Handle file upload
-        if 'file' not in request.files:
-            return jsonify({'success': False, 'message': 'No file selected'})
-        
-        file = request.files['file']
-        if file.filename == '':
-            return jsonify({'success': False, 'message': 'No file selected'})
-        
-        if file and allowed_file(file.filename):
-            # Process the file
-            processed_count = process_opportunities_file(file, current_user.profile.id)
-            return jsonify({
-                'success': True, 
-                'message': f'Successfully uploaded {processed_count} opportunities!'
-            })
-        else:
-            return jsonify({'success': False, 'message': 'Invalid file type'})
-            
-    except Exception as e:
-        return jsonify({
-            'success': False, 
-            'message': f'Error processing file: {str(e)}'
-        })
-
-# Edit opportunity
-@admin_bp.route('/edit-opportunity/<int:id>', methods=['POST'])
-@login_required
-def admin_edit_opportunity(id):
-    # Check admin profile first
-    profile_check = check_admin_profile()
-    if profile_check:
-        return profile_check
-    
-    try:
-        opportunity = Opportunity.query.get_or_404(id)
-        
-        # Update all fields
-        opportunity.type = request.form.get('type')
-        opportunity.title = request.form.get('title')
-        opportunity.domain = request.form.get('domain')
-        opportunity.location = request.form.get('location')
-        opportunity.duration = request.form.get('duration')
-        opportunity.compensation = request.form.get('compensation')
-        opportunity.eligibility = request.form.get('eligibility')
-        opportunity.description = request.form.get('description')
-        opportunity.keywords = request.form.get('keywords')
-        opportunity.advertisement_link = request.form.get('advertisement_link')
-        opportunity.status = request.form.get('status', 'Active')
-        
-        # Handle deadline
-        deadline_str = request.form.get('deadline')
-        if deadline_str:
-            opportunity.deadline = datetime.strptime(deadline_str, '%Y-%m-%d')
-        else:
-            opportunity.deadline = None
-        
-        db.session.commit()
-        
-        return jsonify({
-            'success': True, 
-            'message': 'Opportunity updated successfully!'
-        })
-        
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            'success': False, 
-            'message': f'Error updating opportunity: {str(e)}'
-        })
-
-# Delete opportunity
-@admin_bp.route('/delete-opportunity/<int:id>', methods=['POST'])
-@login_required
-def admin_delete_opportunity(id):
-    # Check admin profile first
-    profile_check = check_admin_profile()
-    if profile_check:
-        return profile_check
-    
-    try:
-        opportunity = Opportunity.query.get_or_404(id)
-        db.session.delete(opportunity)
-        db.session.commit()
-        
-        return jsonify({
-            'success': True, 
-            'message': 'Opportunity deleted successfully!'
-        })
-        
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            'success': False, 
-            'message': f'Error deleting opportunity: {str(e)}'
-        })
 
 # Delete opportunity link
 @admin_bp.route('/delete-opportunity-link/<int:id>', methods=['POST'])
@@ -363,54 +587,11 @@ def admin_toggle_opportunity_link(id):
             'message': f'Error updating link: {str(e)}'
         })
 
-# Get opportunity details
-@admin_bp.route('/get-opportunity/<int:id>')
-@login_required
-def admin_get_opportunity(id):
-    # Check admin profile first
-    profile_check = check_admin_profile()
-    if profile_check:
-        return profile_check
-    
-    try:
-        opportunity = Opportunity.query.get_or_404(id)
-        
-        # Handle None values for deadline and created_at
-        deadline_str = opportunity.deadline.strftime('%Y-%m-%d') if opportunity.deadline else ''
-        created_at_str = opportunity.created_at.strftime('%Y-%m-%d') if opportunity.created_at else ''
-        
-        # Return all opportunity data including null fields
-        return jsonify({
-            'success': True, 
-            'opportunity': {
-                'id': opportunity.id,
-                'type': opportunity.type or '',
-                'title': opportunity.title or '',
-                'domain': opportunity.domain or '',
-                'location': opportunity.location or '',
-                'deadline': deadline_str,
-                'duration': opportunity.duration or '',
-                'compensation': opportunity.compensation or '',
-                'status': opportunity.status or 'Active',
-                'eligibility': opportunity.eligibility or '',
-                'description': opportunity.description or '',
-                'keywords': opportunity.keywords or '',
-                'advertisement_link': opportunity.advertisement_link or '',
-                'created_at': created_at_str
-            }
-        })
-    except Exception as e:
-        current_app.logger.error(f'Error fetching opportunity {id}: {str(e)}')
-        return jsonify({
-            'success': False, 
-            'message': f'Error fetching opportunity: {str(e)}'
-        })
 
-# Edit opportunity link
-@admin_bp.route('/edit-opportunity-link/<int:id>', methods=['POST'])
+# Get opportunity link data for editing
+@admin_bp.route('/get-opportunity-link/<int:id>', methods=['GET'])
 @login_required
-def admin_edit_opportunity_link(id):
-    # Check admin profile first
+def admin_get_opportunity_link(id):
     profile_check = check_admin_profile()
     if profile_check:
         return profile_check
@@ -418,42 +599,81 @@ def admin_edit_opportunity_link(id):
     try:
         link = OpportunityLink.query.get_or_404(id)
         
-        # Update fields
-        link.title = request.form.get('title', '')
-        link.url = request.form.get('url')
-        link.description = request.form.get('description', '')
-        link.is_active = request.form.get('is_active', 'true').lower() == 'true'
+        return jsonify({
+            'success': True,
+            'data': {
+                'id': link.id,
+                'title': link.title or '',
+                'url': link.url or '',
+                'description': link.description or '',
+                'is_active': link.is_active
+            }
+        })
         
+    except Exception as e:
+        current_app.logger.error(f'Error fetching opportunity link {id}: {str(e)}')
+        return jsonify({
+            'success': False,
+            'message': f'Error fetching link: {str(e)}'
+        }), 404
+
+# Edit opportunity link route
+@admin_bp.route('/edit-opportunity-link/<int:id>', methods=['POST'])
+@login_required
+def admin_edit_opportunity_link(id):
+    profile_check = check_admin_profile()
+    if profile_check:
+        return profile_check
+    
+    try:
+        link = OpportunityLink.query.get_or_404(id)
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'success': False,
+                'message': 'No data provided'
+            }), 400
+            
+        link.title = data.get('title', '')
+        link.url = data.get('url', '')
+        link.description = data.get('description', '')
+        link.is_active = data.get('is_active', True)
+        
+        if not link.url:
+            return jsonify({
+                'success': False,
+                'message': 'URL is required'
+            }), 400
+            
         db.session.commit()
         
         return jsonify({
-            'success': True, 
+            'success': True,
             'message': 'Opportunity link updated successfully!'
         })
         
     except Exception as e:
         db.session.rollback()
+        current_app.logger.error(f'Error updating opportunity link: {str(e)}')
         return jsonify({
-            'success': False, 
+            'success': False,
             'message': f'Error updating link: {str(e)}'
-        })
-
-# Helper functions (you need to implement these)
-def allowed_file(filename):
-    """Check if the file extension is allowed"""
-    allowed_extensions = {'csv', 'xlsx', 'xls'}
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
-
-def process_opportunities_file(file, creator_profile_id):
-    """Process the uploaded opportunities file"""
-    # Implement your file processing logic here
-    # This should return the number of opportunities processed
-    return 0  # Placeholder
+        }), 500
 
 
 
 
 
+
+
+
+
+
+
+# ======================================================================================================================
+#                                DASHBOARD
+# ======================================================================================================================
 
 @admin_bp.route('/dashboard')   
 @login_required
