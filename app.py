@@ -57,8 +57,8 @@ app.config['MAIL_USE_TLS'] = os.getenv("MAIL_USE_TLS", "True") == "True"
 app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")  # Must match Gmail where you created app password
 app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")  # 16-char App Password (no spaces)
 
-print("MAIL_USERNAME:", app.config['MAIL_USERNAME'])
-print("MAIL_PASSWORD:", app.config['MAIL_PASSWORD'])
+# print("MAIL_USERNAME:", app.config['MAIL_USERNAME'])
+# print("MAIL_PASSWORD:", app.config['MAIL_PASSWORD'])
 mail = Mail(app)
 
 
@@ -621,6 +621,9 @@ def follow_profile(profile_id):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 400
 
+
+
+
 @app.route('/opp_view-profile/<int:profile_id>')
 @login_required
 def opp_view_profile(profile_id):
@@ -633,35 +636,41 @@ def opp_view_profile(profile_id):
     # If publications are needed (mostly for PI or Student profiles)
     publications = Publication.query.filter_by(profile_id=profile.id).all()
 
-    if profile.profile_type == 'PI':
+    if profile.profile_type == 'Admin':
+        # Return JSON for modal display
+        return jsonify({
+            'is_admin': True,
+            'message': 'This opportunity was posted by an administrator. Profile details are not available for administrative accounts.',
+            'opportunities': [{'id': opp.id, 'title': opp.title} for opp in opportunities]
+        })
+    elif profile.profile_type == 'PI':
         return render_template('visit_profile/facultyinfo.html',
-                               pi=profile.pi_profile,  # Changed to use pi_profile
-                               profile=profile,       # Added profile object
-                               opportunities=opportunities,
-                               publications=publications)
-
+                              pi=profile.pi_profile,
+                              profile=profile,
+                              opportunities=opportunities,
+                              publications=publications)
     elif profile.profile_type == 'Student':
         return render_template('visit_profile/student.html',
-                               student=profile.student_profile,  # Changed to use student_profile
-                               profile=profile,                 # Added profile object
-                               opportunities=opportunities,
-                               publications=publications)
-
+                              student=profile.student_profile,
+                              profile=profile,
+                              opportunities=opportunities,
+                              publications=publications)
     elif profile.profile_type == 'Industry':
         return render_template('visit_profile/industry.html',
-                               industry=profile.industry_profile,  # Changed to use industry_profile
-                               profile=profile,                   # Added profile object
-                               opportunities=opportunities)
-
+                              industry=profile.industry_profile,
+                              profile=profile,
+                              opportunities=opportunities)
     elif profile.profile_type == 'Vendor':
+        # Set order_stats to None to avoid Order model reference
+        order_stats = None
         return render_template('visit_profile/vendor.html',
-                               vendor=profile.vendor_profile,  # Changed to use vendor_profile
-                               profile=profile,               # Added profile object
-                               opportunities=opportunities)
-
+                              vendor=profile.vendor_profile,
+                              profile=profile,
+                              opportunities=opportunities,
+                              order_stats=order_stats,
+                              rating=4.7)
     else:
         abort(404)
-
 
 
 

@@ -117,121 +117,119 @@ input[type="file"]::file-selector-button:hover {
 <!-- Opportunities Table -->
 <div id="opportunities-table">
   <div class="overflow-x-auto mt-4">
-    <table class="min-w-full divide-y divide-border dark:divide-darkborder">
-      <!-- Your existing opportunities table content -->
-      <thead>
+    <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden divide-y divide-gray-200 dark:divide-darkborder dark:bg-gray-800">
+      <thead class="bg-gray-50 dark:bg-gray-700">
         <tr>
-          <th class="text-start p-3 ps-0 font-semibold text-dark dark:text-white text-base">#</th>
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Type</th>
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Title</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">#</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Type</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Title</th>
           
           {% if not show_mine %}
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Posted By</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Posted By</th>
           {% endif %}
           
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Domain</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Domain</th>
           
           {% if show_mine %}
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Eligibility</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Eligibility</th>
           {% endif %}
           
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Deadline</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Deadline</th>
           
           {% if show_mine %}
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Description</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Description</th>
           {% endif %}
           
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Location</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Location</th>
           
           {% if show_mine %}
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Duration</th>
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Compensation</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Duration</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Compensation</th>
           {% endif %}
           
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Status</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Status</th>
           
           {% if show_mine %}
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Created</th>
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Ad Link</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Created</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Ad Link</th>
           {% endif %}
           
-          {% if not show_mine %}
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Your Application</th>
+          {% if not show_mine and current_user.user_type != 'Admin' %}
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Your Application</th>
           {% endif %}
           
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Actions</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Actions</th>
         </tr>
       </thead>
-      <tbody class="divide-y">
+      <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
         {% for opportunity in opportunities.items %}
-        <tr>
-          <!-- Your existing opportunity row content -->
-          <td class="p-3 ps-0 whitespace-nowrap">{{ (opportunities.page - 1) * opportunities.per_page + loop.index }}</td>
-          <td class="p-3">{{ opportunity.type }}</td>
-          <td class="p-3">
-            <a href="#" class="text-primary hover:underline" 
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{{ (opportunities.page - 1) * opportunities.per_page + loop.index }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">{{ opportunity.type }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
+            <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300" 
                onclick="showOpportunityDetails({{ opportunity.id }})">
               {{ opportunity.title }}
             </a>
           </td>
           
           {% if not show_mine %}
-          <td class="p-3">
+          <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
             <a href="{{ url_for('opp_view_profile', profile_id=opportunity.creator_profile_id) }}" 
-               class="text-primary hover:underline">
+               class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
               {{ opportunity.creator.user.email }} ({{ opportunity.creator.profile_type }})
             </a>
           </td>
           {% endif %}
           
-          <td class="p-3">{{ opportunity.domain }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">{{ opportunity.domain }}</td>
           
           {% if show_mine %}
-          <td class="p-3">{{ opportunity.eligibility|truncate(30) if opportunity.eligibility else '-' }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">{{ opportunity.eligibility|truncate(30) if opportunity.eligibility else '-' }}</td>
           {% endif %}
           
-          <td class="p-3">{{ opportunity.deadline.strftime('%Y-%m-%d') if opportunity.deadline else '-' }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">{{ opportunity.deadline.strftime('%Y-%m-%d') if opportunity.deadline else '-' }}</td>
           
           {% if show_mine %}
-          <td class="p-3">{{ opportunity.description|truncate(30) if opportunity.description else '-' }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">{{ opportunity.description|truncate(30) if opportunity.description else '-' }}</td>
           {% endif %}
           
-          <td class="p-3">{{ opportunity.location }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">{{ opportunity.location }}</td>
           
           {% if show_mine %}
-          <td class="p-3">{{ opportunity.duration if opportunity.duration else '-' }}</td>
-          <td class="p-3">{{ opportunity.compensation if opportunity.compensation else '-' }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">{{ opportunity.duration if opportunity.duration else '-' }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">{{ opportunity.compensation if opportunity.compensation else '-' }}</td>
           {% endif %}
           
-          <td class="p-3">
-            <span class="badge 
-              {% if opportunity.status == 'Active' %}bg-lightsuccess text-success
-              {% elif opportunity.status == 'Closed' %}bg-lightwarning text-warning
-              {% else %}bg-gray-200 text-gray-700{% endif %}">
+          <td class="px-6 py-4 text-sm">
+            <span class="inline-flex px-2 py-1 rounded-full text-xs font-medium 
+              {% if opportunity.status == 'Active' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+              {% elif opportunity.status == 'Closed' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+              {% else %}bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-200{% endif %}">
               {{ opportunity.status }}
             </span>
           </td>
           
           {% if show_mine %}
-          <td class="p-3">{{ opportunity.created_at.strftime('%Y-%m-%d') if opportunity.created_at else '-' }}</td>
-          <td class="p-3">
+          <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">{{ opportunity.created_at.strftime('%Y-%m-%d') if opportunity.created_at else '-' }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
             {% if opportunity.advertisement_link %}
-              <a href="{{ opportunity.advertisement_link }}" target="_blank" class="text-primary hover:underline">View</a>
+              <a href="{{ url_for('opp_view_profile', profile_id=opportunity.creator_profile_id) }}" target="_blank" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">View</a>
             {% else %}
               -
             {% endif %}
           </td>
           {% endif %}
           
-          {% if not show_mine %}
-          <td class="p-3" id="application-status-{{ opportunity.id }}">
+          {% if not show_mine and current_user.user_type != 'Admin' %}
+          <td class="px-6 py-4 text-sm" id="application-status-{{ opportunity.id }}">
             {% set user_application = opportunity.applications|selectattr('applicant_user_id', 'equalto', current_user.id)|first %}
             {% if user_application %}
-              <span class="badge 
-                {% if user_application.status == 'Pending' %}bg-lightwarning text-warning
-                {% elif user_application.status == 'Accepted' %}bg-lightsuccess text-success
-                {% elif user_application.status == 'Shortlisted' %}bg-lightinfo text-info
-                {% else %}bg-lighterror text-error{% endif %}">
+              <span class="inline-flex px-2 py-1 rounded-full text-xs font-medium 
+                {% if user_application.status == 'Pending' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                {% elif user_application.status == 'Accepted' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                {% elif user_application.status == 'Shortlisted' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
+                {% else %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% endif %}">
                 <i class="ti ti-{% if user_application.status == 'Pending' %}clock{% elif user_application.status == 'Accepted' %}check{% elif user_application.status == 'Shortlisted' %}star{% else %}x{% endif %} mr-1"></i>
                 {{ user_application.status }}
               </span>
@@ -243,59 +241,58 @@ input[type="file"]::file-selector-button:hover {
           </td>
           {% endif %}
           
-
-          <td class="p-3 whitespace-nowrap">
-            <div class="flex gap-2">
+          <td class="px-6 py-4 whitespace-nowrap text-sm">
+            <div class="flex gap-2 items-center">
               {% if not show_mine %}
               <a href="{{ url_for('opp_view_profile', profile_id=opportunity.creator_profile_id) }}"
                 target="_blank"
-                class="px-4 py-2 rounded-full text-sm font-medium text-black 
-                       bg-gradient-to-r from-blue-500 to-indigo-600 
-                       shadow-md hover:shadow-lg hover:scale-105 transform transition-all duration-200">
-                View Profile
+                class="text-indigo-500 hover:text-indigo-700" title="View Profile">
+                <i class="ti ti-user text-lg"></i>
               </a>
               {% endif %}
               
               <button onclick="showOpportunityDetails({{ opportunity.id }})" 
-                class="px-4 py-2 rounded-full text-sm font-medium text-black 
-                       bg-gradient-to-r from-green-500 to-emerald-600 
-                       shadow-md hover:shadow-lg hover:scale-105 transform transition-all duration-200">
-                Details
+                class="text-green-500 hover:text-green-700" title="Details">
+                <i class="ti ti-eye text-lg"></i>
               </button>
               
               {% if not show_mine and opportunity.creator_profile_id != current_user.profile.id and current_user.user_type != 'Admin' %}
                 {% if not opportunity.applications|selectattr('applicant_user_id', 'equalto', current_user.id)|first %}
                 <button onclick="showApplicationModal({{ opportunity.id }})" 
-                  class="px-4 py-2 rounded-full text-sm font-medium text-black 
-                         bg-gradient-to-r from-purple-500 to-pink-600 
-                         shadow-md hover:shadow-lg hover:scale-105 transform transition-all duration-200">
-                  Apply
+                  class="text-purple-500 hover:text-purple-700" title="Apply">
+                  <i class="ti ti-send text-lg"></i>
                 </button>
                 {% else %}
-                <button disabled
-                  class="px-4 py-2 rounded-full text-sm font-medium text-gray-400 bg-gray-200 
-                         cursor-not-allowed">
-                  Applied
+                <button disabled class="text-gray-400 cursor-not-allowed" title="Applied">
+                  <i class="ti ti-check text-lg"></i>
                 </button>
                 {% endif %}
               {% endif %}
               
               {% if show_mine %}
               <a href="{{ url_for('opportunity_applicants', opportunity_id=opportunity.id) }}" 
-                class="px-4 py-2 rounded-full text-sm font-medium text-black 
-                       bg-gradient-to-r from-indigo-500 to-violet-600 
-                       shadow-md hover:shadow-lg hover:scale-105 transform transition-all duration-200">
-                View Applicants
+                class="text-violet-500 hover:text-violet-700" title="View Applicants">
+                <i class="ti ti-users text-lg"></i>
               </a>
+              {% endif %}
+
+              {% if current_user.user_type == 'Admin' %}
+              <button onclick="showEditOpportunity({{ opportunity.id }})" 
+                class="text-yellow-500 hover:text-yellow-700" title="Edit">
+                <i class="ti ti-pencil text-lg"></i>
+              </button>
+              <button onclick="deleteOpportunity({{ opportunity.id }})" 
+                class="text-red-500 hover:text-red-700" title="Delete">
+                <i class="ti ti-trash text-lg"></i>
+              </button>
               {% endif %}
             </div>
           </td>
         </tr>
         {% else %}
         <tr>
-          <td colspan="
-            {% if show_mine %}14{% else %}10{% endif %}
-          " class="p-3 text-center text-gray-500">
+          <td colspan="{% if show_mine %}14{% elif current_user.user_type == 'Admin' %}9{% else %}10{% endif %}" 
+              class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
             No opportunities found.
           </td>
         </tr>
@@ -308,58 +305,57 @@ input[type="file"]::file-selector-button:hover {
 <!-- Opportunity Links Table (Hidden by default) -->
 <div id="links-table" class="hidden">
   <div class="overflow-x-auto mt-4">
-    <table class="min-w-full divide-y divide-border dark:divide-darkborder">
-      <thead>
+    <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden divide-y divide-gray-200 dark:divide-darkborder dark:bg-gray-800">
+      <thead class="bg-gray-50 dark:bg-gray-700">
         <tr>
-          <th class="text-start p-3 ps-0 font-semibold text-dark dark:text-white text-base">#</th>
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Title</th>
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">URL</th>
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Description</th>
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Status</th>
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Added By</th>
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Created</th>
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Your Application</th>
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Actions</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">#</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Title</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">URL</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Description</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Status</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Added By</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Created</th>
+          <!-- <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Your Application</th> -->
         </tr>
       </thead>
-      <tbody class="divide-y">
+      <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
         {% for link in opportunity_links %}
-        <tr>
-          <td class="p-3 ps-0 whitespace-nowrap">{{ loop.index }}</td>
-          <td class="p-3">{{ link.title or 'No title' }}</td>
-          <td class="p-3">
-            <a href="{{ link.url }}" target="_blank" class="text-primary hover:underline break-all">
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{{ loop.index }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">{{ link.title or 'No title' }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
+            <a href="{{ link.url }}" target="_blank" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 break-all">
               {{ link.url|truncate(40) }}
             </a>
           </td>
-          <td class="p-3">{{ link.description|truncate(50) if link.description else '-' }}</td>
-          <td class="p-3">
-            <span class="badge 
-              {% if link.is_active %}bg-lightsuccess text-success
-              {% else %}bg-lightwarning text-warning{% endif %}">
+          <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">{{ link.description|truncate(50) if link.description else '-' }}</td>
+          <td class="px-6 py-4 text-sm">
+            <span class="inline-flex px-2 py-1 rounded-full text-xs font-medium 
+              {% if link.is_active %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+              {% else %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200{% endif %}">
               {{ 'Active' if link.is_active else 'Inactive' }}
             </span>
           </td>
-          <td class="p-3">
+          <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
             {% if link.added_by_profile %}
               <a href="{{ url_for('opp_view_profile', profile_id=link.added_by_profile.id) }}" 
-                 class="text-primary hover:underline">
+                 class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
                 {{ link.added_by_profile.user.email }} ({{ link.added_by_profile.profile_type }})
               </a>
             {% else %}
               Unknown
             {% endif %}
           </td>
-          <td class="p-3">{{ link.created_at.strftime('%Y-%m-%d') if link.created_at else '-' }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">{{ link.created_at.strftime('%Y-%m-%d') if link.created_at else '-' }}</td>
 
 
-          <td class="p-3">
+          <!-- <td class="px-6 py-4 text-sm">
             {% if link.user_has_applied %}
-              <span class="badge 
-                {% if link.application_status == 'Pending' %}bg-lightwarning text-warning
-                {% elif link.application_status == 'Accepted' %}bg-lightsuccess text-success
-                {% elif link.application_status == 'Shortlisted' %}bg-lightinfo text-info
-                {% else %}bg-lighterror text-error{% endif %}">
+              <span class="inline-flex px-2 py-1 rounded-full text-xs font-medium 
+                {% if link.application_status == 'Pending' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                {% elif link.application_status == 'Accepted' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                {% elif link.application_status == 'Shortlisted' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
+                {% else %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% endif %}">
                 <i class="ti ti-{% if link.application_status == 'Pending' %}clock
                   {% elif link.application_status == 'Accepted' %}check
                   {% elif link.application_status == 'Shortlisted' %}star
@@ -371,31 +367,13 @@ input[type="file"]::file-selector-button:hover {
                 <i class="ti ti-circle-dashed"></i> Not applied
               </span>
             {% endif %}
-          </td>
+          </td> -->
 
 
-          <td class="p-3 whitespace-nowrap">
-            <div class="flex gap-2">
-              {% if not link.user_has_applied and current_user.user_type != 'Admin' %}
-                <button onclick="showLinkApplicationModal({{ link.id }})" 
-                  class="px-4 py-2 rounded-full text-sm font-medium text-black 
-                         bg-gradient-to-r from-purple-500 to-pink-600 
-                         shadow-md hover:shadow-lg hover:scale-105 transform transition-all duration-200">
-                  Apply
-                </button>
-              {% elif link.user_has_applied %}
-                <button disabled
-                  class="px-4 py-2 rounded-full text-sm font-medium text-gray-400 bg-gray-200 
-                         cursor-not-allowed">
-                  Applied
-                </button>
-              {% endif %}
-            </div>
-          </td>
         </tr>
         {% else %}
         <tr>
-          <td colspan="9" class="p-3 text-center text-gray-500">
+          <td colspan="8" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
             No opportunity links found.
           </td>
         </tr>
@@ -406,67 +384,7 @@ input[type="file"]::file-selector-button:hover {
 </div>
 
 
-<!-- Opportunity Links Table (Hidden by default) -->
-<div id="links-table" class="hidden">
-  <div class="overflow-x-auto mt-4">
-    <table class="min-w-full divide-y divide-border dark:divide-darkborder">
-      <thead>
-        <tr>
-          <th class="text-start p-3 ps-0 font-semibold text-dark dark:text-white text-base">#</th>
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Title</th>
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">URL</th>
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Description</th>
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Status</th>
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Added By</th>
-          <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Created</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y">
-        {% for link in opportunity_links %}
-        <tr>
-          <td class="p-3 ps-0 whitespace-nowrap">{{ loop.index }}</td>
-          <td class="p-3">{{ link.title or 'No title' }}</td>
-          <td class="p-3">
-            <a href="{{ link.url }}" target="_blank" class="text-primary hover:underline break-all">
-              {{ link.url|truncate(40) }}
-            </a>
-          </td>
-          <td class="p-3">{{ link.description|truncate(50) if link.description else '-' }}</td>
-          <td class="p-3">
-            <span class="badge 
-              {% if link.is_active %}bg-lightsuccess text-success
-              {% else %}bg-lightwarning text-warning{% endif %}">
-              {{ 'Active' if link.is_active else 'Inactive' }}
-            </span>
-          </td>
-          <td class="p-3">
-            {% if link.added_by_profile %}
-              <a href="{{ url_for('opp_view_profile', profile_id=link.added_by_profile.id) }}" 
-                 class="text-primary hover:underline">
-                {{ link.added_by_profile.user.email }} ({{ link.added_by_profile.profile_type }})
-              </a>
-            {% else %}
-              Unknown
-            {% endif %}
-          </td>
-          <td class="p-3">{{ link.created_at.strftime('%Y-%m-%d') if link.created_at else '-' }}</td>
-        </tr>
-        {% else %}
-        <tr>
-          <td colspan="7" class="p-3 text-center text-gray-500">
-            No opportunity links found.
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
-
-
-
-
-        <!-- Application Modal -->
+<!-- Application Modal -->
 <div id="applicationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
   <div class="bg-white dark:bg-dark rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-auto">
     <div class="p-6">
@@ -493,13 +411,6 @@ input[type="file"]::file-selector-button:hover {
             <input type="file" name="resume" class="form-control py-2" accept=".pdf,.doc,.docx">
             <p class="text-xs text-gray-500 mt-1">PDF, DOC or DOCX files only</p>
           </div>
-          
-          <!-- Additional Documents -->
-          <!-- <div>
-            <label class="font-semibold block mb-1">Additional Documents (Optional)</label>
-            <input type="file" name="additional_documents" class="form-control py-2" accept=".pdf,.doc,.docx,.zip">
-            <p class="text-xs text-gray-500 mt-1">PDF, DOC, DOCX or ZIP files</p>
-          </div> -->
           
           <!-- Additional Documents Section -->
           <div class="md:col-span-2">
@@ -740,515 +651,828 @@ input[type="file"]::file-selector-button:hover {
   </div>
 </div>
 
+<!-- Edit Opportunity Modal (for Admins only) -->
+{% if current_user.user_type == 'Admin' %}
+<!-- Replace the existing editOpportunityModal content -->
+<div id="editOpportunityModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white dark:bg-dark rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-auto">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold">Edit Opportunity</h3>
+        <button onclick="closeEditModal()" class="text-gray-500 hover:text-gray-700">
+          <i class="ti ti-x text-xl"></i>
+        </button>
+      </div>
+      <form id="editOpportunityForm" method="POST">
+        <input type="hidden" name="opportunity_id" id="editModalOpportunityId">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="font-semibold block mb-1">Type</label>
+            <select name="type" class="form-control py-2" id="editType"></select>
+          </div>
+          
+          <div>
+            <label class="font-semibold block mb-1">Title</label>
+            <input type="text" name="title" id="editTitle" class="form-control py-2">
+          </div>
+          
+          <div>
+            <label class="font-semibold block mb-1">Domain</label>
+            <select name="domain" class="form-control py-2" id="editDomain"></select>
+          </div>
+          
+          <div>
+            <label class="font-semibold block mb-1">Deadline</label>
+            <input type="date" name="deadline" id="editDeadline" class="form-control py-2">
+          </div>
+          
+          <div>
+            <label class="font-semibold block mb-1">Location</label>
+            <input type="text" name="location" id="editLocation" class="form-control py-2">
+          </div>
+          
+          <div>
+            <label class="font-semibold block mb-1">Duration</label>
+            <select name="duration" class="form-control py-2" id="editDuration"></select>
+          </div>
+          
+          <div>
+            <label class="font-semibold block mb-1">Compensation</label>
+            <input type="text" name="compensation" id="editCompensation" class="form-control py-2">
+          </div>
+          
+          <div>
+            <label class="font-semibold block mb-1">Status</label>
+            <select name="status" class="form-control py-2" id="editStatus"></select>
+          </div>
+          
+          <div class="md:col-span-2">
+            <label class="font-semibold block mb-1">Eligibility</label>
+            <textarea name="eligibility" id="editEligibility" class="form-control py-2" rows="4"></textarea>
+          </div>
+          
+          <div class="md:col-span-2">
+            <label class="font-semibold block mb-1">Description</label>
+            <textarea name="description" id="editDescription" class="form-control py-2" rows="4"></textarea>
+          </div>
+          
+          <div class="md:col-span-2">
+            <label class="font-semibold block mb-1">Keywords</label>
+            <input type="text" name="keywords" id="editKeywords" class="form-control py-2">
+          </div>
+          
+          <div class="md:col-span-2">
+            <label class="font-semibold block mb-1">Advertisement Link</label>
+            <input type="text" name="advertisement_link" id="editAdLink" class="form-control py-2">
+          </div>
+        </div>
+        
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="closeEditModal()" 
+                  class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded shadow">
+            Cancel
+          </button>
+          <button type="submit" 
+                  class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded shadow">
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <!-- JavaScript -->
 <script>
-// Show opportunity details in modal
-function showOpportunityDetails(opportunityId) {
-  fetch(`/get-opportunity/${opportunityId}`)
-    .then(response => response.json())
-    .then(data => {
-      if (data) {
-        document.getElementById('modalTitle').textContent = data.title;
-        document.getElementById('modalType').textContent = data.type;
-        document.getElementById('modalPostedBy').innerHTML = 
-          `<a href="/opp_view-profile/${data.creator_profile_id}" class="text-primary hover:underline">
-            ${data.creator_email} (${data.creator_type})
-          </a>`;
-        document.getElementById('modalDomain').textContent = data.domain || '-';
-        document.getElementById('modalDeadline').textContent = data.deadline || '-';
-        document.getElementById('modalLocation').textContent = data.location || '-';
-        document.getElementById('modalDuration').textContent = data.duration || '-';
-        document.getElementById('modalCompensation').textContent = data.compensation || '-';
-        document.getElementById('modalStatus').innerHTML = 
-          `<span class="badge ${data.status === 'Active' ? 'bg-lightsuccess text-success' : 
-                              data.status === 'Closed' ? 'bg-lightwarning text-warning' : 
-                              'bg-gray-200 text-gray-700'}">
-            ${data.status}
-          </span>`;
-        document.getElementById('modalEligibility').textContent = data.eligibility || '-';
-        document.getElementById('modalDescription').textContent = data.description || '-';
-        document.getElementById('modalKeywords').textContent = data.keywords || '-';
-        const link = document.getElementById('modalLink');
-        link.textContent = data.advertisement_link || '-';
-        link.href = data.advertisement_link || '#';
-        
-        document.getElementById('opportunityModal').classList.remove('hidden');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('Failed to load opportunity details');
-    });
-}
+  // Global functions
 
-function closeModal() {
-  document.getElementById('opportunityModal').classList.add('hidden');
-}
-
-function toggleMyOpportunities() {
-  const url = new URL(window.location.href);
-  const currentMode = url.searchParams.get('mine') === 'true';
-  url.searchParams.set('mine', currentMode ? 'false' : 'true');
-  url.searchParams.delete('page'); // Reset to first page when switching modes
-  window.location.href = url.toString();
-}
-
-
-
-
-
-
-
-
-
-
-// Document counter for unique IDs
-let documentCounter = 0;
-
-// Function to add a new document field
-function addDocumentField(fileName = '', fileData = null, isDefault = false) {
-  documentCounter++;
-  const container = document.getElementById('additionalDocumentsContainer');
-  
-  const documentField = document.createElement('div');
-  documentField.className = `document-field flex items-start gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg ${isDefault ? 'default-field' : ''}`;
-  
-  documentField.innerHTML = `
-    <div class="flex-grow grid grid-cols-1 md:grid-cols-12 gap-2">
-      <div class="md:col-span-5">
-        <input type="text" name="document_names[]" 
-               class="form-control py-2" placeholder="Document name (e.g., Transcript, Certificate)"
-               value="${fileName}" ${isDefault ? 'required' : ''}>
-      </div>
-      <div class="md:col-span-6">
-        <input type="file" name="additional_documents[]" 
-               class="form-control py-2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-               ${fileData ? 'data-file="' + btoa(JSON.stringify(fileData)) + '"' : ''} ${isDefault ? 'required' : ''}>
-      </div>
-      <div class="md:col-span-1">
-        ${isDefault ? 
-          `<button type="button" class="text-gray-400 mt-1 cursor-not-allowed" disabled title="Required field">
-            <i class="ti ti-lock text-lg"></i>
-          </button>` : 
-          `<button type="button" onclick="removeDocumentField(this)" 
-                  class="text-red-500 hover:text-red-700 mt-1" title="Remove document">
-            <i class="ti ti-x text-lg"></i>
-          </button>`
+  // Show opportunity details in modal
+  function showOpportunityDetails(opportunityId) {
+    fetch(`/get-opportunity/${opportunityId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data) {
+          document.getElementById('modalTitle').textContent = data.title;
+          document.getElementById('modalType').textContent = data.type;
+          document.getElementById('modalPostedBy').innerHTML = 
+            `<a href="/opp_view-profile/${data.creator_profile_id}" class="text-primary hover:underline">${data.creator_email} (${data.creator_type})</a>`;
+          document.getElementById('modalDomain').textContent = data.domain || '-';
+          document.getElementById('modalDeadline').textContent = data.deadline || '-';
+          document.getElementById('modalLocation').textContent = data.location || '-';
+          document.getElementById('modalDuration').textContent = data.duration || '-';
+          document.getElementById('modalCompensation').textContent = data.compensation || '-';
+          document.getElementById('modalStatus').innerHTML = 
+            `<span class="badge ${data.status === 'Active' ? 'bg-lightsuccess text-success' : 
+                                data.status === 'Closed' ? 'bg-lightwarning text-warning' : 
+                                'bg-gray-200 text-gray-700'}">
+              ${data.status}
+            </span>`;
+          document.getElementById('modalEligibility').textContent = data.eligibility || '-';
+          document.getElementById('modalDescription').textContent = data.description || '-';
+          document.getElementById('modalKeywords').textContent = data.keywords || '-';
+          const link = document.getElementById('modalLink');
+          link.textContent = data.advertisement_link || '-';
+          link.href = data.advertisement_link || '#';
+          
+          document.getElementById('opportunityModal').classList.remove('hidden');
         }
-      </div>
-    </div>
-  `;
-  
-  container.appendChild(documentField);
-}
-
-// Function to remove a document field (only for non-default fields)
-function removeDocumentField(button) {
-  const field = button.closest('.document-field');
-  // Only remove if it's not the default field
-  if (!field.classList.contains('default-field')) {
-    field.remove();
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to load opportunity details');
+      });
   }
-}
 
-// Show application modal with default field
-function showApplicationModal(opportunityId) {
-  document.getElementById('modalOpportunityId').value = opportunityId;
-  
-  // Clear previous documents
-  const container = document.getElementById('additionalDocumentsContainer');
-  container.innerHTML = '';
-  
-  // Add default non-removable document field
-  addDocumentField('', null, true);
-  
-  document.getElementById('applicationModal').classList.remove('hidden');
-}
-
-// Close modal and reset form
-function closeApplicationModal() {
-  document.getElementById('applicationModal').classList.add('hidden');
-  document.getElementById('applicationForm').reset();
-  
-  // Clear all document fields
-  const container = document.getElementById('additionalDocumentsContainer');
-  container.innerHTML = '';
-}
-
-// Handle form submission with multiple documents
-document.getElementById('applicationForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  
-  // Basic validation - check if document names are provided for files
-  const documentFields = document.querySelectorAll('.document-field');
-  let valid = true;
-  
-  documentFields.forEach(field => {
-    const fileInput = field.querySelector('input[type="file"]');
-    const nameInput = field.querySelector('input[type="text"]');
-    
-    if (fileInput.files.length > 0 && !nameInput.value.trim()) {
-      nameInput.classList.add('border-red-500');
-      valid = false;
-      alert('Please provide a name for all documents you\'re uploading.');
-    } else {
-      nameInput.classList.remove('border-red-500');
-    }
-  });
-  
-  if (!valid) return;
-  
-  const formData = new FormData(this);
-  const opportunityId = formData.get('opportunity_id');
-  
-  fetch(`/apply-opportunity/${opportunityId}`, {
-    method: 'POST',
-    body: formData,
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest'
-    }
-  })
-  .then(response => {
-    if (response.redirected) {
-      window.location.href = response.url;
-      return null;
-    }
-    return response.json();
-  })
-  .then(data => {
-    if (data) {
-      if (data.success) {
-        closeApplicationModal();
-        
-        // Update the UI without reloading the page
-        const statusCell = document.getElementById(`application-status-${opportunityId}`);
-        if (statusCell) {
-          statusCell.innerHTML = `
-            <span class="badge bg-lightwarning text-warning">
-              <i class="ti ti-clock mr-1"></i>
-              Pending
-            </span>
-          `;
-        }
-        
-        // Disable the apply button
-        const applyButtons = document.querySelectorAll(`button[onclick="showApplicationModal(${opportunityId})"]`);
-        applyButtons.forEach(button => {
-          button.outerHTML = `
-            <button disabled
-              class="px-4 py-2 rounded-full text-sm font-medium text-gray-400 bg-gray-200 cursor-not-allowed">
-              Applied
-            </button>
-          `;
-        });
-        
-        // Show success message
-        alert('Application submitted successfully!');
-      } else {
-        alert(data.message || 'Failed to submit application');
-      }
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('An error occurred while submitting the application');
-  });
-});
-
-
-
-// Tab switching functionality
-document.addEventListener('DOMContentLoaded', function() {
-  const tabOpportunities = document.getElementById('tab-opportunities');
-  const tabLinks = document.getElementById('tab-links');
-  const opportunitiesTable = document.getElementById('opportunities-table');
-  const linksTable = document.getElementById('links-table');
-  
-  if (tabOpportunities && tabLinks && opportunitiesTable && linksTable) {
-    tabOpportunities.addEventListener('click', function() {
-      tabOpportunities.classList.add('border-blue-500', 'text-blue-600');
-      tabOpportunities.classList.remove('text-gray-500');
-      tabLinks.classList.remove('border-blue-500', 'text-blue-600');
-      tabLinks.classList.add('text-gray-500');
-      
-      opportunitiesTable.classList.remove('hidden');
-      linksTable.classList.add('hidden');
-    });
-    
-    tabLinks.addEventListener('click', function() {
-      tabLinks.classList.add('border-blue-500', 'text-blue-600');
-      tabLinks.classList.remove('text-gray-500');
-      tabOpportunities.classList.remove('border-blue-500', 'text-blue-600');
-      tabOpportunities.classList.add('text-gray-500');
-      
-      linksTable.classList.remove('hidden');
-      opportunitiesTable.classList.add('hidden');
-    });
+  function closeModal() {
+    document.getElementById('opportunityModal').classList.add('hidden');
   }
-});
 
-
-
-// Show application modal for opportunity links
-function showLinkApplicationModal(linkId) {
-  document.getElementById('modalLinkId').value = linkId;
-  
-  // Clear previous documents
-  const container = document.getElementById('additionalDocumentsContainerLink');
-  container.innerHTML = '';
-  
-  // Add default non-removable document field
-  addLinkDocumentField('', null, true);
-  
-  document.getElementById('linkApplicationModal').classList.remove('hidden');
-}
-
-// Close link application modal
-function closeLinkApplicationModal() {
-  document.getElementById('linkApplicationModal').classList.add('hidden');
-  document.getElementById('linkApplicationForm').reset();
-  
-  // Clear all document fields
-  const container = document.getElementById('additionalDocumentsContainerLink');
-  container.innerHTML = '';
-}
-
-// Document counter for link application
-let linkDocumentCounter = 0;
-
-// Function to add a new document field for link application
-function addLinkDocumentField(fileName = '', fileData = null, isDefault = false) {
-  linkDocumentCounter++;
-  const container = document.getElementById('additionalDocumentsContainerLink');
-  
-  const documentField = document.createElement('div');
-  documentField.className = `document-field flex items-start gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg ${isDefault ? 'default-field' : ''}`;
-  
-  documentField.innerHTML = `
-    <div class="flex-grow grid grid-cols-1 md:grid-cols-12 gap-2">
-      <div class="md:col-span-5">
-        <input type="text" name="document_names[]" 
-               class="form-control py-2" placeholder="Document name (e.g., Transcript, Certificate)"
-               value="${fileName}" ${isDefault ? 'required' : ''}>
-      </div>
-      <div class="md:col-span-6">
-        <input type="file" name="additional_documents[]" 
-               class="form-control py-2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-               ${fileData ? 'data-file="' + btoa(JSON.stringify(fileData)) + '"' : ''} ${isDefault ? 'required' : ''}>
-      </div>
-      <div class="md:col-span-1">
-        ${isDefault ? 
-          `<button type="button" class="text-gray-400 mt-1 cursor-not-allowed" disabled title="Required field">
-            <i class="ti ti-lock text-lg"></i>
-          </button>` : 
-          `<button type="button" onclick="removeLinkDocumentField(this)" 
-                  class="text-red-500 hover:text-red-700 mt-1" title="Remove document">
-            <i class="ti ti-x text-lg"></i>
-          </button>`
-        }
-      </div>
-    </div>
-  `;
-  
-  container.appendChild(documentField);
-}
-
-// Function to remove a document field for link application
-function removeLinkDocumentField(button) {
-  const field = button.closest('.document-field');
-  if (!field.classList.contains('default-field')) {
-    field.remove();
+  function toggleMyOpportunities() {
+    const url = new URL(window.location.href);
+    const currentMode = url.searchParams.get('mine') === 'true';
+    url.searchParams.set('mine', currentMode ? 'false' : 'true');
+    url.searchParams.delete('page');
+    window.location.href = url.toString();
   }
-}
 
-// Handle link application form submission
-document.getElementById('linkApplicationForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  
-  // Basic validation
-  const documentFields = document.querySelectorAll('#additionalDocumentsContainerLink .document-field');
-  let valid = true;
-  
-  documentFields.forEach(field => {
-    const fileInput = field.querySelector('input[type="file"]');
-    const nameInput = field.querySelector('input[type="text"]');
+  let documentCounter = 0;
+
+  function addDocumentField(fileName = '', fileData = null, isDefault = false) {
+    documentCounter++;
+    const container = document.getElementById('additionalDocumentsContainer');
     
-    if (fileInput.files.length > 0 && !nameInput.value.trim()) {
-      nameInput.classList.add('border-red-500');
-      valid = false;
-      alert('Please provide a name for all documents you\'re uploading.');
-    } else {
-      nameInput.classList.remove('border-red-500');
+    const documentField = document.createElement('div');
+    documentField.className = `document-field flex items-start gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg ${isDefault ? 'default-field' : ''}`;
+    
+    documentField.innerHTML = `
+      <div class="flex-grow grid grid-cols-1 md:grid-cols-12 gap-2">
+        <div class="md:col-span-5">
+          <input type="text" name="document_names[]" 
+                 class="form-control py-2" placeholder="Document name (e.g., Transcript, Certificate)"
+                 value="${fileName}" ${isDefault ? 'required' : ''}>
+        </div>
+        <div class="md:col-span-6">
+          <input type="file" name="additional_documents[]" 
+                 class="form-control py-2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                 ${fileData ? 'data-file="' + btoa(JSON.stringify(fileData)) + '"' : ''} ${isDefault ? 'required' : ''}>
+        </div>
+        <div class="md:col-span-1">
+          ${isDefault ? 
+            `<button type="button" class="text-gray-400 mt-1 cursor-not-allowed" disabled title="Required field">
+              <i class="ti ti-lock text-lg"></i>
+            </button>` : 
+            `<button type="button" onclick="removeDocumentField(this)" 
+                    class="text-red-500 hover:text-red-700 mt-1" title="Remove document">
+              <i class="ti ti-x text-lg"></i>
+            </button>`
+          }
+        </div>
+      </div>
+    `;
+    
+    container.appendChild(documentField);
+  }
+
+  function removeDocumentField(button) {
+    const field = button.closest('.document-field');
+    if (!field.classList.contains('default-field')) {
+      field.remove();
     }
-  });
-  
-  if (!valid) return;
-  
-  const formData = new FormData(this);
-  const linkId = formData.get('link_id');
-  
-  fetch(`/apply-opportunity-link/${linkId}`, {
-    method: 'POST',
-    body: formData,
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest'
+  }
+
+  function showApplicationModal(opportunityId) {
+    document.getElementById('modalOpportunityId').value = opportunityId;
+    const container = document.getElementById('additionalDocumentsContainer');
+    container.innerHTML = '';
+    addDocumentField('', null, true);
+    document.getElementById('applicationModal').classList.remove('hidden');
+  }
+
+  function closeApplicationModal() {
+    document.getElementById('applicationModal').classList.add('hidden');
+    document.getElementById('applicationForm').reset();
+    const container = document.getElementById('additionalDocumentsContainer');
+    container.innerHTML = '';
+  }
+
+  function submitApplicationForm() {
+    const form = document.getElementById('applicationForm');
+    if (!form) {
+      console.error('Application form not found');
+      alert('Error: Application form is missing. Please refresh the page.');
+      return;
     }
-  })
-  .then(response => {
-    if (response.redirected) {
-      window.location.href = response.url;
-      return null;
+    const e = new Event('submit');
+    form.dispatchEvent(e);
+  }
+
+  let linkDocumentCounter = 0;
+
+  function showLinkApplicationModal(linkId) {
+    document.getElementById('modalLinkId').value = linkId;
+    const container = document.getElementById('additionalDocumentsContainerLink');
+    container.innerHTML = '';
+    addLinkDocumentField('', null, true);
+    document.getElementById('linkApplicationModal').classList.remove('hidden');
+  }
+
+  function closeLinkApplicationModal() {
+    document.getElementById('linkApplicationModal').classList.add('hidden');
+    document.getElementById('linkApplicationForm').reset();
+    const container = document.getElementById('additionalDocumentsContainerLink');
+    container.innerHTML = '';
+  }
+
+  function addLinkDocumentField(fileName = '', fileData = null, isDefault = false) {
+    linkDocumentCounter++;
+    const container = document.getElementById('additionalDocumentsContainerLink');
+    
+    const documentField = document.createElement('div');
+    documentField.className = `document-field flex items-start gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg ${isDefault ? 'default-field' : ''}`;
+    
+    documentField.innerHTML = `
+      <div class="flex-grow grid grid-cols-1 md:grid-cols-12 gap-2">
+        <div class="md:col-span-5">
+          <input type="text" name="document_names[]" 
+                 class="form-control py-2" placeholder="Document name (e.g., Transcript, Certificate)"
+                 value="${fileName}" ${isDefault ? 'required' : ''}>
+        </div>
+        <div class="md:col-span-6">
+          <input type="file" name="additional_documents[]" 
+                 class="form-control py-2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                 ${fileData ? 'data-file="' + btoa(JSON.stringify(fileData)) + '"' : ''} ${isDefault ? 'required' : ''}>
+        </div>
+        <div class="md:col-span-1">
+          ${isDefault ? 
+            `<button type="button" class="text-gray-400 mt-1 cursor-not-allowed" disabled title="Required field">
+              <i class="ti ti-lock text-lg"></i>
+            </button>` : 
+            `<button type="button" onclick="removeLinkDocumentField(this)" 
+                    class="text-red-500 hover:text-red-700 mt-1" title="Remove document">
+              <i class="ti ti-x text-lg"></i>
+            </button>`
+          }
+        </div>
+      </div>
+    `;
+    
+    container.appendChild(documentField);
+  }
+
+  function removeLinkDocumentField(button) {
+    const field = button.closest('.document-field');
+    if (!field.classList.contains('default-field')) {
+      field.remove();
     }
-    return response.json();
-  })
-  .then(data => {
-    if (data) {
-      if (data.success) {
-        closeLinkApplicationModal();
+  }
 
-        
-        
-        // Update the UI without reloading the page
-        // const applyButtons = document.querySelectorAll(`button[onclick="showLinkApplicationModal(${linkId})"]`);
-        // applyButtons.forEach(button => {
-        //   button.outerHTML = `
-        //     <button disabled
-        //       class="px-4 py-2 rounded-full text-sm font-medium text-gray-400 bg-gray-200 cursor-not-allowed">
-        //       Applied
-        //     </button>
-        //   `;
-        // });
-
-
-        // Update the UI immediately
-                updateApplicationStatusUI(linkId, 'Pending');
-                
-                // Disable the apply button
-                const applyButtons = document.querySelectorAll(`button[onclick="showLinkApplicationModal(${linkId})"]`);
-                applyButtons.forEach(button => {
-                    button.outerHTML = `
-                        <button disabled
-                            class="px-4 py-2 rounded-full text-sm font-medium text-gray-400 bg-gray-200 cursor-not-allowed">
-                            Applied
-                        </button>
-                    `;
-                });
-        
-        // Update application status
-        const statusCells = document.querySelectorAll(`tr:has(button[onclick="showLinkApplicationModal(${linkId})"]) td:nth-last-child(2)`);
-        statusCells.forEach(cell => {
-          cell.innerHTML = `
-            <span class="badge bg-lightwarning text-warning">
-              <i class="ti ti-clock mr-1"></i>
-              Pending
-            </span>
-          `;
-        });
-        
-        // Show success message
-        alert('Application submitted successfully!');
-      } else {
-        alert(data.message || 'Failed to submit application');
-      }
+  function submitLinkApplicationForm() {
+    const form = document.getElementById('linkApplicationForm');
+    if (!form) {
+      console.error('Link application form not found');
+      alert('Error: Link application form is missing. Please refresh the page.');
+      return;
     }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('An error occurred while submitting the application');
-  });
-});
+    const e = new Event('submit');
+    form.dispatchEvent(e);
+  }
 
-
-// UPDATE STATUS LIKE PENDING ACCEPTED AND RESJECTED FUNCTION
-
-// Poll for application status updates
-function startStatusPolling() {
-    // Only poll if we're on the links tab and user is not admin
+  function startStatusPolling() {
     const linksTab = document.getElementById('links-table');
     if (!linksTab || !linksTab.classList.contains('hidden') || '{{ current_user.user_type }}' === 'Admin') {
-        return;
+      return;
     }
     
-    // Get all link IDs that we might have applied to
     const linkIds = [];
     document.querySelectorAll('button[onclick^="showLinkApplicationModal"]').forEach(button => {
-        const match = button.getAttribute('onclick').match(/showLinkApplicationModal\((\d+)\)/);
-        if (match) {
-            linkIds.push(parseInt(match[1]));
-        }
+      const match = button.getAttribute('onclick').match(/showLinkApplicationModal\((\d+)\)/);
+      if (match) {
+        linkIds.push(parseInt(match[1]));
+      }
     });
     
     if (linkIds.length === 0) return;
     
-    // Poll every 10 seconds for status updates
     setInterval(() => {
-        linkIds.forEach(linkId => {
-            fetch(`/get-application-status/${linkId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success && data.has_applied) {
-                        updateApplicationStatusUI(linkId, data.status);
-                    }
-                })
-                .catch(error => console.error('Error polling status:', error));
-        });
-    }, 10000); // Poll every 10 seconds
-}
+      linkIds.forEach(linkId => {
+        fetch(`/get-application-status/${linkId}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.success && data.has_applied) {
+              updateApplicationStatusUI(linkId, data.status);
+            }
+          })
+          .catch(error => console.error('Error polling status:', error));
+      });
+    }, 10000);
+  }
 
-// Update the UI with new status
-function updateApplicationStatusUI(linkId, status) {
-    // Update status badge
+  function updateApplicationStatusUI(linkId, status) {
     const statusBadge = document.querySelector(`tr:has(button[onclick="showLinkApplicationModal(${linkId})"]) td:nth-last-child(2)`);
     if (statusBadge) {
-        let badgeClass, iconClass;
-        
-        switch(status) {
-            case 'Pending':
-                badgeClass = 'bg-lightwarning text-warning';
-                iconClass = 'ti-clock';
-                break;
-            case 'Accepted':
-                badgeClass = 'bg-lightsuccess text-success';
-                iconClass = 'ti-check';
-                break;
-            case 'Shortlisted':
-                badgeClass = 'bg-lightinfo text-info';
-                iconClass = 'ti-star';
-                break;
-            case 'Rejected':
-                badgeClass = 'bg-lighterror text-error';
-                iconClass = 'ti-x';
-                break;
-            default:
-                badgeClass = 'bg-gray-200 text-gray-700';
-                iconClass = 'ti-circle-dashed';
-        }
-        
-        statusBadge.innerHTML = `
-            <span class="badge ${badgeClass}">
-                <i class="${iconClass} mr-1"></i>
-                ${status}
-            </span>
-        `;
+      let badgeClass, iconClass;
+      
+      switch(status) {
+        case 'Pending':
+          badgeClass = 'bg-lightwarning text-warning';
+          iconClass = 'ti-clock';
+          break;
+        case 'Accepted':
+          badgeClass = 'bg-lightsuccess text-success';
+          iconClass = 'ti-check';
+          break;
+        case 'Shortlisted':
+          badgeClass = 'bg-lightinfo text-info';
+          iconClass = 'ti-star';
+          break;
+        case 'Rejected':
+          badgeClass = 'bg-lighterror text-error';
+          iconClass = 'ti-x';
+          break;
+        default:
+          badgeClass = 'bg-gray-200 text-gray-700';
+          iconClass = 'ti-circle-dashed';
+      }
+      
+      statusBadge.innerHTML = `
+        <span class="badge ${badgeClass}">
+          <i class="${iconClass} mr-1"></i>
+          ${status}
+        </span>
+      `;
     }
     
-    // Update button if status changed from pending to something else
     if (status !== 'Pending') {
-        const applyButton = document.querySelector(`button[onclick="showLinkApplicationModal(${linkId})"]`);
-        if (applyButton) {
-            applyButton.outerHTML = `
-                <button disabled
+      const applyButton = document.querySelector(`button[onclick="showLinkApplicationModal(${linkId})"]`);
+      if (applyButton) {
+        applyButton.outerHTML = `
+          <button disabled
+            class="px-4 py-2 rounded-full text-sm font-medium text-gray-400 bg-gray-200 cursor-not-allowed">
+            Applied
+          </button>
+        `;
+      }
+    }
+  }
+
+  function showEditOpportunity(opportunityId) {
+    fetch(`/admin/get-opportunity/${opportunityId}`, {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success && data.opportunity) {
+          const opp = data.opportunity;
+          const options = data.options;
+
+          const typeSelect = document.querySelector('#editOpportunityModal select[name="type"]');
+          if (typeSelect) {
+            typeSelect.innerHTML = '';
+            options.types.forEach(type => {
+              const option = document.createElement('option');
+              option.value = type.name;
+              option.textContent = type.name;
+              if (opp.type === type.name) option.selected = true;
+              typeSelect.appendChild(option);
+            });
+            if (!opp.type) {
+              console.warn(`Warning: Opportunity ${opp.id} has no 'type'. Defaulting to first option.`);
+              typeSelect.value = options.types[0]?.name || 'Internship';
+            }
+          }
+
+          const domainSelect = document.querySelector('#editOpportunityModal select[name="domain"]');
+          if (domainSelect) {
+            domainSelect.innerHTML = '';
+            options.domains.forEach(domain => {
+              const option = document.createElement('option');
+              option.value = domain.name;
+              option.textContent = domain.name;
+              if (opp.domain === domain.name) option.selected = true;
+              domainSelect.appendChild(option);
+            });
+            if (!opp.domain) {
+              console.warn(`Warning: Opportunity ${opp.id} has no 'domain'. Defaulting to first option.`);
+              domainSelect.value = options.domains[0]?.name || '';
+            }
+          }
+
+          const durationSelect = document.querySelector('#editOpportunityModal select[name="duration"]');
+          if (durationSelect) {
+            durationSelect.innerHTML = '';
+            options.durations.forEach(duration => {
+              const option = document.createElement('option');
+              option.value = duration.name;
+              option.textContent = duration.name;
+              if (opp.duration === duration.name) option.selected = true;
+              durationSelect.appendChild(option);
+            });
+            if (!opp.duration) {
+              console.warn(`Warning: Opportunity ${opp.id} has no 'duration'. Defaulting to first option.`);
+              durationSelect.value = options.durations[0]?.name || '';
+            }
+          }
+
+          const statusSelect = document.querySelector('#editOpportunityModal select[name="status"]');
+          if (statusSelect) {
+            statusSelect.innerHTML = '';
+            options.statuses.forEach(status => {
+              const option = document.createElement('option');
+              option.value = status.name;
+              option.textContent = status.name;
+              if (opp.status === status.name) option.selected = true;
+              statusSelect.appendChild(option);
+            });
+            if (!opp.status) {
+              console.warn(`Warning: Opportunity ${opp.id} has no 'status'. Defaulting to 'Active'.`);
+              statusSelect.value = 'Active';
+            }
+          }
+
+          document.getElementById('editModalOpportunityId').value = opp.id;
+          document.getElementById('editTitle').value = opp.title || '';
+          document.getElementById('editDeadline').value = opp.deadline || '';
+          document.getElementById('editLocation').value = opp.location || '';
+          document.getElementById('editCompensation').value = opp.compensation || '';
+          document.getElementById('editEligibility').value = opp.eligibility || '';
+          document.getElementById('editDescription').value = opp.description || '';
+          document.getElementById('editKeywords').value = opp.keywords || '';
+          document.getElementById('editAdLink').value = opp.advertisement_link || '';
+
+          document.getElementById('editOpportunityModal').classList.remove('hidden');
+        } else {
+          console.error('Failed to load opportunity:', data.message);
+          alert(data.message || 'Failed to load opportunity details');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching opportunity:', error);
+        alert('Failed to load opportunity details: ' + error.message);
+      });
+  }
+
+  function closeEditModal() {
+    const modal = document.getElementById('editOpportunityModal');
+    if (modal) {
+      modal.classList.add('hidden');
+    }
+  }
+
+  function deleteOpportunity(opportunityId) {
+    if (confirm('Are you sure you want to delete this opportunity? This action cannot be undone.')) {
+      fetch(`/admin/delete-opportunity/${opportunityId}`, {
+        method: 'POST'
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          location.reload();
+        } else {
+          alert(data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while deleting the opportunity');
+      });
+    }
+  }
+
+  // Modified checkProfile function
+  function checkProfile(profileId) {
+    fetch(`/opp_view-profile/${profileId}`, {
+      headers: {
+        'Accept': 'application/json' // Request JSON explicitly
+      }
+    })
+      .then(response => {
+        // Check content type to handle HTML or JSON
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          return response.json();
+        } else {
+          // If response is HTML, redirect directly
+          window.location.href = `/opp_view-profile/${profileId}`;
+          return null; // Prevent further processing
+        }
+      })
+      .then(data => {
+        if (data && data.is_admin) {
+          showAdminModal(data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching profile:', error);
+        // If fetch fails (e.g., network error or invalid JSON), try redirect
+        window.location.href = `/opp_view-profile/${profileId}`;
+      });
+  }
+
+  function showAdminModal(message) {
+    const modal = document.getElementById('adminModal') || createAdminModal();
+    const modalBody = modal.querySelector('.modal-body');
+    modalBody.textContent = message;
+    modal.classList.remove('hidden');
+  }
+
+  function createAdminModal() {
+    const modal = document.createElement('div');
+    modal.id = 'adminModal';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden';
+    modal.innerHTML = `
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Administrator Notice</h3>
+          <button onclick="closeAdminModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+            <i class="ti ti-x text-xl"></i>
+          </button>
+        </div>
+        <div class="modal-body text-gray-700 dark:text-gray-300 mb-4"></div>
+        <div class="flex justify-end">
+          <button onclick="closeAdminModal()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded shadow">
+            Close
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    return modal;
+  }
+
+  function closeAdminModal() {
+    const modal = document.getElementById('adminModal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    startStatusPolling();
+
+    // Modified event listener for profile links
+    document.querySelectorAll('a[href^="/opp_view-profile/"]').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const profileId = this.getAttribute('href').split('/opp_view-profile/')[1];
+        // Check if user is Admin to decide whether to fetch
+        if ('{{ current_user.user_type }}' === 'Admin') {
+          checkProfile(profileId);
+        } else {
+          // For non-Admin users, redirect directly
+          window.location.href = `/opp_view-profile/${profileId}`;
+        }
+      });
+    });
+
+    // ... (rest of the event listeners for forms and tabs remain unchanged) ...
+    const applicationForm = document.getElementById('applicationForm');
+    if (applicationForm) {
+      applicationForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const documentFields = document.querySelectorAll('#additionalDocumentsContainer .document-field');
+        let valid = true;
+        
+        documentFields.forEach(field => {
+          const fileInput = field.querySelector('input[type="file"]');
+          const nameInput = field.querySelector('input[type="text"]');
+          
+          if (fileInput.files.length > 0 && !nameInput.value.trim()) {
+            nameInput.classList.add('border-red-500');
+            valid = false;
+            alert('Please provide a name for all documents you\'re uploading.');
+          } else {
+            nameInput.classList.remove('border-red-500');
+          }
+        });
+        
+        if (!valid) return;
+        
+        const formData = new FormData(this);
+        const opportunityId = formData.get('opportunity_id');
+        
+        fetch(`/apply-opportunity/${opportunityId}`, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => {
+          if (response.redirected) {
+            window.location.href = response.url;
+            return null;
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data) {
+            if (data.success) {
+              closeApplicationModal();
+              const statusCell = document.getElementById(`application-status-${opportunityId}`);
+              if (statusCell) {
+                statusCell.innerHTML = `
+                  <span class="badge bg-lightwarning text-warning">
+                    <i class="ti ti-clock mr-1"></i>
+                    Pending
+                  </span>
+                `;
+              }
+              const applyButtons = document.querySelectorAll(`button[onclick="showApplicationModal(${opportunityId})"]`);
+              applyButtons.forEach(button => {
+                button.outerHTML = `
+                  <button disabled
                     class="px-4 py-2 rounded-full text-sm font-medium text-gray-400 bg-gray-200 cursor-not-allowed">
                     Applied
-                </button>
-            `;
-        }
+                  </button>
+                `;
+              });
+              alert('Application submitted successfully!');
+            } else {
+              alert(data.message || 'Failed to submit application');
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred while submitting the application');
+        });
+      });
     }
-}
 
-// Start polling when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    startStatusPolling();
-});
+    const linkApplicationForm = document.getElementById('linkApplicationForm');
+    if (linkApplicationForm) {
+      linkApplicationForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const documentFields = document.querySelectorAll('#additionalDocumentsContainerLink .document-field');
+        let valid = true;
+        
+        documentFields.forEach(field => {
+          const fileInput = field.querySelector('input[type="file"]');
+          const nameInput = field.querySelector('input[type="text"]');
+          
+          if (fileInput.files.length > 0 && !nameInput.value.trim()) {
+            nameInput.classList.add('border-red-500');
+            valid = false;
+            alert('Please provide a name for all documents you\'re uploading.');
+          } else {
+            nameInput.classList.remove('border-red-500');
+          }
+        });
+        
+        if (!valid) return;
+        
+        const formData = new FormData(this);
+        const linkId = formData.get('link_id');
+        
+        fetch(`/apply-opportunity-link/${linkId}`, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => {
+          if (response.redirected) {
+            window.location.href = response.url;
+            return null;
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data) {
+            if (data.success) {
+              closeLinkApplicationModal();
+              updateApplicationStatusUI(linkId, 'Pending');
+              const applyButtons = document.querySelectorAll(`button[onclick="showLinkApplicationModal(${linkId})"]`);
+              applyButtons.forEach(button => {
+                button.outerHTML = `
+                  <button disabled
+                    class="px-4 py-2 rounded-full text-sm font-medium text-gray-400 bg-gray-200 cursor-not-allowed">
+                    Applied
+                  </button>
+                `;
+              });
+              const statusCells = document.querySelectorAll(`tr:has(button[onclick="showLinkApplicationModal(${linkId})"]) td:nth-last-child(2)`);
+              statusCells.forEach(cell => {
+                cell.innerHTML = `
+                  <span class="badge bg-lightwarning text-warning">
+                    <i class="ti ti-clock mr-1"></i>
+                    Pending
+                  </span>
+                `;
+              });
+              alert('Application submitted successfully!');
+            } else {
+              alert(data.message || 'Failed to submit application');
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred while submitting the application');
+        });
+      });
+    }
+
+    const editForm = document.getElementById('editOpportunityForm');
+    if (editForm) {
+      editForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const modal = document.getElementById('editOpportunityModal');
+        if (!modal || modal.classList.contains('hidden')) {
+          console.error('Edit modal is not open or not found');
+          alert('Error: Edit modal is not available. Please try again.');
+          return;
+        }
+
+        const opportunityIdInput = document.getElementById('editModalOpportunityId');
+        const typeSelect = modal.querySelector('select[name="type"]');
+        const titleInput = modal.querySelector('input[name="title"]');
+        const domainInput = modal.querySelector('select[name="domain"]');
+        const statusSelect = modal.querySelector('select[name="status"]');
+
+        if (!typeSelect || !titleInput || !domainInput || !statusSelect) {
+          console.error('One or more form elements not found');
+          alert('Form elements are missing. Please refresh the page.');
+          return;
+        }
+
+        if (!typeSelect.value || !titleInput.value.trim() || !domainInput.value || !statusSelect.value) {
+          alert('Please fill all required fields (Type, Title, Domain, Status).');
+          return;
+        }
+
+        const formData = new FormData(this);
+        const opportunityId = opportunityIdInput ? opportunityIdInput.value : null;
+
+        if (!opportunityId) {
+          console.error('Opportunity ID is missing');
+          alert('Error: Opportunity ID is not set. Please try again.');
+          return;
+        }
+
+        fetch(`/admin/edit-opportunity/${opportunityId}`, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            closeEditModal();
+            alert('Opportunity updated successfully!');
+            location.reload();
+          } else {
+            console.error('Edit failed:', data.message);
+            alert(data.message || 'Failed to update opportunity');
+          }
+        })
+        .catch(error => {
+          console.error('Error submitting edit:', error);
+          alert('An error occurred while updating the opportunity: ' + error.message);
+        });
+      });
+    }
+
+    const tabOpportunities = document.getElementById('tab-opportunities');
+    const tabLinks = document.getElementById('tab-links');
+    const opportunitiesTable = document.getElementById('opportunities-table');
+    const linksTable = document.getElementById('links-table');
+    
+    if (tabOpportunities && tabLinks && opportunitiesTable && linksTable) {
+      tabOpportunities.addEventListener('click', function() {
+        tabOpportunities.classList.add('border-blue-500', 'text-blue-600');
+        tabOpportunities.classList.remove('text-gray-500');
+        tabLinks.classList.remove('border-blue-500', 'text-blue-600');
+        tabLinks.classList.add('text-gray-500');
+        opportunitiesTable.classList.remove('hidden');
+        linksTable.classList.add('hidden');
+      });
+      
+      tabLinks.addEventListener('click', function() {
+        tabLinks.classList.add('border-blue-500', 'text-blue-600');
+        tabLinks.classList.remove('text-gray-500');
+        tabOpportunities.classList.remove('border-blue-500', 'text-blue-600');
+        tabOpportunities.classList.add('text-gray-500');
+        linksTable.classList.remove('hidden');
+        opportunitiesTable.classList.add('hidden');
+      });
+    }
+  });
 </script>
 {% endblock %}
