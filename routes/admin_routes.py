@@ -362,6 +362,8 @@ def process_opportunities_file(file, creator_profile_id):
         current_app.logger.error(f"Error processing file {file.filename}: {str(e)}")
         return {'success': False, 'message': f"Error processing file: {str(e)}"}
 
+# routes/admin_routes.py
+
 @admin_bp.route('/get-opportunity/<int:id>')
 @login_required
 def admin_get_opportunity(id):
@@ -375,8 +377,14 @@ def admin_get_opportunity(id):
         deadline_str = opportunity.deadline.strftime('%Y-%m-%d') if opportunity.deadline else ''
         created_at_str = opportunity.created_at.strftime('%Y-%m-%d') if opportunity.created_at else ''
         
+        # Fetch dynamic options from the database
+        opportunity_types = OpportunityType.query.filter_by(status='Active').order_by(OpportunityType.name).all()
+        opportunity_domains = OpportunityDomain.query.filter_by(status='Active').order_by(OpportunityDomain.name).all()
+        durations = Duration.query.filter_by(status='Active').order_by(Duration.name).all()
+        opportunity_statuses = OpportunityStatus.query.filter_by(status='Active').order_by(OpportunityStatus.name).all()
+        
         return jsonify({
-            'success': True, 
+            'success': True,
             'opportunity': {
                 'id': opportunity.id,
                 'type': opportunity.type or '',
@@ -392,15 +400,22 @@ def admin_get_opportunity(id):
                 'keywords': opportunity.keywords or '',
                 'advertisement_link': opportunity.advertisement_link or '',
                 'created_at': created_at_str
+            },
+            'options': {
+                'types': [{'id': t.id, 'name': t.name} for t in opportunity_types],
+                'domains': [{'id': d.id, 'name': d.name} for d in opportunity_domains],
+                'durations': [{'id': d.id, 'name': d.name} for d in durations],
+                'statuses': [{'id': s.id, 'name': s.name} for s in opportunity_statuses]
             }
         })
     except Exception as e:
         current_app.logger.error(f'Error fetching opportunity {id}: {str(e)}')
         return jsonify({
-            'success': False, 
+            'success': False,
             'message': f'Error fetching opportunity: {str(e)}'
         })
 
+        
 @admin_bp.route('/edit-opportunity/<int:id>', methods=['POST'])
 @login_required
 def admin_edit_opportunity(id):
@@ -410,38 +425,62 @@ def admin_edit_opportunity(id):
     
     try:
         opportunity = Opportunity.query.get_or_404(id)
-        
-        opportunity.type = request.form.get('type')
-        opportunity.title = request.form.get('title')
-        opportunity.domain = request.form.get('domain')
-        opportunity.location = request.form.get('location')
-        opportunity.duration = request.form.get('duration')
-        opportunity.compensation = request.form.get('compensation')
-        opportunity.eligibility = request.form.get('eligibility')
-        opportunity.description = request.form.get('description')
-        opportunity.keywords = request.form.get('keywords')
-        opportunity.advertisement_link = request.form.get('advertisement_link')
-        opportunity.status = request.form.get('status', 'Active')
-        
-        deadline_str = request.form.get('deadline')
-        if deadline_str:
-            opportunity.deadline = datetime.strptime(deadline_str, '%Y-%m-%d')
-        else:
-            opportunity.deadline = None
-        
+        current_app.logger.info(f"Attempting to edit opportunity {id} by admin {current_user.id}")
+
+        form_data = request.form.to_dict()
+        current_app.logger.debug(f"Received form data: {form_data}")
+
+        required_fields = {
+            'type': form_data.get('type', '').strip(),
+            'title': form_data.get('title', '').strip(),
+            'domain': form_data.get('domain', '').strip(),
+            'status': form_data.get('status', '').strip()
+        }
+
+        for field, value in required_fields.items():
+            if not value:
+                current_app.logger.error(f"Required field '{field}' is empty or missing: value='{value}'")
+                return jsonify({'success': False, 'message': f"Required field '{field}' cannot be empty."}), 400
+
+        opportunity_type = OpportunityType.query.filter_by(name=required_fields['type'], status='Active').first()
+        if not opportunity_type:
+            return jsonify({'success': False, 'message': f"Invalid type '{required_fields['type']}'. Must be a valid opportunity type."}), 400
+
+        opportunity_status = OpportunityStatus.query.filter_by(name=required_fields['status'], status='Active').first()
+        if not opportunity_status:
+            return jsonify({'success': False, 'message': f"Invalid status '{required_fields['status']}'. Must be a valid opportunity status."}), 400
+
+        opportunity.type = required_fields['type']
+        opportunity.title = required_fields['title']
+        opportunity.domain = required_fields['domain']
+        opportunity.location = form_data.get('location', '').strip() or None
+        opportunity.duration = form_data.get('duration', '').strip() or None
+        opportunity.compensation = form_data.get('compensation', '').strip() or None
+        opportunity.eligibility = form_data.get('eligibility', '').strip() or None
+        opportunity.description = form_data.get('description', '').strip() or None
+        opportunity.keywords = form_data.get('keywords', '').strip() or None
+        opportunity.advertisement_link = form_data.get('advertisement_link', '').strip() or None
+        opportunity.status = required_fields['status']
+
+        deadline_str = form_data.get('deadline', '').strip()
+        opportunity.deadline = datetime.strptime(deadline_str, '%Y-%m-%d') if deadline_str else None
+
         db.session.commit()
-        
+        current_app.logger.info(f"Successfully updated opportunity {id}")
+
         return jsonify({
-            'success': True, 
+            'success': True,
             'message': 'Opportunity updated successfully!'
         })
-        
     except Exception as e:
         db.session.rollback()
+        current_app.logger.exception(f"Error updating opportunity {id}: {str(e)}")
         return jsonify({
-            'success': False, 
+            'success': False,
             'message': f'Error updating opportunity: {str(e)}'
-        })
+        }), 500
+
+
 
 @admin_bp.route('/delete-opportunity/<int:id>', methods=['POST'])
 @login_required
