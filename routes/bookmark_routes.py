@@ -2,13 +2,11 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
 from extensions import db
-from models import Bookmark, Profile, Publication, Project, ResearchFacility, Technology, Award, Skill, Education, Experience, TeamMember, PIProfile, StudentProfile, VendorProfile, IndustryProfile
+from models import Bookmark, Profile, Publication, Project, ResearchFacility, Technology, Award, Skill, Education, Experience, TeamMember, PIProfile, StudentProfile, VendorProfile, IndustryProfile, Opportunity, OpportunityLink
 from sqlalchemy.orm.exc import ObjectDeletedError
 from datetime import datetime
 
 bookmark_bp = Blueprint('bookmark', __name__)
-
-# routes/bookmark_routes.py - Update the get_bookmark_item function
 
 def get_bookmark_item(bookmark):
     """Get the actual item from bookmark with proper error handling"""
@@ -25,7 +23,9 @@ def get_bookmark_item(bookmark):
         'award': Award,
         'project': Project,
         'team': TeamMember,
-        'publication': Publication
+        'publication': Publication,
+        'opportunity': Opportunity,
+        'opportunity_link': OpportunityLink  # Added
     }
     
     if bookmark.bookmark_type not in model_map:
@@ -88,7 +88,10 @@ def get_bookmark_item(bookmark):
                 profile_data['vendor_profile'] = profile_data['profile'].vendor_profile
                 
             return profile_data
-        
+        elif bookmark.bookmark_type == 'opportunity':
+            return item  # Return Opportunity object
+        elif bookmark.bookmark_type == 'opportunity_link':
+            return item  # Return OpportunityLink object
         return item
         
     except ObjectDeletedError:
@@ -128,18 +131,15 @@ def get_profile_picture(profile):
         return profile.pi_profile.profile_picture
     elif profile.student_profile:
         return profile.student_profile.profile_picture
-    # Industry and vendor profiles might not have profile pictures
     return None
-
-# routes/bookmark_routes.py - Update the item_exists function
 
 def item_exists(bookmark_type, item_id):
     """Check if the item exists in the database"""
     model_map = {
         'profile': Profile,
-        'student': StudentProfile,  # Changed from 'profile' to 'student'
-        'vendor': VendorProfile,    # Changed from 'profile' to 'vendor'
-        'industry': IndustryProfile, # Changed from 'profile' to 'industry'
+        'student': StudentProfile,
+        'vendor': VendorProfile,
+        'industry': IndustryProfile,
         'education': Education,
         'experience': Experience,
         'facility': ResearchFacility,
@@ -148,7 +148,9 @@ def item_exists(bookmark_type, item_id):
         'award': Award,
         'project': Project,
         'team': TeamMember,
-        'publication': Publication
+        'publication': Publication,
+        'opportunity': Opportunity,
+        'opportunity_link': OpportunityLink  # Added
     }
     
     if bookmark_type in model_map:
@@ -240,13 +242,29 @@ def my_bookmarks():
         item = get_bookmark_item(bookmark)
         if item:
             # For profiles, we need to handle the dictionary return
-            if bookmark.bookmark_type == 'profile':
+            if bookmark.bookmark_type in ['profile', 'student', 'vendor', 'industry']:
                 bookmark_items.append({
                     'bookmark': bookmark,
-                    'item': item,  # This is now a dictionary
+                    'item': item,
                     'type': bookmark.bookmark_type,
                     'title': item['name'],
                     'description': item['current_designation']
+                })
+            elif bookmark.bookmark_type == 'opportunity':
+                bookmark_items.append({
+                    'bookmark': bookmark,
+                    'item': item,
+                    'type': bookmark.bookmark_type,
+                    'title': item.title,
+                    'description': item.description
+                })
+            elif bookmark.bookmark_type == 'opportunity_link':
+                bookmark_items.append({
+                    'bookmark': bookmark,
+                    'item': item,
+                    'type': bookmark.bookmark_type,
+                    'title': item.title,
+                    'description': item.description
                 })
             else:
                 bookmark_items.append({
@@ -336,13 +354,22 @@ def export_bookmarks():
     for bookmark in bookmarks:
         item = get_bookmark_item(bookmark)
         if item:
+            title = None
+            description = None
+            if bookmark.bookmark_type in ['profile', 'student', 'vendor', 'industry']:
+                title = item['name']
+                description = item['current_designation']
+            else:
+                title = getattr(item, 'title', None) or getattr(item, 'name', None) or getattr(item, 'degree_name', None)
+                description = getattr(item, 'description', None) or getattr(item, 'project_title', None)
+            
             bookmarks_data.append({
                 'type': bookmark.bookmark_type,
                 'item_id': bookmark.bookmark_item_id,
                 'created_at': bookmark.created_at.isoformat(),
                 'item_data': {
-                    'title': getattr(item, 'title', None) or getattr(item, 'name', None) or getattr(item, 'degree_name', None),
-                    'description': getattr(item, 'description', None) or getattr(item, 'project_title', None)
+                    'title': title,
+                    'description': description
                 }
             })
     
@@ -363,7 +390,6 @@ def debug_profile(profile_id):
             'vendor_profile': bool(profile.vendor_profile)
         })
     return jsonify({'error': 'Profile not found'})
-
 
 
 

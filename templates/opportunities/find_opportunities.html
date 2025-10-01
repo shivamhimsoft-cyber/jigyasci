@@ -3,73 +3,219 @@
 {% block title %}{% if show_mine %}My Opportunities{% else %}Find Opportunities{% endif %} | Research Collaboration Platform{% endblock %}
 {% block content %}
 <style>
-  /* Style file inputs to match your form controls */
-input[type="file"]::file-selector-button {
-  background-color: #f3f4f6;
-  border: 1px solid #d1d5db;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  margin-right: 0.5rem;
-  cursor: pointer;
+  /* Existing styles for file inputs and document fields */
+  input[type="file"]::file-selector-button {
+    background-color: #f3f4f6;
+    border: 1px solid #d1d5db;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    margin-right: 0.5rem;
+    cursor: pointer;
+  }
+
+  input[type="file"]::file-selector-button:hover {
+    background-color: #e5e7eb;
+  }
+
+  .dark input[type="file"]::file-selector-button {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #fff;
+  }
+
+  .dark input[type="file"]::file-selector-button:hover {
+    background-color: #4b5563;
+  }
+
+  .document-field {
+    transition: all 0.3s ease;
+  }
+
+  .document-field:hover {
+    background-color: #f9fafb;
+  }
+
+  .dark .document-field {
+    background-color: #4b5563;
+  }
+
+  .dark .document-field:hover {
+    background-color: #374151;
+  }
+
+  /* Existing admin modal styles */
+  #adminModal .modal-body {
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.5;
+  }
+  #adminModal .modal-body ul {
+    margin-top: 0.75rem;
+  }
+  #adminModal .modal-body li {
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+  #adminModal {
+    transition: opacity 0.3s ease-in-out;
+  }
+  #adminModal:not(.hidden) {
+    opacity: 1;
+  }
+  #adminModal.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  #adminModal .modal-body h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+  #adminModal button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+  }
+
+  /* New styles for Application Modal */
+  #applicationModal {
+    transition: opacity 0.3s ease-in-out;
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+  #applicationModal:not(.hidden) {
+    opacity: 1;
+  }
+  #applicationModal.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  #applicationModal .modal-content {
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    max-width: 32rem; /* 512px */
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 1.5rem;
+  }
+  .dark #applicationModal .modal-content {
+    background-color: #1f2937;
+  }
+  #applicationModal h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.2;
+  }
+  .dark #applicationModal h3 {
+    color: #f9fafb;
+  }
+  #applicationModal label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  .dark #applicationModal label {
+    color: #d1d5db;
+  }
+  #applicationModal textarea,
+  #applicationModal input[type="file"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    background-color: #f9fafb;
+    font-size: 0.875rem;
+    color: #111827;
+    transition: all 0.2s ease;
+  }
+  #applicationModal textarea:focus,
+  #applicationModal input[type="file"]:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+  }
+  .dark #applicationModal textarea,
+  .dark #applicationModal input[type="file"] {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+  .dark #applicationModal textarea:focus,
+  .dark #applicationModal input[type="file"]:focus {
+    border-color: #818cf8;
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.3);
+  }
+  #applicationModal .add-document-btn {
+    background: linear-gradient(to right, #4f46e5, #7c3aed);
+    color: #ffffff;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    transition: background-color 0.2s ease;
+  }
+  #applicationModal .add-document-btn:hover {
+    background: linear-gradient(to right, #4338ca, #6d28d9);
+  }
+  #applicationModal .cancel-btn {
+    background-color: #6b7280;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.375rem;
+    transition: background-color 0.2s ease;
+  }
+  #applicationModal .cancel-btn:hover {
+    background-color: #4b5563;
+  }
+  #applicationModal .submit-btn {
+    background: linear-gradient(to right, #7c3aed, #a855f7);
+    color: #ffffff;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.375rem;
+    transition: background-color 0.2s ease;
+  }
+  #applicationModal .submit-btn:hover {
+    background: linear-gradient(to right, #6d28d9, #9333ea);
+  }
+  #applicationModal button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+  }
+  .dark #applicationModal button:focus {
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.3);
+  }
+  #applicationModal .file-note {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+  }
+  .dark #applicationModal .file-note {
+    color: #9ca3af;
+  }
+
+
+  /* HIGHLIGHT ROW FROM HOME APPLY CLICK */
+  .highlight-row {
+  background-color: #fefcbf; /* Light yellow background */
+  transition: background-color 0.3s ease;
 }
 
-input[type="file"]::file-selector-button:hover {
-  background-color: #e5e7eb;
+.dark .highlight-row {
+  background-color: #4a412a; /* Dark theme compatible color */
 }
 
-.dark input[type="file"]::file-selector-button {
-  background-color: #374151;
-  border-color: #4b5563;
-  color: #fff;
+.highlight-row:hover {
+  background-color: #ffe066; /* Slightly darker on hover */
 }
 
-.dark input[type="file"]::file-selector-button:hover {
-  background-color: #4b5563;
-}
-
-
-
-
-.document-field {
-  transition: all 0.3s ease;
-}
-
-.document-field:hover {
-  background-color: #f9fafb;
-}
-
-.dark .document-field {
-  background-color: #4b5563;
-}
-
-.dark .document-field:hover {
-  background-color: #374151;
-}
-
-input[type="file"]::file-selector-button {
-  background-color: #f3f4f6;
-  border: 1px solid #d1d5db;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  margin-right: 0.5rem;
-  cursor: pointer;
-}
-
-input[type="file"]::file-selector-button:hover {
-  background-color: #e5e7eb;
-}
-
-.dark input[type="file"]::file-selector-button {
-  background-color: #374151;
-  border-color: #4b5563;
-  color: #fff;
-}
-
-.dark input[type="file"]::file-selector-button:hover {
-  background-color: #4b5563;
+.dark .highlight-row:hover {
+  background-color: #5c4f33; /* Dark theme hover color */
 }
 </style>
-
 
 <div class="max-w-full">  
   <div class="container full-container max-w-full"> 
@@ -163,7 +309,7 @@ input[type="file"]::file-selector-button:hover {
       </thead>
       <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
         {% for opportunity in opportunities.items %}
-        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors {% if request.args.get('highlight')|int == opportunity.id %}highlight-row{% endif %}">
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{{ (opportunities.page - 1) * opportunities.per_page + loop.index }}</td>
           <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">{{ opportunity.type }}</td>
           <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
@@ -175,10 +321,14 @@ input[type="file"]::file-selector-button:hover {
           
           {% if not show_mine %}
           <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
-            <a href="{{ url_for('opp_view_profile', profile_id=opportunity.creator_profile_id) }}" 
-               class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
-              {{ opportunity.creator.user.email }} ({{ opportunity.creator.profile_type }})
-            </a>
+            {% if opportunity.creator.profile_type == 'Admin' %}
+              <span class="text-gray-500">Administrator</span>
+            {% else %}
+              <a href="{{ url_for('opp_view_profile', profile_id=opportunity.creator_profile_id) }}"
+                class="text-indigo-500 hover:text-indigo-700 profile-link" title="View Profile">
+                {{ opportunity.creator.user.email }} ({{ opportunity.creator.profile_type }})
+              </a>
+            {% endif %}
           </td>
           {% endif %}
           
@@ -385,71 +535,61 @@ input[type="file"]::file-selector-button:hover {
 
 
 <!-- Application Modal -->
-<div id="applicationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-  <div class="bg-white dark:bg-dark rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-auto">
+<div id="applicationModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4" role="dialog" aria-labelledby="applicationModalTitle" aria-modal="true">
+  <div class="modal-content">
     <div class="p-6">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold">Apply for Opportunity</h3>
-        <button onclick="closeApplicationModal()" class="text-gray-500 hover:text-gray-700">
+      <div class="flex justify-between items-center mb-6">
+        <h3 id="applicationModalTitle" class="text-xl font-bold">Apply for Opportunity</h3>
+        <button onclick="closeApplicationModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white focus:outline-none" aria-label="Close modal">
           <i class="ti ti-x text-xl"></i>
         </button>
       </div>
       <form id="applicationForm" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="opportunity_id" id="modalOpportunityId">
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <!-- Cover Letter -->
           <div class="md:col-span-2">
-            <label class="font-semibold block mb-1">Cover Letter (Optional)</label>
-            <textarea name="cover_letter" class="form-control py-2" rows="4" 
-                      placeholder="Why are you interested in this opportunity?"></textarea>
+            <label class="font-semibold block mb-2">Cover Letter (Optional)</label>
+            <textarea name="cover_letter" rows="4" placeholder="Why are you interested in this opportunity?" class="resize-y"></textarea>
           </div>
           
           <!-- Resume Upload -->
           <div>
-            <label class="font-semibold block mb-1">Resume (Optional)</label>
-            <input type="file" name="resume" class="form-control py-2" accept=".pdf,.doc,.docx">
-            <p class="text-xs text-gray-500 mt-1">PDF, DOC or DOCX files only</p>
+            <label class="font-semibold block mb-2">Resume (Optional)</label>
+            <input type="file" name="resume" accept=".pdf,.doc,.docx">
+            <p class="file-note">PDF, DOC, or DOCX files only</p>
           </div>
           
           <!-- Additional Documents Section -->
           <div class="md:col-span-2">
-            <div class="flex justify-between items-center mb-2">
+            <div class="flex justify-between items-center mb-3">
               <label class="font-semibold block">Additional Documents (Optional)</label>
-              <button type="button" onclick="addDocumentField()" 
-                      class="bg-blue-500 hover:bg-blue-600 text-black text-xs font-semibold py-1 px-2 rounded">
+              <button type="button" onclick="addDocumentField()" class="add-document-btn">
                 <i class="ti ti-plus mr-1"></i> Add Document
               </button>
             </div>
-            
-            <div id="additionalDocumentsContainer" class="space-y-3">
+            <div id="additionalDocumentsContainer" class="space-y-4">
               <!-- Document fields will be added here dynamically -->
             </div>
           </div>
 
-
           <!-- Notes -->
           <div class="md:col-span-2">
-            <label class="font-semibold block mb-1">Notes (Optional)</label>
-            <textarea name="notes" class="form-control py-2" rows="3" 
-                      placeholder="Any additional information you'd like to share..."></textarea>
+            <label class="font-semibold block mb-2">Notes (Optional)</label>
+            <textarea name="notes" rows="3" placeholder="Any additional information you'd like to share..." class="resize-y"></textarea>
           </div>
         </div>
         
-        <div class="flex justify-end gap-2">
-          <button type="button" onclick="closeApplicationModal()" 
-                  class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded shadow">
-            Cancel
-          </button>
-          <button type="submit" 
-                  class="bg-purple-500 hover:bg-purple-600 text-black font-semibold py-2 px-4 rounded shadow">
-            Submit Application
-          </button>
+        <div class="flex justify-end gap-3">
+          <button type="button" onclick="closeApplicationModal()" class="cancel-btn">Cancel</button>
+          <button type="submit" class="submit-btn">Submit Application</button>
         </div>
       </form>
     </div>
   </div>
 </div>
+
 
 
 <!-- Link Application Modal -->
@@ -756,8 +896,11 @@ input[type="file"]::file-selector-button:hover {
         if (data) {
           document.getElementById('modalTitle').textContent = data.title;
           document.getElementById('modalType').textContent = data.type;
-          document.getElementById('modalPostedBy').innerHTML = 
-            `<a href="/opp_view-profile/${data.creator_profile_id}" class="text-primary hover:underline">${data.creator_email} (${data.creator_type})</a>`;
+          // Update Posted By to handle admin profiles
+          const postedByLink = document.getElementById('modalPostedBy');
+          postedByLink.innerHTML = data.creator_type === 'Admin' 
+            ? `<span class="text-gray-500">${data.creator_email} (Administrator)</span>`
+            : `<a href="/opp_view-profile/${data.creator_profile_id}" class="text-primary hover:underline profile-link">${data.creator_email} (${data.creator_type})</a>`;
           document.getElementById('modalDomain').textContent = data.domain || '-';
           document.getElementById('modalDeadline').textContent = data.deadline || '-';
           document.getElementById('modalLocation').textContent = data.location || '-';
@@ -941,7 +1084,7 @@ input[type="file"]::file-selector-button:hover {
 
   function startStatusPolling() {
     const linksTab = document.getElementById('links-table');
-    if (!linksTab || !linksTab.classList.contains('hidden') || '{{ current_user.user_type }}' === 'Admin') {
+    if (!linksTab || !linksTab.classList.contains('hidden')) {
       return;
     }
     
@@ -1147,92 +1290,126 @@ input[type="file"]::file-selector-button:hover {
     }
   }
 
-  // Modified checkProfile function
-  function checkProfile(profileId) {
+
+// checkProfile function (unchanged, for context)
+function checkProfile(profileId) {
     fetch(`/opp_view-profile/${profileId}`, {
-      headers: {
-        'Accept': 'application/json' // Request JSON explicitly
-      }
+        headers: {
+            'Accept': 'application/json' // Request JSON explicitly
+        }
     })
-      .then(response => {
-        // Check content type to handle HTML or JSON
+    .then(response => {
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
-          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-          return response.json();
+            return response.json().then(data => ({ data, status: response.status }));
         } else {
-          // If response is HTML, redirect directly
-          window.location.href = `/opp_view-profile/${profileId}`;
-          return null; // Prevent further processing
+            // If response is HTML, redirect to the profile page
+            window.location.href = `/opp_view-profile/${profileId}`;
+            return null; // Prevent further processing
         }
-      })
-      .then(data => {
-        if (data && data.is_admin) {
-          showAdminModal(data.message);
+    })
+    .then(result => {
+        if (result && result.data) {
+            const { data, status } = result;
+            if (data.is_admin) {
+                // Show modal with admin message and opportunities for all user types
+                showAdminModal(data.message || 'This profile is an administrative account. Detailed profile information is restricted. Below are the opportunities posted by this administrator.', data.opportunities || []);
+            } else if (status === 200) {
+                // Redirect to profile page for non-admin profiles
+                window.location.href = `/opp_view-profile/${profileId}`;
+            } else {
+                console.error('Unexpected response:', data);
+                showAdminModal(`Error: Unable to view profile. Status: ${status}`);
+            }
         }
-      })
-      .catch(error => {
+    })
+    .catch(error => {
         console.error('Error fetching profile:', error);
-        // If fetch fails (e.g., network error or invalid JSON), try redirect
-        window.location.href = `/opp_view-profile/${profileId}`;
-      });
-  }
+        showAdminModal('Error: Failed to load profile details. Please try again.');
+    });
+}
 
-  function showAdminModal(message) {
+// Updated showAdminModal function
+function showAdminModal(message, opportunities = []) {
     const modal = document.getElementById('adminModal') || createAdminModal();
     const modalBody = modal.querySelector('.modal-body');
-    modalBody.textContent = message;
+    let content = `<p class="text-gray-800 dark:text-gray-200">${message}</p>`;
+    if (opportunities.length > 0) {
+        content += `<h4 class="font-semibold mt-4 text-gray-900 dark:text-white">Opportunities Posted:</h4><ul class="list-disc pl-6 mt-2 space-y-1">`;
+        opportunities.forEach(opp => {
+            content += `<li class="text-gray-700 dark:text-gray-300">${opp.title} (ID: ${opp.id})</li>`;
+        });
+        content += `</ul>`;
+    }
+    modalBody.innerHTML = content;
     modal.classList.remove('hidden');
-  }
+    modal.focus(); // Improve accessibility
+}
 
-  function createAdminModal() {
+// Updated createAdminModal function
+function createAdminModal() {
     const modal = document.createElement('div');
     modal.id = 'adminModal';
-    modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 hidden';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-labelledby', 'adminModalTitle');
+    modal.setAttribute('aria-modal', 'true');
     modal.innerHTML = `
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Administrator Notice</h3>
-          <button onclick="closeAdminModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-            <i class="ti ti-x text-xl"></i>
-          </button>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg p-6 transform transition-all">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="adminModalTitle" class="text-xl font-bold text-gray-900 dark:text-white">Administrative Profile</h3>
+                <button onclick="closeAdminModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white focus:outline-none" aria-label="Close modal">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body text-base text-gray-700 dark:text-gray-300 mb-6"></div>
+            <div class="flex justify-end">
+                <button onclick="closeAdminModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition">
+                    Close
+                </button>
+            </div>
         </div>
-        <div class="modal-body text-gray-700 dark:text-gray-300 mb-4"></div>
-        <div class="flex justify-end">
-          <button onclick="closeAdminModal()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded shadow">
-            Close
-          </button>
-        </div>
-      </div>
     `;
     document.body.appendChild(modal);
     return modal;
-  }
+}
 
-  function closeAdminModal() {
+// closeAdminModal function (unchanged)
+function closeAdminModal() {
     const modal = document.getElementById('adminModal');
     if (modal) modal.classList.add('hidden');
-  }
+}
+
+
 
   document.addEventListener('DOMContentLoaded', function() {
     startStatusPolling();
 
-    // Modified event listener for profile links
-    document.querySelectorAll('a[href^="/opp_view-profile/"]').forEach(link => {
-      link.addEventListener('click', function(e) {
+    // Highlight row based on URL query parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const highlightId = urlParams.get('highlight');
+  if (highlightId) {
+    const row = document.querySelector(`tr:has(a[onclick="showOpportunityDetails(${highlightId})"])`);
+    if (row) {
+      row.classList.add('highlight-row');
+      // Optionally scroll to the highlighted row
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  
+    // Event listener for all profile links, including those in modals
+    document.addEventListener('click', function(e) {
+      const link = e.target.closest('a[href^="/opp_view-profile/"], a.profile-link');
+      if (link) {
         e.preventDefault();
-        const profileId = this.getAttribute('href').split('/opp_view-profile/')[1];
-        // Check if user is Admin to decide whether to fetch
-        if ('{{ current_user.user_type }}' === 'Admin') {
-          checkProfile(profileId);
-        } else {
-          // For non-Admin users, redirect directly
-          window.location.href = `/opp_view-profile/${profileId}`;
-        }
-      });
+        const profileId = link.getAttribute('href').split('/opp_view-profile/')[1];
+        checkProfile(profileId);
+      }
     });
 
-    // ... (rest of the event listeners for forms and tabs remain unchanged) ...
     const applicationForm = document.getElementById('applicationForm');
     if (applicationForm) {
       applicationForm.addEventListener('submit', function(e) {

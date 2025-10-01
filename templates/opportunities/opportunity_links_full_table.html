@@ -1,0 +1,237 @@
+<!-- templates\opportunities\opportunity_links_full_table.html -->
+
+{% extends "frontBase.html" %}
+{% block title %}Research Collaboration Platform | Opportunity Links Full Table{% endblock %}
+
+{% block navbar_extra %}
+<form action="{{ url_for('opportunity_links_full_table') }}" method="GET" class="flex flex-grow max-w-md w-full">
+    <div class="relative w-full">
+        <input type="text" name="query" value="{{ query or '' }}" placeholder="Search Title / URL / Description"
+               class="w-full pr-10 px-0 text-secondary border-b-[1px] border-b-secondary/60 border-0 py-0 focus:ring-0 focus:outline-none focus:border-secondary" />
+        <button type="submit" class="absolute right-3 top-[50%] translate-y-[-50%] text-secondary hover:scale-105 transition ease-in duration-2000">
+            <i class="fa fa-search"></i>
+        </button>
+    </div>
+</form>
+{% endblock %}
+
+{% block navbar_extra_profile %}
+<div><img src="../static/images/logo-shade_blue.png" class="lg:h-[60px] md:h-[60px] h-[50px] w-auto" alt=""></div>
+{% endblock %}
+
+{% block nav_bar_width %}w-full py-2{% endblock %}
+{% block footer_width %}w-full{% endblock %}
+
+{% block content %}
+<div class="w-full mx-auto px-4">
+    <div class="w-full flex justify-center">
+        <h1 class="lg:text-3xl md:text-2xl sm:text-xl text-xl font-bold text-secondary mb-6">Opportunity Links - Full View</h1>
+    </div>
+
+    <form method="GET" action="{{ url_for('opportunity_links_full_table') }}" class="flex items-center justify-end mt-4 mb-4">
+        <div class="relative w-max">
+            <input type="text" name="query" value="{{ query or '' }}" placeholder="Search within results..."
+                   class="w-full pl-3 pr-10 text-secondary border-secondary/80 focus:border-secondary rounded-sm py-1 max-w-sm focus:ring-0 focus:outline-none" />
+            <button type="submit" class="absolute right-3 top-[40%] translate-y-[-50%] text-secondary flex items-center hover:scale-105 transition ease-in duration-2000 animate-bounce">
+                <i class="fa fa-search"></i>
+            </button>
+        </div>
+    </form>
+
+    <div class="overflow-x-auto shadow-md">
+        <table class="w-full bg-white border border-gray-200">
+            <thead>
+                <tr class="w-full bg-secondary border border-gray-200">
+                    <th class="px-4 py-2 text-white border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal">#</th>
+                    <th class="px-4 py-2 text-white border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal">
+                        <a href="{{ url_for('opportunity_links_full_table', query=query, sort='title', direction='asc' if sort != 'title' or direction == 'desc' else 'desc') }}" class="hover:underline flex items-center">
+                            Title
+                            {% if sort == 'title' %}
+                                <span class="ml-2 inline-block w-4">{% if direction == 'asc' %}↑{% else %}↓{% endif %}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="px-4 py-2 text-white border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal">URL</th>
+                    <th class="px-4 py-2 text-white border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal">Description</th>
+                    <th class="px-4 py-2 text-white border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal">Active</th>
+                    <th class="px-4 py-2 text-white border-[1px] border-white-gray-100 border-b-black text-[16px] whitespace-nowrap font-normal">Bookmark</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for link in opportunity_links.items %}
+                <tr class="{% if loop.index0 % 2 == 0 %}bg-white{% else %}bg-primary/10{% endif %} hover:bg-primary/30">
+                    <td class="px-4 py-2 border-[1px] border-black max-w-[200px] overflow-x-auto font-medium text-[17px]">{{ (opportunity_links.page - 1) * opportunity_links.per_page + loop.index }}</td>
+                    <td class="px-4 py-2 border-[1px] border-black max-w-[200px] overflow-x-auto font-medium text-[17px]">
+                        <div class="flex gap-2 w-full items-center">
+                            <div class="h-10 w-10 flex-none rounded-full border-[1px] border-black">
+                                <img src="{{ url_for('static', filename='images/profile.png') }}"
+                                     class="h-full w-full object-cover rounded-full">
+                            </div>
+                            <div class="w-full">
+                                <button class="details-btn text-blue-600 hover:underline"
+                                        data-type="opportunity_link"
+                                        data-id="{{ link.id }}"
+                                        title="{{ 'View details' if current_user.is_authenticated else 'Login to view details' }}"
+                                        {% if not current_user.is_authenticated %}onclick="window.location.href='{{ url_for('auth.login') }}'"{% endif %}>
+                                    {{ link.title or 'N/A' }}
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-2 border-[1px] border-black max-w-[200px] overflow-x-auto font-medium text-[17px]">
+                        {% if link.url %}
+                        <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">{{ link.url|truncate(50) }}</a>
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2 border-[1px] border-black max-w-[300px] overflow-x-auto font-medium text-[17px]">{{ link.description|truncate(100) or 'N/A' }}</td>
+                    <td class="px-4 py-2 border-[1px] border-black max-w-[200px] overflow-x-auto font-medium text-[17px]">{{ 'Yes' if link.is_active else 'No' }}</td>
+                    <td class="px-4 py-2 border-[1px] border-black max-w-[200px] overflow-x-auto font-medium text-[17px] text-center">
+                        {% if current_user.is_authenticated %}
+                        <button class="bookmark-btn h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full bg-white border-[1px] border-[#66C0DC] text-[#66C0DC] text-sm hover:bg-[#66C0DC] hover:text-white transition ease-in duration-2000"
+                                data-type="opportunity_link"
+                                data-id="{{ link.id }}"
+                                title="Bookmark this opportunity link">
+                            <i class="far fa-bookmark"></i>
+                        </button>
+                        {% else %}
+                        <a href="{{ url_for('auth.login') }}"
+                           class="bookmark-btn h-8 w-8 relative flex justify-center items-center shadow-sm shadow-black/40 rounded-full z-10 bg-white border-[1px] border-[#66C0DC] text-[#66C0DC] text-sm">
+                            <i class="far fa-bookmark text-gray-400 text-lg"></i>
+                            <span class="absolute -top-1 -right-1 text-[13px] text-[red]">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if opportunity_links.pages > 1 %}
+    <div class="mt-6 flex justify-center">
+        <nav class="inline-flex rounded-md shadow">
+            {% if opportunity_links.has_prev %}
+            <a href="{{ url_for('opportunity_links_full_table', query=query, sort=sort, direction=direction, page=opportunity_links.prev_num) }}"
+               class="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-[19px] whitespace-nowrap font-medium text-gray-700 hover:bg-gray-50">Previous</a>
+            {% endif %}
+            {% for page_num in opportunity_links.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=3) %}
+                {% if page_num %}
+                    {% if opportunity_links.page == page_num %}
+                    <a href="#" class="px-3 py-2 border-t border-b border-primary bg-primary text-secondary text-[19px] whitespace-nowrap font-medium">{{ page_num }}</a>
+                    {% else %}
+                    <a href="{{ url_for('opportunity_links_full_table', query=query, sort=sort, direction=direction, page=page_num) }}"
+                       class="px-3 py-2 border-t border-b border-gray-300 bg-white text-[19px] whitespace-nowrap font-medium text-gray-700 hover:bg-gray-50">{{ page_num }}</a>
+                    {% endif %}
+                {% else %}
+                <span class="px-3 py-2 border-t border-b border-gray-300 bg-white text-[19px] whitespace-nowrap font-medium text-gray-700">...</span>
+                {% endif %}
+            {% endfor %}
+            {% if opportunity_links.has_next %}
+            <a href="{{ url_for('opportunity_links_full_table', query=query, sort=sort, direction=direction, page=opportunity_links.next_num) }}"
+               class="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-[19px] whitespace-nowrap font-medium text-gray-700 hover:bg-gray-50">Next</a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Bookmark functionality
+        async function toggleBookmark(itemType, itemId) {
+            try {
+                const response = await fetch(`/bookmark/${itemType}/${itemId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    const bookmarkBtn = document.querySelector(`.bookmark-btn[data-type="${itemType}"][data-id="${itemId}"]`);
+                    if (bookmarkBtn) {
+                        if (data.bookmarked) {
+                            bookmarkBtn.querySelector('i').classList.remove('far');
+                            bookmarkBtn.querySelector('i').classList.add('fas');
+                            bookmarkBtn.title = 'Remove bookmark';
+                            showNotification('Bookmarked successfully!', 'success');
+                        } else {
+                            bookmarkBtn.querySelector('i').classList.remove('fas');
+                            bookmarkBtn.querySelector('i').classList.add('far');
+                            bookmarkBtn.title = 'Bookmark this opportunity link';
+                            showNotification('Bookmark removed', 'info');
+                        }
+                    }
+                } else {
+                    showNotification(data.message || 'Error bookmarking item', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error bookmarking item', 'error');
+            }
+        }
+
+        function setupBookmarkButtons() {
+            document.querySelectorAll('.bookmark-btn').forEach(btn => {
+                if (!btn.hasAttribute('data-listener-added')) {
+                    btn.setAttribute('data-listener-added', 'true');
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const itemType = btn.dataset.type;
+                        const itemId = btn.dataset.id;
+                        toggleBookmark(itemType, itemId);
+                    });
+                }
+            });
+        }
+
+        async function checkBookmarkStatus() {
+            document.querySelectorAll('.bookmark-btn').forEach(btn => {
+                const itemType = btn.dataset.type;
+                const itemId = btn.dataset.id;
+                fetch(`/bookmark/status/${itemType}/${itemId}`).then(response => response.json()).then(data => {
+                    if (data.bookmarked) {
+                        btn.querySelector('i').classList.remove('far');
+                        btn.querySelector('i').classList.add('fas');
+                        btn.title = 'Remove bookmark';
+                    }
+                }).catch(error => console.error('Error checking bookmark status:', error));
+            });
+        }
+
+        setTimeout(() => {
+            setupBookmarkButtons();
+            checkBookmarkStatus();
+        }, 100);
+
+        function showNotification(message, type) {
+            const existingNotification = document.querySelector('.bookmark-notification');
+            if (existingNotification) existingNotification.remove();
+            const notification = document.createElement('div');
+            notification.className = `bookmark-notification fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-transform transform translate-x-full ${type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'} text-white`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+                notification.classList.add('translate-x-0');
+            }, 10);
+            setTimeout(() => {
+                notification.classList.remove('translate-x-0');
+                notification.classList.add('translate-x-full');
+                setTimeout(() => document.body.removeChild(notification), 300);
+            }, 3000);
+        }
+    });
+    </script>
+
+    <style>
+    .bookmark-btn { transition: all 0.2s ease; z-index: 10; }
+    .bookmark-btn:hover { transform: scale(1.1); }
+    .bookmark-btn.bookmarked { background: #059669; border-color: #059669; color: #ffffff; }
+    .bookmark-btn.bookmarked:hover { background: #047857; border-color: #047857; color: #ffffff; }
+    .bookmark-notification { z-index: 10000; }
+    </style>
+</div>
+{% endblock %}
