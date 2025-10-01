@@ -1,6 +1,5 @@
 <!-- # templates\welcome.html -->
 
-
 {% extends "frontBase.html" %}
 {% block title %}Research Collaboration Platform | Home{% endblock %}
 {% block nav_bar_width %}
@@ -27,7 +26,8 @@ lg:w-[60%] md:w-[90%] w-full
                             ('Industry', 'Industry'),
                             ('Research-Facilities', 'Research Facilities'),
                             ('Publication', 'Publication'),
-                            ('technologies', 'Technologies')
+                            ('technologies', 'Technologies'),
+                            ('Opportunities', 'Opportunities')
                         ] %}
 
                         {% for tab_id, tab_label in tabs %}
@@ -102,7 +102,6 @@ lg:w-[60%] md:w-[90%] w-full
                                                 </span>
                                         </a>
                                     {% endif %}
-
 
 
 
@@ -869,9 +868,244 @@ lg:w-[60%] md:w-[90%] w-full
                 {% endif %}
                 </div>
 
+
+                <!-- Opportunities Results Tab -->
+                <div id="tab-content-Opportunities" data-tab-content="Opportunities" class="tab-content w-full flex flex-col gap-4 mt-4 hidden">
+                    <!-- View Full Table buttons at top -->
+                    {% if query %}
+                    <div class="flex justify-end w-full mb-2 gap-4">
+                        {% if opportunities|length > 0 %}
+                        <a href="{{ url_for('opportunities_full_table', query=query) }}"
+                        class="w-max flex-none h-full px-4 py-1.5 rounded-[10px] font-bold bg-[#66C0DC] text-[#ffffff] text-[15px] border-[2px] border-[#66C0DC] hover:bg-[#ffffff] hover:text-[#404452] transition ease-in duration-2000">
+                            View Full Opportunities Table
+                        </a>
+                        {% endif %}
+                        {% if opportunity_links|length > 0 %}
+                        <a href="{{ url_for('opportunity_links_full_table', query=query) }}"
+                        class="w-max flex-none h-full px-4 py-1.5 rounded-[10px] font-bold bg-[#66C0DC] text-[#ffffff] text-[15px] border-[2px] border-[#66C0DC] hover:bg-[#ffffff] hover:text-[#404452] transition ease-in duration-2000">
+                            View Full Opportunity Links Table
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    <div id="opportunities-list">
+                        <!-- Display Opportunities -->
+                        {% for opp in opportunities[:5] %}
+                        <div class="mb-6 w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg relative">
+                            <!-- Bookmark Button -->
+                            {% if current_user.is_authenticated %}
+                            <button class="bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full z-10 bg-white border-[1px] border-[#66C0DC] text-[#66C0DC] text-sm hover:bg-[#66C0DC] hover:text-white transition ease-in duration-2000"
+                                    data-type="opportunity"
+                                    data-id="{{ opp.id }}"
+                                    title="Bookmark this opportunity">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                            {% else %}
+                            <a href="{{ url_for('auth.login') }}"
+                            class="bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full z-10 bg-white border-[1px] border-[#66C0DC] text-[#66C0DC] text-sm"
+                            title="Login to bookmark this opportunity">
+                                <i class="far fa-bookmark"></i>
+                                <span class="absolute -top-1 -right-1 text-[13px] text-[red]">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                            </a>
+                            {% endif %}
+                            <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                                <!-- Opportunity Icon Container -->
+                                <div class="relative h-28 w-28 flex-none rounded-full border-4 border-[#66C0DC]/20 shadow-md hover:border-[#66C0DC]/50 transition-all duration-500 group">
+                                    <a href="{{ url_for('opportunity_profile', opportunity_id=opp.id) if current_user.is_authenticated else url_for('auth.login') }}"
+                                    class="absolute inset-0 rounded-full overflow-hidden">
+                                        <img src="{{ url_for('static', filename='images/profile.png') }}"
+                                            class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                            alt="{{ opp.title }} Icon">
+                                        <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                                    </a>
+                                </div>
+                                <!-- Opportunity Details Container -->
+                                <div class="w-full space-y-3">
+                                    <div class="space-y-1">
+                                        <button class="details-btn text-[#404452] text-xl font-bold transition-colors duration-300 inline-block"
+                                                data-type="opportunity"
+                                                data-id="{{ opp.id }}"
+                                                title="{{ 'View details' if current_user.is_authenticated else 'Login to view details' }}"
+                                                {% if not current_user.is_authenticated %}onclick="window.location.href='{{ url_for('auth.login') }}'"{% endif %}>
+                                            <span class="bg-gradient-to-r from-[#66C0DC] to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                                <i class="fas fa-briefcase mr-2 text-black"></i>{{ opp.title or 'N/A' }}
+                                            </span>
+                                        </button>
+                                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                            <span class="text-gray-600 flex items-center">
+                                                <i class="fas fa-map-marker-alt mr-2 text-[#66C0DC]"></i>
+                                                {{ opp.location or 'Location not specified' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="w-full flex lg:flex-row items-start gap-4">
+                                        <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-[#66C0DC] w-full">
+                                            <p class="text-sm md:text-base text-gray-700">
+                                                <i class="fas fa-info-circle mr-2 text-[#66C0DC]"></i>
+                                                <span class="font-medium">Description:</span> {{ opp.description|truncate(200) or 'Not specified' }}
+                                            </p>
+                                        </div>
+                                        <div class="flex justify-end gap-3 flex-none">
+                                            <button class="details-btn px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-[#1E293B] hover:text-[#66C0DC] hover:border-[#1E293B] transition-all duration-300 group"
+                                                    data-type="opportunity"
+                                                    data-id="{{ opp.id }}"
+                                                    title="{{ 'View details' if current_user.is_authenticated else 'Login to view details' }}"
+                                                    {% if not current_user.is_authenticated %}onclick="window.location.href='{{ url_for('auth.login') }}'"{% endif %}>
+                                                <i class="fas fa-eye mr-2"></i>
+                                                <span class="hidden sm:inline">Details</span>
+                                            </button>
+                                            {% if opp.advertisement_link %}
+                                            <a href="{{ opp.advertisement_link if current_user.is_authenticated else url_for('auth.login') }}"
+                                            class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-[#1E293B] hover:text-[#66C0DC] hover:border-[#1E293B] transition-all duration-300 group"
+                                            title="{{ 'View link' if current_user.is_authenticated else 'Login to view link' }}"
+                                            {{ 'target="_blank" rel="noopener noreferrer"' if current_user.is_authenticated and opp.advertisement_link else '' }}>
+                                                <i class="fas fa-link mr-2"></i>
+                                                <span class="hidden sm:inline">Link</span>
+                                            </a>
+                                            {% else %}
+                                            <span class="px-4 py-2 rounded-md flex items-center bg-gray-200 text-sm font-medium text-gray-500 border border-gray-300 cursor-not-allowed"
+                                                title="No link available">
+                                                <i class="fas fa-link mr-2"></i>
+                                                <span class="hidden sm:inline">Link</span>
+                                            </span>
+                                            {% endif %}
+                                            <!-- In welcome.html, within the opportunity card loop -->
+                                            <a href="#" class="apply-btn px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-[#1E293B] hover:text-[#66C0DC] hover:border-[#1E293B] transition-all duration-300 group"
+                                            data-item-type="opportunity"
+                                            data-item-id="{{ opp.id }}"
+                                            data-is-authenticated="{{ current_user.is_authenticated | lower }}"
+                                            title="{{ 'Apply' if current_user.is_authenticated else 'Login to apply' }}">
+                                            <i class="fas fa-check mr-2"></i>
+                                            <span class="hidden sm:inline">Apply</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <!-- Display Opportunity Links -->
+                        {% for link in opportunity_links[:5] %}
+                        <div class="mb-6 w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg relative">
+                            <!-- Bookmark Button -->
+                            {% if current_user.is_authenticated %}
+                            <button class="bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full z-10 bg-white border-[1px] border-[#66C0DC] text-[#66C0DC] text-sm hover:bg-[#66C0DC] hover:text-white transition ease-in duration-2000"
+                                    data-type="opportunity_link"
+                                    data-id="{{ link.id }}"
+                                    title="Bookmark this opportunity link">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                            {% else %}
+                            <a href="{{ url_for('auth.login') }}"
+                            class="bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full z-10 bg-white border-[1px] border-[#66C0DC] text-[#66C0DC] text-sm"
+                            title="Login to bookmark this opportunity link">
+                                <i class="far fa-bookmark"></i>
+                                <span class="absolute -top-1 -right-1 text-[13px] text-[red]">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                            </a>
+                            {% endif %}
+                            <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                                <!-- Opportunity Link Icon Container -->
+                                <div class="relative h-28 w-28 flex-none rounded-full border-4 border-[#66C0DC]/20 shadow-md hover:border-[#66C0DC]/50 transition-all duration-500 group">
+                                    <a href="{{ link.url if current_user.is_authenticated else url_for('auth.login') }}"
+                                    class="absolute inset-0 rounded-full overflow-hidden"
+                                    {{ 'target="_blank" rel="noopener noreferrer"' if current_user.is_authenticated and link.url else '' }}>
+                                        <img src="{{ url_for('static', filename='images/profile.png') }}"
+                                            class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                            alt="{{ link.title }} Icon">
+                                        <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                                    </a>
+                                </div>
+                                <!-- Opportunity Link Details Container -->
+                                <div class="w-full space-y-3">
+                                    <div class="space-y-1">
+                                        <button class="details-btn text-[#404452] text-xl font-bold transition-colors duration-300 inline-block"
+                                                data-type="opportunity_link"
+                                                data-id="{{ link.id }}"
+                                                title="{{ 'View details' if current_user.is_authenticated else 'Login to view details' }}"
+                                                {% if not current_user.is_authenticated %}onclick="window.location.href='{{ url_for('auth.login') }}'"{% endif %}>
+                                            <span class="bg-gradient-to-r from-[#66C0DC] to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                                <i class="fas fa-link mr-2 text-black"></i>{{ link.title or 'N/A' }}
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="w-full flex lg:flex-row items-start gap-4">
+                                        <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-[#66C0DC] w-full">
+                                            <p class="text-sm md:text-base text-gray-700">
+                                                <i class="fas fa-info-circle mr-2 text-[#66C0DC]"></i>
+                                                <span class="font-medium">Description:</span> {{ link.description|truncate(200) or 'Not specified' }}
+                                            </p>
+                                        </div>
+                                        <div class="flex justify-end gap-3 flex-none">
+                                            <button class="details-btn px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-[#1E293B] hover:text-[#66C0DC] hover:border-[#1E293B] transition-all duration-300 group"
+                                                    data-type="opportunity_link"
+                                                    data-id="{{ link.id }}"
+                                                    title="{{ 'View details' if current_user.is_authenticated else 'Login to view details' }}"
+                                                    {% if not current_user.is_authenticated %}onclick="window.location.href='{{ url_for('auth.login') }}'"{% endif %}>
+                                                <i class="fas fa-eye mr-2"></i>
+                                                <span class="hidden sm:inline">Details</span>
+                                            </button>
+                                            {% if link.url %}
+                                            <a href="{{ link.url if current_user.is_authenticated else url_for('auth.login') }}"
+                                            class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-[#1E293B] hover:text-[#66C0DC] hover:border-[#1E293B] transition-all duration-300 group"
+                                            title="{{ 'View link' if current_user.is_authenticated else 'Login to view link' }}"
+                                            {{ 'target="_blank" rel="noopener noreferrer"' if current_user.is_authenticated and link.url else '' }}>
+                                                <i class="fas fa-link mr-2"></i>
+                                                <span class="hidden sm:inline">Apply on Link</span>
+                                            </a>
+                                            {% else %}
+                                            <span class="px-4 py-2 rounded-md flex items-center bg-gray-200 text-sm font-medium text-gray-500 border border-gray-300 cursor-not-allowed"
+                                                title="No link available">
+                                                <i class="fas fa-link mr-2"></i>
+                                                <span class="hidden sm:inline">Apply on Link</span>
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% if opportunities|length == 0 and opportunity_links|length == 0 %}
+                        <div class="flex justify-center pt-2">
+                            <p class="text-center text-black font-semibold">No opportunities or opportunity links found for your search.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <!-- Show More Button -->
+                    {% if opportunities|length > 5 or opportunity_links|length > 5 %}
+                    <button id="load-more-opportunities" class="mt-4 text-blue-600 hover:underline font-semibold"
+                            data-offset="5"
+                            data-query="{{ query }}"
+                            data-opportunities-total="{{ opportunities|length }}"
+                            data-opportunity-links-total="{{ opportunity_links|length }}">
+                        Show More Results
+                    </button>
+                    {% endif %}
+                </div>
+           
             </form>
+
+            <!-- Modal for Opportunity/OpportunityLink Details -->
+            <div id="details-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
+                <div class="bg-white rounded-xl max-w-3xl w-full max-h-[85vh] overflow-y-auto p-8 relative shadow-2xl">
+                    <button id="close-modal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                    <div id="modal-content" class="opportunity-container"></div>
+                </div>
+            </div>
+
+
+
+
+
         </div>
     </div>
+
 </div>
 
 <script>
@@ -915,11 +1149,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Get active tab from server-side data
-    const tabData = document.getElementById('tab-data');
-    const activeTab = tabData?.dataset?.activeTab;
+    const activeTab = "{{ active_tab }}";  // Use inline Jinja2 variable directly
 
     // Switch to active tab with delay to ensure DOM is ready
-    if (activeTab) {
+    if (activeTab && activeTab !== 'None') {
         setTimeout(() => {
             switchTab(activeTab);
         }, 100);
@@ -935,7 +1168,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // If no search query, ensure PI-profile (Scientist) tab is active
     const query = "{{ query }}";
-    if (!query && !activeTab) {
+    if (!query && (!activeTab || activeTab === 'None')) {
         setTimeout(() => {
             switchTab('PI-profile');
         }, 100);
@@ -1694,30 +1927,652 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+
+
+// Modal and Details functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('details-modal');
+    const modalContent = document.getElementById('modal-content');
+    const closeModalBtn = document.getElementById('close-modal');
+
+    async function openDetailsModal(itemType, itemId) {
+        try {
+            const response = await fetch(`/details/${itemType}/${itemId}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            if (data.success) {
+                let html = '';
+                if (itemType === 'opportunity') {
+                    html = `
+                        <div class="opportunity-card">
+                            <div class="opportunity-header">
+                                <h1>${data.data.title || 'N/A'}</h1>
+                            </div>
+                            <div class="opportunity-body">
+                                <h5>Opportunity Details</h5>
+                                <p><strong>Type:</strong> ${data.data.type || 'N/A'}</p>
+                                <p><strong>Domain:</strong> ${data.data.domain || 'N/A'}</p>
+                                <p><strong>Description:</strong> ${data.data.description || 'N/A'}</p>
+                                <p><strong>Location:</strong> ${data.data.location || 'N/A'}</p>
+                                <p><strong>Deadline:</strong> ${data.data.deadline || 'N/A'}</p>
+                                <p><strong>Duration:</strong> ${data.data.duration || 'N/A'}</p>
+                                <p><strong>Compensation:</strong> ${data.data.compensation || 'N/A'}</p>
+                                <p><strong>Eligibility:</strong> ${data.data.eligibility || 'N/A'}</p>
+                                <p><strong>Keywords:</strong> ${data.data.keywords || 'N/A'}</p>
+                                <p><strong>Advertisement Link:</strong> ${
+                                    data.data.advertisement_link
+                                        ? `<a href="${data.data.advertisement_link}" target="_blank" class="text-blue-600 hover:underline">${data.data.advertisement_link}</a>`
+                                        : 'N/A'
+                                }</p>
+                                <p><strong>Status:</strong> ${data.data.status || 'N/A'}</p>
+                                <p><strong>Created At:</strong> ${data.data.created_at || 'N/A'}</p>
+                                <div class="action-buttons">
+                                    <a href="/apply_opportunity/${data.data.id}" class="action-btn apply-btn">
+                                        <i class="fas fa-paper-plane"></i> Apply for Opportunity
+                                    </a>
+                                    <button class="action-btn bookmark-btn" 
+                                            data-type="opportunity" 
+                                            data-id="${data.data.id}">
+                                        <i class="far fa-bookmark"></i> Bookmark
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else if (itemType === 'opportunity_link') {
+                    html = `
+                        <div class="opportunity-card">
+                            <div class="opportunity-header">
+                                <h1>${data.data.title || 'N/A'}</h1>
+                            </div>
+                            <div class="opportunity-body">
+                                <h5>Opportunity Link Details</h5>
+                                <p><strong>Title:</strong> ${data.data.title || 'N/A'}</p>
+                                <p><strong>URL:</strong> ${
+                                    data.data.url
+                                        ? `<a href="${data.data.url}" target="_blank" class="text-blue-600 hover:underline">${data.data.url}</a>`
+                                        : 'N/A'
+                                }</p>
+                                <p><strong>Description:</strong> ${data.data.description || 'N/A'}</p>
+                                <p><strong>Active:</strong> ${data.data.is_active ? 'Yes' : 'No'}</p>
+                                <div class="action-buttons">
+                                    <a href="${data.data.url || '/apply_opportunity_link/' + data.data.id}" class="action-btn apply-btn">
+                                        <i class="fas fa-paper-plane"></i> Apply on Link
+                                    </a>
+                                    <button class="action-btn bookmark-btn" 
+                                            data-type="opportunity_link" 
+                                            data-id="${data.data.id}">
+                                        <i class="far fa-bookmark"></i> Bookmark
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                modalContent.innerHTML = html;
+                modal.classList.remove('hidden');
+                setupBookmarkButtons(); // Reinitialize bookmark buttons in modal
+                checkBookmarkStatus(); // Check bookmark status for modal buttons
+            } else {
+                showNotification(data.message || 'Error loading details', 'error');
+            }
+        } catch (error) {
+            console.error('Error loading details:', error);
+            showNotification('Error loading details', 'error');
+        }
+    }
+
+    function initializeDetailsButtons() {
+        document.querySelectorAll('.details-btn').forEach(btn => {
+            if (!btn.hasAttribute('data-listener-added')) {
+                btn.setAttribute('data-listener-added', 'true');
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (btn.hasAttribute('onclick')) return; // Skip if unauthenticated (redirects to login)
+                    const itemType = btn.dataset.type;
+                    const itemId = btn.dataset.id;
+                    openDetailsModal(itemType, itemId);
+                });
+            }
+        });
+    }
+
+    initializeDetailsButtons();
+
+    closeModalBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        modalContent.innerHTML = '';
+    });
+
+    // Close modal when clicking outside
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.add('hidden');
+            modalContent.innerHTML = '';
+        }
+    });
+});
+    
+
+// New "Load More" functionality for Opportunities and Opportunity Links
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('load-more-opportunities');
+    if (!btn) return;
+
+    const container = document.querySelector('#opportunities-list');
+    if (!container) return;
+
+    // Create or select an element to show count info
+    let infoText = document.getElementById('opportunities-results-info');
+    if (!infoText) {
+        infoText = document.createElement('div');
+        infoText.id = 'opportunities-results-info';
+        infoText.className = 'text-sm text-gray-700 mb-2';
+        container.parentNode.insertBefore(infoText, container);
+    }
+
+    let shownCount = container.querySelectorAll('.w-full.bg-white').length;
+    const totalOpportunities = parseInt(btn.dataset.opportunitiesTotal) || 0;
+    const totalOpportunityLinks = parseInt(btn.dataset.opportunityLinksTotal) || 0;
+    const total = totalOpportunities + totalOpportunityLinks;
+    infoText.innerText = `Showing ${shownCount} of ${total} results`;
+
+    btn.addEventListener('click', async () => {
+        const offset = parseInt(btn.dataset.offset);
+        const query = btn.dataset.query;
+
+        btn.disabled = true;
+        btn.innerText = 'Loading...';
+
+        try {
+            // Fetch Opportunities if not all are shown
+            let opportunities = [];
+            let opportunityLinks = [];
+            let newOffset = offset;
+
+            if (shownCount < totalOpportunities) {
+                const res = await fetch(`/load_more_opportunities?offset=${offset}&query=${encodeURIComponent(query)}`);
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                const data = await res.json();
+                opportunities = data.opportunities || [];
+                newOffset = offset + opportunities.length;
+            }
+
+            // Fetch Opportunity Links if all Opportunities are shown
+            if (shownCount >= totalOpportunities && shownCount < total) {
+                const linkOffset = Math.max(0, offset - totalOpportunities);
+                const res = await fetch(`/load_more_opportunity_links?offset=${linkOffset}&query=${encodeURIComponent(query)}`);
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                const data = await res.json();
+                opportunityLinks = data.opportunity_links || [];
+                newOffset = offset + opportunityLinks.length;
+            }
+
+            // Render Opportunities
+            opportunities.forEach(opp => {
+                const card = document.createElement('div');
+                card.className = 'mb-6 w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg relative';
+                card.innerHTML = `
+                    <!-- Bookmark Button -->
+                    ${current_user.is_authenticated ?
+                        `<button class="bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full z-10 bg-white border-[1px] border-[#66C0DC] text-[#66C0DC] text-sm hover:bg-[#66C0DC] hover:text-white transition ease-in duration-2000"
+                                data-type="opportunity"
+                                data-id="${opp.id}"
+                                title="Bookmark this opportunity">
+                            <i class="far fa-bookmark"></i>
+                        </button>` :
+                        `<a href="/auth/login"
+                           class="bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full z-10 bg-white border-[1px] border-[#66C0DC] text-[#66C0DC] text-sm"
+                           title="Login to bookmark this opportunity">
+                            <i class="far fa-bookmark"></i>
+                            <span class="absolute -top-1 -right-1 text-[13px] text-[red]">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                        </a>`
+                    }
+                    <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                        <div class="relative h-28 w-28 flex-none rounded-full border-4 border-[#66C0DC]/20 shadow-md hover:border-[#66C0DC]/50 transition-all duration-500 group">
+                            <a href="${current_user.is_authenticated ? `/opportunity/${opp.id}` : '/auth/login'}" class="absolute inset-0 rounded-full overflow-hidden">
+                                <img src="/static/images/profile.png"
+                                     class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                     alt="${opp.title} Icon">
+                                <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                            </a>
+                        </div>
+                        <div class="w-full space-y-3">
+                            <div class="space-y-1">
+                                <button class="details-btn text-[#404452] text-xl font-bold transition-colors duration-300 inline-block"
+                                        data-type="opportunity"
+                                        data-id="${opp.id}"
+                                        title="${current_user.is_authenticated ? 'View details' : 'Login to view details'}"
+                                        ${current_user.is_authenticated ? '' : 'onclick="window.location.href=\'/auth/login\'"'}>
+                                    <span class="bg-gradient-to-r from-[#66C0DC] to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                        <i class="fas fa-briefcase mr-2 text-black"></i>${opp.title || 'N/A'}
+                                    </span>
+                                </button>
+                                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base">
+                                    <span class="text-gray-600 flex items-center">
+                                        <i class="fas fa-map-marker-alt mr-2 text-[#66C0DC]"></i>
+                                        ${opp.location || 'Location not specified'}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="w-full flex lg:flex-row items-start gap-4">
+                                <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-[#66C0DC] w-full">
+                                    <p class="text-sm md:text-base text-gray-700">
+                                        <i class="fas fa-info-circle mr-2 text-[#66C0DC]"></i>
+                                        <span class="font-medium">Description:</span> ${opp.description || 'Not specified'}
+                                    </p>
+                                </div>
+                                <div class="flex justify-end gap-3 flex-none">
+                                    <button class="details-btn px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-[#1E293B] hover:text-[#66C0DC] hover:border-[#1E293B] transition-all duration-300 group"
+                                            data-type="opportunity"
+                                            data-id="${opp.id}"
+                                            title="${current_user.is_authenticated ? 'View details' : 'Login to view details'}"
+                                            ${current_user.is_authenticated ? '' : 'onclick="window.location.href=\'/auth/login\'"'}>
+                                        <i class="fas fa-eye mr-2"></i>
+                                        <span class="hidden sm:inline">Details</span>
+                                    </button>
+                                    ${opp.advertisement_link ?
+                                        `<a href="${current_user.is_authenticated ? opp.advertisement_link : '/auth/login'}"
+                                           class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-[#1E293B] hover:text-[#66C0DC] hover:border-[#1E293B] transition-all duration-300 group"
+                                           title="${current_user.is_authenticated ? 'View link' : 'Login to view link'}"
+                                           ${current_user.is_authenticated ? 'target="_blank" rel="noopener noreferrer"' : ''}>
+                                            <i class="fas fa-link mr-2"></i>
+                                            <span class="hidden sm:inline">Link</span>
+                                        </a>` :
+                                        `<span class="px-4 py-2 rounded-md flex items-center bg-gray-200 text-sm font-medium text-gray-500 border border-gray-300 cursor-not-allowed"
+                                               title="No link available">
+                                            <i class="fas fa-link mr-2"></i>
+                                            <span class="hidden sm:inline">Link</span>
+                                        </span>`
+                                    }
+                                    <a href="${current_user.is_authenticated ? `/apply_opportunity/${opp.id}` : '/auth/login'}"
+                                       class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-[#1E293B] hover:text-[#66C0DC] hover:border-[#1E293B] transition-all duration-300 group"
+                                       title="${current_user.is_authenticated ? 'Apply' : 'Login to apply'}">
+                                        <i class="fas fa-check mr-2"></i>
+                                        <span class="hidden sm:inline">Apply</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.insertBefore(card, btn);
+            });
+
+            // Render Opportunity Links
+            opportunityLinks.forEach(link => {
+                const card = document.createElement('div');
+                card.className = 'mb-6 w-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg relative';
+                card.innerHTML = `
+                    <!-- Bookmark Button -->
+                    ${current_user.is_authenticated ?
+                        `<button class="bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full z-10 bg-white border-[1px] border-[#66C0DC] text-[#66C0DC] text-sm hover:bg-[#66C0DC] hover:text-white transition ease-in duration-2000"
+                                data-type="opportunity_link"
+                                data-id="${link.id}"
+                                title="Bookmark this opportunity link">
+                            <i class="far fa-bookmark"></i>
+                        </button>` :
+                        `<a href="/auth/login"
+                           class="bookmark-btn absolute top-3 right-3 h-8 w-8 flex justify-center items-center shadow-sm shadow-black/40 rounded-full z-10 bg-white border-[1px] border-[#66C0DC] text-[#66C0DC] text-sm"
+                           title="Login to bookmark this opportunity link">
+                            <i class="far fa-bookmark"></i>
+                            <span class="absolute -top-1 -right-1 text-[13px] text-[red]">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                        </a>`
+                    }
+                    <div class="w-full flex lg:flex-row md:flex-row flex-col gap-6 p-6">
+                        <div class="relative h-28 w-28 flex-none rounded-full border-4 border-[#66C0DC]/20 shadow-md hover:border-[#66C0DC]/50 transition-all duration-500 group">
+                            <a href="${current_user.is_authenticated ? link.url : '/auth/login'}"
+                               class="absolute inset-0 rounded-full overflow-hidden"
+                               ${current_user.is_authenticated && link.url ? 'target="_blank" rel="noopener noreferrer"' : ''}>
+                                <img src="/static/images/profile.png"
+                                     class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500"
+                                     alt="${link.title} Icon">
+                                <div class="absolute inset-0 bg-black/10 rounded-full group-hover:bg-transparent transition-all duration-300"></div>
+                            </a>
+                        </div>
+                        <div class="w-full space-y-3">
+                            <div class="space-y-1">
+                                <button class="details-btn text-[#404452] text-xl font-bold transition-colors duration-300 inline-block"
+                                        data-type="opportunity_link"
+                                        data-id="${link.id}"
+                                        title="${current_user.is_authenticated ? 'View details' : 'Login to view details'}"
+                                        ${current_user.is_authenticated ? '' : 'onclick="window.location.href=\'/auth/login\'"'}>
+                                    <span class="bg-gradient-to-r from-[#66C0DC] to-transparent px-2 py-1 rounded-md hover:underline decoration-2 underline-offset-4">
+                                        <i class="fas fa-link mr-2 text-black"></i>${link.title || 'N/A'}
+                                    </span>
+                                </button>
+                            </div>
+                            <div class="w-full flex lg:flex-row items-start gap-4">
+                                <div class="py-2 px-3 bg-gray-50 rounded-md border-l-4 border-[#66C0DC] w-full">
+                                    <p class="text-sm md:text-base text-gray-700">
+                                        <i class="fas fa-info-circle mr-2 text-[#66C0DC]"></i>
+                                        <span class="font-medium">Description:</span> ${link.description || 'Not specified'}
+                                    </p>
+                                </div>
+                                <div class="flex justify-end gap-3 flex-none">
+                                    <button class="details-btn px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-[#1E293B] hover:text-[#66C0DC] hover:border-[#1E293B] transition-all duration-300 group"
+                                            data-type="opportunity_link"
+                                            data-id="${link.id}"
+                                            title="${current_user.is_authenticated ? 'View details' : 'Login to view details'}"
+                                            ${current_user.is_authenticated ? '' : 'onclick="window.location.href=\'/auth/login\'"'}>
+                                        <i class="fas fa-eye mr-2"></i>
+                                        <span class="hidden sm:inline">Details</span>
+                                    </button>
+                                    ${link.url ?
+                                        `<a href="${current_user.is_authenticated ? link.url : '/auth/login'}"
+                                           class="px-4 py-2 rounded-md flex items-center bg-gray-100 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-[#1E293B] hover:text-[#66C0DC] hover:border-[#1E293B] transition-all duration-300 group"
+                                           title="${current_user.is_authenticated ? 'Apply on link' : 'Login to apply'}"
+                                           ${current_user.is_authenticated ? 'target="_blank" rel="noopener noreferrer"' : ''}>
+                                            <i class="fas fa-link mr-2"></i>
+                                            <span class="hidden sm:inline">Apply on Link</span>
+                                        </a>` :
+                                        `<span class="px-4 py-2 rounded-md flex items-center bg-gray-200 text-sm font-medium text-gray-500 border border-gray-300 cursor-not-allowed"
+                                               title="No link available">
+                                            <i class="fas fa-link mr-2"></i>
+                                            <span class="hidden sm:inline">Apply on Link</span>
+                                        </span>`
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.insertBefore(card, btn);
+            });
+
+            shownCount += opportunities.length + opportunityLinks.length;
+            infoText.innerText = `Showing ${shownCount} of ${total} results`;
+
+            if (shownCount >= total) {
+                btn.style.display = 'none';
+                const noMore = document.createElement('div');
+                noMore.className = 'text-sm text-gray-500 mt-2';
+                noMore.innerText = 'No more opportunities or opportunity links to load.';
+                container.appendChild(noMore);
+            } else {
+                btn.dataset.offset = newOffset;
+                btn.disabled = false;
+                btn.innerText = 'Show More Results';
+            }
+
+            // Initialize bookmark and details functionality for newly added content
+            setTimeout(() => {
+                const event = new Event('DOMContentModified');
+                document.dispatchEvent(event);
+                initializeDetailsButtons();
+            }, 100);
+        } catch (error) {
+            console.error('Error loading more opportunities or opportunity links:', error);
+            btn.disabled = false;
+            btn.innerText = 'Try Again';
+            showNotification('Error loading more results', 'error');
+        }
+    });
+});
+
+
+// APPLY ON OPPOR. FROM HOME PAGE 
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.apply-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const isAuthenticated = this.getAttribute('data-is-authenticated') === 'true';
+            console.log('Apply button clicked, itemType:', this.dataset.itemType, 'itemId:', this.dataset.itemId);
+            if (!isAuthenticated) {
+                console.log('User not authenticated, redirecting to login');
+                window.location.href = '{{ url_for("auth.login") }}';
+                return;
+            }
+            const itemType = this.dataset.itemType;
+            const itemId = this.dataset.itemId;
+
+            // Redirect to find_opportunities with highlight parameter
+            window.location.href = `{{ url_for('find_opportunities') }}?highlight=${itemId}`;
+        });
+    });
+
+    // Submit application via AJAX (assuming /apply-unified still handles it)
+    const form = document.getElementById('applicationForm');
+    if (form) {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('Form submitted');
+            const formData = new FormData(this);
+            formData.append('item_type', document.getElementById('modalItemType').value);
+            formData.append('item_id', document.getElementById('modalOpportunityId').value);
+            const submitBtn = this.querySelector('.submit-btn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Submitting...';
+            }
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const data = await response.json();
+                console.log('Server response:', data);
+
+                if (data.success) {
+                    alert(data.message); // Replace with your notification system
+                    // Redirect to find_opportunities with item_id as highlight
+                    window.location.href = `{{ url_for('find_opportunities') }}?highlight=${data.item_id}`;
+                } else {
+                    alert(data.message); // Replace with your notification system
+                }
+            } catch (error) {
+                console.error('Error submitting application:', error);
+                alert('Error submitting application'); // Replace with your notification system
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Submit Application';
+                }
+            }
+        });
+    } else {
+        console.error('Application form not found');
+    }
+
+    // Add document field dynamically (optional, can be removed if not needed)
+    window.addDocumentField = function() {
+        const container = document.getElementById('additionalDocumentsContainer');
+        if (container) {
+            const index = container.children.length;
+            const div = document.createElement('div');
+            div.className = 'flex gap-4 items-end mb-2';
+            div.innerHTML = `
+                <input type="file" name="additional_documents[]" accept=".pdf,.doc,.docx" class="flex-1 p-2 border rounded">
+                <input type="text" name="document_names[]" placeholder="Document name" class="flex-1 p-2 border rounded">
+                <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700">
+                    <i class="ti ti-x"></i>
+                </button>
+            `;
+            container.appendChild(div);
+        } else {
+            console.error('AdditionalDocumentsContainer not found');
+        }
+    };
+
+    // Track link open
+    function trackLinkOpen(linkId, userType) {
+        fetch('/track-link-open', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ link_id: linkId, user_type: userType || current_user.user_type })
+        }).catch(error => console.error('Error tracking link open:', error));
+    }
+});
 </script>
 
+
+<style>
+.opportunity-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.opportunity-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    overflow: hidden;
+}
+.opportunity-header {
+    background: linear-gradient(135deg, #1E293B, #3B82F6);
+    color: #ffffff;
+    padding: 2rem;
+    border-radius: 12px 12px 0 0;
+    text-align: center;
+}
+.opportunity-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+}
+.opportunity-body {
+    padding: 2.5rem;
+    background: #f9fafb;
+    border-radius: 0 0 12px 12px;
+}
+.opportunity-body h5 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 1.5rem;
+}
+.opportunity-body p {
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #374151;
+}
+.opportunity-body strong {
+    color: #111827;
+    font-weight: 600;
+    display: inline-block;
+    min-width: 120px;
+}
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+    justify-content: center;
+}
+.action-btn {
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.action-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+.action-btn:hover::after {
+    left: 100%;
+}
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+.apply-btn {
+    background: #3B82F6;
+    color: #ffffff;
+    border: 2px solid #3B82F6;
+}
+.apply-btn:hover {
+    background: #2563EB;
+    border-color: #2563EB;
+}
+.opportunity-card .bookmark-btn {
+    background: #ffffff;
+    color: #0284C7;
+    border: 2px solid #0284C7;
+}
+.opportunity-card .bookmark-btn i {
+    transition: all 0.3s ease;
+}
+.opportunity-card .bookmark-btn:hover {
+    background: #E0F2FE;
+    color: #026395;
+    border-color: #026395;
+}
+.opportunity-card .bookmark-btn.bookmarked {
+    background: #059669;
+    color: #ffffff;
+    border: 2px solid #059669;
+}
+.opportunity-card .bookmark-btn.bookmarked i {
+    font-weight: 900; /* Ensure filled icon for bookmarked state */
+}
+.opportunity-card .bookmark-btn.bookmarked:hover {
+    background: #047857;
+    color: #ffffff;
+    border-color: #047857;
+}
+@media (max-width: 640px) {
+    .opportunity-container {
+        padding: 0.5rem;
+    }
+    .opportunity-header {
+        padding: 1.5rem;
+    }
+    .opportunity-body {
+        padding: 1.5rem;
+    }
+    .opportunity-header h1 {
+        font-size: 1.5rem;
+    }
+    .opportunity-body h5 {
+        font-size: 1.25rem;
+    }
+    .opportunity-body p {
+        font-size: 1rem;
+    }
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

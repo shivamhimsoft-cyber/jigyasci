@@ -328,7 +328,8 @@ class Opportunity(db.Model):
     eligibility = db.Column(db.Text)
     deadline = db.Column(db.Date)
     description = db.Column(db.Text)
-    advertisement_link = db.Column(db.String(200))
+    # advertisement_link = db.Column(db.String(200))
+    advertisement_link = db.Column(db.String(255), nullable=True)  # Correct field
     location = db.Column(db.String(100))
     duration = db.Column(db.String(50))
     compensation = db.Column(db.String(100))
@@ -344,24 +345,6 @@ class Opportunity(db.Model):
     def __repr__(self):
         return f'<Opportunity {self.title}>'    
 
-
-# Add this to your existing models
-# class OpportunityLink(db.Model):
-#     __tablename__ = 'opportunity_links'
-    
-#     id = db.Column(db.Integer, primary_key=True)
-#     title = db.Column(db.String(200), nullable=False)
-#     url = db.Column(db.String(500), nullable=False)
-#     description = db.Column(db.Text)
-#     added_by = db.Column(db.Integer, db.ForeignKey('profiles.id'), nullable=False)
-#     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-#     is_active = db.Column(db.Boolean, default=True)
-    
-#     # Relationship
-#     added_by_profile = db.relationship('Profile', foreign_keys=[added_by])
-    
-#     def __repr__(self):
-#         return f'<OpportunityLink {self.title}>'
 
 class OpportunityLink(db.Model):
     __tablename__ = 'opportunity_links'
@@ -380,23 +363,6 @@ class OpportunityLink(db.Model):
     def __repr__(self):
         return f'<OpportunityLink {self.title}>'
 
-        
-
-# class Application(db.Model):
-#     __tablename__ = 'applications'
-    
-#     id = db.Column(db.Integer, primary_key=True)
-#     opportunity_id = db.Column(db.Integer, db.ForeignKey('opportunities.id'), nullable=False)
-#     applicant_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-#     application_date = db.Column(db.DateTime, default=datetime.utcnow)
-#     status = db.Column(db.String(20), default='Pending')  # Pending, Accepted, Rejected, Shortlisted
-#     resume = db.Column(db.String(200))
-#     cover_letter = db.Column(db.Text)
-#     additional_documents = db.Column(db.String(200))
-#     notes = db.Column(db.Text)
-    
-#     def __repr__(self):
-#         return f'<Application {self.id}>'
 
 
 # models.py - Update the Application model

@@ -10,7 +10,7 @@ from io import TextIOWrapper
 from datetime import datetime
 from urllib.parse import urlparse
 
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, abort, send_file
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, abort, send_file, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from flask_mail import Mail, Message as MailMessage
@@ -18,8 +18,9 @@ from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import or_
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 
-from extensions import db, login_manager, mail  # Import extensions here
+from extensions import db, login_manager, mail
 
 
 # Register Blueprints
@@ -82,8 +83,8 @@ app.config['SECRET_KEY'] = os.environ.get("SESSION_SECRET", "dev-secret-key")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Configure database
-# app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://postgres:bbb07ak47@localhost:5432/shivamdb"   # Local Database URL
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://shivamdb2:peIpDSI8JJ6tONyYEufjqUPz6cYAafEj@dpg-d34g43ruibrs73ages70-a.oregon-postgres.render.com/shivamdb2"   # External Database URL
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://postgres:bbb07ak47@localhost:5432/shivamdb"   # Local Database URL
+# app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://shivamdb2:peIpDSI8JJ6tONyYEufjqUPz6cYAafEj@dpg-d34g43ruibrs73ages70-a.oregon-postgres.render.com/shivamdb2"   # External Database URL
 # app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://shivamdb2:peIpDSI8JJ6tONyYEufjqUPz6cYAafEj@dpg-d34g43ruibrs73ages70-a/shivamdb2"      # Internal Database URL
  
 
@@ -137,7 +138,8 @@ from models import (
     OpportunityStatus,
     Duration,
     CompensationType,
-    OpportunityEligibility
+    OpportunityEligibility,
+    Bookmark  # Add this
 )
 from forms import LoginForm, RegistrationForm, StudentProfileForm, PIProfileForm, IndustryProfileForm, VendorProfileForm, OpportunityForm, MessageForm, SearchForm
 
@@ -211,6 +213,8 @@ def view_profile(user_id):
 
 
 #=============================================================================================================== OPPORTUNITIES
+# app.py (add this section)
+
 
 @app.route('/opportunities', methods=['GET'])
 def list_opportunities():
@@ -232,7 +236,7 @@ def list_opportunities():
                           opportunities=opportunities)
 
 
-@app.route('/my-opportunities')
+@app.route('/my_opportunities', methods=['GET'])  # Ensure it's GET since you're paginating
 @login_required
 def my_opportunities():
     page = request.args.get('page', 1, type=int)
@@ -250,7 +254,6 @@ def my_opportunities():
     durations = Duration.query.filter_by(status='Active').all()
     compensation_types = CompensationType.query.filter_by(status='Active').all()
     eligibility_options = OpportunityEligibility.query.filter_by(status='Active').all()
-
     
     return render_template('opportunities/my_opportunities.html', 
                          opportunities=opportunities,
@@ -260,7 +263,6 @@ def my_opportunities():
                          durations=durations,
                          compensation_types=compensation_types,
                          eligibility_options=eligibility_options)
-
 
 
 @app.route('/add-opportunity', methods=['GET', 'POST'])
@@ -623,11 +625,11 @@ def follow_profile(profile_id):
 
 
 
-
 @app.route('/opp_view-profile/<int:profile_id>')
 @login_required
 def opp_view_profile(profile_id):
     profile = Profile.query.get_or_404(profile_id)
+    current_app.logger.info(f"User {current_user.id} (type: {current_user.user_type}) attempting to view profile {profile_id} (type: {profile.profile_type})")
 
     # All opportunities created by this profile
     opportunities = Opportunity.query.filter_by(creator_profile_id=profile.id)\
@@ -637,12 +639,12 @@ def opp_view_profile(profile_id):
     publications = Publication.query.filter_by(profile_id=profile.id).all()
 
     if profile.profile_type == 'Admin':
-        # Return JSON for modal display
+        current_app.logger.info(f"Profile {profile_id} is an admin; returning restricted response")
         return jsonify({
             'is_admin': True,
-            'message': 'This opportunity was posted by an administrator. Profile details are not available for administrative accounts.',
+            'message': 'This profile is an administrative account. Detailed profile information is restricted. Below are the opportunities posted by this administrator.',
             'opportunities': [{'id': opp.id, 'title': opp.title} for opp in opportunities]
-        })
+        }), 403
     elif profile.profile_type == 'PI':
         return render_template('visit_profile/facultyinfo.html',
                               pi=profile.pi_profile,
@@ -661,7 +663,6 @@ def opp_view_profile(profile_id):
                               profile=profile,
                               opportunities=opportunities)
     elif profile.profile_type == 'Vendor':
-        # Set order_stats to None to avoid Order model reference
         order_stats = None
         return render_template('visit_profile/vendor.html',
                               vendor=profile.vendor_profile,
@@ -670,9 +671,8 @@ def opp_view_profile(profile_id):
                               order_stats=order_stats,
                               rating=4.7)
     else:
+        current_app.logger.error(f"Invalid profile type for profile {profile_id}: {profile.profile_type}")
         abort(404)
-
-
 
 # app.py
 
@@ -686,9 +686,7 @@ ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'zip'}
 MAX_FILE_SIZE = 16 * 1024 * 1024  # 16MB
 
 def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS         
-
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route('/apply-opportunity/<int:opportunity_id>', methods=['POST'])
@@ -944,6 +942,8 @@ def index():
     facilities = []
     publications = []
     technologies = []
+    opportunities = []
+    opportunity_links = []  # Initialize opportunity_links
     active_tab = None
 
    # Set PI-profile as default active tab
@@ -1024,6 +1024,25 @@ def index():
             )
         ).all()
 
+        opportunities = Opportunity.query.filter(
+            or_(
+                Opportunity.title.ilike(f'%{query_str}%'),
+                Opportunity.advertisement_link.ilike(f'%{query_str}%'),
+                Opportunity.description.ilike(f'%{query_str}%'),
+                Opportunity.location.ilike(f'%{query_str}%')
+            )
+        ).all()
+
+        # Query Opportunity Links
+        opportunity_links = OpportunityLink.query.filter(
+            OpportunityLink.is_active == True,  # Only active links
+            or_(
+                OpportunityLink.title.ilike(f'%{query_str}%'),
+                OpportunityLink.url.ilike(f'%{query_str}%'),
+                OpportunityLink.description.ilike(f'%{query_str}%')
+            )
+        ).all()
+
         # Determine active tab (first non-empty)
         tab_counts = {
             'PI-profile': len(profiles),
@@ -1033,7 +1052,10 @@ def index():
             'Research-Facilities': len(facilities),
             'Publication': len(publications),
             'technologies': len(technologies),
+            'Opportunities': len(opportunities),
+            'Opportunities': len(opportunities) + len(opportunity_links),  # Combine counts
         }
+
 
         # If PI-profile has results, keep it as active
         if tab_counts['PI-profile'] > 0:
@@ -1056,6 +1078,8 @@ def index():
         facilities=facilities,
         publications=publications,
         technologies=technologies,
+        opportunities=opportunities,  # New
+        opportunity_links=opportunity_links,  # New
         active_tab=active_tab,
         current_limit=current_limit
     )
@@ -1221,6 +1245,232 @@ def load_more_industries():
     })
 
 
+
+@app.route('/load_more_opportunities')
+def load_more_opportunities():
+    offset = int(request.args.get('offset', 0))
+    limit = 5
+    query_str = request.args.get('query', '').strip()
+
+    base_query = Opportunity.query.filter(
+        or_(
+            Opportunity.title.ilike(f'%{query_str}%'),
+            Opportunity.advertisement_link.ilike(f'%{query_str}%'),  # Fixed from Opportunity.link
+            Opportunity.description.ilike(f'%{query_str}%'),
+            Opportunity.location.ilike(f'%{query_str}%')
+        )
+    )
+
+    total = base_query.count()  # total matching opportunities
+
+    opportunities = base_query.offset(offset).limit(limit).all()
+
+    result = []
+    for opp in opportunities:
+        result.append({
+            'id': opp.id,
+            'title': opp.title or 'N/A',
+            'advertisement_link': opp.advertisement_link or 'N/A',  # Fixed from link
+            'description': opp.description or 'N/A',
+            'location': opp.location or 'N/A',
+        })
+
+    return jsonify({
+        'opportunities': result,
+        'total': total
+    })
+
+@app.route('/opportunities/full_table')
+def opportunities_full_table():
+    query_str = request.args.get('query', '').strip()
+    type_filter = request.args.get('type', '')
+    location_filter = request.args.get('location', '')
+    status_filter = request.args.get('status', '')
+    sort = request.args.get('sort', 'created_at')
+    direction = request.args.get('direction', 'desc')
+    page = request.args.get('page', 1, type=int)
+
+    base_query = Opportunity.query.filter(
+        or_(
+            Opportunity.title.ilike(f'%{query_str}%'),
+            Opportunity.advertisement_link.ilike(f'%{query_str}%'),  # Corrected from 'link' to 'advertisement_link'
+            Opportunity.description.ilike(f'%{query_str}%'),
+            Opportunity.location.ilike(f'%{query_str}%')
+        )
+    )
+
+    if type_filter:
+        base_query = base_query.filter(Opportunity.type == type_filter)
+    if location_filter:
+        base_query = base_query.filter(Opportunity.location == location_filter)
+    if status_filter:
+        base_query = base_query.filter(Opportunity.status == status_filter)
+
+    if sort == 'title':
+        base_query = base_query.order_by(Opportunity.title.asc() if direction == 'asc' else Opportunity.title.desc())
+    elif sort == 'type':
+        base_query = base_query.order_by(Opportunity.type.asc() if direction == 'asc' else Opportunity.type.desc())
+    elif sort == 'location':
+        base_query = base_query.order_by(Opportunity.location.asc() if direction == 'asc' else Opportunity.location.desc())
+    elif sort == 'deadline':
+        base_query = base_query.order_by(Opportunity.deadline.asc() if direction == 'asc' else Opportunity.deadline.desc())
+    elif sort == 'status':
+        base_query = base_query.order_by(Opportunity.status.asc() if direction == 'asc' else Opportunity.status.desc())
+    else:
+        base_query = base_query.order_by(Opportunity.created_at.desc())
+
+    opportunities = base_query.paginate(page=page, per_page=10, error_out=False)
+    types = [opp.type for opp in Opportunity.query.distinct(Opportunity.type).all()]
+    locations = [opp.location for opp in Opportunity.query.filter(Opportunity.location.isnot(None)).distinct(Opportunity.location).all()]
+
+    return render_template('opportunities/opportunities_full_table.html',
+                          opportunities=opportunities,
+                          query=query_str,
+                          selected_type=type_filter,
+                          selected_location=location_filter,
+                          selected_status=status_filter,
+                          types=types,
+                          locations=locations,
+                          sort=sort,
+                          direction=direction)
+
+@app.route('/opportunity_links/full_table')
+def opportunity_links_full_table():
+    query_str = request.args.get('query', '').strip()
+    sort = request.args.get('sort', 'created_at')
+    direction = request.args.get('direction', 'desc')
+    page = request.args.get('page', 1, type=int)
+
+    base_query = OpportunityLink.query.filter(
+        or_(
+            OpportunityLink.title.ilike(f'%{query_str}%'),
+            OpportunityLink.url.ilike(f'%{query_str}%'),
+            OpportunityLink.description.ilike(f'%{query_str}%')
+        )
+    )
+
+    if sort == 'title':
+        base_query = base_query.order_by(OpportunityLink.title.asc() if direction == 'asc' else OpportunityLink.title.desc())
+    else:
+        base_query = base_query.order_by(OpportunityLink.created_at.desc())
+
+    opportunity_links = base_query.paginate(page=page, per_page=10, error_out=False)
+
+    return render_template('opportunities/opportunity_links_full_table.html',
+                          opportunity_links=opportunity_links,
+                          query=query_str,
+                          sort=sort,
+                          direction=direction)
+
+
+    
+@app.route('/opportunity/<int:opportunity_id>')
+def opportunity_profile(opportunity_id):
+    if not current_user.is_authenticated:
+        current_app.logger.warning(f"Unauthenticated access attempt to opportunity {opportunity_id}")
+        return redirect(url_for('auth.login'))
+    opportunity = Opportunity.query.get_or_404(opportunity_id)
+    current_app.logger.info(f"Loading opportunity profile for ID {opportunity_id}")
+    bookmarked = Bookmark.query.filter_by(
+        user_id=current_user.id,
+        bookmark_type='opportunity',
+        bookmark_item_id=opportunity_id
+    ).first() is not None
+    # Get the referrer URL (previous page) or fallback to find_opportunities
+    referrer = request.referrer or url_for('find_opportunities')
+    current_app.logger.debug(f"Referrer URL: {referrer}")
+    return render_template(
+        'visit_profile/opportunity_profile.html',
+        opportunity=opportunity,
+        bookmarked=bookmarked,
+        referrer=referrer
+    )
+
+
+# In app.py
+@app.template_filter('datetimeformat')
+def datetimeformat(value):
+    if value:
+        return value.strftime('%B %d, %Y')
+    return 'N/A'
+
+
+@app.route('/load_more_opportunity_links')
+def load_more_opportunity_links():
+    offset = int(request.args.get('offset', 0))
+    limit = 5
+    query_str = request.args.get('query', '').strip()
+
+    base_query = OpportunityLink.query.filter(
+        or_(
+            OpportunityLink.title.ilike(f'%{query_str}%'),
+            OpportunityLink.url.ilike(f'%{query_str}%'),
+            OpportunityLink.description.ilike(f'%{query_str}%')
+        )
+    )
+
+    total = base_query.count()
+
+    opportunity_links = base_query.offset(offset).limit(limit).all()
+
+    result = []
+    for opp in opportunity_links:
+        result.append({
+            'id': opp.id,
+            'title': opp.title or 'N/A',
+            'url': opp.url or 'N/A',
+            'description': opp.description or 'N/A'
+        })
+
+    return jsonify({
+        'opportunity_links': result,
+        'total': total
+    })
+
+
+
+@app.route('/details/<item_type>/<int:item_id>')
+def get_details(item_type, item_id):
+    if item_type == 'opportunity':
+        item = Opportunity.query.get(item_id)
+        if not item:
+            return jsonify({'success': False, 'message': 'Opportunity not found'}), 404
+        return jsonify({
+            'success': True,
+            'data': {
+                'id': item.id,
+                'title': item.title,
+                'type': item.type,
+                'domain': item.domain,
+                'description': item.description,
+                'location': item.location,
+                'deadline': item.deadline.strftime('%Y-%m-%d %H:%M:%S') if item.deadline else None,
+                'duration': item.duration,
+                'compensation': item.compensation,
+                'eligibility': item.eligibility,
+                'keywords': item.keywords,
+                'advertisement_link': item.advertisement_link,
+                'status': item.status,
+                'created_at': item.created_at.strftime('%Y-%m-%d %H:%M:%S') if item.created_at else None
+            }
+        })
+    elif item_type == 'opportunity_link':
+        item = OpportunityLink.query.get(item_id)
+        if not item:
+            return jsonify({'success': False, 'message': 'Opportunity link not found'}), 404
+        return jsonify({
+            'success': True,
+            'data': {
+                'id': item.id,
+                'title': item.title,
+                'url': item.url,
+                'description': item.description,
+                'is_active': item.is_active
+            }
+        })
+    return jsonify({'success': False, 'message': 'Invalid item type'}), 400
+
+    
 
 @app.route('/faculty/<int:profile_id>')
 def faculty_info(profile_id):
