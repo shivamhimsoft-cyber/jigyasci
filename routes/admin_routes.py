@@ -1,5 +1,5 @@
 # routes/admin_routes.py
-from flask import Blueprint, render_template, flash, redirect, url_for, request, current_app, jsonify, send_file
+from flask import Blueprint, render_template, flash, redirect, url_for, request, current_app, jsonify, send_file, make_response, abort
 from flask_login import login_required, current_user
 from models import User, Opportunity, Application, PIProfile, Profile, Institute, Department, OpportunityLink, ApplicationLink, StudentProfile                                                                                               
 from datetime import datetime
@@ -25,11 +25,81 @@ from models import (
 )
 
 import io
+from io import StringIO
 import csv
 import pandas as pd
 from werkzeug.utils import secure_filename
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin', static_folder='static')
+
+
+
+# ============================================================================================
+# DOWNLOAD EXPORT REPORT
+# ============================================================================================
+
+@admin_bp.route('/export-report')
+@login_required
+def export_report():
+    if current_user.user_type != 'Admin':
+        abort(403)
+    
+    # Query stats
+    total_users = User.query.count()
+    students = User.query.filter_by(user_type='Student').count()
+    pis = User.query.filter_by(user_type='PI').count()
+    industry = User.query.filter_by(user_type='Industry').count()
+    vendors = User.query.filter_by(user_type='Vendor').count()
+    opportunities = Opportunity.query.count()
+    active_opportunities = Opportunity.query.filter_by(status='Active').count()
+    applications = Application.query.count()
+    
+    # Query recent data
+    recent_users = User.query.order_by(User.created_at.desc()).limit(5).all()
+    recent_opportunities = Opportunity.query.order_by(Opportunity.created_at.desc()).limit(5).all()
+    
+    # Create CSV data with dashboard stats
+    output = StringIO()
+    writer = csv.writer(output)
+    
+    # Header
+    writer.writerow(['Admin Dashboard Report'])
+    writer.writerow(['Generated on:', datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')])
+    writer.writerow([])
+    
+    # Stats section
+    writer.writerow(['Statistics'])
+    writer.writerow(['Total Users', total_users])
+    writer.writerow(['Students', students])
+    writer.writerow(['Principal Investigators', pis])
+    writer.writerow(['Industry Users', industry])
+    writer.writerow(['Vendors', vendors])
+    writer.writerow(['Total Opportunities', opportunities])
+    writer.writerow(['Active Opportunities', active_opportunities])
+    writer.writerow(['Applications', applications])
+    writer.writerow([])
+    
+    # Recent Users (limited sample)
+    writer.writerow(['Recent Users'])
+    writer.writerow(['Email', 'Type', 'Joined'])
+    for user in recent_users:
+        writer.writerow([user.email, user.user_type, user.created_at.strftime('%Y-%m-%d')])
+    writer.writerow([])
+    
+    # Recent Opportunities (limited sample)
+    writer.writerow(['Recent Opportunities'])
+    writer.writerow(['Title', 'Type', 'Created', 'Status'])
+    for opp in recent_opportunities:
+        writer.writerow([opp.title[:50] if opp.title else 'N/A', opp.type if opp.type else 'N/A', 
+                        opp.created_at.strftime('%Y-%m-%d') if opp.created_at else 'N/A', opp.status if opp.status else 'N/A'])
+    
+    response = make_response(output.getvalue())
+    response.headers["Content-Disposition"] = "attachment; filename=admin_dashboard_report.csv"
+    response.headers["Content-type"] = "text/csv"
+    return response
+# ============================================================================================
+# ============================================================================================
+
 
 def check_admin_profile():
     """Check if admin user has a profile, create one if missing"""
