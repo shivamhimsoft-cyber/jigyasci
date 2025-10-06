@@ -242,22 +242,6 @@ class ResearchFacility(db.Model):
     def __repr__(self):
         return f'<ResearchFacility {self.equipment_name}>'
 
-# class ResearchFacility(db.Model):
-#     __tablename__ = 'research_facilities'
-    
-#     id = db.Column(db.Integer, primary_key=True)
-#     profile_id = db.Column(db.Integer, db.ForeignKey('profiles.id'), nullable=False)
-#     equipment_name = db.Column(db.String(100), nullable=False)
-#     make = db.Column(db.String(100), nullable=False)
-#     model = db.Column(db.String(100), nullable=False)
-#     working_status = db.Column(db.String(20), nullable=False)
-#     sop_file = db.Column(db.String(200), nullable=False)
-#     equipment_type = db.Column(db.String(20), nullable=False)
-
-#     profile = db.relationship('Profile', backref='research_facilities')
-
-#     def __repr__(self):
-#         return f'<ResearchFacility {self.equipment_name}>'
 
 
 class Project(db.Model):
@@ -276,23 +260,6 @@ class Project(db.Model):
     def __repr__(self):
         return f'<Project {self.title}>'
 
-# class TeamMember(db.Model):
-#     __tablename__ = 'team_members'
-    
-#     id = db.Column(db.Integer, primary_key=True)
-#     pi_profile_id = db.Column(db.Integer, db.ForeignKey('pi_profiles.id'), nullable=False)
-#     student_profile_id = db.Column(db.Integer, db.ForeignKey('student_profiles.id'))
-#     name = db.Column(db.String(100))  # For external members
-#     position = db.Column(db.String(50))
-#     status = db.Column(db.String(20))  # Current/Former
-#     start_date = db.Column(db.Date)
-#     end_date = db.Column(db.Date)
-    
-#     # Relationship
-#     student = db.relationship('StudentProfile', backref='team_memberships')
-    
-#     def __repr__(self):
-#         return f'<TeamMember {self.name or self.student.name}>'
 
 
 class TeamMember(db.Model):
@@ -459,21 +426,25 @@ class CSRFund(db.Model):
         return f'<CSRFund {self.id}>'
 
 
+
 class Institute(db.Model):
     __tablename__ = 'institutes'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
-    centers = db.Column(db.String(255))
-    lab_sector = db.Column(db.Text)
     focus_area = db.Column(db.Text)
+    departments = db.Column(db.String(255))
     key_resources = db.Column(db.Text)
-    researchers = db.Column(db.String(255))
+    key_people = db.Column(db.String(255))
+    scientist_pi = db.Column(db.String(255))
     director = db.Column(db.String(255))
     city = db.Column(db.String(255))
     state = db.Column(db.String(255))
-    link = db.Column(db.String(500))
+    pin_code = db.Column(db.String(10))
+    country = db.Column(db.String(100))
     ownership = db.Column(db.String(100))
+    institute_type = db.Column(db.String(100))
+    link = db.Column(db.String(500))
 
     
     
@@ -486,14 +457,21 @@ department_institute = db.Table('department_institute',
     db.Column('institute_id', db.Integer, db.ForeignKey('institutes.id'))
 )
 
+
+
 class Department(db.Model):
     __tablename__ = 'departments'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    
-    # Many-to-many relationship
-    institutes = db.relationship('Institute', secondary=department_institute, backref='departments')
+    name = db.Column(db.String(255), nullable=False)  # Assuming a basic name field; adjust as needed
+    # Add other fields for Department as per your schema
+
+    # Many-to-many relationship: Departments <-> Institutes
+    institutes = db.relationship(
+        'Institute',
+        secondary=department_institute,
+        backref=db.backref('associated_departments', lazy='dynamic')  # Non-conflicting backref name
+    )
 
     def __repr__(self):
         return f'<Department {self.name}>'

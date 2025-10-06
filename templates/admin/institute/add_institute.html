@@ -62,7 +62,7 @@
                 <input type="file" name="file"
                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
                        accept=".csv" required>
-                <small class="text-gray-600 mt-1 block">CSV should include columns: Name, Centers, Lab Sector, FocusArea, KeyResources, Researchers, Director, City, State, Link, Ownership</small>
+                <small class="text-gray-600 mt-1 block">CSV should include columns: Name, FocusArea, Departments, KeyResources, KeyPeople, Scientist/PI, Director, City, State, PIN_code, Country, Ownership, InstituteType, Link</small>
             </div>
             <button type="button" onclick="hideUploadForm()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors duration-200">
                 Cancel
@@ -81,66 +81,89 @@
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">Name *</label>
                     <input type="text" name="name"
-                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                           placeholder="Enter institute name" required>
+                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                        placeholder="Enter institute name" required>
                 </div>
                 <div class="form-group">
-                    <label class="block text-sm font-semibold text-black mb-2">Centers *</label>
-                    <input type="text" name="centers"
-                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                           placeholder="Enter centers (comma-separated)" required>
+                    <label class="block text-sm font-semibold text-black mb-2">Departments *</label>
+                    <select name="departments"
+                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                            required>
+                        <option value="">Select Department</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept.name }}">{{ dept.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label class="block text-sm font-semibold text-black mb-2">Lab Sector *</label>
-                    <select name="lab_sector"
+                    <label class="block text-sm font-semibold text-black mb-2">Institute Type *</label>
+                    <select name="institute_type"
                             class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black" required>
-                        <option value="">Select Sector</option>
-                        {% for sector in sectors %}
-                        <option value="{{ sector.name }}">{{ sector.name }}</option>
+                        <option value="">Select Type</option>
+                        {% for inst_type in institute_types %}
+                        <option value="{{ inst_type.name }}">{{ inst_type.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">Focus Area *</label>
                     <textarea name="focus_area"
-                              class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                              rows="2" placeholder="Enter focus areas (comma-separated)" required></textarea>
+                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                            rows="2" placeholder="Enter focus areas (comma-separated)" required></textarea>
                 </div>
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">Key Resources *</label>
                     <textarea name="key_resources"
-                              class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                              rows="2" placeholder="Enter key resources (comma-separated)" required></textarea>
+                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                            rows="2" placeholder="Enter key resources (comma-separated)" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label class="block text-sm font-semibold text-black mb-2">Researchers *</label>
-                    <input type="text" name="researchers"
-                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                           placeholder="Enter researchers (comma-separated)" required>
+                    <label class="block text-sm font-semibold text-black mb-2">Key People *</label>
+                    <input type="text" name="key_people"
+                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                        placeholder="Enter key people (comma-separated)" required>
+                </div>
+                <div class="form-group">
+                    <label class="block text-sm font-semibold text-black mb-2">Scientist/PI *</label>
+                    <input type="text" name="scientist_pi"
+                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                        placeholder="Enter scientist/PI name" required>
                 </div>
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">Director *</label>
                     <input type="text" name="director"
-                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                           placeholder="Enter director name" required>
+                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                        placeholder="Enter director name" required>
                 </div>
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">City *</label>
                     <input type="text" name="city"
-                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                           placeholder="Enter city" required>
+                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                        placeholder="Enter city" required>
                 </div>
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">State *</label>
                     <input type="text" name="state"
-                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                           placeholder="Enter state" required>
+                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                        placeholder="Enter state" required>
+                </div>
+                <div class="form-group">
+                    <label class="block text-sm font-semibold text-black mb-2">PIN Code *</label>
+                    <input type="text" name="pin_code"
+                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                        placeholder="Enter PIN code" required>
+                </div>
+                <div class="form-group">
+                    <label class="block text-sm font-semibold text-black mb-2">Country *</label>
+                    <input type="text" name="country"
+                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                        placeholder="Enter country" required>
                 </div>
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">Link *</label>
                     <input type="url" name="link"
-                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                           placeholder="Enter website link" required>
+                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                        placeholder="Enter website link" required>
                 </div>
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">Ownership *</label>
@@ -163,7 +186,7 @@
             </div>
         </form>
     </div>
-
+    
     <!-- Institutes Table -->
     <div id="institutes-table" class="w-full card bg-white border border-gray-200 rounded-lg shadow-sm">
         <div class="card-body p-6">
@@ -199,16 +222,19 @@
                             <tr>
                                 <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">S. No.</th>
                                 <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Name</th>
-                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Centers</th>
-                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Lab Sector</th>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Departments</th>
                                 <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Focus Area</th>
                                 <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Key Resources</th>
-                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Researchers</th>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Key People</th>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Scientist/PI</th>
                                 <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Director</th>
                                 <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">City</th>
                                 <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">State</th>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">PIN Code</th>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Country</th>
                                 <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Link</th>
                                 <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Ownership</th>
+                                <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Institute Type</th>
                                 <th scope="col" class="text-left px-4 py-3 text-sm font-semibold text-black">Actions</th>
                             </tr>
                         </thead>
@@ -230,12 +256,9 @@
                                     <td class="px-4 py-3">
                                         <div class="max-w-xs">
                                             <span class="text-sm text-black line-clamp-2">
-                                                {{ inst.centers or '-' }}
+                                                {{ inst.departments or '-' }}
                                             </span>
                                         </div>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap">
-                                        <span class="text-sm text-black">{{ inst.lab_sector or '-' }}</span>
                                     </td>
                                     <td class="px-4 py-3">
                                         <div class="flex flex-wrap gap-1 max-w-xs">
@@ -256,7 +279,10 @@
                                         </div>
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap">
-                                        <span class="text-sm text-black">{{ inst.researchers or '-' }}</span>
+                                        <span class="text-sm text-black">{{ inst.key_people or '-' }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-sm text-black">{{ inst.scientist_pi or '-' }}</span>
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <span class="text-sm text-black">{{ inst.director or '-' }}</span>
@@ -266,6 +292,12 @@
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <span class="text-sm text-black">{{ inst.state or '-' }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-sm text-black">{{ inst.pin_code or '-' }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-sm text-black">{{ inst.country or '-' }}</span>
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         {% if inst.link %}
@@ -278,6 +310,9 @@
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <span class="text-sm bg-gray-100 text-gray-800 px-2 py-1 rounded">{{ inst.ownership or '-' }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-sm bg-gray-100 text-gray-800 px-2 py-1 rounded">{{ inst.institute_type or '-' }}</span>
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <div class="flex items-center gap-2">
@@ -299,7 +334,7 @@
                                 {% endfor %}
                             {% else %}
                             <tr>
-                                <td colspan="13" class="px-4 py-8 text-center text-gray-500">
+                                <td colspan="16" class="px-4 py-8 text-center text-gray-500">
                                     <div class="flex flex-col items-center">
                                         <i class="ti ti-building text-4xl text-gray-300 mb-2"></i>
                                         <span class="text-sm">No institutes found</span>

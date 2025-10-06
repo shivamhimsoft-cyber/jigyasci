@@ -750,10 +750,10 @@ def admin_dashboard():
 
 # ===========================================================================================================INSTITUDE INSTITUDE INSTITUDE INSTITUDE
 
-
 REQUIRED_COLUMNS = [
-    "Name", "Centers", "Lab Sector", "FocusArea", "KeyResources", 
-    "Researchers", "Director", "City", "State", "Link", "Ownership"
+    "Name", "FocusArea", "Departments", "KeyResources", "KeyPeople", 
+    "Scientist/PI", "Director", "City", "State", "PIN_code", "Country", 
+    "Ownership", "InstituteType", "Link"
 ]
 
 @admin_bp.route('/add-institute', methods=['GET', 'POST'])
@@ -768,7 +768,8 @@ def add_institute():
     
     # Fetch dropdown options for manual addition
     ownerships = InstituteOwnership.query.filter_by(status='Active').all()
-    sectors = Sector.query.filter_by(status='Active').all()
+    institute_types = InstituteType.query.filter_by(status='Active').all()
+    departments = AdminSettingDepartment.query.filter_by(status='Active').all()
     
     # Get all institutes for admin view
     institutes_query = Institute.query
@@ -777,8 +778,8 @@ def add_institute():
         institutes_query = institutes_query.filter(
             or_(
                 Institute.name.ilike(f'%{query}%'),
-                Institute.centers.ilike(f'%{query}%'),
-                Institute.lab_sector.ilike(f'%{query}%'),
+                Institute.departments.ilike(f'%{query}%'),
+                Institute.focus_area.ilike(f'%{query}%'),
                 Institute.director.ilike(f'%{query}%')
             )
         )
@@ -797,7 +798,8 @@ def add_institute():
     return render_template('admin/institute/add_institute.html', 
                          institutes=institutes,
                          ownerships=ownerships,
-                         sectors=sectors,
+                         institute_types=institute_types,
+                         departments=departments,
                          query=query)
 
 def handle_manual_institute_addition():
@@ -807,24 +809,38 @@ def handle_manual_institute_addition():
         name = request.form.get('name', '').strip()
         
         # Validate required fields
-        required_fields = ['name', 'centers', 'lab_sector', 'focus_area', 'key_resources', 
-                           'researchers', 'director', 'city', 'state', 'link', 'ownership']
+        required_fields = ['name', 'departments', 'institute_type', 'focus_area', 'key_resources', 
+                           'key_people', 'scientist_pi', 'director', 'city', 'state', 'pin_code', 
+                           'country', 'link', 'ownership']
         for field in required_fields:
-            if not request.form.get(field, '').strip():
-                flash(f"{field.capitalize().replace('_', ' ')} is required for manual addition", "error")
-                return redirect(url_for('admin.add_institute'))
+            if field == 'departments':
+                departments_list = request.form.getlist(field)
+                if not departments_list:
+                    flash(f"{field.replace('_', ' ').title()} is required for manual addition", "error")
+                    return redirect(url_for('admin.add_institute'))
+            else:
+                if not request.form.get(field, '').strip():
+                    flash(f"{field.replace('_', ' ').title()} is required for manual addition", "error")
+                    return redirect(url_for('admin.add_institute'))
+        
+        # Process departments
+        departments_list = [d.strip() for d in request.form.getlist('departments') if d.strip()]
+        departments = ', '.join(departments_list)
         
         # Create institute
         institute = Institute(
             name=name,
-            centers=request.form.get('centers', '').strip(),
-            lab_sector=request.form.get('lab_sector', '').strip(),
+            departments=departments,
+            institute_type=request.form.get('institute_type', '').strip(),
             focus_area=request.form.get('focus_area', '').strip(),
             key_resources=request.form.get('key_resources', '').strip(),
-            researchers=request.form.get('researchers', '').strip(),
+            key_people=request.form.get('key_people', '').strip(),
+            scientist_pi=request.form.get('scientist_pi', '').strip(),
             director=request.form.get('director', '').strip(),
             city=request.form.get('city', '').strip(),
             state=request.form.get('state', '').strip(),
+            pin_code=request.form.get('pin_code', '').strip(),
+            country=request.form.get('country', '').strip(),
             link=request.form.get('link', '').strip(),
             ownership=request.form.get('ownership', '').strip()
         )
@@ -856,7 +872,8 @@ def handle_institute_csv_upload():
             return redirect(url_for('admin.add_institute'))
         
         # Read and process CSV
-        stream = io.StringIO(csv_file.stream.read().decode("UTF8"), newline=None)
+        content = csv_file.stream.read().decode("utf-8")
+        stream = io.StringIO(content, newline='')
         csv_reader = csv.DictReader(stream, delimiter=',')
         
         # Validate CSV headers
@@ -872,31 +889,41 @@ def handle_institute_csv_upload():
         for row in csv_reader:
             try:
                 # Clean and validate data
-                name = row.get('Name', '').strip()
+                name = (row.get('Name', '') or '').strip()
                 
                 if not name:
                     errors.append(f"Row {row_num}: Name is required")
                     row_num += 1
                     continue
                 
-                # No duplicate check for name as per requirement
+                # Process comma-separated fields safely
+                focus_val = row.get("FocusArea", '') or ''
+                focus_area = ', '.join([x.strip() for x in str(focus_val).split(',') if x.strip()])
                 
-                lab_sector = ', '.join([x.strip() for x in row.get("Lab Sector", "").split(',') if x.strip()])
-                focus_area = ', '.join([x.strip() for x in row.get("FocusArea", "").split(',') if x.strip()])
-                key_resources = ', '.join([x.strip() for x in row.get("KeyResources", "").split(',') if x.strip()])
+                depts_val = row.get("Departments", '') or ''
+                departments = ', '.join([x.strip() for x in str(depts_val).split(',') if x.strip()])
+                
+                resources_val = row.get("KeyResources", '') or ''
+                key_resources = ', '.join([x.strip() for x in str(resources_val).split(',') if x.strip()])
+                
+                people_val = row.get("KeyPeople", '') or ''
+                key_people = ', '.join([x.strip() for x in str(people_val).split(',') if x.strip()])
                 
                 institute = Institute(
                     name=name,
-                    centers=row.get('Centers', '').strip(),
-                    lab_sector=lab_sector,
                     focus_area=focus_area,
+                    departments=departments,
                     key_resources=key_resources,
-                    researchers=row.get('Researchers', '').strip(),
-                    director=row.get('Director', '').strip(),
-                    city=row.get('City', '').strip(),
-                    state=row.get('State', '').strip(),
-                    link=row.get('Link', '').strip(),
-                    ownership=row.get('Ownership', '').strip()
+                    key_people=key_people,
+                    scientist_pi=(row.get('Scientist/PI', '') or '').strip(),
+                    director=(row.get('Director', '') or '').strip(),
+                    city=(row.get('City', '') or '').strip(),
+                    state=(row.get('State', '') or '').strip(),
+                    pin_code=(row.get('PIN_code', '') or '').strip(),
+                    country=(row.get('Country', '') or '').strip(),
+                    link=(row.get('Link', '') or '').strip(),
+                    ownership=(row.get('Ownership', '') or '').strip(),
+                    institute_type=(row.get('InstituteType', '') or '').strip()
                 )
                 
                 db.session.add(institute)
@@ -959,10 +986,22 @@ def download_institute_template():
     headers = REQUIRED_COLUMNS
     writer.writerow(headers)
     
-    # Write sample data
+    # Write sample data with correct ordering
     sample_data = [
-        'Example Institute', 'Research Center 1, Center 2', 'Computer Science', 'AI, Machine Learning', 'High-performance computers, Datasets',
-        'John Doe, Jane Smith', 'Dr. Director', 'New York', 'NY', 'https://example.com', 'Public'
+        'Example Institute',  # Name
+        'AI, Machine Learning',  # FocusArea
+        'Computer Science, Data Science',  # Departments
+        'High-performance computers, Datasets',  # KeyResources
+        'John Doe, Jane Smith',  # KeyPeople
+        'Dr. Scientist',  # Scientist/PI
+        'Dr. Director',  # Director
+        'New York',  # City
+        'NY',  # State
+        '10001',  # PIN_code
+        'USA',  # Country
+        'Public',  # Ownership
+        'Research Institute',  # InstituteType
+        'https://example.com'  # Link
     ]
     writer.writerow(sample_data)
     
