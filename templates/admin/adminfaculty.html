@@ -1,3 +1,5 @@
+<!-- templates\admin\adminfaculty.html -->
+ 
 {% extends "base.html" %}
 {% block title %}Faculty Dashboard | Research Collaboration Platform{% endblock %}
 {% block content %}
@@ -67,7 +69,7 @@
         </div>
         <div id="manual-form" class="hidden mb-6 bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
             <h3 class="text-lg font-semibold text-black mb-6">Add Faculty Manually</h3>
-            <form method="POST" action="{{ url_for('admin.adminfaculty') }}">
+            <form method="POST" action="{{ url_for('admin.adminfaculty') }}" enctype="multipart/form-data">
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     <!-- Personal Information -->
                     <div class="form-group">
@@ -111,9 +113,9 @@
                         <select name="gender"
                                 class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black" required>
                             <option value="">Select Gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
+                            {% for gender in genders %}
+                            <option value="{{ gender.name }}">{{ gender.name }}</option>
+                            {% endfor %}
                         </select>
                     </div>
 
@@ -176,7 +178,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="block text-sm font-semibold text-black mb-2">Research Interest</label>
+                        <label class="block text-sm font-semibold text-black mb-2">Research Profile</label>
                         <textarea name="research_interest"
                                   class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
                                   rows="2" placeholder="Enter research interests"></textarea>
@@ -222,6 +224,12 @@
                                placeholder="Enter H-index" min="0">
                     </div>
 
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-black mb-2">Profile Picture</label>
+                        <input type="file" name="profile_picture" accept="image/*"
+                               class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black">
+                    </div>
+
                     <!-- Additional Information -->
                     <div class="form-group sm:col-span-2 md:col-span-3 lg:col-span-4">
                         <label class="block text-sm font-semibold text-black mb-2">Current Message</label>
@@ -244,12 +252,7 @@
                                   rows="2" placeholder="Enter reasons to join lab"></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label class="block text-sm font-semibold text-black mb-2">Profile URL</label>
-                        <input type="url" name="profile_url"
-                               class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                               placeholder="Enter profile URL">
-                    </div>
+
                 </div>
 
                 <div class="mt-6 flex flex-wrap gap-3">
@@ -317,7 +320,7 @@
                                         <td class="px-4 py-3 whitespace-nowrap">
                                             <div class="flex gap-3 items-center">
                                                 <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                                                    <img src="{{ url_for('static', filename='images/profile.png') }}" alt="Profile" class="w-full h-full object-cover">
+                                                    <img src="{% if pi.profile_picture %}{{ pi.profile_picture if pi.profile_picture.startswith('http') else url_for('static', filename='uploads/' + pi.profile_picture) }}{% else %}{{ url_for('static', filename='images/profile.png') }}{% endif %}" alt="Profile" class="w-full h-full object-cover">
                                                 </div>
                                                 <span class="text-sm font-medium text-black">{{ pi.name }}</span>
                                             </div>

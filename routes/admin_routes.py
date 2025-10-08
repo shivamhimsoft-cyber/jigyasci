@@ -222,6 +222,7 @@ def admin_opportunities():
 
     opportunity_types = OpportunityType.query.filter_by(status='Active').order_by(OpportunityType.name).all()
     opportunity_statuses = OpportunityStatus.query.filter_by(status='Active').order_by(OpportunityStatus.name).all()
+    durations = Duration.query.filter_by(status='Active').order_by(Duration.name).all()
     opportunity_links = OpportunityLink.query.order_by(OpportunityLink.created_at.desc()).all()
 
     return render_template(
@@ -230,6 +231,7 @@ def admin_opportunities():
         opportunity_links=opportunity_links,
         opportunity_types=opportunity_types,
         opportunity_statuses=opportunity_statuses,
+        durations=durations,
         title='My Opportunities'
     )
 
@@ -372,6 +374,7 @@ def process_opportunities_file(file, creator_profile_id):
 
                 opportunity_type = OpportunityType.query.filter_by(name=str(row["Type"]), status="Active").first()
                 opportunity_status = OpportunityStatus.query.filter_by(name=str(row["Status"]), status="Active").first()
+                duration = Duration.query.filter_by(name=str(row["Duration"]), status="Active").first() if pd.notna(row.get("Duration")) else None
                 if not opportunity_type:
                     errors.append(f"Row {index + 2}: Invalid OpportunityType '{row['Type']}'")
                     current_app.logger.warning(f"Row {index + 2}: Invalid OpportunityType '{row['Type']}'")
@@ -379,6 +382,10 @@ def process_opportunities_file(file, creator_profile_id):
                 if not opportunity_status:
                     errors.append(f"Row {index + 2}: Invalid OpportunityStatus '{row['Status']}'")
                     current_app.logger.warning(f"Row {index + 2}: Invalid OpportunityStatus '{row['Status']}'")
+                    continue
+                if pd.notna(row.get("Duration")) and not duration:
+                    errors.append(f"Row {index + 2}: Invalid Duration '{row['Duration']}'")
+                    current_app.logger.warning(f"Row {index + 2}: Invalid Duration '{row['Duration']}'")
                     continue
 
                 opportunity = Opportunity(
@@ -520,6 +527,10 @@ def admin_edit_opportunity(id):
         if not opportunity_status:
             return jsonify({'success': False, 'message': f"Invalid status '{required_fields['status']}'. Must be a valid opportunity status."}), 400
 
+        opportunity_duration = Duration.query.filter_by(name=form_data.get('duration', '').strip(), status='Active').first() if form_data.get('duration', '').strip() else None
+        if form_data.get('duration', '').strip() and not opportunity_duration:
+            return jsonify({'success': False, 'message': f"Invalid duration '{form_data.get('duration', '')}'. Must be a valid duration."}), 400
+
         opportunity.type = required_fields['type']
         opportunity.title = required_fields['title']
         opportunity.domain = required_fields['domain']
@@ -577,6 +588,8 @@ def admin_delete_opportunity(id):
         })
 
 
+
+        
 # =========================================================================================
 #                     ADD OPPORTUNITIES LINK ROUTES
 # =========================================================================================
@@ -1236,11 +1249,21 @@ def delete_department(id):
 
 # ========================================================================================STUDENTS
 
+# Updated routes (adminstudents route updated to fetch research_profiles)
 @admin_bp.route('/students', methods=['GET', 'POST'])
 @login_required
 def adminstudents():
     if current_user.user_type != 'Admin':
         abort(403)
+    
+    # Fetch genders for dropdown
+    genders = Gender.query.filter_by(status='Active').all()
+    
+    # Fetch current statuses for dropdown
+    current_statuses = CurrentStatus.query.filter_by(status='Active').all()
+    
+    # Fetch research profiles for dropdown
+    research_profiles = ResearchProfile.query.filter_by(status='Active').all()
     
     if request.method == 'POST':
         # Check if it's CSV upload or manual add
@@ -1273,7 +1296,10 @@ def adminstudents():
     
     return render_template('admin/adminstudents.html', 
                          students=students,
-                         query=query)
+                         query=query,
+                         genders=genders,
+                         current_statuses=current_statuses,
+                         research_profiles=research_profiles)
 
 @admin_bp.route('/add-student', methods=['POST'])
 @login_required
@@ -1284,6 +1310,8 @@ def add_student():
     
     return handle_manual_student_addition()
 
+
+# Updated handle_manual_student_addition to handle profile picture upload
 def handle_manual_student_addition():
     """Handle manual student addition"""
     try:
@@ -1291,6 +1319,7 @@ def handle_manual_student_addition():
         name = request.form.get('name', '').strip()
         affiliation = request.form.get('affiliation', '').strip()
         contact_email = request.form.get('contact_email', '').strip()
+        research_profiles = request.form.get('research_profiles', '').strip()  # Added for new field
         
         # Validate required fields
         if not name:
@@ -1345,9 +1374,23 @@ def handle_manual_student_addition():
             contact_phone=request.form.get('contact_phone', '').strip(),
             address=request.form.get('address', '').strip(),
             research_interests=request.form.get('research_interests', '').strip(),
+            research_profiles=research_profiles,  # Added assignment for new field
             why_me=request.form.get('why_me', '').strip(),
             current_status=request.form.get('current_status', '').strip(),
         )
+        
+        # Handle profile picture upload
+        if 'profile_picture' in request.files:
+            file = request.files['profile_picture']
+            if file and file.filename:
+                filename = secure_filename(file.filename)
+                if filename != '':
+                    # Ensure Uploads directory exists
+                    upload_folder = os.path.join(current_app.static_folder, 'Uploads')
+                    os.makedirs(upload_folder, exist_ok=True)
+                    file_path = os.path.join(upload_folder, filename)
+                    file.save(file_path)
+                    student_profile.profile_picture = filename
         
         # Handle date field
         dob_str = request.form.get('dob', '').strip()
@@ -1392,7 +1435,7 @@ def handle_student_csv_upload():
         stream = TextIOWrapper(csv_file.stream, encoding='utf-8')
         csv_reader = csv.DictReader(stream)
         
-        # Validate CSV headers
+        # Validate CSV headers (added research_profiles to required/expected)
         required_headers = ['name', 'affiliation', 'contact_email']
         missing_headers = [h for h in required_headers if h not in csv_reader.fieldnames]
         if missing_headers:
@@ -1408,6 +1451,7 @@ def handle_student_csv_upload():
                 name = row.get('name', '').strip()
                 affiliation = row.get('affiliation', '').strip()
                 contact_email = row.get('contact_email', '').strip().lower()
+                research_profiles = row.get('research_profiles', '').strip()  # Added for new field
                 
                 if not name:
                     errors.append(f"Row {row_num}: Name is required")
@@ -1459,6 +1503,7 @@ def handle_student_csv_upload():
                     contact_phone=row.get('contact_phone', '').strip(),
                     address=row.get('address', '').strip(),
                     research_interests=row.get('research_interests', '').strip(),
+                    research_profiles=research_profiles,  # Added assignment for new field
                     why_me=row.get('why_me', '').strip(),
                     current_status=row.get('current_status', '').strip(),
                 )
@@ -1529,7 +1574,7 @@ def delete_student(student_id):
     
     return redirect(url_for('admin.adminstudents'))
 
-# Helper route to download CSV template
+# Helper route to download CSV template (updated to include research_profiles)
 @admin_bp.route('/download-student-template')
 @login_required
 def download_student_template():
@@ -1540,18 +1585,18 @@ def download_student_template():
     output = io.StringIO()
     writer = csv.writer(output)
     
-    # Write header
+    # Write header (added research_profiles)
     headers = [
         'name', 'affiliation', 'contact_email', 'contact_phone', 
-        'dob', 'gender', 'address', 'research_interests', 
+        'dob', 'gender', 'address', 'research_interests', 'research_profiles',  # Added research_profiles
         'why_me', 'current_status'
     ]
     writer.writerow(headers)
     
-    # Write sample data
+    # Write sample data (added sample for research_profiles)
     sample_data = [
         'John Doe', 'University of Example', 'john.doe@example.com', '1234567890',
-        '1995-01-15', 'Male', '123 Example St, City', 'Machine Learning, AI',
+        '1995-01-15', 'Male', '123 Example St, City', 'Machine Learning, AI', 'Profile in AI Research Group',  # Added sample
         'Passionate about research', 'PhD Student'
     ]
     writer.writerow(sample_data)
@@ -1564,10 +1609,10 @@ def download_student_template():
         as_attachment=True,
         download_name='student_template.csv'
     )
+    
 # ==============================================================================================================FACULTY FACULTY FACULTY FACULTY
 
 import pandas as pd
-from datetime import datetime
 from werkzeug.utils import secure_filename
 
 ALLOWED_EXTENSIONS = {'csv'}
@@ -1588,7 +1633,7 @@ def clean_str(val):
 # Update the adminfaculty route to handle both CSV and manual addition
 @admin_bp.route('/faculty', methods=['GET', 'POST'])
 def adminfaculty():
-    upload_folder = os.path.join(current_app.root_path, 'Uploads')
+    upload_folder = os.path.join(current_app.static_folder, 'uploads')
 
     if not os.path.exists(upload_folder):
         os.makedirs(upload_folder)
@@ -1597,6 +1642,7 @@ def adminfaculty():
     designations = CurrentDesignation.query.filter_by(status='Active').all()
     departments = AdminSettingDepartment.query.filter_by(status='Active').all()
     research_areas = ResearchArea.query.filter_by(status='Active').all()
+    genders = Gender.query.filter_by(status='Active').all()
 
     if request.method == 'POST':
         if 'faculty_csv' in request.files:
@@ -1663,6 +1709,16 @@ def adminfaculty():
                 except:
                     return None
 
+            # Handle profile picture upload
+            profile_picture = None
+            if 'profile_picture' in request.files:
+                file = request.files['profile_picture']
+                if file.filename != '':
+                    filename = secure_filename(file.filename)
+                    filepath = os.path.join(upload_folder, filename)
+                    file.save(filepath)
+                    profile_picture = filename
+
             # Create PI profile
             pi_profile = PIProfile(
                 profile_id=profile.id,
@@ -1684,11 +1740,11 @@ def adminfaculty():
                 email=email,
                 contact_phone=request.form.get('contact_phone'),
                 address=request.form.get('address'),
+                profile_picture=profile_picture,
                 current_message=request.form.get('current_message'),
                 current_focus=request.form.get('current_focus'),
                 expectations_from_students=request.form.get('expectations_from_students'),
                 why_join_lab=request.form.get('why_join_lab'),
-                profile_url=request.form.get('profile_url'),
                 last_updated=datetime.utcnow()
             )
             db.session.add(pi_profile)
@@ -1711,7 +1767,8 @@ def adminfaculty():
                          faculty=faculty,
                          designations=designations,
                          departments=departments,
-                         research_areas=research_areas)
+                         research_areas=research_areas,
+                         genders=genders)
 
 
 
@@ -1806,7 +1863,6 @@ def process_faculty_csv(filepath):
             current_focus=clean_str(row.get('current_focus_(research_area)')),
             expectations_from_students=clean_str(row.get('expectations_from_student')),
             why_join_lab=clean_str(row.get('why_join_my_lab')),
-            profile_url=clean_str(row.get('profile_url')),
             last_updated=last_updated_dt
         )
         db.session.add(pi_profile)
@@ -1862,7 +1918,7 @@ def download_faculty_template():
         'research_experience_(number_of_years)', 'h_index', 'gender', 'dob',
         'current_designation', 'start_date', 'contact_phone', 'address',
         'profile_picture', 'current_message', 'current_focus_(research_area)',
-        'expectations_from_student', 'why_join_my_lab', 'profile_url'
+        'expectations_from_student', 'why_join_my_lab'
     ]
     writer.writerow(headers)
     
@@ -1872,7 +1928,7 @@ def download_faculty_template():
         'New York', 'PhD in Computer Science', 'Artificial Intelligence, Data Science', '50', '1000',
         '10', '20', 'Female', '1985-05-20', 'Professor', '2015-01-01', '1234567890',
         '123 Example St, City', '', 'Looking for motivated students', 'AI Research',
-        'Strong analytical skills', 'Innovative lab environment', 'http://example.com/janedoe'
+        'Strong analytical skills', 'Innovative lab environment'
     ]
     writer.writerow(sample_data)
     
@@ -1884,7 +1940,6 @@ def download_faculty_template():
         as_attachment=True,
         download_name='faculty_template.csv'
     )
-
 
 
 

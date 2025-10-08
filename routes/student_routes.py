@@ -1,11 +1,13 @@
-# routes/student_routes.py
+# routes/student_routes.py (updated to handle profile picture upload)
 
-from flask import Blueprint, render_template, abort, request, flash, redirect, url_for
+from flask import Blueprint, render_template, abort, request, flash, redirect, url_for, current_app
 from flask_login import login_required, current_user
 from datetime import datetime
-from models import StudentProfile, Profile, Education, Experience, Publication, Skill, Award, TeamMember
+from models import StudentProfile, Profile, Education, Experience, Publication, Skill, Award, TeamMember, Gender, ResearchProfile, CurrentStatus
 from extensions import db
 from sqlalchemy import or_
+import os
+from werkzeug.utils import secure_filename
 
 student_bp = Blueprint('student', __name__, url_prefix='/student')
 
@@ -20,12 +22,20 @@ def student_dashboard():
 @student_bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 def student_profile():
+    if current_user.user_type != 'Student':
+        abort(403)
+    
     profile = Profile.query.filter_by(user_id=current_user.id).first()
     if not profile:
         flash("Profile not found.", "danger")
         return redirect(url_for('student.student_dashboard'))
 
     student_profile = StudentProfile.query.filter_by(profile_id=profile.id).first()
+
+    # Fetch dropdown data
+    genders = Gender.query.filter_by(status='Active').all()
+    research_profiles = ResearchProfile.query.filter_by(status='Active').all()
+    current_statuses = CurrentStatus.query.filter_by(status='Active').all()
 
     if request.method == 'POST':
         if not student_profile:
@@ -35,20 +45,42 @@ def student_profile():
         student_profile.affiliation = request.form['affiliation']
         student_profile.contact_email = request.form['email']
         student_profile.contact_phone = request.form['contact_phone']
-        student_profile.dob = datetime.strptime(request.form['dob'], '%Y-%m-%d') if request.form['dob'] else None
+        dob_str = request.form.get('dob', '').strip()
+        if dob_str:
+            try:
+                student_profile.dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
+            except ValueError:
+                flash("Invalid date format for Date of Birth", "warning")
         student_profile.gender = request.form['gender']
         student_profile.address = request.form['address']
         student_profile.research_interests = request.form['current_focus']
-        
+        student_profile.research_profiles = request.form['research_profiles']
         student_profile.why_me = request.form['why_join_lab']
-        student_profile.current_status = request.form['current_message']
+        student_profile.current_status = request.form['current_status']
+
+        # Handle profile picture upload
+        if 'profile_picture' in request.files:
+            file = request.files['profile_picture']
+            if file and file.filename:
+                filename = secure_filename(file.filename)
+                if filename != '':
+                    # Ensure Uploads directory exists
+                    upload_folder = os.path.join(current_app.static_folder, 'Uploads')
+                    os.makedirs(upload_folder, exist_ok=True)
+                    file_path = os.path.join(upload_folder, filename)
+                    file.save(file_path)
+                    student_profile.profile_picture = filename
 
         db.session.add(student_profile)
         db.session.commit()
         flash("Student profile updated successfully.", "success")
         return redirect(url_for('student.student_profile'))
 
-    return render_template('students/student_profile.html', profile=student_profile)
+    return render_template('students/student_profile.html', 
+                          profile=student_profile,
+                          genders=genders,
+                          research_profiles=research_profiles,
+                          current_statuses=current_statuses)
 
 
 @student_bp.route('/dashboard')
@@ -106,15 +138,3 @@ def full_table():
     return render_template('students/full_table.html', 
                          students=students, 
                          query=query)
-
-
-
-
-
-
-
-
-
-
-
-

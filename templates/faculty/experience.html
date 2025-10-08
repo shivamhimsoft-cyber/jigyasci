@@ -25,8 +25,13 @@
               <input type="text" name="project_title" class="form-control py-2" required>
             </div>
             <div class="col-span-6">
-              <label class="font-semibold block mb-1">Position</label>
-              <input type="text" name="position" class="form-control py-2" required>
+              <label class="font-semibold block mb-1">Team Position</label>
+              <select name="position" class="form-control py-2" required>
+                <option value="">Select Position</option>
+                {% for pos in team_positions %}
+                <option value="{{ pos.name }}">{{ pos.name }}</option>
+                {% endfor %}
+              </select>
             </div>
             <div class="col-span-6">
               <label class="font-semibold block mb-1">PI</label>

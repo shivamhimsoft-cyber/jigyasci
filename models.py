@@ -95,6 +95,7 @@ class Profile(db.Model):
 
 
 
+# models.py (Updated PIProfile model with added 'research_profiles' column)
 class PIProfile(db.Model):
     __tablename__ = 'pi_profiles'
     
@@ -111,6 +112,7 @@ class PIProfile(db.Model):
     contact_phone = db.Column(db.String(20))
     address = db.Column(db.String(200))
     profile_picture = db.Column(db.String(200))
+    research_profiles = db.Column(db.String(100))  # Added new column for research_profiles
     current_message = db.Column(db.Text)  # changed
     current_focus = db.Column(db.Text)
     expectations_from_students = db.Column(db.Text)
@@ -135,6 +137,7 @@ class PIProfile(db.Model):
     
     def __repr__(self):
         return f'<PIProfile {self.name}>'
+        
 
 class IndustryProfile(db.Model):
     __tablename__ = 'industry_profiles'
@@ -636,6 +639,7 @@ class StudentProfile(db.Model):
     address = db.Column(db.String(200))
     profile_picture = db.Column(db.String(200))
     research_interests = db.Column(db.Text)
+    research_profiles = db.Column(db.Text)  # Added new column for research_profiles
     why_me = db.Column(db.Text)
     current_status = db.Column(db.String(50))
 

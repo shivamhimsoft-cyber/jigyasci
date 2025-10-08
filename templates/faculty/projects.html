@@ -32,11 +32,12 @@
             </div>
             
             <div class="col-span-6">
-              <label class="font-semibold block mb-1">Status</label>
-              <select name="status" class="form-control py-2">
-                <option value="Active">Active</option>
-                <option value="Completed">Completed</option>
-                <option value="Planned">Planned</option>
+              <label class="font-semibold block mb-1">Project Status *</label>
+              <select name="status" class="form-control py-2" required>
+                <option value="">Select Status</option>
+                {% for proj_status in project_statuses %}
+                <option value="{{ proj_status.name }}">{{ proj_status.name }}</option>
+                {% endfor %}
               </select>
             </div>
             
@@ -143,7 +144,7 @@
               </tr>
               {% else %}
               <tr>
-                <td colspan="7" class="p-3 text-center text-gray-500">No projects found.</td>
+                <td colspan="8" class="p-3 text-center text-gray-500">No projects found.</td>
               </tr>
               {% endfor %}
             </tbody>

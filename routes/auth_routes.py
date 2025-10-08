@@ -65,6 +65,115 @@ def login():
 
     return render_template('auth/login.html', title='Sign In', form=form)
 
+
+# ============================================================================
+                            # GOOGLE LOGIN
+# ============================================================================
+
+
+@auth_bp.route('/login-google')
+
+def login_google():
+
+    from app import google  # Lazy import to avoid circular import
+    redirect_uri = url_for('auth.google_callback', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+@auth_bp.route('/google-callback')
+def google_callback():
+
+
+    try:
+        token = google.authorize_access_token()
+        user_info = google.parse_id_token(token)
+        
+        email = user_info.get('email')
+        name = user_info.get('name')
+        
+        if not email:
+            flash('Google login failed: No email provided', 'error')
+            return redirect(url_for('auth.login'))
+        
+        # Check if user exists
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            # Determine user_type based on domain
+            domain = email.split('@')[-1].lower()
+            if any(domain.endswith(allowed.lower()) for allowed in ALLOWED_DOMAINS if allowed != 'gmail.com'):
+                user_type = 'PI'  # Academic domain
+            else:
+                user_type = 'Industry'  # Default for non-academic
+            
+            # Create user
+            user = User(
+                email=email,
+                user_type=user_type,
+                password_hash=generate_password_hash(f'google_{random_string(16)}'),  # Random dummy password
+                created_at=datetime.utcnow(),
+                last_login=datetime.utcnow(),
+                verification_status='Verified',
+                account_status='Active'
+            )
+            db.session.add(user)
+            db.session.flush()
+            
+            # Create profile
+            profile = Profile(
+                user_id=user.id,
+                profile_type=user_type,
+                profile_completeness=0,
+                visibility_settings='Public',
+                last_updated=datetime.utcnow()
+            )
+            db.session.add(profile)
+            db.session.flush()
+            
+            # Create register entry
+            register_entry = Register(
+                email=email,
+                user_type=user_type,
+                user_id=user.id,
+                profile_id=profile.id,
+                verified=True,
+                password_hash=user.password_hash,
+                created_at=datetime.utcnow()
+            )
+            db.session.add(register_entry)
+            
+            db.session.commit()
+            flash(f'Welcome {name}! Account created successfully.', 'success')
+        else:
+            # Update last_login
+            user.last_login = datetime.utcnow()
+            db.session.commit()
+            flash('Login successful!', 'success')
+        
+        login_user(user)
+        
+        # Redirect based on user_type
+        if user.user_type == 'Admin':
+            return redirect(url_for('admin.admin_dashboard'))
+        elif user.user_type == 'PI':
+            return redirect(url_for('pi.faculty_dashboard'))
+        elif user.user_type == 'Student':
+            return redirect(url_for('student.student_profile'))
+        elif user.user_type == 'Industry':
+            return redirect(url_for('industry.industry_dashboard'))
+        elif user.user_type == 'Vendor':
+            return redirect(url_for('vendor.vendor_dashboard'))
+        else:
+            return redirect(url_for('index'))
+            
+    except Exception as e:
+        flash(f'Google login failed: {str(e)}', 'error')
+        return redirect(url_for('auth.login'))
+
+def random_string(length=16):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+
+# ============================================================================
+# ============================================================================
+
 @auth_bp.route('/logout')
 @login_required
 def logout():
@@ -349,103 +458,3 @@ def register():
 
 
 
-# @auth_bp.route('/debug/check-db')
-# def debug_check_db():
-#     """Check database connection and content"""
-#     try:
-#         # Test connection
-#         db.session.execute('SELECT 1')
-        
-#         # Get counts
-#         user_count = User.query.count()
-#         profile_count = Profile.query.count()
-#         register_count = Register.query.count()
-        
-#         # Get latest entries
-#         latest_user = User.query.order_by(User.id.desc()).first()
-#         latest_profile = Profile.query.order_by(Profile.id.desc()).first()
-#         latest_register = Register.query.order_by(Register.id.desc()).first()
-        
-#         return jsonify({
-#             'success': True,
-#             'counts': {
-#                 'users': user_count,
-#                 'profiles': profile_count,
-#                 'registers': register_count
-#             },
-#             'latest': {
-#                 'user': {
-#                     'id': latest_user.id if latest_user else None,
-#                     'email': latest_user.email if latest_user else None
-#                 } if latest_user else None,
-#                 'profile': {
-#                     'id': latest_profile.id if latest_profile else None,
-#                     'user_id': latest_profile.user_id if latest_profile else None
-#                 } if latest_profile else None,
-#                 'register': {
-#                     'id': latest_register.id if latest_register else None,
-#                     'email': latest_register.email if latest_register else None
-#                 } if latest_register else None
-#             }
-#         })
-#     except Exception as e:
-#         return jsonify({
-#             'success': False,
-#             'error': str(e)
-#         }), 500
-
-# @auth_bp.route('/debug/test-insert')
-# def debug_test_insert():
-#     """Test database insert operation"""
-#     try:
-#         from werkzeug.security import generate_password_hash
-#         from datetime import datetime
-        
-#         test_email = f"test_{datetime.now().strftime('%H%M%S_%f')}@test.com"
-        
-#         # Create user
-#         user = User(
-#             email=test_email,
-#             user_type='Student',
-#             password_hash=generate_password_hash('test1234'),
-#             verification_status='Verified',
-#             account_status='Active'
-#         )
-#         db.session.add(user)
-#         db.session.flush()
-        
-#         # Create profile
-#         profile = Profile(
-#             user_id=user.id,
-#             profile_type='Student'
-#         )
-#         db.session.add(profile)
-#         db.session.flush()   # <-- yaha flush karna zaroori hai
-        
-#         # Create register entry
-#         register = Register(
-#             user_id=user.id,
-#             profile_id=profile.id,
-#             email=test_email,
-#             user_type='Student',
-#             password_hash=generate_password_hash('test123'),
-#             verified=True,
-#         )
-#         db.session.add(register)
-        
-#         db.session.commit()
-        
-#         return jsonify({
-#             'success': True,
-#             'message': f'Test data inserted successfully: {test_email}',
-#             'user_id': user.id,
-#             'profile_id': profile.id,
-#             'register_id': register.id
-#         })
-        
-#     except Exception as e:
-#         db.session.rollback()
-#         return jsonify({
-#             'success': False,
-#             'error': str(e)
-#         }), 500

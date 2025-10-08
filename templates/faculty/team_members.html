@@ -42,10 +42,12 @@
             </div>
             
             <div class="col-span-6">
-              <label class="font-semibold block mb-1">Status*</label>
+              <label class="font-semibold block mb-1">Team Status*</label>
               <select name="status" class="form-control py-2" required>
-                <option value="Current">Current</option>
-                <option value="Former">Former</option>
+                <option value="">Select Status</option>
+                {% for ts in team_statuses %}
+                <option value="{{ ts.name }}">{{ ts.name }}</option>
+                {% endfor %}
               </select>
             </div>
             

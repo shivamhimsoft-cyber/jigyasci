@@ -1,13 +1,15 @@
-# routes/pi_routes.py
-
-from flask import Blueprint, render_template, abort, request, flash, redirect, url_for
+# routes/pi_routes.py (updated basic_info route to include research_profiles)
+from flask import Blueprint, render_template, abort, request, flash, redirect, url_for, current_app
 from flask_login import login_required, current_user
-from models import PIProfile, Profile, TeamMember, Education, Experience, ResearchFacility, Publication, Technology, Skill, SkillType, Award, Project, StudentProfile, EquipmentType, IPStatus, TRLLevel, LicensingIntent, ProficiencyLevel, OpportunityType, WorkingStatus
+from models import PIProfile, Profile, TeamMember, Education, Experience, ResearchFacility, Publication, Technology, Skill, SkillType, Award, Project, StudentProfile, EquipmentType, IPStatus, TRLLevel, LicensingIntent, ProficiencyLevel, OpportunityType, WorkingStatus, Gender, AdminSettingDepartment, CurrentDesignation, ResearchArea, ResearchProfile
 from extensions import db
 from sqlalchemy import func, or_
 from datetime import datetime
 from werkzeug.utils import secure_filename
 import os
+
+from models import Degree, TeamPosition, ProjectStatus, TeamStatus
+
 
 pi_bp = Blueprint('pi', __name__, url_prefix='/faculty')
 
@@ -31,6 +33,13 @@ def basic_info():
 
     profile = current_user.profile.pi_profile
 
+    # Fetch dropdown data
+    genders = Gender.query.filter_by(status='Active').all()
+    departments = AdminSettingDepartment.query.filter_by(status='Active').all()
+    designations = CurrentDesignation.query.filter_by(status='Active').all()
+    research_areas = ResearchArea.query.filter_by(status='Active').all()
+    research_profiles_list = ResearchProfile.query.filter_by(status='Active').all()
+
     if request.method == 'POST':
         if not profile:
             profile = PIProfile(profile_id=current_user.profile.id)
@@ -47,18 +56,50 @@ def basic_info():
         profile.current_focus = request.form.get('current_focus')
         profile.expectations_from_students = request.form.get('expectations')
         profile.why_join_lab = request.form.get('why_join_lab')
+        profile.profile_url = request.form.get('profile_url')
+        profile.affiliation_short = request.form.get('affiliation_short')
+        profile.location = request.form.get('location')
+        profile.education_summary = request.form.get('education_summary')
+        profile.research_interest = request.form.get('research_interest')
+        profile.papers_published = request.form.get('papers_published', type=int)
+        profile.total_citations = request.form.get('total_citations', type=int)
+        profile.research_experience_years = request.form.get('research_experience_years', type=int)
+        profile.h_index = request.form.get('h_index', type=int)
+        profile.research_profiles = request.form.get('research_profiles')
 
         dob_str = request.form.get('dob')
         start_date_str = request.form.get('start_date')
-        profile.dob = datetime.strptime(dob_str, '%Y-%m-%d').date() if dob_str else None
-        profile.start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else None
+        if dob_str:
+            try:
+                profile.dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
+            except ValueError:
+                flash("Invalid date format for Date of Birth", "warning")
+        if start_date_str:
+            try:
+                profile.start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            except ValueError:
+                flash("Invalid date format for Start Date", "warning")
+
+        profile.last_updated = datetime.utcnow()
+
+        # Handle profile picture upload
+        if 'profile_picture' in request.files:
+            file = request.files['profile_picture']
+            if file and file.filename:
+                filename = secure_filename(file.filename)
+                if filename != '':
+                    # Ensure Uploads directory exists
+                    upload_folder = os.path.join(current_app.static_folder, 'Uploads')
+                    os.makedirs(upload_folder, exist_ok=True)
+                    file_path = os.path.join(upload_folder, filename)
+                    file.save(file_path)
+                    profile.profile_picture = filename
 
         db.session.commit()
         flash('Profile updated successfully!', 'success')
         return redirect(url_for('pi.view_pi_profile'))
 
-    return render_template('faculty/basic_info.html', profile=profile)
-
+    return render_template('faculty/basic_info.html', profile=profile, genders=genders, departments=departments, designations=designations, research_areas=research_areas, research_profiles=research_profiles_list)
 
 
 # PROFILE
@@ -74,8 +115,7 @@ def view_pi_profile():
         flash('Profile not found', 'error')
         return redirect(url_for('pi.basic_info'))
     
-    return render_template('faculty/profile.html', profile=profile)
-
+    return render_template('faculty/basic_info.html', profile=profile)
 
 
 
@@ -86,6 +126,9 @@ def view_pi_profile():
 @pi_bp.route('/education', methods=['GET', 'POST'])
 @login_required
 def education():
+    # Fetch degrees for dropdown
+    degrees = Degree.query.filter_by(status='Active').all()
+    
     if request.method == 'POST':
         education_id = request.form.get('education_id')
         degree_name = request.form.get('degree_name')
@@ -152,7 +195,8 @@ def education():
     
     return render_template('faculty/education.html', 
                          educations=educations_paginated,
-                         all_educations=educations_all)
+                         all_educations=educations_all,
+                         degrees=degrees)
 
 @pi_bp.route('/education/<int:id>/delete', methods=['POST'])
 @login_required
@@ -173,6 +217,9 @@ def delete_education(id):
 @pi_bp.route('/experience', methods=['GET', 'POST'])
 @login_required
 def experience():
+    # Fetch team positions for dropdown
+    team_positions = TeamPosition.query.filter_by(status='Active').all()
+    
     if request.method == 'POST':
         experience_id = request.form.get('experience_id')
         project_title = request.form.get('project_title')
@@ -245,7 +292,8 @@ def experience():
     return render_template('faculty/experience.html', 
                          experiences=experiences_paginated.items,
                          all_experiences=experiences_all,
-                         pagination=experiences_paginated)
+                         pagination=experiences_paginated,
+                         team_positions=team_positions)
 
     # experiences = Experience.query.filter_by(profile_id=current_user.profile.id).all()
     # return render_template('faculty/experience.html', experiences=experiences)
@@ -363,6 +411,9 @@ def projects():
     if not current_user.profile or not current_user.profile.pi_profile:
         abort(403)
         
+    # Fetch project statuses for dropdown
+    project_statuses = ProjectStatus.query.filter_by(status='Active').all()
+    
     if request.method == 'POST':
         project_id = request.form.get('project_id')
         title = request.form.get('title')
@@ -427,7 +478,7 @@ def projects():
                   .order_by(Project.start_date.desc())\
                   .paginate(page=page, per_page=per_page, error_out=False)
     
-    return render_template('faculty/projects.html', projects=projects)
+    return render_template('faculty/projects.html', projects=projects, project_statuses=project_statuses)
 
 @pi_bp.route('/projects/delete/<int:id>', methods=['POST'])
 @login_required
@@ -439,8 +490,6 @@ def delete_project(id):
     db.session.commit()
     flash("Project deleted successfully!", "success")
     return redirect(url_for('pi.projects'))
-
-
 
 
 # TECHNOLOGIES 
@@ -841,6 +890,9 @@ def team_members():
     if not current_user.profile or not current_user.profile.pi_profile:
         abort(403)
         
+    # Fetch team statuses for dropdown
+    team_statuses = TeamStatus.query.filter_by(status='Active').all()
+        
     if request.method == 'POST':
         member_id = request.form.get('member_id')
         student_profile_id = request.form.get('student_profile_id')
@@ -915,7 +967,8 @@ def team_members():
     
     return render_template('faculty/team_members.html', 
                          team_members=team_members,
-                         students=students)
+                         students=students,
+                         team_statuses=team_statuses)
 
 @pi_bp.route('/team-members/delete/<int:id>', methods=['POST'])
 @login_required
@@ -927,8 +980,6 @@ def delete_team_member(id):
     db.session.commit()
     flash("Team member deleted successfully!", "success")
     return redirect(url_for('pi.team_members'))
-
-
 
 
 # VIEW FULL TABLE 

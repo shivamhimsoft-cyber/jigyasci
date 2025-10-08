@@ -1,3 +1,5 @@
+<!-- templates\admin\adminstudents.html -->
+ 
 {% extends "base.html" %}
 {% block title %}Students Management | Research Collaboration Platform{% endblock %}
 {% block content %}
@@ -72,44 +74,45 @@
         </form>
     </div>
 
+    <!-- Updated Manual Add Form section in adminstudents.html (added file input for profile_picture) -->
     <!-- Manual Add Form -->
     <div id="manual-form" class="hidden mb-6 bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
         <h3 class="text-lg font-semibold text-black mb-6">Add Student Manually</h3>
-        <form method="POST" action="{{ url_for('admin.add_student') }}">
+        <form method="POST" action="{{ url_for('admin.add_student') }}" enctype="multipart/form-data">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 <!-- Personal Information -->
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">Name *</label>
                     <input type="text" name="name"
-                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                           placeholder="Enter full name" required>
+                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                        placeholder="Enter full name" required>
                 </div>
 
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">Affiliation *</label>
                     <input type="text" name="affiliation"
-                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                           placeholder="Enter affiliation" required>
+                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                        placeholder="Enter affiliation" required>
                 </div>
 
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">Contact Email *</label>
                     <input type="email" name="contact_email"
-                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                           placeholder="Enter contact email" required>
+                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                        placeholder="Enter contact email" required>
                 </div>
 
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">Contact Phone</label>
                     <input type="tel" name="contact_phone"
-                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                           placeholder="Enter phone number">
+                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                        placeholder="Enter phone number">
                 </div>
 
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">Date of Birth</label>
                     <input type="date" name="dob"
-                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black">
+                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black">
                 </div>
 
                 <div class="form-group">
@@ -117,39 +120,63 @@
                     <select name="gender"
                             class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black">
                         <option value="">Select Gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
+                        {% for gender in genders %}
+                        <option value="{{ gender.name }}">{{ gender.name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">Address</label>
                     <textarea name="address"
-                              class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                              rows="2" placeholder="Enter address"></textarea>
+                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                            rows="2" placeholder="Enter address"></textarea>
                 </div>
 
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">Current Status</label>
-                    <input type="text" name="current_status"
-                           class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                           placeholder="Enter current status">
+                    <select name="current_status"
+                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black">
+                        <option value="">Select Current Status</option>
+                        {% for status in current_statuses %}
+                        <option value="{{ status.name }}">{{ status.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Profile Picture -->
+                <div class="form-group sm:col-span-2">
+                    <label class="block text-sm font-semibold text-black mb-2">Profile Picture</label>
+                    <input type="file" name="profile_picture"
+                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                        accept="image/*">
+                    <small class="text-gray-600 mt-1 block">Upload a profile image (optional)</small>
                 </div>
 
                 <!-- Additional Information -->
                 <div class="form-group sm:col-span-2">
                     <label class="block text-sm font-semibold text-black mb-2">Research Interests</label>
                     <textarea name="research_interests"
-                              class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                              rows="3" placeholder="Enter research interests"></textarea>
+                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                            rows="3" placeholder="Enter research interests"></textarea>
+                </div>
+
+                <div class="form-group sm:col-span-2">
+                    <label class="block text-sm font-semibold text-black mb-2">Research Profiles</label>
+                    <select name="research_profiles"
+                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black">
+                        <option value="">Select Research Profile</option>
+                        {% for rp in research_profiles %}
+                        <option value="{{ rp.name }}">{{ rp.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
 
                 <div class="form-group sm:col-span-2">
                     <label class="block text-sm font-semibold text-black mb-2">Why Me (Personal Statement)</label>
                     <textarea name="why_me"
-                              class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                              rows="3" placeholder="Enter personal statement or why they would be a good fit"></textarea>
+                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                            rows="3" placeholder="Enter personal statement or why they would be a good fit"></textarea>
                 </div>
             </div>
 
