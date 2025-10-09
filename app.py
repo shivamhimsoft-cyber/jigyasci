@@ -36,25 +36,12 @@ from routes.profile_routes import profile_bp  # imported
 from routes.bookmark_routes import bookmark_bp  # ✅ Add this import
 
 from routes import register_blueprints
-from authlib.integrations.flask_client import OAuth
 
 # migrate = Migrate(app, db)
 
 app = Flask(__name__)  # <-- Pehle app define karo
 
-# # OAuth setup for Google
-# oauth = OAuth(app)
 
-# # Google OAuth configuration (FIX: Correct server_metadata_url)
-# google = oauth.register(
-#     name='google',
-#     client_id=os.getenv('GOOGLE_CLIENT_ID'),
-#     client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
-#     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',  # ✅ Fixed URL
-#     client_kwargs={
-#         'scope': 'openid email profile'
-#     },
-# )
 
 # app.register_blueprint(admin_bp)
 # app.register_blueprint(pi_bp)
