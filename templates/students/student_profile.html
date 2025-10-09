@@ -12,28 +12,54 @@
                     <h5 class="text-2xl font-bold mb-1" style="color: #66C0DC;">Student Profile</h5>
                     <p class="text-gray-600">Add or update your student profile below.</p>
                 </div>
+                <button type="button" id="edit-btn" class="px-6 py-3 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all duration-200 transform hover:scale-105">
+                    <i class="ti ti-edit mr-2"></i>Edit Profile
+                </button>
             </div>
 
             <!-- Form -->
             <form id="profile-form" method="POST" enctype="multipart/form-data" class="grid grid-cols-12 gap-x-6 gap-y-4">
+                <!-- Profile Picture Section -->
+                <div class="col-span-12 mb-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Profile Picture</label>
+                    <div class="flex items-start space-x-6">
+                        <div class="flex-shrink-0">
+                            {% if profile and profile.profile_picture %}
+                                <img src="{{ url_for('static', filename='Uploads/' + profile.profile_picture) }}" alt="Current Profile Picture" class="w-20 h-20 rounded-full object-cover border-2 border-gray-200 shadow-sm">
+                            {% else %}
+                                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center border-2 border-dashed border-gray-300 shadow-sm">
+                                    <i class="ti ti-user text-gray-400 text-xl"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1">
+                            <label for="profile_picture" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition-all duration-200">
+                                <i class="ti ti-upload mr-2 text-indigo-500"></i>Choose New Photo
+                            </label>
+                            <input type="file" id="profile_picture" name="profile_picture" class="sr-only" accept="image/*">
+                            <small class="text-gray-500 block mt-1">Upload a new image to replace the current one (optional, max 2MB, JPG/PNG)</small>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Left Column -->
                 <div class="lg:col-span-6 col-span-12">
                     <div class="space-y-4">
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
-                            <input name="name" value="{{ profile.name if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" placeholder="Enter full name" readonly>
+                            <input name="name" value="{{ profile.name if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" placeholder="Enter full name" readonly>
                         </div>
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Affiliation</label>
-                            <input name="affiliation" value="{{ profile.affiliation if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" placeholder="Enter affiliation" readonly>
+                            <input name="affiliation" value="{{ profile.affiliation if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" placeholder="Enter affiliation" readonly>
                         </div>
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                            <input type="email" name="email" value="{{ profile.contact_email if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" placeholder="Enter email" readonly>
+                            <input type="email" name="email" value="{{ profile.contact_email if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" placeholder="Enter email" readonly>
                         </div>
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
-                            <input name="contact_phone" value="{{ profile.contact_phone if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" placeholder="Enter phone number" readonly>
+                            <input name="contact_phone" value="{{ profile.contact_phone if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" placeholder="Enter phone number" readonly>
                         </div>
                     </div>
                 </div>
@@ -43,11 +69,11 @@
                     <div class="space-y-4">
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Date of Birth</label>
-                            <input type="date" name="dob" value="{{ profile.dob.strftime('%Y-%m-%d') if profile and profile.dob else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" readonly>
+                            <input type="date" name="dob" value="{{ profile.dob.strftime('%Y-%m-%d') if profile and profile.dob else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" readonly>
                         </div>
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Gender</label>
-                            <select name="gender" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" disabled>
+                            <select name="gender" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" disabled>
                                 <option value="">Select Gender</option>
                                 {% for gender in genders %}
                                 <option value="{{ gender.name }}" {% if profile and profile.gender == gender.name %}selected{% endif %}>{{ gender.name }}</option>
@@ -56,28 +82,16 @@
                         </div>
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Address</label>
-                            <input name="address" value="{{ profile.address if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" placeholder="Enter address" readonly>
+                            <input name="address" value="{{ profile.address if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" placeholder="Enter address" readonly>
                         </div>
                         <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Profile Picture</label>
-                            <div class="flex items-start space-x-4 mb-3">
-                                <div class="flex-shrink-0">
-                                    {% if profile and profile.profile_picture %}
-                                        <img src="{{ url_for('static', filename='Uploads/' + profile.profile_picture) }}" alt="Current Profile Picture" class="w-20 h-20 rounded-full object-cover border-2 border-gray-200 shadow-sm">
-                                    {% else %}
-                                        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center border-2 border-dashed border-gray-300 shadow-sm">
-                                            <i class="ti ti-user text-gray-400 text-xl"></i>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                                <div class="flex-1">
-                                    <label for="profile_picture" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition-all duration-200">
-                                        <i class="ti ti-upload mr-2 text-indigo-500"></i>Choose New Photo
-                                    </label>
-                                    <input type="file" id="profile_picture" name="profile_picture" class="sr-only" accept="image/*">
-                                    <small class="text-gray-500 block mt-1">Upload a new image to replace the current one (optional, max 2MB, JPG/PNG)</small>
-                                </div>
-                            </div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Research Profiles</label>
+                            <select name="research_profiles" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" disabled>
+                                <option value="">Select Research Profile</option>
+                                {% for rp in research_profiles %}
+                                <option value="{{ rp.name }}" {% if profile and profile.research_profiles == rp.name %}selected{% endif %}>{{ rp.name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -86,33 +100,21 @@
                 <div class="col-span-12">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Research Interests</label>
-                        <textarea name="current_focus" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" rows="4" readonly>{{ profile.research_interests if profile else '' }}</textarea>
-                    </div>
-                </div>
-
-                <div class="col-span-12">
-                    <div class="form-group">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Research Profiles</label>
-                        <select name="research_profiles" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" disabled>
-                            <option value="">Select Research Profile</option>
-                            {% for rp in research_profiles %}
-                            <option value="{{ rp.name }}" {% if profile and profile.research_profiles == rp.name %}selected{% endif %}>{{ rp.name }}</option>
-                            {% endfor %}
-                        </select>
+                        <textarea name="current_focus" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" rows="4" readonly>{{ profile.research_interests if profile else '' }}</textarea>
                     </div>
                 </div>
 
                 <div class="col-span-12">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Why Should I Choose You? (Personal Statement)</label>
-                        <textarea name="why_join_lab" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" rows="4" readonly>{{ profile.why_me if profile else '' }}</textarea>
+                        <textarea name="why_join_lab" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" rows="4" readonly>{{ profile.why_me if profile else '' }}</textarea>
                     </div>
                 </div>
 
                 <div class="col-span-12">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Current Status</label>
-                        <select name="current_status" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" disabled>
+                        <select name="current_status" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" disabled>
                             <option value="">Select Current Status</option>
                             {% for status in current_statuses %}
                             <option value="{{ status.name }}" {% if profile and profile.current_status == status.name %}selected{% endif %}>{{ status.name }}</option>
@@ -123,9 +125,6 @@
 
                 <!-- Buttons -->
                 <div class="col-span-12 flex justify-end mt-6 gap-3 pt-4 border-t border-gray-200">
-                    <button type="button" id="edit-btn" class="px-6 py-3 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all duration-200 transform hover:scale-105">
-                        <i class="ti ti-edit mr-2"></i>Edit Profile
-                    </button>
                     <button type="button" id="cancel-btn" class="px-6 py-3 text-sm font-semibold rounded-lg border border-gray-300 bg-gray-100 hover:bg-gray-200 text-gray-700 shadow-sm transition-all duration-200 transform hover:scale-105" style="display: none;">
                         <i class="ti ti-x mr-2"></i>Cancel
                     </button>
@@ -158,9 +157,11 @@
             form.querySelectorAll('input[readonly], select[disabled], textarea[readonly]').forEach(function(element) {
                 if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
                     element.removeAttribute('readonly');
+                    element.classList.remove('text-gray-600');
                     element.classList.add('bg-white', 'text-black');
                 } else if (element.tagName === 'SELECT') {
                     element.removeAttribute('disabled');
+                    element.classList.remove('text-gray-600');
                     element.classList.add('text-black');
                 }
             });
@@ -182,14 +183,16 @@
                     if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
                         element.setAttribute('readonly', true);
                         element.classList.remove('bg-white', 'text-black');
+                        element.classList.add('text-gray-600');
                         element.blur();
                     } else if (element.tagName === 'SELECT') {
                         element.setAttribute('disabled', true);
                         element.classList.remove('text-black');
+                        element.classList.add('text-gray-600');
                     }
                 }
             });
-            editBtn.style.display = 'inline-block';
+            editBtn.style.display = 'block';
             cancelBtn.style.display = 'none';
             updateBtn.style.display = 'none';
             updateBtn.disabled = true;

@@ -12,6 +12,9 @@
                     <h5 class="text-2xl font-bold mb-1" style="color: #66C0DC;">Personal Details</h5>
                     <p class="text-gray-600">To change your personal detail, edit and save from here.</p>
                 </div>
+                <button type="button" id="edit-btn" class="px-6 py-3 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all duration-200 transform hover:scale-105">
+                    <i class="ti ti-edit mr-2"></i>Edit Profile
+                </button>
             </div>
 
             <!-- Form -->
@@ -41,20 +44,16 @@
                     </div>
                 </div>
 
-
-
-            <!-- Form -->
-            <form id="profile-form" method="POST" enctype="multipart/form-data" class="grid grid-cols-12 gap-x-6 gap-y-4">
                 <!-- Left Column -->
                 <div class="lg:col-span-6 col-span-12">
                     <div class="space-y-4">
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
-                            <input name="name" value="{{ profile.name if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" placeholder="Enter full name" readonly>
+                            <input name="name" value="{{ profile.name if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" placeholder="Enter full name" readonly>
                         </div>
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Department</label>
-                            <select name="department" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" disabled>
+                            <select name="department" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" disabled>
                                 <option value="">Select Department</option>
                                 {% for dept in departments %}
                                 <option value="{{ dept.name }}" {% if profile and profile.department == dept.name %}selected{% endif %}>{{ dept.name }}</option>
@@ -63,11 +62,11 @@
                         </div>
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Affiliation</label>
-                            <input name="affiliation" value="{{ profile.affiliation if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" placeholder="Enter affiliation" readonly>
+                            <input name="affiliation" value="{{ profile.affiliation if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" placeholder="Enter affiliation" readonly>
                         </div>
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Gender</label>
-                            <select name="gender" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" disabled>
+                            <select name="gender" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" disabled>
                                 <option value="">Select Gender</option>
                                 {% for gender in genders %}
                                 <option value="{{ gender.name }}" {% if profile and profile.gender == gender.name %}selected{% endif %}>{{ gender.name }}</option>
@@ -82,7 +81,7 @@
                     <div class="space-y-4">
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Designation</label>
-                            <select name="current_designation" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" disabled>
+                            <select name="current_designation" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" disabled>
                                 <option value="">Select Designation</option>
                                 {% for designation in designations %}
                                 <option value="{{ designation.name }}" {% if profile and profile.current_designation == designation.name %}selected{% endif %}>{{ designation.name }}</option>
@@ -91,15 +90,15 @@
                         </div>
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Start Date</label>
-                            <input type="date" name="start_date" value="{{ profile.start_date.strftime('%Y-%m-%d') if profile and profile.start_date else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" readonly>
+                            <input type="date" name="start_date" value="{{ profile.start_date.strftime('%Y-%m-%d') if profile and profile.start_date else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" readonly>
                         </div>
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Date of Birth</label>
-                            <input type="date" name="dob" value="{{ profile.dob.strftime('%Y-%m-%d') if profile and profile.dob else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" readonly>
+                            <input type="date" name="dob" value="{{ profile.dob.strftime('%Y-%m-%d') if profile and profile.dob else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" readonly>
                         </div>
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                            <input type="email" name="email" value="{{ profile.email if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" placeholder="Enter email" readonly>
+                            <input type="email" name="email" value="{{ profile.email if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" placeholder="Enter email" readonly>
                         </div>
                     </div>
                 </div>
@@ -108,57 +107,57 @@
                 <div class="col-span-12">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
-                        <input name="contact_phone" value="{{ profile.contact_phone if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" placeholder="Enter phone number" readonly>
+                        <input name="contact_phone" value="{{ profile.contact_phone if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" placeholder="Enter phone number" readonly>
                     </div>
                 </div>
 
                 <div class="col-span-12">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Address</label>
-                        <input name="address" value="{{ profile.address if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" placeholder="Enter address" readonly>
+                        <input name="address" value="{{ profile.address if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" placeholder="Enter address" readonly>
                     </div>
                 </div>
 
                 <div class="col-span-12">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Profile URL</label>
-                        <input name="profile_url" value="{{ profile.profile_url if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" placeholder="Enter profile URL" readonly>
+                        <input name="profile_url" value="{{ profile.profile_url if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" placeholder="Enter profile URL" readonly>
                     </div>
                 </div>
 
                 <div class="col-span-12">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Affiliation (Short)</label>
-                        <input name="affiliation_short" value="{{ profile.affiliation_short if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" placeholder="Enter short affiliation" readonly>
+                        <input name="affiliation_short" value="{{ profile.affiliation_short if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" placeholder="Enter short affiliation" readonly>
                     </div>
                 </div>
 
                 <div class="col-span-12">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Location (City)</label>
-                        <input name="location" value="{{ profile.location if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" placeholder="Enter location" readonly>
+                        <input name="location" value="{{ profile.location if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" placeholder="Enter location" readonly>
                     </div>
                 </div>
 
                 <div class="col-span-12">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Education Summary</label>
-                        <textarea name="education_summary" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" rows="4" readonly>{{ profile.education_summary if profile else '' }}</textarea>
+                        <textarea name="education_summary" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" rows="4" readonly>{{ profile.education_summary if profile else '' }}</textarea>
                     </div>
                 </div>
 
                 <div class="col-span-12">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Research Interest</label>
-                        <textarea name="research_interest" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" rows="4" readonly>{{ profile.research_interest if profile else '' }}</textarea>
+                        <textarea name="research_interest" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" rows="4" readonly>{{ profile.research_interest if profile else '' }}</textarea>
                     </div>
                 </div>
 
-                                <!-- Research Profiles -->
+                <!-- Research Profiles -->
                 <div class="col-span-12">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Research Profiles</label>
-                        <select name="research_profiles" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" disabled>
+                        <select name="research_profiles" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" disabled>
                             <option value="">Select Research Profile</option>
                             {% for rp in research_profiles %}
                             <option value="{{ rp.name }}" {% if profile and profile.research_profiles == rp.name %}selected{% endif %}>{{ rp.name }}</option>
@@ -170,42 +169,42 @@
                 <div class="col-span-12 lg:col-span-6">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Papers Published</label>
-                        <input type="number" name="papers_published" value="{{ profile.papers_published if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" readonly>
+                        <input type="number" name="papers_published" value="{{ profile.papers_published if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" readonly>
                     </div>
                 </div>
 
                 <div class="col-span-12 lg:col-span-6">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Total Citations</label>
-                        <input type="number" name="total_citations" value="{{ profile.total_citations if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" readonly>
+                        <input type="number" name="total_citations" value="{{ profile.total_citations if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" readonly>
                     </div>
                 </div>
 
                 <div class="col-span-12 lg:col-span-6">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Research Experience (Years)</label>
-                        <input type="number" name="research_experience_years" value="{{ profile.research_experience_years if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" readonly>
+                        <input type="number" name="research_experience_years" value="{{ profile.research_experience_years if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" readonly>
                     </div>
                 </div>
 
                 <div class="col-span-12 lg:col-span-6">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">H-Index</label>
-                        <input type="number" name="h_index" value="{{ profile.h_index if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" readonly>
+                        <input type="number" name="h_index" value="{{ profile.h_index if profile else '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" readonly>
                     </div>
                 </div>
 
                 <div class="col-span-12">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Current Message</label>
-                        <textarea name="current_message" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" rows="4" readonly>{{ profile.current_message if profile else '' }}</textarea>
+                        <textarea name="current_message" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" rows="4" readonly>{{ profile.current_message if profile else '' }}</textarea>
                     </div>
                 </div>
 
                 <div class="col-span-12">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Current Focus (Research Area)</label>
-                        <select name="current_focus" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" disabled>
+                        <select name="current_focus" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" disabled>
                             <option value="">Select Research Area</option>
                             {% for area in research_areas %}
                             <option value="{{ area.name }}" {% if profile and profile.current_focus == area.name %}selected{% endif %}>{{ area.name }}</option>
@@ -217,24 +216,19 @@
                 <div class="col-span-12">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Expectations from Students</label>
-                        <textarea name="expectations" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" rows="4" readonly>{{ profile.expectations_from_students if profile else '' }}</textarea>
+                        <textarea name="expectations" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" rows="4" readonly>{{ profile.expectations_from_students if profile else '' }}</textarea>
                     </div>
                 </div>
 
                 <div class="col-span-12">
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Why Join Lab</label>
-                        <textarea name="why_join_lab" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-black" rows="4" readonly>{{ profile.why_join_lab if profile else '' }}</textarea>
+                        <textarea name="why_join_lab" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-600" rows="4" readonly>{{ profile.why_join_lab if profile else '' }}</textarea>
                     </div>
                 </div>
 
-                
-
                 <!-- Buttons -->
                 <div class="col-span-12 flex justify-end mt-6 gap-3 pt-4 border-t border-gray-200">
-                    <button type="button" id="edit-btn" class="px-6 py-3 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all duration-200 transform hover:scale-105">
-                        <i class="ti ti-edit mr-2"></i>Edit Profile
-                    </button>
                     <button type="button" id="cancel-btn" class="px-6 py-3 text-sm font-semibold rounded-lg border border-gray-300 bg-gray-100 hover:bg-gray-200 text-gray-700 shadow-sm transition-all duration-200 transform hover:scale-105" style="display: none;">
                         <i class="ti ti-x mr-2"></i>Cancel
                     </button>
@@ -267,9 +261,12 @@
             form.querySelectorAll('input[readonly], select[disabled], textarea[readonly]').forEach(function(element) {
                 if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
                     element.removeAttribute('readonly');
-                    element.classList.add('bg-white', 'text-black');
+                    element.classList.add('bg-white');
+                    element.classList.remove('text-gray-600');
+                    element.classList.add('text-black');
                 } else if (element.tagName === 'SELECT') {
                     element.removeAttribute('disabled');
+                    element.classList.remove('text-gray-600');
                     element.classList.add('text-black');
                 }
             });
@@ -291,14 +288,16 @@
                     if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
                         element.setAttribute('readonly', true);
                         element.classList.remove('bg-white', 'text-black');
+                        element.classList.add('text-gray-600');
                         element.blur();
                     } else if (element.tagName === 'SELECT') {
                         element.setAttribute('disabled', true);
                         element.classList.remove('text-black');
+                        element.classList.add('text-gray-600');
                     }
                 }
             });
-            editBtn.style.display = 'inline-block';
+            editBtn.style.display = 'block';
             cancelBtn.style.display = 'none';
             updateBtn.style.display = 'none';
             updateBtn.disabled = true;
