@@ -18,7 +18,7 @@ pi_bp = Blueprint('pi', __name__, url_prefix='/faculty')
 @pi_bp.route('/dashboard')
 @login_required
 def faculty_dashboard():
-    if current_user.user_type != 'PI':
+    if current_user.user_type != 'Scientist':
         abort(403)
     return render_template('faculty/dashboard.html', title='Faculty Dashboard')
 
@@ -28,7 +28,7 @@ def faculty_dashboard():
 @pi_bp.route('/basic_info', methods=['GET', 'POST'])
 @login_required
 def basic_info():
-    if current_user.user_type != 'PI':
+    if current_user.user_type != 'Scientist':
         abort(403)
 
     profile = current_user.profile.pi_profile
@@ -107,7 +107,7 @@ def basic_info():
 @pi_bp.route('/pi_profile')
 @login_required
 def view_pi_profile():
-    if current_user.user_type != 'PI':
+    if current_user.user_type != 'Scientist':
         abort(403)
     
     profile = current_user.profile.pi_profile

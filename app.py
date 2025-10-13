@@ -23,6 +23,7 @@ from werkzeug.utils import secure_filename
 from authlib.integrations.flask_client import OAuth  # Add this import
 
 from extensions import db, login_manager, mail
+from authlib.integrations.flask_client import OAuth
 
 
 # Register Blueprints
@@ -42,6 +43,18 @@ from routes import register_blueprints
 app = Flask(__name__)  # <-- Pehle app define karo
 
 
+oauth = OAuth(app)
+
+# Google OAuth configuration (FIX: Correct server_metadata_url)
+google = oauth.register(
+    name='google',
+    client_id=os.getenv('GOOGLE_CLIENT_ID'),
+    client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',  # ✅ Fixed URL
+    client_kwargs={
+        'scope': 'openid email profile'
+    },
+)
 
 # app.register_blueprint(admin_bp)
 # app.register_blueprint(pi_bp)
@@ -87,8 +100,8 @@ app.config['SECRET_KEY'] = os.environ.get("SESSION_SECRET", "dev-secret-key")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Configure database
-# app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://postgres:bbb07ak47@localhost:5432/shivamdb"   # Local Database URL
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://shivamdb2:peIpDSI8JJ6tONyYEufjqUPz6cYAafEj@dpg-d34g43ruibrs73ages70-a.oregon-postgres.render.com/shivamdb2"   # External Database URL
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://postgres:bbb07ak47@localhost:5432/shivamdb"   # Local Database URL
+# app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://shivamdb2:peIpDSI8JJ6tONyYEufjqUPz6cYAafEj@dpg-d34g43ruibrs73ages70-a.oregon-postgres.render.com/shivamdb2"   # External Database URL
 # app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://shivamdb2:peIpDSI8JJ6tONyYEufjqUPz6cYAafEj@dpg-d34g43ruibrs73ages70-a/shivamdb2"      # Internal Database URL
  
 
@@ -172,7 +185,7 @@ def view_profile(user_id):
             stats = {
                 'total_users': User.query.count(),
                 'students': User.query.filter_by(user_type='Student').count(),
-                'pis': User.query.filter_by(user_type='PI').count(),
+                'pis': User.query.filter_by(user_type='Scientist').count(),
                 'industry': User.query.filter_by(user_type='Industry').count(),
                 'vendors': User.query.filter_by(user_type='Vendor').count(),
             }
@@ -183,7 +196,7 @@ def view_profile(user_id):
             specific_profile = StudentProfile.query.filter_by(profile_id=profile.id).first_or_404()
             publications = profile.publications.all()  # ✅ ADD THIS LINE
             template = 'profile/student.html'
-        elif profile.profile_type == 'PI':
+        elif profile.profile_type == 'Scientist':
             specific_profile = PIProfile.query.filter_by(profile_id=profile.id).first_or_404()
             template = 'profile/pi.html'
         elif profile.profile_type == 'Industry':
@@ -638,7 +651,7 @@ def opp_view_profile(profile_id):
     opportunities = Opportunity.query.filter_by(creator_profile_id=profile.id)\
                                      .order_by(Opportunity.created_at.desc()).all()
 
-    # If publications are needed (mostly for PI or Student profiles)
+    # If publications are needed (mostly for Scientist or Student profiles)
     publications = Publication.query.filter_by(profile_id=profile.id).all()
 
     if profile.profile_type == 'Admin':
@@ -648,7 +661,7 @@ def opp_view_profile(profile_id):
             'message': 'This profile is an administrative account. Detailed profile information is restricted. Below are the opportunities posted by this administrator.',
             'opportunities': [{'id': opp.id, 'title': opp.title} for opp in opportunities]
         }), 403
-    elif profile.profile_type == 'PI':
+    elif profile.profile_type == 'Scientist':
         return render_template('visit_profile/facultyinfo.html',
                               pi=profile.pi_profile,
                               profile=profile,

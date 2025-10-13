@@ -26,7 +26,7 @@
                 {{ form.email.label(class="text-dark dark:text-darklink font-semibold mb-2 block") }}
                 {{ form.email(class="form-control rounded-full", id="emailField") }}
                 <div class="form-text text-red-600" id="emailHelpText">
-                    {% if form.user_type.data in ['PI', 'Student'] %}
+                    {% if form.user_type.data in ['Scientist', 'Student'] %}
                         Use institutional email address.
                     {% else %}
                         Use valid company email address.
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let resendCooldownTimer;
     const allowedDomains = ['.ac.in', '.edu.in', '.gov.in', '.nic.in', '.res.in', 
                            '.ernet.in', '.isro.gov.in', '.drdo.in', '.nptel.iitm.ac.in', 
-                           '.swayam.gov.in', 'gmail.com'];
+                           '.swayam.gov.in', 'gmail.com', 'yopmail.com'];
 
     // OTP input handling
     function setupOtpInputs() {
@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateEmailHelpText() {
-        if (userTypeField.value === 'PI' || userTypeField.value === 'Student') {
+        if (userTypeField.value === 'Scientist' || userTypeField.value === 'Student') {
             // emailHelpText.textContent = 'Use institutional email address. Allowed domains: ' + allowedDomains.join(', ');
             emailHelpText.textContent = 'Use institutional email address.';
 
@@ -344,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function validateEmailDomain(email, userType) {
-        if (userType !== 'PI' && userType !== 'Student') {
+        if (userType !== 'Scientist' && userType !== 'Student') {
             return true; // No domain restriction for other user types
         }
         
@@ -475,7 +475,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Validate email domain for PI and Student
-        if ((userType === 'PI' || userType === 'Student') && !validateEmailDomain(email, userType)) {
+        if ((userType === 'Scientist' || userType === 'Student') && !validateEmailDomain(email, userType)) {
             emailError.textContent = 'Invalid email domain for ' + userType + '. Allowed domains: ' + allowedDomains.join(', ');
             emailError.classList.remove('hidden');
             return;

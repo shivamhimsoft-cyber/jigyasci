@@ -78,7 +78,7 @@
                                     {% if current_user.user_type == 'Admin' %}
                                         <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
                                         href="{{ url_for('admin.admin_dashboard') }}">
-                                    {% elif current_user.user_type == 'PI' %}
+                                    {% elif current_user.user_type == 'Scientist' %}
                                         <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
                                         href="{{ url_for('pi.faculty_dashboard') }}">
                                     {% elif current_user.user_type == 'Student' %}
@@ -105,7 +105,7 @@
                                     </a>
                                 </li>
                             {% endif %}
-                                {% if current_user.is_authenticated and current_user.user_type == 'PI' %}
+                                {% if current_user.is_authenticated and current_user.user_type == 'Scientist' %}
 
                                <!-- <li class="sidebar-item">
                                     <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
@@ -197,7 +197,7 @@
                             {% endif %}
 
 
-                            {% if current_user.is_authenticated and current_user.user_type in ['PI', 'Student'] %}
+                            {% if current_user.is_authenticated and current_user.user_type in ['Scientist', 'Student'] %}
                                 <!-- Common for PI and Student -->
                                 <li class="sidebar-item">
                                     <a class="sidebar-link before:bg-lightindigo hover:text-indigo"
@@ -248,7 +248,7 @@
                                 </li>
                             {% endif %}
 
-                            {% if current_user.is_authenticated and current_user.user_type == 'PI' %}
+                            {% if current_user.is_authenticated and current_user.user_type == 'Scientist' %}
                              
 
                                  <li class="sidebar-item">
@@ -354,7 +354,7 @@
                                     <li class="sidebar-item">
                                         <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('admin.adminfaculty') }}">
                                             <iconify-icon icon="mdi:account-tie-outline" class="text-xl p-2"></iconify-icon>
-                                            <span class="hide-menu flex-shrink-0">Faculty</span>
+                                            <span class="hide-menu flex-shrink-0">Scientist</span>
                                         </a>
                                     </li>
 
@@ -363,6 +363,18 @@
                                         <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('admin.adminstudents') }}">
                                               <iconify-icon icon="mdi:account-school-outline" class="text-xl p-2"></iconify-icon>
                                             <span class="hide-menu flex-shrink-0">Students</span>
+                                        </a>
+                                    </li>
+
+                                    <!-- New Verification Section -->
+                                    <div class="caption">
+                                        <i class="ti ti-dots nav-small-cap-icon text-lg hidden text-center leading-[16px]"></i>
+                                        <span class="hide-menu">Accounts for Verification</span>
+                                    </div>
+                                    <li class="sidebar-item">
+                                        <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('admin.verify_accounts') }}">
+                                            <iconify-icon icon="mdi:shield-check-outline" class="text-xl p-2"></iconify-icon>
+                                            <span class="hide-menu flex-shrink-0">Pending Verifications</span>
                                         </a>
                                     </li>
 
@@ -1111,7 +1123,7 @@
             <div class="hidden sm:block">
                 <h6 class="font-bold text-dark dark:text-white text-base mb-1 profile-name">
                     {{ current_user.profile.pi_profile.name 
-                       if current_user.user_type == 'PI' and current_user.profile and current_user.profile.pi_profile 
+                       if current_user.user_type == 'Scientist' and current_user.profile and current_user.profile.pi_profile 
                        else current_user.email.split('@')[0] }}
                 </h6>
                 <p class="text-sm leading-tight mb-0 text-link dark:text-darklink">
@@ -1137,7 +1149,7 @@
                         <!-- <div>
                             <h5 class="card-title">
                                 {{ current_user.profile.pi_profile.name 
-                                   if current_user.user_type == 'PI' and current_user.profile and current_user.profile.pi_profile 
+                                   if current_user.user_type == 'Scientist' and current_user.profile and current_user.profile.pi_profile 
                                    else current_user.email.split('@')[0] }}
                             </h5>
                             <span class="card-subtitle">{{ current_user.user_type }}</span>

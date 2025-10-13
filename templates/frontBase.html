@@ -92,10 +92,10 @@
                                         ADMIN DASHBOARD
 
                                     </a>
-                                {% elif current_user.user_type == 'PI' %}
+                                {% elif current_user.user_type == 'Scientist' %}
                                     <a href="{{ url_for('pi.faculty_dashboard') }}"
                                     class="bg-[#66C0DC] text-[#ffffff] text-[16px] rounded-[50px] px-12 py-3 h-max w-max bg-[#66C0DC] text-[#ffffff] text-[16px] rounded-[50px] border-[2px] border-[#66C0DC] px-12 py-3 h-max w-max hover:bg-[#ffffff] hover:text-[#404452] transition ease-in duration-2000 whitespace-nowrap">
-                                        PI DASHBOARD
+                                        Scientist DASHBOARD
 
                                     </a>
                                 {% elif current_user.user_type == 'Student' %}

@@ -3,7 +3,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, DateField, IntegerField, HiddenField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional, URL, ValidationError
-from models import User
+from models import User, UserType  # Import UserType
 import re
 
 
@@ -36,25 +36,42 @@ class LoginForm(FlaskForm):
 
 
 # In forms.py, simplify the email validation
+# class RegistrationForm(FlaskForm):
+#     email = StringField('Email', validators=[DataRequired(), Email()])
+#     user_type = SelectField('User Type', choices=[
+#         ('Student', 'Student'),
+#         ('PI', 'Principal Investigator/Lab Director'),
+#         ('Industry', 'Industry/Company'),
+#         ('Vendor', 'Vendor/Service Provider')
+#     ], validators=[DataRequired()])
+#     password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
+#     password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
+#     agree_terms = BooleanField('I agree to the Terms and Conditions', validators=[DataRequired()])
+#     submit = SubmitField('Register')
+
+#     def validate_email(self, email):
+#         user = User.query.filter_by(email=email.data).first()
+#         if user is not None:
+#             raise ValidationError('Email already registered. Please use a different email address.')
+
+
 class RegistrationForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
-    user_type = SelectField('User Type', choices=[
-        ('Student', 'Student'),
-        ('PI', 'Principal Investigator/Lab Director'),
-        ('Industry', 'Industry/Company'),
-        ('Vendor', 'Vendor/Service Provider')
-    ], validators=[DataRequired()])
+    user_type = SelectField('User Type', coerce=str, validators=[DataRequired()])  # coerce=str for string choices
     password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
     password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
     agree_terms = BooleanField('I agree to the Terms and Conditions', validators=[DataRequired()])
     submit = SubmitField('Register')
 
+    def __init__(self, *args, **kwargs):
+        super(RegistrationForm, self).__init__(*args, **kwargs)
+        # Dynamic choices from UserType table (assuming seeded with 'Student', 'PI', 'Industry', 'Vendor')
+        self.user_type.choices = [('', 'Select User Type')] + [(ut.name, ut.name) for ut in UserType.query.filter_by(status='Active').all()]
+
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('Email already registered. Please use a different email address.')
-
-
 
 
             

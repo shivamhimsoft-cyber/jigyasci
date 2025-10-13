@@ -1,12 +1,11 @@
 from datetime import datetime
 # from app import db
 from extensions import db  #  direct yaha se lo
-
 from flask_login import UserMixin
-
 from werkzeug.security import generate_password_hash
-from io import TextIOWrapper
-from sqlalchemy import or_
+import bcrypt  # Assuming bcrypt is used; add if not present: pip install bcrypt
+# from io import TextIOWrapper
+# from sqlalchemy import or_
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -14,12 +13,12 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
-    user_type = db.Column(db.String(20), nullable=False)  # Student, PI, Industry, Vendor, Admin, Guest
+    user_type = db.Column(db.String(20), nullable=False)  # Student, Scientist, Industry, Vendor, Admin, Guest
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, default=datetime.utcnow)
     account_status = db.Column(db.String(20), default='Active')  # Active, Suspended, Deleted
     verification_status = db.Column(db.String(20), default='Pending')  # Pending, Verified, Rejected
-    
+
     # Relationships
     profile = db.relationship('Profile', backref='user', uselist=False, cascade="all, delete-orphan")
     sent_messages = db.relationship('Message', backref='sender', lazy='dynamic', 
@@ -54,7 +53,6 @@ class Register(db.Model):
     verified = db.Column(db.Boolean, default=False)
     
 
-    
     # Relationships
     user = db.relationship('User', foreign_keys=[user_id], backref=db.backref('register_entries', lazy='dynamic'))
     profile = db.relationship('Profile', foreign_keys=[profile_id], backref=db.backref('register_entries', lazy='dynamic'))
@@ -664,7 +662,7 @@ class SponsorRequest(db.Model):
     pi = db.relationship('PIProfile', backref='sponsor_requests')
 
     def __repr__(self):
-        return f"<SponsorRequest for PI {self.profile_id}>"
+        return f"<SponsorRequest for Scientist {self.profile_id}>"
 
 
 

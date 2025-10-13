@@ -32,6 +32,49 @@ from werkzeug.utils import secure_filename
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin', static_folder='static')
 
+# ====================================================================================
+#                    ADMIN PENDING Scientist ACCOUNTS      
+# ====================================================================================
+
+# Verification routes (fixed to use 'Scientist' instead of 'Scientist')
+@admin_bp.route('/verify_accounts')
+@login_required
+def verify_accounts():
+    if current_user.user_type != 'Admin':
+        flash('Access denied.', 'danger')
+        return redirect(url_for('index'))
+    
+    pending_pis = User.query.filter_by(user_type='Scientist', verification_status='Pending', account_status='Inactive').order_by(User.created_at.desc()).all()
+    return render_template('admin/admin_settings/verify_accounts.html', pending_pis=pending_pis)
+
+@admin_bp.route('/verify_account/<int:user_id>', methods=['POST'])
+@login_required
+def verify_account(user_id):
+    if current_user.user_type != 'Admin':
+        return jsonify({'success': False, 'message': 'Access denied.'}), 403
+    
+    user = User.query.get_or_404(user_id)
+    if user.user_type != 'Scientist' or user.verification_status != 'Pending':
+        return jsonify({'success': False, 'message': 'Invalid user for verification.'}), 400
+    
+    action = request.form.get('action')
+    if action == 'accept':
+        user.account_status = 'Active'
+        user.verification_status = 'Verified'
+        send_verification_email(user.email, 'accepted')
+        flash(f'Account for {user.email} verified successfully.', 'success')  # For non-AJAX fallback
+    elif action == 'reject':
+        user.verification_status = 'Rejected'
+        send_verification_email(user.email, 'rejected')
+        flash(f'Verification for {user.email} rejected.', 'warning')  # For non-AJAX fallback
+    else:
+        return jsonify({'success': False, 'message': 'Invalid action.'}), 400
+    
+    db.session.commit()
+    return jsonify({'success': True, 'message': f'Account {action}ed successfully.'})
+# Ensure send_verification_email is imported or defined here (from auth_routes)
+from routes.auth_routes import send_verification_email
+
 
 
 # ============================================================================================
@@ -47,7 +90,7 @@ def export_report():
     # Query stats
     total_users = User.query.count()
     students = User.query.filter_by(user_type='Student').count()
-    pis = User.query.filter_by(user_type='PI').count()
+    pis = User.query.filter_by(user_type='Scientist').count()
     industry = User.query.filter_by(user_type='Industry').count()
     vendors = User.query.filter_by(user_type='Vendor').count()
     opportunities = Opportunity.query.count()
@@ -808,7 +851,7 @@ def admin_dashboard():
     stats = {
         'total_users': User.query.count(),
         'students': User.query.filter_by(user_type='Student').count(),
-        'pis': User.query.filter_by(user_type='PI').count(),
+        'pis': User.query.filter_by(user_type='Scientist').count(),
         'industry': User.query.filter_by(user_type='Industry').count(),
         'vendors': User.query.filter_by(user_type='Vendor').count(),
         'opportunities': Opportunity.query.count(),
@@ -1595,7 +1638,7 @@ def download_student_template():
     
     # Write sample data (added sample for research_profiles)
     sample_data = [
-        'John Doe', 'University of Example', 'john.doe@example.com', '1234567890',
+        'Mohit sherma', 'University of Example', 'mohit.doe@example.com', '1234567890',
         '1995-01-15', 'Male', '123 Example St, City', 'Machine Learning, AI', 'Profile in AI Research Group',  # Added sample
         'Passionate about research', 'PhD Student'
     ]
@@ -1614,6 +1657,10 @@ def download_student_template():
 
 import pandas as pd
 from werkzeug.utils import secure_filename
+import io
+import csv
+import os
+from datetime import datetime
 
 ALLOWED_EXTENSIONS = {'csv'}
 
@@ -1660,7 +1707,7 @@ def adminfaculty():
                     process_faculty_csv(filepath)
                 except Exception as e:
                     db.session.rollback()
-                    flash(f'Failed to import faculty data due to an error: {str(e)}. Please ensure the CSV file is correctly formatted.', 'error')
+                    flash(f'Failed to import Scientist data due to an error: {str(e)}. Please ensure the CSV file is correctly formatted.', 'error')
                 finally:
                     if os.path.exists(filepath):
                         os.remove(filepath)
@@ -1682,7 +1729,7 @@ def adminfaculty():
             user = User(
                 email=email,
                 password_hash='scrypt:32768:8:1$I8E3dYyIRDp5xaaU$dc6449d73add70030add0bf15dfee034487d095642dd6d7f2980722c04cb204b2d23bc72c073e8fcc4e76d6b889a244e0f67156e60870bef2385c8efd068108f',
-                user_type='PI',
+                user_type='Scientist',
                 account_status='Active',
                 verification_status='Verified',
                 created_at=datetime.utcnow(),
@@ -1694,7 +1741,7 @@ def adminfaculty():
             # Create profile
             profile = Profile(
                 user_id=user.id,
-                profile_type='PI',
+                profile_type='Scientist',
                 profile_completeness=0,
                 visibility_settings='Public',
                 last_updated=datetime.utcnow()
@@ -1741,6 +1788,7 @@ def adminfaculty():
                 contact_phone=request.form.get('contact_phone'),
                 address=request.form.get('address'),
                 profile_picture=profile_picture,
+                research_profiles=request.form.get('research_profiles'),
                 current_message=request.form.get('current_message'),
                 current_focus=request.form.get('current_focus'),
                 expectations_from_students=request.form.get('expectations_from_students'),
@@ -1749,17 +1797,20 @@ def adminfaculty():
             )
             db.session.add(pi_profile)
             db.session.commit()
-            flash(f'Faculty profile for {pi_profile.name} added successfully.', 'success')
+            flash(f'Scientist profile for {pi_profile.name} added successfully.', 'success')
         
         return redirect(url_for('admin.adminfaculty'))
 
     page = request.args.get('page', 1, type=int)
-    per_page = 20
+    per_page = int(request.args.get('per_page', 20))  # Now uses template dropdown, default 20
 
-    faculty_query = PIProfile.query.join(Profile).join(User).filter(
-        User.user_type == 'PI',
-        User.account_status == 'Active'
-    ).order_by(PIProfile.name)
+
+    faculty_query = PIProfile.query.join(Profile, PIProfile.profile_id == Profile.id)\
+                                    .join(User, Profile.user_id == User.id)\
+                                    .filter(
+                                            User.user_type == 'Scientist',
+                                            User.account_status == 'Active'
+                                        ).order_by(PIProfile.name)
 
     faculty = faculty_query.paginate(page=page, per_page=per_page, error_out=False)
 
@@ -1769,7 +1820,6 @@ def adminfaculty():
                          departments=departments,
                          research_areas=research_areas,
                          genders=genders)
-
 
 
 
@@ -1796,7 +1846,7 @@ def process_faculty_csv(filepath):
         user = User(
             email=email,
             password_hash='scrypt:32768:8:1$I8E3dYyIRDp5xaaU$dc6449d73add70030add0bf15dfee034487d095642dd6d7f2980722c04cb204b2d23bc72c073e8fcc4e76d6b889a244e0f67156e60870bef2385c8efd068108f',
-            user_type='PI',
+            user_type='Scientist',
             account_status='Active',
             verification_status='Verified',
             created_at=datetime.utcnow(),
@@ -1807,7 +1857,7 @@ def process_faculty_csv(filepath):
 
         profile = Profile(
             user_id=user.id,
-            profile_type='PI',
+            profile_type='Scientist',
             profile_completeness=0,
             visibility_settings='Public',
             last_updated=datetime.utcnow()
@@ -1859,21 +1909,22 @@ def process_faculty_csv(filepath):
             contact_phone=clean_str(row.get('contact_phone')),
             address=clean_str(row.get('address')),
             profile_picture=clean_str(row.get('profile_picture')),
-            current_message=clean_str(row.get('current_message')),
+            research_profiles=clean_str(row.get('research_profiles')),
+            current_message=clean_str(row.get('current_message')),  
             current_focus=clean_str(row.get('current_focus_(research_area)')),
             expectations_from_students=clean_str(row.get('expectations_from_student')),
-            why_join_lab=clean_str(row.get('why_join_my_lab')),
-            last_updated=last_updated_dt
-        )
+            why_join_lab=clean_str(row.get('why_join_lab')),
+            last_updated=last_updated_dt or datetime.utcnow()  # Default to now if missing     
+       )
         db.session.add(pi_profile)
         added_count += 1
 
     if added_count > 0:
         db.session.commit()
-        flash(f"Successfully imported {added_count} faculty profile{'s' if added_count != 1 else ''} from the CSV file.", "success")
+        flash(f"Successfully imported {added_count} Scientist profile{'s' if added_count != 1 else ''} from the CSV file.", "success")
     else:
         db.session.rollback()
-        flash("No faculty profiles were imported from the CSV file. Please check the file format and data.", "warning")
+        flash("No Scientist profiles were imported from the CSV file. Please check the file format and data.", "warning")
 
     if errors:
         error_msg = "; ".join(errors[:5])  # Show up to 5 errors
@@ -1894,10 +1945,10 @@ def delete_faculty(id):
         db.session.delete(profile)
         db.session.delete(user)
         db.session.commit()
-        flash('Faculty deleted successfully.', 'success')
+        flash('Scientist deleted successfully.', 'success')
     except Exception as e:
         db.session.rollback()
-        flash(f'Error deleting faculty: {str(e)}', 'error')
+        flash(f'Error deleting Scientist: {str(e)}', 'error')
 
     return redirect(url_for('admin.adminfaculty'))
 
@@ -1917,17 +1968,17 @@ def download_faculty_template():
         'location_(city)', 'education', 'research_intrest', 'papers', 'citations',
         'research_experience_(number_of_years)', 'h_index', 'gender', 'dob',
         'current_designation', 'start_date', 'contact_phone', 'address',
-        'profile_picture', 'current_message', 'current_focus_(research_area)',
-        'expectations_from_student', 'why_join_my_lab'
+        'profile_picture', 'research_profiles', 'current_message', 'current_focus_(research_area)',
+        'expectations_from_student', 'why_join_lab'
     ]
     writer.writerow(headers)
     
     # Write sample data
     sample_data = [
-        'Jane Doe', 'jane.doe@example.com', 'Computer Science', 'University of Example', 'UoE',
+        'Manan Doe', 'manan.doe@example.com', 'Computer Science', 'University of Example', 'UoE',
         'New York', 'PhD in Computer Science', 'Artificial Intelligence, Data Science', '50', '1000',
         '10', '20', 'Female', '1985-05-20', 'Professor', '2015-01-01', '1234567890',
-        '123 Example St, City', '', 'Looking for motivated students', 'AI Research',
+        '123 Example St, City', '', 'Google Scholar, ResearchGate', 'Looking for motivated students', 'AI Research',
         'Strong analytical skills', 'Innovative lab environment'
     ]
     writer.writerow(sample_data)
@@ -1946,7 +1997,7 @@ def download_faculty_template():
 @admin_bp.route('/pi_profile')
 @login_required
 def view_pi_profile():
-    if current_user.user_type != 'PI':
+    if current_user.user_type != 'Scientist':
         abort(403)
     
     profile = current_user.profile.pi_profile
@@ -1960,14 +2011,14 @@ def view_pi_profile():
 @admin_bp.route('/faculty/sponsor-request', methods=['GET', 'POST'])
 @login_required
 def sponsor_request():
-    if current_user.user_type != 'PI':
+    if current_user.user_type != 'Scientist':
         abort(403)
 
     profile = Profile.query.filter_by(user_id=current_user.id).first()
     pi_profile = PIProfile.query.filter_by(profile_id=profile.id).first()
 
     if not pi_profile:
-        flash("No PI Profile found.", "danger")
+        flash("No Scientist Profile found.", "danger")
         return redirect(url_for('pi.faculty_dashboard'))
 
     if request.method == 'POST':
@@ -2018,158 +2069,6 @@ def get_or_create_admin_profile():
         db.session.commit()
         return profile
     return current_user.profile
-
-# Update the admin_opportunities route
-# @admin_bp.route('/opportunities')
-# @login_required
-# @admin_required
-# def admin_opportunities():
-#     # Get or create admin profile
-#     profile = get_or_create_admin_profile()
-    
-#     page = request.args.get('page', 1, type=int)
-#     per_page = request.args.get('per_page', 10, type=int)
-    
-#     # Get opportunities created by the admin
-#     opportunities = Opportunity.query.filter_by(creator_profile_id=profile.id)\
-#         .order_by(Opportunity.created_at.desc())\
-#         .paginate(page=page, per_page=per_page, error_out=False)
-    
-#     return render_template('admin/opportunities.html', opportunities=opportunities)
-
-# # Update the admin_add_opportunity route
-# @admin_bp.route('/add-opportunity', methods=['GET', 'POST'])
-# @login_required
-# @admin_required
-# def admin_add_opportunity():
-#     # Get or create admin profile
-#     profile = get_or_create_admin_profile()
-    
-#     if request.method == 'POST':
-#         try:
-#             form_data = request.form
-            
-#             # Convert empty strings to None for optional fields
-#             def clean_field(value):
-#                 return value if value else None
-                
-#             # Create new opportunity
-#             opportunity = Opportunity(creator_profile_id=profile.id)
-            
-#             # Required fields
-#             opportunity.type = form_data['type']
-#             opportunity.title = form_data['title']
-            
-#             # Optional fields
-#             opportunity.domain = clean_field(form_data.get('domain'))
-#             opportunity.eligibility = clean_field(form_data.get('eligibility'))
-#             opportunity.description = clean_field(form_data.get('description'))
-#             opportunity.advertisement_link = clean_field(form_data.get('advertisement_link'))
-#             opportunity.location = clean_field(form_data.get('location'))
-#             opportunity.duration = clean_field(form_data.get('duration'))
-#             opportunity.compensation = clean_field(form_data.get('compensation'))
-#             opportunity.keywords = clean_field(form_data.get('keywords'))
-#             opportunity.status = form_data.get('status', 'Active')
-            
-#             # Handle date field
-#             deadline = form_data.get('deadline')
-#             opportunity.deadline = datetime.strptime(deadline, '%Y-%m-%d') if deadline else None
-            
-#             db.session.add(opportunity)
-#             db.session.commit()
-            
-#             flash('Opportunity created successfully', 'success')
-#             return redirect(url_for('admin.admin_opportunities'))
-            
-#         except Exception as e:
-#             db.session.rollback()
-#             flash(f'Error creating opportunity: {str(e)}', 'error')
-    
-#     return render_template('admin/add_opportunity.html')
-
-# # Update the admin_bulk_upload_opportunities route
-# @admin_bp.route('/bulk-upload-opportunities', methods=['GET', 'POST'])
-# @login_required
-# @admin_required
-# def admin_bulk_upload_opportunities():
-#     # Get or create admin profile
-#     profile = get_or_create_admin_profile()
-    
-#     form = BulkUploadForm()
-    
-#     if form.validate_on_submit():
-#         file = form.file.data
-        
-#         if file and allowed_bulk_file(file.filename):
-#             filename = secure_filename(file.filename)
-#             filepath = os.path.join(current_app.config['BULK_UPLOAD_FOLDER'], filename)
-            
-#             # Ensure directory exists
-#             os.makedirs(current_app.config['BULK_UPLOAD_FOLDER'], exist_ok=True)
-#             file.save(filepath)
-            
-#             try:
-#                 # Process the file based on extension
-#                 if filename.endswith('.csv'):
-#                     df = pd.read_csv(filepath)
-#                 else:  # Excel files
-#                     df = pd.read_excel(filepath)
-                
-#                 # Process each row
-#                 success_count = 0
-#                 error_count = 0
-#                 errors = []
-                
-#                 for index, row in df.iterrows():
-#                     try:
-#                         # Create new opportunity
-#                         opportunity = Opportunity(creator_profile_id=profile.id)
-                        
-#                         # Map CSV columns to opportunity fields
-#                         opportunity.type = row.get('type', 'Other')
-#                         opportunity.title = row.get('title', 'Untitled Opportunity')
-#                         opportunity.domain = row.get('domain')
-#                         opportunity.eligibility = row.get('eligibility')
-#                         opportunity.description = row.get('description')
-#                         opportunity.advertisement_link = row.get('advertisement_link')
-#                         opportunity.location = row.get('location')
-#                         opportunity.duration = row.get('duration')
-#                         opportunity.compensation = row.get('compensation')
-#                         opportunity.keywords = row.get('keywords')
-#                         opportunity.status = row.get('status', 'Active')
-                        
-#                         # Handle deadline
-#                         deadline_str = row.get('deadline')
-#                         if deadline_str:
-#                             try:
-#                                 opportunity.deadline = datetime.strptime(str(deadline_str), '%Y-%m-%d')
-#                             except ValueError:
-#                                 # Try different formats if needed
-#                                 opportunity.deadline = None
-                        
-#                         db.session.add(opportunity)
-#                         success_count += 1
-                        
-#                     except Exception as e:
-#                         error_count += 1
-#                         errors.append(f"Row {index+1}: {str(e)}")
-                
-#                 db.session.commit()
-                
-#                 flash(f'Bulk upload completed. Success: {success_count}, Errors: {error_count}', 
-#                       'success' if error_count == 0 else 'warning')
-                
-#                 if errors:
-#                     flash('Errors: ' + '; '.join(errors[:5]) + ('...' if len(errors) > 5 else ''), 'warning')
-                
-#                 return redirect(url_for('admin.admin_opportunities'))
-                
-#             except Exception as e:
-#                 flash(f'Error processing file: {str(e)}', 'error')
-#         else:
-#             flash('Invalid file format. Please upload CSV or Excel files.', 'error')
-    
-#     return render_template('admin/bulk_upload_opportunities.html', form=form)
 
 
 

@@ -122,7 +122,7 @@ def create_profiles(student, pi, industry, vendor):
         # PI profile
         pi_profile = Profile(
             user_id=pi.id,
-            profile_type="PI",
+            profile_type="Scientist",
             profile_completeness=95,
             visibility_settings="Public",
             last_updated=datetime.utcnow()
