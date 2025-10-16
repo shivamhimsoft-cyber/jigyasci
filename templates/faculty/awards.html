@@ -2,50 +2,50 @@
 {% block title %}Awards | Research Collaboration Platform{% endblock %}
 {% block content %}
 
-<div class="max-w-full">
-  <div class="container full-container max-w-full">
+<div class="max-w-full bg-gray-50 dark:bg-gray-900 min-h-screen py-8">
+  <div class="container full-container max-w-full mx-auto px-4 sm:px-6 lg:px-8">
 
     <!-- Add Button -->
-    <div class="flex justify-end mb-4">
+    <div class="flex justify-end mb-6">
       <button onclick="toggleForm()" 
-              class="bg-green-500 hover:bg-green-600 text-black font-semibold py-2 px-4 rounded shadow">
+              class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-opacity-50">
         Add Award
       </button>
     </div>
 
     <!-- Add/Edit Award Form -->
     <div id="award-form" class="hidden">
-      <div class="card mb-6">
-        <div class="card-body">
-          <h5 class="card-title">Add / Edit Award</h5>
-          <form method="POST" id="awardForm" class="grid grid-cols-12 gap-4 mt-4" onsubmit="return validateAwardForm()">
+      <div class="card mb-8 bg-white dark:bg-gray-800 shadow-xl rounded-xl border border-gray-200 dark:border-gray-700">
+        <div class="card-body p-8">
+          <h5 class="card-title text-2xl font-bold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-4">Add / Edit Award</h5>
+          <form method="POST" id="awardForm" class="grid grid-cols-1 md:grid-cols-12 gap-6 mt-4" onsubmit="return validateAwardForm()">
             <input type="hidden" name="award_id" id="award_id">
             
-            <div class="col-span-12">
-              <label class="font-semibold block mb-1">Title*</label>
-              <input type="text" name="title" class="form-control py-2" required>
+            <div class="md:col-span-12">
+              <label class="font-semibold block mb-2 text-gray-700 dark:text-gray-300">Title*</label>
+              <input type="text" name="title" class="form-control w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200" required>
             </div>
             
-            <div class="col-span-6">
-              <label class="font-semibold block mb-1">Date*</label>
-              <input type="date" name="date" class="form-control py-2" required>
+            <div class="md:col-span-6">
+              <label class="font-semibold block mb-2 text-gray-700 dark:text-gray-300">Date*</label>
+              <input type="date" name="date" class="form-control w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200" required>
             </div>
             
-            <div class="col-span-6">
-              <label class="font-semibold block mb-1">Issuing Organization</label>
-              <input type="text" name="issuing_organization" class="form-control py-2">
+            <div class="md:col-span-6">
+              <label class="font-semibold block mb-2 text-gray-700 dark:text-gray-300">Issuing Organization</label>
+              <input type="text" name="issuing_organization" class="form-control w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200">
             </div>
             
-            <div class="col-span-12">
-              <label class="font-semibold block mb-1">Description</label>
-              <textarea name="description" class="form-control py-2" rows="4"></textarea>
+            <div class="md:col-span-12">
+              <label class="font-semibold block mb-2 text-gray-700 dark:text-gray-300">Description</label>
+              <textarea name="description" class="form-control w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200" rows="4"></textarea>
             </div>
             
-            <div class="col-span-12 flex justify-end gap-2 mt-4">
-              <button type="submit" id="submitBtn" class="bg-blue-500 hover:bg-blue-600 text-black font-semibold py-2 px-4 rounded shadow">
+            <div class="md:col-span-12 flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <button type="submit" id="submitBtn" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50">
                 Save
               </button>
-              <button type="button" onclick="cancelEdit()" class="btn btn-light-error">Cancel</button>
+              <button type="button" onclick="cancelEdit()" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-50">Cancel</button>
             </div>
           </form>
         </div>
@@ -53,38 +53,38 @@
     </div>
 
     <!-- Awards Table -->
-    <div class="card">
-      <div class="card-body overflow-auto">
-        <h5 class="card-title">Awards & Honors</h5>
-        <div class="overflow-x-auto mt-4">
-          <table class="min-w-full divide-y divide-border dark:divide-darkborder">
-            <thead>
+    <div class="card bg-white dark:bg-gray-800 shadow-xl rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div class="card-body p-8 overflow-auto">
+        <h5 class="card-title text-2xl font-bold text-gray-900 dark:text-white mb-6">Awards & Honors</h5>
+        <div class="overflow-x-auto mt-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th class="text-start p-3 ps-0 font-semibold text-dark dark:text-white text-base">#</th>
-                <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Title</th>
-                <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Date</th>
-                <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Organization</th>
-                <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Description</th>
-                <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Actions</th>
+                <th class="text-start p-4 ps-0 font-semibold text-gray-900 dark:text-white text-sm uppercase tracking-wider">#</th>
+                <th class="text-start p-4 font-semibold text-gray-900 dark:text-white text-sm uppercase tracking-wider">Title</th>
+                <th class="text-start p-4 font-semibold text-gray-900 dark:text-white text-sm uppercase tracking-wider">Date</th>
+                <th class="text-start p-4 font-semibold text-gray-900 dark:text-white text-sm uppercase tracking-wider">Organization</th>
+                <th class="text-start p-4 font-semibold text-gray-900 dark:text-white text-sm uppercase tracking-wider">Description</th>
+                <th class="text-start p-4 font-semibold text-gray-900 dark:text-white text-sm uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody class="divide-y">
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
               {% for award in awards.items %}
-              <tr>
-                <td class="p-3 ps-0 whitespace-nowrap">{{ (awards.page - 1) * awards.per_page + loop.index }}</td>
-                <td class="p-3">{{ award.title }}</td>
-                <td class="p-3 whitespace-nowrap">{{ award.date.strftime('%Y-%m-%d') }}</td>
-                <td class="p-3">{{ award.issuing_organization or '-' }}</td>
-                <td class="p-3">{{ award.description|truncate(50) if award.description else '-' }}</td>
-                <td class="p-3 whitespace-nowrap">
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                <td class="p-4 ps-0 whitespace-nowrap text-gray-900 dark:text-white font-medium">{{ (awards.page - 1) * awards.per_page + loop.index }}</td>
+                <td class="p-4 text-gray-900 dark:text-white font-medium">{{ award.title }}</td>
+                <td class="p-4 whitespace-nowrap text-gray-900 dark:text-white font-medium">{{ award.date.strftime('%Y-%m-%d') }}</td>
+                <td class="p-4 text-gray-900 dark:text-white max-w-xs truncate">{{ award.issuing_organization or '-' }}</td>
+                <td class="p-4 text-gray-900 dark:text-white max-w-xs truncate">{{ award.description|truncate(50) if award.description else '-' }}</td>
+                <td class="p-4 whitespace-nowrap">
                   <div class="hs-dropdown relative inline-flex">
-                    <button class="hs-dropdown-toggle h-10 w-10 text-bodytext group bg-hover justify-center items-center rounded-full">
+                    <button class="hs-dropdown-toggle h-10 w-10 text-gray-500 group bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 justify-center items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300">
                       <i class="ti ti-dots-vertical text-lg"></i>
                     </button>
-                    <div class="hs-dropdown-menu hidden min-w-40 z-[1]">
+                    <div class="hs-dropdown-menu hidden min-w-40 z-[1] bg-white dark:bg-gray-800 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700 py-1">
                       <div class="flex flex-col">
-                        <div class="py-1 px-4 bg-hover">
-                          <a class="font-medium flex gap-2 items-center cursor-pointer"
+                        <div class="py-2 px-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                          <a class="font-medium flex gap-2 items-center cursor-pointer text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
                               onclick='populateEditForm({
                                 id: {{ award.id }},
                                 title: `{{ award.title|e }}`,
@@ -95,10 +95,10 @@
                             <i class="ti ti-edit text-base"></i>Edit
                           </a>
                         </div>
-                        <div class="py-1 px-4 bg-hover">
+                        <div class="py-2 px-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
                           <form method="POST" action="{{ url_for('pi.delete_award', id=award.id) }}"
                                 onsubmit="return confirm('Are you sure you want to delete this award?');">
-                            <button type="submit" class="font-medium flex gap-2 items-center text-red-600 hover:text-red-800">
+                            <button type="submit" class="font-medium flex gap-2 items-center text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors duration-200">
                               <i class="ti ti-trash text-base"></i>Delete
                             </button>
                           </form>
@@ -110,7 +110,7 @@
               </tr>
               {% else %}
               <tr>
-                <td colspan="6" class="p-3 text-center text-gray-500">No awards found.</td>
+                <td colspan="6" class="p-12 text-center text-gray-500 dark:text-gray-400 font-medium">No awards found.</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -118,51 +118,51 @@
         </div>
 
         <!-- Pagination -->
-        <div class="md:flex text-center pt-3 justify-between items-center border-t border-border dark:border-darkborder">
-          <p class="font-medium">
+        <div class="md:flex text-center pt-6 justify-between items-center border-t border-gray-200 dark:border-gray-700 mt-6">
+          <p class="font-medium text-gray-700 dark:text-gray-300 hidden sm:block">
             Showing {{ awards.first }} to {{ awards.last }} of {{ awards.total }} entries
           </p>
           
-          <nav class="flex items-center gap-x-1">
+          <nav class="flex items-center gap-x-1 mt-4 md:mt-0">
             {% if awards.has_prev %}
               <a href="{{ url_for('awards', page=awards.prev_num, per_page=request.args.get('per_page', '10')) }}"
-                class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-hover focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-darklink dark:focus:bg-white/10">
+                class="min-h-[44px] min-w-[44px] py-3 px-3 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
                 <i class="ti ti-chevron-left text-sm leading-tight font-medium"></i>
                 <span class="leading-tight">Previous</span>
               </a>
             {% else %}
-              <span class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-gray-200 cursor-not-allowed dark:text-darklink">
+              <span class="min-h-[44px] min-w-[44px] py-3 px-3 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-gray-400 dark:text-gray-500 bg-gray-200 dark:bg-gray-600 cursor-not-allowed shadow-sm">
                 <i class="ti ti-chevron-left text-sm leading-tight font-medium"></i>
                 <span class="leading-tight">Previous</span>
               </span>
             {% endif %}
             
-            <div class="flex items-center gap-x-1">
+            <div class="flex items-center gap-x-1 mx-2">
               {% for page_num in awards.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=3) %}
                 {% if page_num %}
                   {% if awards.page == page_num %}
-                    <span class="min-h-[38px] min-w-[38px] flex justify-center items-center text-white bg-primary py-2 px-3 text-sm rounded-lg focus:outline-none"
+                    <span class="min-h-[44px] min-w-[44px] flex justify-center items-center text-white bg-blue-600 py-3 px-4 text-sm rounded-lg shadow-md focus:outline-none"
                       aria-current="page">{{ page_num }}</span>
                   {% else %}
                     <a href="{{ url_for('awards', page=page_num, per_page=request.args.get('per_page', '10')) }}"
-                      class="min-h-[38px] min-w-[38px] flex justify-center items-center text-dark bg-hover py-2 px-3 text-sm rounded-lg focus:outline-none focus:bg-gray-100 dark:text-darklink dark:focus:bg-white/10">
+                      class="min-h-[44px] min-w-[44px] flex justify-center items-center text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 py-3 px-4 text-sm rounded-lg shadow-sm hover:shadow-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
                       {{ page_num }}
                     </a>
                   {% endif %}
                 {% else %}
-                  <span class="min-h-[38px] min-w-[38px] flex justify-center items-center text-dark bg-hover py-2 px-3 text-sm rounded-lg">...</span>
+                  <span class="min-h-[44px] min-w-[44px] flex justify-center items-center text-gray-400 dark:text-gray-500 bg-gray-200 dark:bg-gray-600 py-3 px-4 text-sm rounded-lg shadow-sm">...</span>
                 {% endif %}
               {% endfor %}
             </div>
             
             {% if awards.has_next %}
               <a href="{{ url_for('awards', page=awards.next_num, per_page=request.args.get('per_page', '10')) }}"
-                class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-hover focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-darklink dark:focus:bg-white/10">
+                class="min-h-[44px] min-w-[44px] py-3 px-3 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
                 <span class="leading-tight">Next</span>
                 <i class="ti ti-chevron-right text-sm leading-tight font-medium"></i>
               </a>
             {% else %}
-              <span class="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-dark bg-gray-200 cursor-not-allowed dark:text-darklink">
+              <span class="min-h-[44px] min-w-[44px] py-3 px-3 inline-flex justify-center items-center gap-x-1.5 text-sm rounded-lg text-gray-400 dark:text-gray-500 bg-gray-200 dark:bg-gray-600 cursor-not-allowed shadow-sm">
                 <span class="leading-tight">Next</span>
                 <i class="ti ti-chevron-right text-sm leading-tight font-medium"></i>
               </span>

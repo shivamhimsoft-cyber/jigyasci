@@ -2,9 +2,10 @@
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
-from models import Profile, VendorProfile
+from models import Profile, VendorProfile, DealingCategory
 from extensions import db  # yeh alag se import karo
 from sqlalchemy import or_
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.utils import secure_filename
 import os
 
@@ -28,6 +29,7 @@ def vendorProfile():
 
     profile = Profile.query.filter_by(user_id=current_user.id).first_or_404()
     vendor = VendorProfile.query.filter_by(profile_id=profile.id).first()
+    dealing_categories = DealingCategory.query.filter_by(status='Active').all()
 
     if request.method == 'POST':
         if not vendor:
@@ -41,24 +43,49 @@ def vendorProfile():
         vendor.pan = request.form['pan']
         vendor.address = request.form['address']
         vendor.region = request.form['region']
-        vendor.dealing_categories = request.form['dealing_categories']
+        vendor.dealing_categories = ', '.join(request.form.getlist('dealing_categories'))
         vendor.product_categories = request.form['product_categories']
         vendor.why_me = request.form['why_me']
+        vendor.regional_contacts = request.form['regional_contacts']
+        vendor.proud_customers = request.form['proud_customers']
 
         logo_file = request.files.get('logo')
         if logo_file and logo_file.filename:
             filename = secure_filename(logo_file.filename)
-            logo_path = os.path.join('static/uploads/vendor_logos', filename)
-            os.makedirs(os.path.dirname(logo_path), exist_ok=True)
-            logo_file.save(logo_path)
-            vendor.logo = logo_path
+            relative_path = os.path.join('uploads/vendor_logos', filename).replace('\\', '/')
+            upload_path = os.path.join('static', relative_path)
+            os.makedirs(os.path.dirname(upload_path), exist_ok=True)
+            try:
+                logo_file.save(upload_path)
+                vendor.logo = relative_path
+            except Exception as e:
+                flash(f"Error uploading logo: {str(e)}", "error")
+                return redirect(url_for('vendor.vendorProfile'))
 
-        db.session.add(vendor)
-        db.session.commit()
-        flash('Vendor profile saved successfully.', 'success')
-        return redirect(url_for('vendor.vendor_profile', vendor_id=vendor.id))
+        document_file = request.files.get('document_upload')
+        if document_file and document_file.filename:
+            filename = secure_filename(document_file.filename)
+            relative_path = os.path.join('uploads/vendor_documents', filename).replace('\\', '/')
+            upload_path = os.path.join('static', relative_path)
+            os.makedirs(os.path.dirname(upload_path), exist_ok=True)
+            try:
+                document_file.save(upload_path)
+                vendor.document_upload = relative_path
+            except Exception as e:
+                flash(f"Error uploading document: {str(e)}", "error")
+                return redirect(url_for('vendor.vendorProfile'))
 
-    return render_template('vendor/profile.html', vendor=vendor)
+        try:
+            db.session.add(vendor)
+            db.session.commit()
+            flash('Vendor profile saved successfully.', 'success')
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            flash(f'Error saving profile: {str(e)}', 'error')
+
+        return redirect(url_for('vendor.vendorProfile'))
+
+    return render_template('vendor/profile.html', vendor=vendor, dealing_categories=dealing_categories)
 
 
 @vendor_bp.route('/vendor/<int:vendor_id>')
@@ -115,8 +142,3 @@ def full_table():
     return render_template('vendor/full_table.html', 
                          vendors=vendors,
                          query=query)
-
-
-
-
-

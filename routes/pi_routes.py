@@ -1,7 +1,9 @@
 # routes/pi_routes.py (updated basic_info route to include research_profiles)
 from flask import Blueprint, render_template, abort, request, flash, redirect, url_for, current_app
 from flask_login import login_required, current_user
-from models import PIProfile, Profile, TeamMember, Education, Experience, ResearchFacility, Publication, Technology, Skill, SkillType, Award, Project, StudentProfile, EquipmentType, IPStatus, TRLLevel, LicensingIntent, ProficiencyLevel, OpportunityType, WorkingStatus, Gender, AdminSettingDepartment, CurrentDesignation, ResearchArea, ResearchProfile
+
+from models import PIProfile, Profile, TeamMember, Education, Experience, ResearchFacility, Publication, Technology, Skill, SkillType, Award, Project, StudentProfile, EquipmentType, IPStatus, TRLLevel, LicensingIntent, ProficiencyLevel, OpportunityType, WorkingStatus, Gender, AdminSettingDepartment, CurrentDesignation, ResearchArea, ResearchProfile, University, College
+
 from extensions import db
 from sqlalchemy import func, or_
 from datetime import datetime
@@ -128,6 +130,8 @@ def view_pi_profile():
 def education():
     # Fetch degrees for dropdown
     degrees = Degree.query.filter_by(status='Active').all()
+    universities = University.query.filter_by(status='Active').order_by(University.name).all()
+    colleges = College.query.filter_by(status='Active').order_by(College.name).all()
     
     if request.method == 'POST':
         education_id = request.form.get('education_id')
@@ -196,7 +200,9 @@ def education():
     return render_template('faculty/education.html', 
                          educations=educations_paginated,
                          all_educations=educations_all,
-                         degrees=degrees)
+                         degrees=degrees,
+                         universities=universities,
+                         colleges=colleges)
 
 @pi_bp.route('/education/<int:id>/delete', methods=['POST'])
 @login_required
@@ -219,6 +225,8 @@ def delete_education(id):
 def experience():
     # Fetch team positions for dropdown
     team_positions = TeamPosition.query.filter_by(status='Active').all()
+    universities = University.query.filter_by(status='Active').order_by(University.name).all()
+    colleges = College.query.filter_by(status='Active').order_by(College.name).all()
     
     if request.method == 'POST':
         experience_id = request.form.get('experience_id')
@@ -230,6 +238,7 @@ def experience():
         university_or_industry = request.form.get('university_or_industry')
         start_date = request.form.get('start_date')
         end_date = request.form.get('end_date')
+        total_period_research = request.form.get('total_period_research')
         currently_working = True if request.form.get('currently_working') == 'on' else False
 
         # ✅ Server-side validation: End Date >= Start Date
@@ -256,6 +265,7 @@ def experience():
             exp.university_or_industry = university_or_industry
             exp.start_date = start_date
             exp.end_date = end_date
+            exp.total_period_research = total_period_research if total_period_research else None
             exp.currently_working = currently_working
             flash("Experience updated successfully!", "success")
         else:
@@ -268,6 +278,7 @@ def experience():
                 university_or_industry=university_or_industry,
                 start_date=start_date,
                 end_date=end_date,
+                total_period_research=total_period_research if total_period_research else None,
                 currently_working=currently_working,
                 profile_id=current_user.profile.id
             )
@@ -290,10 +301,11 @@ def experience():
     experiences_all = Experience.query.filter_by(profile_id=current_user.profile.id).all()
     
     return render_template('faculty/experience.html', 
-                         experiences=experiences_paginated.items,
-                         all_experiences=experiences_all,
                          pagination=experiences_paginated,
-                         team_positions=team_positions)
+                         all_experiences=experiences_all,
+                         team_positions=team_positions,
+                         universities=universities,
+                         colleges=colleges)
 
     # experiences = Experience.query.filter_by(profile_id=current_user.profile.id).all()
     # return render_template('faculty/experience.html', experiences=experiences)
@@ -611,6 +623,19 @@ def research_facilities():
         model = request.form.get('model')
         working_status = request.form.get('working_status')
         equipment_type = request.form.get('equipment_type')
+        installation_date = request.form.get('installation_date')
+        purchase_order = request.form.get('purchase_order')
+        purchase_amount = request.form.get('purchase_amount')
+        vendor = request.form.get('vendor')
+        technician = request.form.get('technician')
+        faculty_scientist_incharge = request.form.get('faculty_scientist_incharge')
+        last_breakdown = request.form.get('last_breakdown')
+        revenue_generated = request.form.get('revenue_generated')
+        usage_details = request.form.get('usage_details')
+        cost_efficiency = request.form.get('cost_efficiency')
+        usage_efficiency = request.form.get('usage_efficiency')
+        charges = request.form.get('charges')
+        booking = request.form.get('booking')
 
         sop_file = None
         if 'sop_file' in request.files:
@@ -641,6 +666,19 @@ def research_facilities():
             facility.model = model
             facility.working_status = working_status
             facility.equipment_type = equipment_type
+            facility.installation_date = installation_date if installation_date else None
+            facility.purchase_order = purchase_order
+            facility.purchase_amount = float(purchase_amount) if purchase_amount else None
+            facility.vendor = vendor
+            facility.technician = technician
+            facility.faculty_scientist_incharge = faculty_scientist_incharge
+            facility.last_breakdown = last_breakdown if last_breakdown else None
+            facility.revenue_generated = float(revenue_generated) if revenue_generated else None
+            facility.usage_details = usage_details
+            facility.cost_efficiency = float(cost_efficiency) if cost_efficiency else None
+            facility.usage_efficiency = float(usage_efficiency) if usage_efficiency else None
+            facility.charges = float(charges) if charges else None
+            facility.booking = booking
             if sop_file:
                 if facility.sop_file:
                     old_path = os.path.join('static', facility.sop_file).replace('\\', '/')
@@ -655,6 +693,19 @@ def research_facilities():
                 model=model,
                 working_status=working_status,
                 equipment_type=equipment_type,
+                installation_date=installation_date if installation_date else None,
+                purchase_order=purchase_order,
+                purchase_amount=float(purchase_amount) if purchase_amount else None,
+                vendor=vendor,
+                technician=technician,
+                faculty_scientist_incharge=faculty_scientist_incharge,
+                last_breakdown=last_breakdown if last_breakdown else None,
+                revenue_generated=float(revenue_generated) if revenue_generated else None,
+                usage_details=usage_details,
+                cost_efficiency=float(cost_efficiency) if cost_efficiency else None,
+                usage_efficiency=float(usage_efficiency) if usage_efficiency else None,
+                charges=float(charges) if charges else None,
+                booking=booking,
                 sop_file=sop_file,
                 pi_profile_id=current_user.profile.pi_profile.id
             )
@@ -717,10 +768,6 @@ def download_sop(facility_id):
 
 
 
-
-
-# SKILLS
-
 # SKILLS
 @pi_bp.route('/skills', methods=['GET', 'POST'])
 @login_required
@@ -733,6 +780,7 @@ def skills():
         skill_type = request.form.get('skill_type')
         skill_name = request.form.get('skill_name')
         proficiency_level = request.form.get('proficiency_level')
+        specific_if_any = request.form.get('specific_if_any')
 
         # Validation
         if not all([skill_type, skill_name]):
@@ -746,12 +794,14 @@ def skills():
             skill.skill_type = skill_type
             skill.skill_name = skill_name
             skill.proficiency_level = proficiency_level
+            skill.specific_if_any = specific_if_any
             flash("Skill updated successfully!", "success")
         else:
             new_skill = Skill(
                 skill_type=skill_type,
                 skill_name=skill_name,
                 proficiency_level=proficiency_level,
+                specific_if_any=specific_if_any,
                 profile_id=current_user.profile.id
             )
             db.session.add(new_skill)

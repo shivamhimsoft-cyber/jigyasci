@@ -1,3 +1,5 @@
+# create_demo_users.py
+
 import os
 import sys
 from datetime import datetime
@@ -21,16 +23,16 @@ def create_demo_users():
         )
         student.password_hash = generate_password_hash("password123")
 
-        # Create a PI user
-        pi = User(
-            email="pi@example.com",
-            user_type="PI",
+        # Create a Scientist user
+        scientist = User(
+            email="scientist@example.com",
+            user_type="Scientist",
             account_status='Active',
             verification_status='Verified',
             created_at=datetime.utcnow(),
             last_login=datetime.utcnow()
         )
-        pi.password_hash = generate_password_hash("password123")
+        scientist.password_hash = generate_password_hash("password123")
 
         # Create an Industry user
         industry = User(
@@ -67,7 +69,7 @@ def create_demo_users():
 
         # Add the users
         db.session.add(student)
-        db.session.add(pi)
+        db.session.add(scientist)
         db.session.add(industry)
         db.session.add(vendor)
         db.session.add(admin)
@@ -77,12 +79,12 @@ def create_demo_users():
             print("Users created successfully!")
 
             # Create profiles for each user
-            create_profiles(student, pi, industry, vendor)
+            create_profiles(student, scientist, industry, vendor)
 
             print("\nLogin Credentials:")
             print("------------------")
             print("Student: student@example.com / password123")
-            print("PI: pi@example.com / password123")
+            print("Scientist: scientist@example.com / password123")
             print("Industry: industry@example.com / password123")
             print("Vendor: vendor@example.com / password123")
             print("Admin: admin@example.com / admin123")
@@ -91,7 +93,7 @@ def create_demo_users():
             db.session.rollback()
             print(f"Error creating users: {e}")
 
-def create_profiles(student, pi, industry, vendor):
+def create_profiles(student, scientist, industry, vendor):
     """Create profiles for demo users"""
     try:
         # Student profile
@@ -119,19 +121,19 @@ def create_profiles(student, pi, industry, vendor):
         )
         db.session.add(student_specific)
 
-        # PI profile
-        pi_profile = Profile(
-            user_id=pi.id,
+        # Scientist profile (using PIProfile model)
+        scientist_profile = Profile(
+            user_id=scientist.id,
             profile_type="Scientist",
             profile_completeness=95,
             visibility_settings="Public",
             last_updated=datetime.utcnow()
         )
-        db.session.add(pi_profile)
+        db.session.add(scientist_profile)
         db.session.commit()
 
-        pi_specific = PIProfile(
-            profile_id=pi_profile.id,
+        scientist_specific = PIProfile(
+            profile_id=scientist_profile.id,
             name="Dr. Sarah Williams",
             department="Computer Science",
             affiliation="MIT",
@@ -145,7 +147,7 @@ def create_profiles(student, pi, industry, vendor):
             expectations_from_students="Strong programming skills, background in machine learning or robotics, willingness to learn and collaborate.",
             why_join_lab="Our lab has cutting-edge facilities and collaborations with leading tech companies. We publish regularly in top-tier conferences and journals."
         )
-        db.session.add(pi_specific)
+        db.session.add(scientist_specific)
 
         # Industry profile
         industry_profile = Profile(

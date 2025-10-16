@@ -21,7 +21,8 @@ from models import (
     CurrentDesignation, Sector, EquipmentType, DealingCategory, FundingAgency,
     TeamPosition, OpportunityType, OpportunityDomain, CompensationCurrency,
     CSRFundCategory, InterestArea, InstituteOwnership, InstituteType,
-    AdminSettingDepartment, Degree, Publisher, SkillType, ResearchArea, User, Opportunity, Application
+    AdminSettingDepartment, Degree, Publisher, SkillType, ResearchArea, User, Opportunity, Application, University,
+    College
 )
 
 import io
@@ -2076,10 +2077,8 @@ def get_or_create_admin_profile():
 
 
 # =======================================================================
-
 # ADMIN settings
-
-# ======================================================================
+# =====================================================================
 
 # Helper function to check if user is admin
 def admin_required(func):
@@ -2159,7 +2158,9 @@ def manage_model(model, redirect_endpoint, display_name, slug, button_text_class
         'trl_levels': 'admin.add_trl_level',
         'ip_statuses': 'admin.add_ip_status',
         'licensing_intents': 'admin.add_licensing_intent',
-        'proficiency_levels': 'admin.add_proficiency_level'
+        'proficiency_levels': 'admin.add_proficiency_level',
+        'universities': 'admin.add_university',
+        'colleges': 'admin.add_college'
     }
     
     # Get the correct endpoint from the map, or fall back to a default pattern
@@ -3186,4 +3187,40 @@ def add_proficiency_level():
 def toggle_proficiency_level_status(item_id):
     return generic_toggle_status(ProficiencyLevel, item_id, 'Proficiency level', 'admin.proficiency_levels')
 
+# Universities
+@admin_bp.route('/universities')
+@login_required
+@admin_required
+def universities():
+    return manage_model(University, 'admin.universities', 'Universities', 'universities', button_text_class='text-black')
 
+@admin_bp.route('/universities/add', methods=['POST'])
+@login_required
+@admin_required
+def add_university():
+    return add_model_item(University, 'name', 'University', 'admin.universities')
+
+@admin_bp.route('/universities/toggle_status/<int:item_id>')
+@login_required
+@admin_required
+def toggle_university_status(item_id):
+    return generic_toggle_status(University, item_id, 'University', 'admin.universities')
+
+# Colleges
+@admin_bp.route('/colleges')
+@login_required
+@admin_required
+def colleges():
+    return manage_model(College, 'admin.colleges', 'Colleges', 'colleges', button_text_class='text-black')
+
+@admin_bp.route('/colleges/add', methods=['POST'])
+@login_required
+@admin_required
+def add_college():
+    return add_model_item(College, 'name', 'College', 'admin.colleges')
+
+@admin_bp.route('/colleges/toggle_status/<int:item_id>')
+@login_required
+@admin_required
+def toggle_college_status(item_id):
+    return generic_toggle_status(College, item_id, 'College', 'admin.colleges')

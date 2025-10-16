@@ -224,6 +224,9 @@ class VendorProfile(db.Model):
     product_categories = db.Column(db.String(200))
     why_me = db.Column(db.Text)
     region = db.Column(db.String(100))
+    regional_contacts = db.Column(db.Text)  # comma-separated list
+    proud_customers = db.Column(db.Text)
+    document_upload = db.Column(db.String(200))
     
     def __repr__(self):
         return f'<VendorProfile {self.company_name}>'
@@ -238,7 +241,20 @@ class ResearchFacility(db.Model):
     model = db.Column(db.String(100))
     working_status = db.Column(db.String(20))
     sop_file = db.Column(db.String(255))
-    equipment_type = db.Column(db.String(20))  # Major/Minor
+    equipment_type = db.Column(db.String(50))  
+    installation_date = db.Column(db.Date)
+    purchase_order = db.Column(db.String(100))
+    purchase_amount = db.Column(db.Float)
+    vendor = db.Column(db.String(100))
+    technician = db.Column(db.String(100))
+    faculty_scientist_incharge = db.Column(db.String(100))
+    last_breakdown = db.Column(db.Date)
+    revenue_generated = db.Column(db.Float)
+    usage_details = db.Column(db.Text)
+    cost_efficiency = db.Column(db.Float)
+    usage_efficiency = db.Column(db.Float)
+    charges = db.Column(db.Float)
+    booking = db.Column(db.String(20))
     
     def __repr__(self):
         return f'<ResearchFacility {self.equipment_name}>'
@@ -495,6 +511,7 @@ class Education(db.Model):
         return f"<Education {self.degree_name} at {self.college}>"
 
 
+# models.py
 class Experience(db.Model):
     __tablename__ = 'experience'
 
@@ -509,6 +526,7 @@ class Experience(db.Model):
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date)
     currently_working = db.Column(db.Boolean, default=False)
+    total_period_research = db.Column(db.Integer, nullable=True)
 
     def __repr__(self):
         return f"<Experience {self.project_title} - {self.position}>"
@@ -597,6 +615,7 @@ class Skill(db.Model):
     skill_type = db.Column(db.String(50), nullable=False)  # Software, Instrument, Data Analysis, Specific
     skill_name = db.Column(db.String(100), nullable=False)
     proficiency_level = db.Column(db.String(50))  # Beginner, Intermediate, Advanced, Expert
+    specific_if_any = db.Column(db.String(200))
     
     # Relationship
     profile = db.relationship('Profile', backref='skills')
@@ -856,4 +875,8 @@ class ProficiencyLevel(BaseModel):
     __tablename__ = 'proficiency_levels'
 
 
+class University(BaseModel):
+    __tablename__ = 'universities'
 
+class College(BaseModel):
+    __tablename__ = 'colleges'

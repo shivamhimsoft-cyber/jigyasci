@@ -2,10 +2,11 @@
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
-from models import Profile, IndustryProfile, IPStatus, TRLLevel
+from models import Profile, IndustryProfile, IPStatus, TRLLevel, Sector
 from extensions import db  # yeh alag se import karo
 from werkzeug.utils import secure_filename
 from sqlalchemy import or_
+from sqlalchemy.exc import SQLAlchemyError
 import os
 
 industry_bp = Blueprint('industry', __name__, url_prefix='/industry')
@@ -28,6 +29,7 @@ def industryProfile():
 
     profile = Profile.query.filter_by(user_id=current_user.id).first_or_404()
     industry = IndustryProfile.query.filter_by(profile_id=profile.id).first()
+    sectors = Sector.query.filter_by(status='Active').all()
 
     if request.method == 'POST':
         if not industry:
@@ -48,17 +50,27 @@ def industryProfile():
         logo_file = request.files.get('logo')
         if logo_file and logo_file.filename:
             filename = secure_filename(logo_file.filename)
-            upload_path = os.path.join('static/uploads/industry_logos', filename)
+            relative_path = os.path.join('uploads/industry_logos', filename).replace('\\', '/')
+            upload_path = os.path.join('static', relative_path)
             os.makedirs(os.path.dirname(upload_path), exist_ok=True)
-            logo_file.save(upload_path)
-            industry.logo = upload_path
+            try:
+                logo_file.save(upload_path)
+                industry.logo = relative_path
+            except Exception as e:
+                flash(f"Error uploading logo: {str(e)}", "error")
+                return redirect(url_for('industry.industryProfile'))
 
-        db.session.add(industry)
-        db.session.commit()
-        flash("Industry profile saved successfully.", "success")
-        return redirect(url_for('industry.industry_profile', industry_id=industry.id))  # <--- pass industry.id here
+        try:
+            db.session.add(industry)
+            db.session.commit()
+            flash("Industry profile saved successfully.", "success")
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            flash(f"Error saving profile: {str(e)}", "error")
 
-    return render_template('industry/profile.html', industry=industry)
+        return redirect(url_for('industry.industryProfile'))
+
+    return render_template('industry/profile.html', industry=industry, sectors=sectors)
 
 
 
@@ -140,4 +152,3 @@ def full_table():
     return render_template('industry/full_table.html', 
                          industries=industries,
                          query=query)
-
