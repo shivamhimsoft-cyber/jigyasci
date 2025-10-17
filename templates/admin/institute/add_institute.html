@@ -76,7 +76,7 @@
     <!-- Manual Add Form -->
     <div id="manual-form" class="hidden mb-6 bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
         <h3 class="text-lg font-semibold text-black mb-6">Add Institute Manually</h3>
-        <form method="POST" action="{{ url_for('admin.add_institute') }}">
+        <form method="POST" action="{{ url_for('admin.add_institute') }}" id="institute-form">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">Name *</label>
@@ -117,17 +117,29 @@
                             class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
                             rows="2" placeholder="Enter key resources (comma-separated)" required></textarea>
                 </div>
-                <div class="form-group">
+                <div class="form-group sm:col-span-2">
                     <label class="block text-sm font-semibold text-black mb-2">Key People *</label>
-                    <input type="text" name="key_people"
-                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                        placeholder="Enter key people (comma-separated)" required>
+                    <div class="border border-black/80 rounded-sm p-3 max-h-48 overflow-y-auto bg-gray-50">
+                        {% for pi in pi_profiles %}
+                        <label class="flex items-center p-2 hover:bg-gray-100 rounded cursor-pointer">
+                            <input type="checkbox" name="key_people" value="{{ pi.name }}"
+                                   class="mr-2 rounded border-black/80 focus:ring-0 focus:outline-0 focus:border-black">
+                            <span class="text-sm text-black">{{ pi.name }} ({{ pi.affiliation or 'N/A' }})</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <small class="text-gray-600 mt-1 block">Select multiple key people (at least one required)</small>
                 </div>
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">Scientist/PI *</label>
-                    <input type="text" name="scientist_pi"
-                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                        placeholder="Enter scientist/PI name" required>
+                    <select name="scientist_pi"
+                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                            required>
+                        <option value="">Select Scientist/PI</option>
+                        {% for pi in pi_profiles %}
+                        <option value="{{ pi.name }}">{{ pi.name }} ({{ pi.affiliation or 'N/A' }})</option>
+                        {% endfor %}
+                    </select>
                 </div>
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">Director *</label>
@@ -278,8 +290,27 @@
                                             </span>
                                         </div>
                                     </td>
-                                    <td class="px-4 py-3 whitespace-nowrap">
-                                        <span class="text-sm text-black">{{ inst.key_people or '-' }}</span>
+                                    <!-- Institutes Table - Enhanced Key People display for professional look with badges -->
+                                    <td class="px-4 py-3">
+                                        <div class="max-w-xs">
+                                            {% if inst.key_people %}
+                                                <div class="flex flex-wrap gap-1" style="max-height: 40px; overflow: hidden;">
+                                                    {% for person in inst.key_people.split(',') if person.strip() %}
+                                                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+                                                            {{ person.strip() }}
+                                                        </span>
+                                                    {% endfor %}
+                                                    {% if inst.key_people.split(',') | length > 3 %}
+                                                        <span class="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-medium">+{{ (inst.key_people.split(',') | length) - 3 }}</span>
+                                                    {% endif %}
+                                                </div>
+                                                {% if inst.key_people.split(',') | length > 3 %}
+                                                    <small class="text-xs text-gray-500 block mt-1 cursor-pointer hover:text-gray-700" onclick="alert('{{ inst.key_people.replace('\'', '\\\'') }}')">View all</small>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="text-sm text-gray-500">-</span>
+                                            {% endif %}
+                                        </div>
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <span class="text-sm text-black">{{ inst.scientist_pi or '-' }}</span>
@@ -348,9 +379,10 @@
             </div>
 
             <!-- Pagination -->
+            {% if institutes and institutes.pages > 1 %}
             <div class="md:flex text-center pt-3 justify-between items-center border-t border-border dark:border-darkborder">
                 <p class="font-medium">
-                    Showing {{ institutes.first }} to {{ institutes.last }} of {{ institutes.total }} entries
+                    Showing {{ institutes.first if institutes.items else 0 }} to {{ institutes.last if institutes.items else 0 }} of {{ institutes.total }} entries
                 </p>
                 <nav class="flex items-center gap-x-1">
                     {% if institutes.has_prev %}
@@ -396,6 +428,7 @@
                     {% endif %}
                 </nav>
             </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -420,6 +453,19 @@
                 }
             }, 5000);
         });
+
+        // Form validation for Key People checkboxes
+        const form = document.getElementById('institute-form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const checkboxes = document.querySelectorAll('input[name="key_people"]:checked');
+                if (checkboxes.length === 0) {
+                    e.preventDefault();
+                    alert('Please select at least one Key Person.');
+                    return false;
+                }
+            });
+        }
     });
 </script>
 
@@ -509,34 +555,36 @@
     let startX;
     let scrollLeft;
 
-    container.addEventListener('mousedown', (e) => {
-        if (e.button !== 0) return;
-        isDown = true;
-        container.classList.add('cursor-grabbing');
-        container.classList.remove('cursor-grab');
-        startX = e.pageX - container.offsetLeft;
-        scrollLeft = container.scrollLeft;
-        e.preventDefault();
-    });
+    if (container) {
+        container.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return;
+            isDown = true;
+            container.classList.add('cursor-grabbing');
+            container.classList.remove('cursor-grab');
+            startX = e.pageX - container.offsetLeft;
+            scrollLeft = container.scrollLeft;
+            e.preventDefault();
+        });
 
-    container.addEventListener('mouseleave', () => {
-        isDown = false;
-        container.classList.remove('cursor-grabbing');
-        container.classList.add('cursor-grab');
-    });
+        container.addEventListener('mouseleave', () => {
+            isDown = false;
+            container.classList.remove('cursor-grabbing');
+            container.classList.add('cursor-grab');
+        });
 
-    container.addEventListener('mouseup', () => {
-        isDown = false;
-        container.classList.remove('cursor-grabbing');
-        container.classList.add('cursor-grab');
-    });
+        container.addEventListener('mouseup', () => {
+            isDown = false;
+            container.classList.remove('cursor-grabbing');
+            container.classList.add('cursor-grab');
+        });
 
-    container.addEventListener('mousemove', (e) => {
-        if (!isDown) return;
-        e.preventDefault();
-        const x = e.pageX - container.offsetLeft;
-        const walk = (x - startX) * 1;
-        container.scrollLeft = scrollLeft - walk;
-    });
+        container.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - container.offsetLeft;
+            const walk = (x - startX) * 1;
+            container.scrollLeft = scrollLeft - walk;
+        });
+    }
 </script>
 {% endblock %}

@@ -457,7 +457,7 @@ class Institute(db.Model):
     director = db.Column(db.String(255))
     city = db.Column(db.String(255))
     state = db.Column(db.String(255))
-    pin_code = db.Column(db.String(10))
+    pin_code = db.Column(db.String(20))
     country = db.Column(db.String(100))
     ownership = db.Column(db.String(100))
     institute_type = db.Column(db.String(100))

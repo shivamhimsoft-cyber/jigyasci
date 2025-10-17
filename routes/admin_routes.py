@@ -883,6 +883,7 @@ REQUIRED_COLUMNS = [
     "Ownership", "InstituteType", "Link"
 ]
 
+# Updated route to fetch PI profiles
 @admin_bp.route('/add-institute', methods=['GET', 'POST'])
 @login_required
 def add_institute():
@@ -897,6 +898,7 @@ def add_institute():
     ownerships = InstituteOwnership.query.filter_by(status='Active').all()
     institute_types = InstituteType.query.filter_by(status='Active').all()
     departments = AdminSettingDepartment.query.filter_by(status='Active').all()
+    pi_profiles = PIProfile.query.filter(PIProfile.name.isnot(None)).all()  # Fetch all PI profiles with names
     
     # Get all institutes for admin view
     institutes_query = Institute.query
@@ -927,8 +929,10 @@ def add_institute():
                          ownerships=ownerships,
                          institute_types=institute_types,
                          departments=departments,
+                         pi_profiles=pi_profiles,
                          query=query)
 
+# Updated handle_manual_institute_addition to handle multi-select for key_people
 def handle_manual_institute_addition():
     """Handle manual institute addition"""
     try:
@@ -945,6 +949,11 @@ def handle_manual_institute_addition():
                 if not departments_list:
                     flash(f"{field.replace('_', ' ').title()} is required for manual addition", "error")
                     return redirect(url_for('admin.add_institute'))
+            elif field == 'key_people':
+                key_people_list = request.form.getlist(field)
+                if not key_people_list:
+                    flash(f"{field.replace('_', ' ').title()} is required for manual addition", "error")
+                    return redirect(url_for('admin.add_institute'))
             else:
                 if not request.form.get(field, '').strip():
                     flash(f"{field.replace('_', ' ').title()} is required for manual addition", "error")
@@ -954,6 +963,10 @@ def handle_manual_institute_addition():
         departments_list = [d.strip() for d in request.form.getlist('departments') if d.strip()]
         departments = ', '.join(departments_list)
         
+        # Process key_people from multi-select
+        key_people_list = [p.strip() for p in request.form.getlist('key_people') if p.strip()]
+        key_people = ', '.join(key_people_list)
+        
         # Create institute
         institute = Institute(
             name=name,
@@ -961,7 +974,7 @@ def handle_manual_institute_addition():
             institute_type=request.form.get('institute_type', '').strip(),
             focus_area=request.form.get('focus_area', '').strip(),
             key_resources=request.form.get('key_resources', '').strip(),
-            key_people=request.form.get('key_people', '').strip(),
+            key_people=key_people,
             scientist_pi=request.form.get('scientist_pi', '').strip(),
             director=request.form.get('director', '').strip(),
             city=request.form.get('city', '').strip(),
@@ -983,6 +996,8 @@ def handle_manual_institute_addition():
         flash(f"Error adding institute: {str(e)}", "error")
     
     return redirect(url_for('admin.add_institute'))
+
+
 
 def handle_institute_csv_upload():
     """Handle CSV file upload for bulk institute addition"""
@@ -1291,7 +1306,7 @@ def delete_department(id):
     return redirect(url_for('admin.departments'))
 
 
-# ========================================================================================STUDENTS
+# ========================================================================================  STUDENTS
 
 # Updated routes (adminstudents route updated to fetch research_profiles)
 @admin_bp.route('/students', methods=['GET', 'POST'])
@@ -1654,7 +1669,7 @@ def download_student_template():
         download_name='student_template.csv'
     )
     
-# ==============================================================================================================FACULTY FACULTY FACULTY FACULTY
+# ========================================================================================================FACULTY FACULTY FACULTY FACULTY
 
 import pandas as pd
 from werkzeug.utils import secure_filename
@@ -2219,6 +2234,7 @@ def toggle_model_item_status(model, item_id, success_message, redirect_endpoint)
     flash(f'{success_message} status updated successfully.', 'success')
     return redirect(url_for(redirect_endpoint))
 
+
 def generic_toggle_status(model, item_id, success_message, redirect_endpoint):
     result = toggle_model_item_status(model, item_id, success_message, redirect_endpoint)
     
@@ -2264,6 +2280,41 @@ def generic_toggle_status(model, item_id, success_message, redirect_endpoint):
 #                           recent_users=recent_users,
 #                           recent_opportunities=recent_opportunities)
 
+
+# Add this helper function for deletion (similar to toggle)
+def delete_model_item(model, item_id, success_message, redirect_endpoint):
+    """Delete a model item"""
+    try:
+        item = model.query.get_or_404(item_id)
+        db.session.delete(item)
+        db.session.commit()
+        flash(f'{success_message} deleted successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error deleting {success_message}: {str(e)}")
+        flash(f"Error deleting {success_message}: {str(e)}", "error")
+    return redirect(url_for(redirect_endpoint))
+
+def generic_delete_item(model, item_id, success_message, redirect_endpoint):
+    """Generic AJAX delete handler"""
+    try:
+        item = model.query.get_or_404(item_id)
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({
+            'success': True,
+            'message': f'{success_message} deleted successfully.'
+        })
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error deleting {success_message}: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': f"Error deleting {success_message}: {str(e)}"
+        }), 500
+    
+
+
 # Current Designations
 @admin_bp.route('/current_designations')
 @login_required
@@ -2282,6 +2333,12 @@ def add_current_designation():
 @admin_required
 def toggle_current_designation_status(item_id):
     return generic_toggle_status(CurrentDesignation, item_id, 'Current designation', 'admin.current_designations')
+
+@admin_bp.route('/current_designations/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_current_designation(item_id):
+    return generic_delete_item(CurrentDesignation, item_id, 'Current designation', 'admin.current_designations')
 
 # Sectors
 @admin_bp.route('/sectors')
@@ -2302,6 +2359,12 @@ def add_sector():
 def toggle_sector_status(item_id):
     return generic_toggle_status(Sector, item_id, 'Sector', 'admin.sectors')
 
+@admin_bp.route('/sectors/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_sector(item_id):
+    return generic_delete_item(Sector, item_id, 'Sector', 'admin.sectors')
+
 # Equipment Types
 @admin_bp.route('/equipment_types')
 @login_required
@@ -2320,6 +2383,12 @@ def add_equipment_type():
 @admin_required
 def toggle_equipment_type_status(item_id):
     return generic_toggle_status(EquipmentType, item_id, 'Equipment type', 'admin.equipment_types')
+
+@admin_bp.route('/equipment_types/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_equipment_type(item_id):
+    return generic_delete_item(EquipmentType, item_id, 'Equipment type', 'admin.equipment_types')
 
 # Dealing Categories (special case)
 @admin_bp.route('/dealing_categories')
@@ -2351,6 +2420,12 @@ def add_dealing_category():
 def toggle_dealing_category_status(item_id):
     return generic_toggle_status(DealingCategory, item_id, 'Dealing category', 'admin.dealing_categories')
 
+@admin_bp.route('/dealing_categories/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_dealing_category(item_id):
+    return generic_delete_item(DealingCategory, item_id, 'Dealing category', 'admin.dealing_categories')
+
 # Funding Agencies
 @admin_bp.route('/funding_agencies')
 @login_required
@@ -2369,6 +2444,12 @@ def add_funding_agency():
 @admin_required
 def toggle_funding_agency_status(item_id):
     return generic_toggle_status(FundingAgency, item_id, 'Funding agency', 'admin.funding_agencies')
+
+@admin_bp.route('/funding_agencies/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_funding_agency(item_id):
+    return generic_delete_item(FundingAgency, item_id, 'Funding agency', 'admin.funding_agencies')
 
 # Team Positions
 @admin_bp.route('/team_positions')
@@ -2389,6 +2470,12 @@ def add_team_position():
 def toggle_team_position_status(item_id):
     return generic_toggle_status(TeamPosition, item_id, 'Team position', 'admin.team_positions')
 
+@admin_bp.route('/team_positions/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_team_position(item_id):
+    return generic_delete_item(TeamPosition, item_id, 'Team position', 'admin.team_positions')
+
 # Opportunity Types
 @admin_bp.route('/opportunity_types')
 @login_required
@@ -2407,6 +2494,12 @@ def add_opportunity_type():
 @admin_required
 def toggle_opportunity_type_status(item_id):
     return generic_toggle_status(OpportunityType, item_id, 'Opportunity type', 'admin.opportunity_types')
+
+@admin_bp.route('/opportunity_types/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_opportunity_type(item_id):
+    return generic_delete_item(OpportunityType, item_id, 'Opportunity type', 'admin.opportunity_types')
 
 # Opportunity Domains
 @admin_bp.route('/opportunity_domains')
@@ -2427,6 +2520,12 @@ def add_opportunity_domain():
 def toggle_opportunity_domain_status(item_id):
     return generic_toggle_status(OpportunityDomain, item_id, 'Opportunity domain', 'admin.opportunity_domains')
 
+@admin_bp.route('/opportunity_domains/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_opportunity_domain(item_id):
+    return generic_delete_item(OpportunityDomain, item_id, 'Opportunity domain', 'admin.opportunity_domains')
+
 # Compensation Currencies
 @admin_bp.route('/compensation_currencies')
 @login_required
@@ -2445,6 +2544,12 @@ def add_compensation_currency():
 @admin_required
 def toggle_compensation_currency_status(item_id):
     return generic_toggle_status(CompensationCurrency, item_id, 'Compensation currency', 'admin.compensation_currencies')
+
+@admin_bp.route('/compensation_currencies/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_compensation_currency(item_id):
+    return generic_delete_item(CompensationCurrency, item_id, 'Compensation currency', 'admin.compensation_currencies')
 
 # CSR Fund Categories
 @admin_bp.route('/csr_fund_categories')
@@ -2465,6 +2570,12 @@ def add_csr_fund_category():
 def toggle_csr_fund_category_status(item_id):
     return generic_toggle_status(CSRFundCategory, item_id, 'CSR fund category', 'admin.csr_fund_categories')
 
+@admin_bp.route('/csr_fund_categories/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_csr_fund_category(item_id):
+    return generic_delete_item(CSRFundCategory, item_id, 'CSR fund category', 'admin.csr_fund_categories')
+
 # Interest Areas
 @admin_bp.route('/interest_areas')
 @login_required
@@ -2483,6 +2594,12 @@ def add_interest_area():
 @admin_required
 def toggle_interest_area_status(item_id):
     return generic_toggle_status(InterestArea, item_id, 'Interest area', 'admin.interest_areas')
+
+@admin_bp.route('/interest_areas/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_interest_area(item_id):
+    return generic_delete_item(InterestArea, item_id, 'Interest area', 'admin.interest_areas')
 
 # Institute Ownerships
 @admin_bp.route('/institute_ownerships')
@@ -2503,6 +2620,12 @@ def add_institute_ownership():
 def toggle_institute_ownership_status(item_id):
     return generic_toggle_status(InstituteOwnership, item_id, 'Institute ownership', 'admin.institute_ownerships')
 
+@admin_bp.route('/institute_ownerships/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_institute_ownership(item_id):
+    return generic_delete_item(InstituteOwnership, item_id, 'Institute ownership', 'admin.institute_ownerships')
+
 # Institute Types
 @admin_bp.route('/institute_types')
 @login_required
@@ -2521,6 +2644,12 @@ def add_institute_type():
 @admin_required
 def toggle_institute_type_status(item_id):
     return generic_toggle_status(InstituteType, item_id, 'Institute type', 'admin.institute_types')
+
+@admin_bp.route('/institute_types/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_institute_type(item_id):
+    return generic_delete_item(InstituteType, item_id, 'Institute type', 'admin.institute_types')
 
 # Departments
 @admin_bp.route('/settings/departments', endpoint='admin_settings_departments')
@@ -2541,6 +2670,12 @@ def add_new_department():
 def toggle_department_status(item_id):
     return generic_toggle_status(AdminSettingDepartment, item_id, 'Department', 'admin.admin_settings_departments')
 
+@admin_bp.route('/settings/departments/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_admin_setting_department(item_id):
+    return generic_delete_item(AdminSettingDepartment, item_id, 'Department', 'admin.admin_settings_departments')
+
 # Degrees
 @admin_bp.route('/degrees')
 @login_required
@@ -2559,6 +2694,12 @@ def add_degree():
 @admin_required
 def toggle_degree_status(item_id):
     return generic_toggle_status(Degree, item_id, 'Degree', 'admin.degrees')
+
+@admin_bp.route('/degrees/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_degree(item_id):
+    return generic_delete_item(Degree, item_id, 'Degree', 'admin.degrees')
 
 # Publishers
 @admin_bp.route('/publishers')
@@ -2579,6 +2720,12 @@ def add_publisher():
 def toggle_publisher_status(item_id):
     return generic_toggle_status(Publisher, item_id, 'Publisher', 'admin.publishers')
 
+@admin_bp.route('/publishers/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_publisher(item_id):
+    return generic_delete_item(Publisher, item_id, 'Publisher', 'admin.publishers')
+
 # Skill Types
 @admin_bp.route('/skill_types')
 @login_required
@@ -2597,6 +2744,12 @@ def add_skill_type():
 @admin_required
 def toggle_skill_type_status(item_id):
     return generic_toggle_status(SkillType, item_id, 'Skill type', 'admin.skill_types')
+
+@admin_bp.route('/skill_types/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_skill_type(item_id):
+    return generic_delete_item(SkillType, item_id, 'Skill type', 'admin.skill_types')
 
 # Research Areas
 @admin_bp.route('/research_areas')
@@ -2617,6 +2770,12 @@ def add_research_area():
 def toggle_research_area_status(item_id):
     return generic_toggle_status(ResearchArea, item_id, 'Research area', 'admin.research_areas')
 
+@admin_bp.route('/research_areas/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_research_area(item_id):
+    return generic_delete_item(ResearchArea, item_id, 'Research area', 'admin.research_areas')
+
 # User Types
 @admin_bp.route('/user_types')
 @login_required
@@ -2635,6 +2794,12 @@ def add_user_type():
 @admin_required
 def toggle_user_type_status(item_id):
     return generic_toggle_status(UserType, item_id, 'User type', 'admin.user_types')
+
+@admin_bp.route('/user_types/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_user_type(item_id):
+    return generic_delete_item(UserType, item_id, 'User type', 'admin.user_types')
 
 # Account Statuses
 @admin_bp.route('/account_statuses')
@@ -2655,6 +2820,12 @@ def add_account_status():
 def toggle_account_status_status(item_id):
     return generic_toggle_status(AccountStatus, item_id, 'Account status', 'admin.account_statuses')
 
+@admin_bp.route('/account_statuses/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_account_status(item_id):
+    return generic_delete_item(AccountStatus, item_id, 'Account status', 'admin.account_statuses')
+
 # Verification Statuses
 @admin_bp.route('/verification_statuses')
 @login_required
@@ -2673,6 +2844,12 @@ def add_verification_status():
 @admin_required
 def toggle_verification_status_status(item_id):
     return generic_toggle_status(VerificationStatus, item_id, 'Verification status', 'admin.verification_statuses')
+
+@admin_bp.route('/verification_statuses/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_verification_status(item_id):
+    return generic_delete_item(VerificationStatus, item_id, 'Verification status', 'admin.verification_statuses')
 
 # Profile Types
 @admin_bp.route('/profile_types')
@@ -2693,6 +2870,12 @@ def add_profile_type():
 def toggle_profile_type_status(item_id):
     return generic_toggle_status(ProfileType, item_id, 'Profile type', 'admin.profile_types')
 
+@admin_bp.route('/profile_types/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_profile_type(item_id):
+    return generic_delete_item(ProfileType, item_id, 'Profile type', 'admin.profile_types')
+
 # Visibility Settings
 @admin_bp.route('/visibility_settings')
 @login_required
@@ -2711,6 +2894,12 @@ def add_visibility_setting():
 @admin_required
 def toggle_visibility_setting_status(item_id):
     return generic_toggle_status(VisibilitySetting, item_id, 'Visibility setting', 'admin.visibility_settings')
+
+@admin_bp.route('/visibility_settings/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_visibility_setting(item_id):
+    return generic_delete_item(VisibilitySetting, item_id, 'Visibility setting', 'admin.visibility_settings')
 
 # Genders
 @admin_bp.route('/genders')
@@ -2731,6 +2920,12 @@ def add_gender():
 def toggle_gender_status(item_id):
     return generic_toggle_status(Gender, item_id, 'Gender', 'admin.genders')
 
+@admin_bp.route('/genders/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_gender(item_id):
+    return generic_delete_item(Gender, item_id, 'Gender', 'admin.genders')
+
 # Research Profiles
 @admin_bp.route('/research_profiles')
 @login_required
@@ -2749,6 +2944,12 @@ def add_research_profile():
 @admin_required
 def toggle_research_profile_status(item_id):
     return generic_toggle_status(ResearchProfile, item_id, 'Research profile', 'admin.research_profiles')
+
+@admin_bp.route('/research_profiles/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_research_profile(item_id):
+    return generic_delete_item(ResearchProfile, item_id, 'Research profile', 'admin.research_profiles')
 
 # Current Statuses
 @admin_bp.route('/current_statuses')
@@ -2769,6 +2970,12 @@ def add_current_status():
 def toggle_current_status_status(item_id):
     return generic_toggle_status(CurrentStatus, item_id, 'Current status', 'admin.current_statuses')
 
+@admin_bp.route('/current_statuses/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_current_status(item_id):
+    return generic_delete_item(CurrentStatus, item_id, 'Current status', 'admin.current_statuses')
+
 # Team Sizes
 @admin_bp.route('/team_sizes')
 @login_required
@@ -2787,6 +2994,12 @@ def add_team_size():
 @admin_required
 def toggle_team_size_status(item_id):
     return generic_toggle_status(TeamSize, item_id, 'Team size', 'admin.team_sizes')
+
+@admin_bp.route('/team_sizes/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_team_size(item_id):
+    return generic_delete_item(TeamSize, item_id, 'Team size', 'admin.team_sizes')
 
 # Annual Turnovers
 @admin_bp.route('/annual_turnovers')
@@ -2807,6 +3020,12 @@ def add_annual_turnover():
 def toggle_annual_turnover_status(item_id):
     return generic_toggle_status(AnnualTurnover, item_id, 'Annual turnover', 'admin.annual_turnovers')
 
+@admin_bp.route('/annual_turnovers/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_annual_turnover(item_id):
+    return generic_delete_item(AnnualTurnover, item_id, 'Annual turnover', 'admin.annual_turnovers')
+
 # Warranty Statuses
 @admin_bp.route('/warranty_statuses')
 @login_required
@@ -2825,6 +3044,12 @@ def add_warranty_status():
 @admin_required
 def toggle_warranty_status_status(item_id):
     return generic_toggle_status(WarrantyStatus, item_id, 'Warranty status', 'admin.warranty_statuses')
+
+@admin_bp.route('/warranty_statuses/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_warranty_status(item_id):
+    return generic_delete_item(WarrantyStatus, item_id, 'Warranty status', 'admin.warranty_statuses')
 
 # Working Statuses
 @admin_bp.route('/working_statuses')
@@ -2845,6 +3070,12 @@ def add_working_status():
 def toggle_working_status_status(item_id):
     return generic_toggle_status(WorkingStatus, item_id, 'Working status', 'admin.working_statuses')
 
+@admin_bp.route('/working_statuses/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_working_status(item_id):
+    return generic_delete_item(WorkingStatus, item_id, 'Working status', 'admin.working_statuses')
+
 # Project Statuses
 @admin_bp.route('/project_statuses')
 @login_required
@@ -2863,6 +3094,12 @@ def add_project_status():
 @admin_required
 def toggle_project_status_status(item_id):
     return generic_toggle_status(ProjectStatus, item_id, 'Project status', 'admin.project_statuses')
+
+@admin_bp.route('/project_statuses/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_project_status(item_id):
+    return generic_delete_item(ProjectStatus, item_id, 'Project status', 'admin.project_statuses')
 
 # Team Statuses
 @admin_bp.route('/team_statuses')
@@ -2883,6 +3120,12 @@ def add_team_status():
 def toggle_team_status_status(item_id):
     return generic_toggle_status(TeamStatus, item_id, 'Team status', 'admin.team_statuses')
 
+@admin_bp.route('/team_statuses/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_team_status(item_id):
+    return generic_delete_item(TeamStatus, item_id, 'Team status', 'admin.team_statuses')
+
 # Opportunity Eligibilities
 @admin_bp.route('/opportunity_eligibilities')
 @login_required
@@ -2901,6 +3144,12 @@ def add_opportunity_eligibility():
 @admin_required
 def toggle_opportunity_eligibility_status(item_id):
     return generic_toggle_status(OpportunityEligibility, item_id, 'Opportunity eligibility', 'admin.opportunity_eligibilities')
+
+@admin_bp.route('/opportunity_eligibilities/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_opportunity_eligibility(item_id):
+    return generic_delete_item(OpportunityEligibility, item_id, 'Opportunity eligibility', 'admin.opportunity_eligibilities')
 
 # Opportunity Statuses
 @admin_bp.route('/opportunity_statuses')
@@ -2921,6 +3170,12 @@ def add_opportunity_status():
 def toggle_opportunity_status_status(item_id):
     return generic_toggle_status(OpportunityStatus, item_id, 'Opportunity status', 'admin.opportunity_statuses')
 
+@admin_bp.route('/opportunity_statuses/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_opportunity_status(item_id):
+    return generic_delete_item(OpportunityStatus, item_id, 'Opportunity status', 'admin.opportunity_statuses')
+
 # Durations
 @admin_bp.route('/durations')
 @login_required
@@ -2939,6 +3194,12 @@ def add_duration():
 @admin_required
 def toggle_duration_status(item_id):
     return generic_toggle_status(Duration, item_id, 'Duration', 'admin.durations')
+
+@admin_bp.route('/durations/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_duration(item_id):
+    return generic_delete_item(Duration, item_id, 'Duration', 'admin.durations')
 
 # Compensation Types
 @admin_bp.route('/compensation_types')
@@ -2959,6 +3220,12 @@ def add_compensation_type():
 def toggle_compensation_type_status(item_id):
     return generic_toggle_status(CompensationType, item_id, 'Compensation type', 'admin.compensation_types')
 
+@admin_bp.route('/compensation_types/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_compensation_type(item_id):
+    return generic_delete_item(CompensationType, item_id, 'Compensation type', 'admin.compensation_types')
+
 # Application Statuses
 @admin_bp.route('/application_statuses')
 @login_required
@@ -2977,6 +3244,12 @@ def add_application_status():
 @admin_required
 def toggle_application_status_status(item_id):
     return generic_toggle_status(ApplicationStatus, item_id, 'Application status', 'admin.application_statuses')
+
+@admin_bp.route('/application_statuses/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_application_status(item_id):
+    return generic_delete_item(ApplicationStatus, item_id, 'Application status', 'admin.application_statuses')
 
 # Message Statuses
 @admin_bp.route('/message_statuses')
@@ -2997,6 +3270,12 @@ def add_message_status():
 def toggle_message_status_status(item_id):
     return generic_toggle_status(MessageStatus, item_id, 'Message status', 'admin.message_statuses')
 
+@admin_bp.route('/message_statuses/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_message_status(item_id):
+    return generic_delete_item(MessageStatus, item_id, 'Message status', 'admin.message_statuses')
+
 # Notification Types
 @admin_bp.route('/notification_types')
 @login_required
@@ -3015,6 +3294,12 @@ def add_notification_type():
 @admin_required
 def toggle_notification_type_status(item_id):
     return generic_toggle_status(NotificationType, item_id, 'Notification type', 'admin.notification_types')
+
+@admin_bp.route('/notification_types/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_notification_type(item_id):
+    return generic_delete_item(NotificationType, item_id, 'Notification type', 'admin.notification_types')
 
 # Notification Read Statuses
 @admin_bp.route('/notification_read_statuses')
@@ -3035,6 +3320,12 @@ def add_notification_read_status():
 def toggle_notification_read_status_status(item_id):
     return generic_toggle_status(NotificationReadStatus, item_id, 'Notification read status', 'admin.notification_read_statuses')
 
+@admin_bp.route('/notification_read_statuses/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_notification_read_status(item_id):
+    return generic_delete_item(NotificationReadStatus, item_id, 'Notification read status', 'admin.notification_read_statuses')
+
 # CSR Availabilities
 @admin_bp.route('/csr_availabilities')
 @login_required
@@ -3053,6 +3344,12 @@ def add_csr_availability():
 @admin_required
 def toggle_csr_availability_status(item_id):
     return generic_toggle_status(CSRAvailability, item_id, 'CSR availability', 'admin.csr_availabilities')
+
+@admin_bp.route('/csr_availabilities/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_csr_availability(item_id):
+    return generic_delete_item(CSRAvailability, item_id, 'CSR availability', 'admin.csr_availabilities')
 
 # Institute Autonomous
 @admin_bp.route('/institute_autonomous')
@@ -3073,6 +3370,12 @@ def add_institute_autonomous():
 def toggle_institute_autonomous_status(item_id):
     return generic_toggle_status(InstituteAutonomous, item_id, 'Institute autonomous', 'admin.institute_autonomous')
 
+@admin_bp.route('/institute_autonomous/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_institute_autonomous(item_id):
+    return generic_delete_item(InstituteAutonomous, item_id, 'Institute autonomous', 'admin.institute_autonomous')
+
 # Currently Pursuing Options
 @admin_bp.route('/currently_pursuing_options')
 @login_required
@@ -3091,6 +3394,12 @@ def add_currently_pursuing_option():
 @admin_required
 def toggle_currently_pursuing_option_status(item_id):
     return generic_toggle_status(CurrentlyPursuingOption, item_id, 'Currently pursuing option', 'admin.currently_pursuing_options')
+
+@admin_bp.route('/currently_pursuing_options/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_currently_pursuing_option(item_id):
+    return generic_delete_item(CurrentlyPursuingOption, item_id, 'Currently pursuing option', 'admin.currently_pursuing_options')
 
 # Currently Working Options
 @admin_bp.route('/currently_working_options')
@@ -3111,6 +3420,12 @@ def add_currently_working_option():
 def toggle_currently_working_option_status(item_id):
     return generic_toggle_status(CurrentlyWorkingOption, item_id, 'Currently working option', 'admin.currently_working_options')
 
+@admin_bp.route('/currently_working_options/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_currently_working_option(item_id):
+    return generic_delete_item(CurrentlyWorkingOption, item_id, 'Currently working option', 'admin.currently_working_options')
+
 # TRL Levels
 @admin_bp.route('/trl_levels')
 @login_required
@@ -3129,6 +3444,12 @@ def add_trl_level():
 @admin_required
 def toggle_trl_level_status(item_id):
     return generic_toggle_status(TRLLevel, item_id, 'TRL level', 'admin.trl_levels')
+
+@admin_bp.route('/trl_levels/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_trl_level(item_id):
+    return generic_delete_item(TRLLevel, item_id, 'TRL level', 'admin.trl_levels')
 
 # IP Statuses
 @admin_bp.route('/ip_statuses')
@@ -3149,6 +3470,12 @@ def add_ip_status():
 def toggle_ip_status_status(item_id):
     return generic_toggle_status(IPStatus, item_id, 'IP status', 'admin.ip_statuses')
 
+@admin_bp.route('/ip_statuses/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_ip_status(item_id):
+    return generic_delete_item(IPStatus, item_id, 'IP status', 'admin.ip_statuses')
+
 # Licensing Intents
 @admin_bp.route('/licensing_intents')
 @login_required
@@ -3167,6 +3494,12 @@ def add_licensing_intent():
 @admin_required
 def toggle_licensing_intent_status(item_id):
     return generic_toggle_status(LicensingIntent, item_id, 'Licensing intent', 'admin.licensing_intents')
+
+@admin_bp.route('/licensing_intents/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_licensing_intent(item_id):
+    return generic_delete_item(LicensingIntent, item_id, 'Licensing intent', 'admin.licensing_intents')
 
 # Proficiency Levels
 @admin_bp.route('/proficiency_levels')
@@ -3187,6 +3520,12 @@ def add_proficiency_level():
 def toggle_proficiency_level_status(item_id):
     return generic_toggle_status(ProficiencyLevel, item_id, 'Proficiency level', 'admin.proficiency_levels')
 
+@admin_bp.route('/proficiency_levels/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_proficiency_level(item_id):
+    return generic_delete_item(ProficiencyLevel, item_id, 'Proficiency level', 'admin.proficiency_levels')
+
 # Universities
 @admin_bp.route('/universities')
 @login_required
@@ -3206,6 +3545,12 @@ def add_university():
 def toggle_university_status(item_id):
     return generic_toggle_status(University, item_id, 'University', 'admin.universities')
 
+@admin_bp.route('/universities/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_university(item_id):
+    return generic_delete_item(University, item_id, 'University', 'admin.universities')
+
 # Colleges
 @admin_bp.route('/colleges')
 @login_required
@@ -3224,3 +3569,9 @@ def add_college():
 @admin_required
 def toggle_college_status(item_id):
     return generic_toggle_status(College, item_id, 'College', 'admin.colleges')
+
+@admin_bp.route('/colleges/delete/<int:item_id>')
+@login_required
+@admin_required
+def delete_college(item_id):
+    return generic_delete_item(College, item_id, 'College', 'admin.colleges')
