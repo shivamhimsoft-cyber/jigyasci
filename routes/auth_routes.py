@@ -564,11 +564,11 @@ def send_verification_email(email, action):
             <h2>Your jigyasci Account Has Been Verified!</h2>
             <p>Congratulations! Your Scientist account has been verified and activated.</p>
             <p>You can now log in and access the full platform.</p>
-            <a href="http://127.0.0.1:5000/login" style="background: #667eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Log In Now</a>
+            <a href="https://www.jigyasci.com/login" style="background: #667eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Log In Now</a>
             <p>Best regards,<br>The jigyasci Team</p>
         </div>
         """
-        text_body = "Your Scientist account has been verified and activated. Log in at http://127.0.0.1:5000/login"
+        text_body = "Your Scientist account has been verified and activated. Log in at https://www.jigyasci.com/login"
     elif action == 'rejected':
         subject = 'Account Verification Rejected - jigyasci'
         html_body = """
