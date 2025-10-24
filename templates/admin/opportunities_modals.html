@@ -278,6 +278,7 @@ function collectLinksData() {
     return linksData;
 }
 
+
 // Send add link data to server
 async function sendLinksData(linksData) {
     const response = await fetch('{{ url_for("admin.admin_add_opportunity_link") }}', {

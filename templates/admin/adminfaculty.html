@@ -88,13 +88,28 @@
 
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-black mb-2">Department *</label>
-                        <select name="department"
-                                class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black" required>
-                            <option value="">Select Department</option>
-                            {% for dept in departments %}
-                            <option value="{{ dept.name }}">{{ dept.name }}</option>
-                            {% endfor %}
-                        </select>
+                        <div class="relative">
+                            <!-- Dropdown button -->
+                            <button type="button" onclick="toggleDepartmentDropdown()" 
+                                    class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                              <span>Select Department</span>
+                              <span class="text-gray-500">(<span id="dept-count">0</span> selected) <i class="ti ti-chevron-down ml-1"></i></span>
+                            </button>
+
+                            <!-- Dropdown list -->
+                            <div id="dept-dropdown" 
+                                 class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden transition-all duration-200 ease-in-out transform scale-95 opacity-0">
+                              {% for dept in departments %}
+                              <label class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors duration-150 border-b border-gray-100 last:border-b-0">
+                                <input type="checkbox" name="department" value="{{ dept.name }}"
+                                       class="mr-3 rounded border-gray-300 focus:ring-blue-500 h-4 w-4 text-blue-600" 
+                                       onchange="updateDeptCount()">
+                                <span class="font-normal">{{ dept.name }}</span>
+                              </label>
+                              {% endfor %}
+                            </div>
+                        </div>
+                        <small class="text-gray-600 mt-1 block">Select multiple departments (at least one required)</small>
                     </div>
 
                     <div class="form-group">
@@ -109,9 +124,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="block text-sm font-semibold text-black mb-2">Gender *</label>
+                        <label class="block text-sm font-semibold text-black mb-2">Gender</label>
                         <select name="gender"
-                                class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black" required>
+                                class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black">
                             <option value="">Select Gender</option>
                             {% for gender in genders %}
                             <option value="{{ gender.name }}">{{ gender.name }}</option>
@@ -120,10 +135,10 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="block text-sm font-semibold text-black mb-2">Date of Birth *</label>
+                        <label class="block text-sm font-semibold text-black mb-2">Date of Birth</label>
                         <input type="date" name="dob"
                                class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                               placeholder="Select date of birth" required>
+                               placeholder="Select date of birth">
                     </div>
 
                     <div class="form-group">
@@ -151,9 +166,28 @@
                     <!-- Research Information -->
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-black mb-2">Affiliation *</label>
-                        <input type="text" name="affiliation"
-                               class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                               placeholder="Enter affiliation" required>
+                        <div class="relative">
+                            <!-- Dropdown button -->
+                            <button type="button" onclick="toggleAffiliationDropdown()" 
+                                    class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                              <span>Select Affiliation</span>
+                              <span class="text-gray-500">(<span id="aff-count">0</span> selected) <i class="ti ti-chevron-down ml-1"></i></span>
+                            </button>
+
+                            <!-- Dropdown list -->
+                            <div id="aff-dropdown" 
+                                 class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden transition-all duration-200 ease-in-out transform scale-95 opacity-0">
+                              {% for inst in institutes %}
+                              <label class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors duration-150 border-b border-gray-100 last:border-b-0">
+                                <input type="checkbox" name="affiliation" value="{{ inst.name }}"
+                                       class="mr-3 rounded border-gray-300 focus:ring-blue-500 h-4 w-4 text-blue-600" 
+                                       onchange="updateAffCount()">
+                                <span class="font-normal">{{ inst.name }}</span>
+                              </label>
+                              {% endfor %}
+                            </div>
+                        </div>
+                        <small class="text-gray-600 mt-1 block">Select affiliation institute</small>
                     </div>
 
                     <div class="form-group">
@@ -186,13 +220,28 @@
 
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-black mb-2">Current Focus (Research Area) *</label>
-                        <select name="current_focus"
-                                class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black" required>
-                            <option value="">Select Research Area</option>
-                            {% for area in research_areas %}
-                            <option value="{{ area.name }}">{{ area.name }}</option>
-                            {% endfor %}
-                        </select>
+                        <div class="relative">
+                            <!-- Dropdown button -->
+                            <button type="button" onclick="toggleCurrentFocusDropdown()" 
+                                    class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                              <span>Select Current Focus</span>
+                              <span class="text-gray-500">(<span id="current-focus-count">0</span> selected) <i class="ti ti-chevron-down ml-1"></i></span>
+                            </button>
+
+                            <!-- Dropdown list -->
+                            <div id="current-focus-dropdown" 
+                                 class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden transition-all duration-200 ease-in-out transform scale-95 opacity-0">
+                              {% for area in research_areas %}
+                              <label class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors duration-150 border-b border-gray-100 last:border-b-0">
+                                <input type="checkbox" name="current_focus" value="{{ area.name }}"
+                                       class="mr-3 rounded border-gray-300 focus:ring-blue-500 h-4 w-4 text-blue-600" 
+                                       onchange="updateCurrentFocusCount()">
+                                <span class="font-normal">{{ area.name }}</span>
+                              </label>
+                              {% endfor %}
+                            </div>
+                        </div>
+                        <small class="text-gray-600 mt-1 block">Select multiple research areas</small>
                     </div>
 
                     <!-- Research Metrics -->
@@ -325,14 +374,26 @@
                                                 <span class="text-sm font-medium text-black">{{ pi.name }}</span>
                                             </div>
                                         </td>
-                                        <td class="px-4 py-3 whitespace-nowrap">
-                                            <span class="text-sm text-black">{{ pi.department or '-' }}</span>
+                                        <td class="px-4 py-3">
+                                            <div class="max-w-xs">
+                                                {% if pi.department %}
+                                                    {% for dept in pi.department.split(',') %}
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-1 mb-1">{{ dept.strip() }}</span>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <span class="text-sm text-gray-500">-</span>
+                                                {% endif %}
+                                            </div>
                                         </td>
                                         <td class="px-4 py-3">
                                             <div class="max-w-xs">
-                                                <span class="text-sm text-black line-clamp-2">
-                                                    {{ pi.affiliation or '-' }}
-                                                </span>
+                                                {% if pi.affiliation %}
+                                                    {% for aff in pi.affiliation.split(',') %}
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-1 mb-1">{{ aff.strip() }}</span>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <span class="text-sm text-gray-500">-</span>
+                                                {% endif %}
                                             </div>
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap">
@@ -359,7 +420,13 @@
                                         </td>
                                         <td class="px-4 py-3">
                                             <div class="max-w-xs">
-                                                <span class="text-sm text-black">{{ pi.current_focus or '-' }}</span>
+                                                {% if pi.current_focus %}
+                                                    {% for focus in pi.current_focus.split(',') %}
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mr-1 mb-1">{{ focus.strip() }}</span>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <span class="text-sm text-gray-500">-</span>
+                                                {% endif %}
                                             </div>
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap">
@@ -602,5 +669,59 @@
         const walk = (x - startX) * 1; // Scroll speed multiplier
         container.scrollLeft = scrollLeft - walk;
     });
+
+    function toggleDepartmentDropdown() {
+      const dropdown = document.getElementById('dept-dropdown');
+      dropdown.classList.toggle('hidden');
+      if (!dropdown.classList.contains('hidden')) {
+        dropdown.classList.remove('scale-95', 'opacity-0');
+        dropdown.classList.add('scale-100', 'opacity-100');
+      } else {
+        dropdown.classList.remove('scale-100', 'opacity-100');
+        dropdown.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => dropdown.classList.add('hidden'), 200);
+      }
+    }
+
+    function updateDeptCount() {
+      const checked = document.querySelectorAll('input[name="department"]:checked');
+      document.getElementById('dept-count').innerText = checked.length;
+    }
+
+    function toggleAffiliationDropdown() {
+      const dropdown = document.getElementById('aff-dropdown');
+      dropdown.classList.toggle('hidden');
+      if (!dropdown.classList.contains('hidden')) {
+        dropdown.classList.remove('scale-95', 'opacity-0');
+        dropdown.classList.add('scale-100', 'opacity-100');
+      } else {
+        dropdown.classList.remove('scale-100', 'opacity-100');
+        dropdown.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => dropdown.classList.add('hidden'), 200);
+      }
+    }
+
+    function updateAffCount() {
+      const checked = document.querySelectorAll('input[name="affiliation"]:checked');
+      document.getElementById('aff-count').innerText = checked.length;
+    }
+
+    function toggleCurrentFocusDropdown() {
+      const dropdown = document.getElementById('current-focus-dropdown');
+      dropdown.classList.toggle('hidden');
+      if (!dropdown.classList.contains('hidden')) {
+        dropdown.classList.remove('scale-95', 'opacity-0');
+        dropdown.classList.add('scale-100', 'opacity-100');
+      } else {
+        dropdown.classList.remove('scale-100', 'opacity-100');
+        dropdown.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => dropdown.classList.add('hidden'), 200);
+      }
+    }
+
+    function updateCurrentFocusCount() {
+      const checked = document.querySelectorAll('input[name="current_focus"]:checked');
+      document.getElementById('current-focus-count').innerText = checked.length;
+    }
 </script>
 {% endblock %}

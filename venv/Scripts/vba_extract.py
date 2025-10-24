@@ -1,4 +1,4 @@
-#!D:\jigyasci\venv\Scripts\python.exe
+#!D:\JigyaSci\venv\Scripts\python.exe
 
 ##############################################################################
 #

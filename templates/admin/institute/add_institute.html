@@ -86,14 +86,28 @@
                 </div>
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">Departments *</label>
-                    <select name="departments"
-                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                            required>
-                        <option value="">Select Department</option>
-                        {% for dept in departments %}
-                        <option value="{{ dept.name }}">{{ dept.name }}</option>
-                        {% endfor %}
-                    </select>
+                    <div class="relative">
+                        <!-- Dropdown button -->
+                        <button type="button" onclick="toggleDeptDropdown()" 
+                                class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                          <span>Select Departments</span>
+                          <span class="text-gray-500">(<span id="dept-count">0</span> selected) <i class="ti ti-chevron-down ml-1"></i></span>
+                        </button>
+
+                        <!-- Dropdown list -->
+                        <div id="dept-dropdown" 
+                             class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden transition-all duration-200 ease-in-out transform scale-95 opacity-0">
+                          {% for dept in departments %}
+                          <label class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors duration-150 border-b border-gray-100 last:border-b-0">
+                            <input type="checkbox" name="departments" value="{{ dept.name }}"
+                                   class="mr-3 rounded border-gray-300 focus:ring-blue-500 h-4 w-4 text-blue-600" 
+                                   onchange="updateDeptCount()">
+                            <span class="font-normal">{{ dept.name }}</span>
+                          </label>
+                          {% endfor %}
+                        </div>
+                    </div>
+                    <small class="text-gray-600 mt-1 block">Select multiple departments (at least one required)</small>
                 </div>
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">Institute Type *</label>
@@ -106,46 +120,139 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="block text-sm font-semibold text-black mb-2">Focus Area *</label>
-                    <textarea name="focus_area"
-                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                            rows="2" placeholder="Enter focus areas (comma-separated)" required></textarea>
+                    <label class="block text-sm font-semibold text-black mb-2">Focus Area</label>
+                    <div class="relative">
+                        <!-- Dropdown button -->
+                        <button type="button" onclick="toggleFocusDropdown()" 
+                                class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                          <span>Select Focus Areas</span>
+                          <span class="text-gray-500">(<span id="focus-count">0</span> selected) <i class="ti ti-chevron-down ml-1"></i></span>
+                        </button>
+
+                        <!-- Dropdown list -->
+                        <div id="focus-dropdown" 
+                             class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden transition-all duration-200 ease-in-out transform scale-95 opacity-0">
+                          {% for area in research_areas %}
+                          <label class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors duration-150 border-b border-gray-100 last:border-b-0">
+                            <input type="checkbox" name="focus_area" value="{{ area.name }}"
+                                   class="mr-3 rounded border-gray-300 focus:ring-blue-500 h-4 w-4 text-blue-600" 
+                                   onchange="updateFocusCount()">
+                            <span class="font-normal">{{ area.name }}</span>
+                          </label>
+                          {% endfor %}
+                        </div>
+                    </div>
+                    <small class="text-gray-600 mt-1 block">Select multiple research areas</small>
                 </div>
-                <div class="form-group">
-                    <label class="block text-sm font-semibold text-black mb-2">Key Resources *</label>
-                    <textarea name="key_resources"
-                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                            rows="2" placeholder="Enter key resources (comma-separated)" required></textarea>
+                <div class="form-group sm:col-span-2 md:col-span-2 lg:col-span-2">
+                    <label class="block text-sm font-semibold text-black mb-2">Key Resources</label>
+                    <div class="border border-black/80 rounded-sm p-3 bg-gray-50">
+                        <div class="mb-4">
+                            <h4 class="font-medium mb-3 text-black">Technologies</h4>
+                            <div class="relative">
+                                <!-- Dropdown button -->
+                                <button type="button" onclick="toggleTechDropdown()" 
+                                        class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                  <span>Select Technologies</span>
+                                  <span class="text-gray-500">(<span id="tech-count">0</span> selected) <i class="ti ti-chevron-down ml-1"></i></span>
+                                </button>
+
+                                <!-- Dropdown list -->
+                                <div id="tech-dropdown" 
+                                     class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-32 overflow-y-auto hidden transition-all duration-200 ease-in-out transform scale-95 opacity-0">
+                                  {% for tech in technologies %}
+                                  <label class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors duration-150 border-b border-gray-100 last:border-b-0">
+                                    <input type="checkbox" name="technologies" value="{{ tech.title }}"
+                                           class="mr-3 rounded border-gray-300 focus:ring-blue-500 h-4 w-4 text-blue-600" 
+                                           onchange="updateTechCount()">
+                                    <span class="font-normal">{{ tech.title }}</span>
+                                  </label>
+                                  {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-medium mb-3 text-black">Research Facilities</h4>
+                            <div class="relative">
+                                <!-- Dropdown button -->
+                                <button type="button" onclick="toggleFacDropdown()" 
+                                        class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                  <span>Select Research Facilities</span>
+                                  <span class="text-gray-500">(<span id="fac-count">0</span> selected) <i class="ti ti-chevron-down ml-1"></i></span>
+                                </button>
+
+                                <!-- Dropdown list -->
+                                <div id="fac-dropdown" 
+                                     class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-32 overflow-y-auto hidden transition-all duration-200 ease-in-out transform scale-95 opacity-0">
+                                  {% for fac in research_facilities %}
+                                  <label class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors duration-150 border-b border-gray-100 last:border-b-0">
+                                    <input type="checkbox" name="research_facilities" value="{{ fac.equipment_name }}"
+                                           class="mr-3 rounded border-gray-300 focus:ring-blue-500 h-4 w-4 text-blue-600" 
+                                           onchange="updateFacCount()">
+                                    <span class="font-normal">{{ fac.equipment_name }}</span>
+                                  </label>
+                                  {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <small class="text-gray-600 mt-1 block">Select multiple technologies and research facilities</small>
                 </div>
                 <div class="form-group sm:col-span-2">
-                    <label class="block text-sm font-semibold text-black mb-2">Key People *</label>
-                    <div class="border border-black/80 rounded-sm p-3 max-h-48 overflow-y-auto bg-gray-50">
-                        {% for pi in pi_profiles %}
-                        <label class="flex items-center p-2 hover:bg-gray-100 rounded cursor-pointer">
+                    <label class="block text-sm font-semibold text-black mb-2">Key People</label>
+                    <div class="relative">
+                        <!-- Dropdown button -->
+                        <button type="button" onclick="toggleKeyPeopleDropdown()" 
+                                class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                          <span>Select Key People</span>
+                          <span class="text-gray-500">(<span id="key-people-count">0</span> selected) <i class="ti ti-chevron-down ml-1"></i></span>
+                        </button>
+
+                        <!-- Dropdown list -->
+                        <div id="key-people-dropdown" 
+                             class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden transition-all duration-200 ease-in-out transform scale-95 opacity-0">
+                          {% for pi in pi_profiles %}
+                          <label class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors duration-150 border-b border-gray-100 last:border-b-0">
                             <input type="checkbox" name="key_people" value="{{ pi.name }}"
-                                   class="mr-2 rounded border-black/80 focus:ring-0 focus:outline-0 focus:border-black">
-                            <span class="text-sm text-black">{{ pi.name }} ({{ pi.affiliation or 'N/A' }})</span>
-                        </label>
-                        {% endfor %}
+                                   class="mr-3 rounded border-gray-300 focus:ring-blue-500 h-4 w-4 text-blue-600" 
+                                   onchange="updateKeyPeopleCount()">
+                            <span class="font-normal">{{ pi.name }} ({{ pi.affiliation or 'N/A' }})</span>
+                          </label>
+                          {% endfor %}
+                        </div>
                     </div>
-                    <small class="text-gray-600 mt-1 block">Select multiple key people (at least one required)</small>
+                    <small class="text-gray-600 mt-1 block">Select multiple key people</small>
                 </div>
                 <div class="form-group">
-                    <label class="block text-sm font-semibold text-black mb-2">Scientist/PI *</label>
-                    <select name="scientist_pi"
-                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                            required>
-                        <option value="">Select Scientist/PI</option>
-                        {% for pi in pi_profiles %}
-                        <option value="{{ pi.name }}">{{ pi.name }} ({{ pi.affiliation or 'N/A' }})</option>
-                        {% endfor %}
-                    </select>
+                    <label class="block text-sm font-semibold text-black mb-2">Scientist/PI</label>
+                    <div class="relative">
+                        <!-- Dropdown button -->
+                        <button type="button" onclick="togglePiDropdown()" 
+                                class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                          <span>Select Scientist/PI</span>
+                          <span class="text-gray-500">(<span id="pi-count">0</span> selected) <i class="ti ti-chevron-down ml-1"></i></span>
+                        </button>
+
+                        <!-- Dropdown list -->
+                        <div id="pi-dropdown" 
+                             class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden transition-all duration-200 ease-in-out transform scale-95 opacity-0">
+                          {% for pi in pi_profiles %}
+                          <label class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors duration-150 border-b border-gray-100 last:border-b-0">
+                            <input type="checkbox" name="scientist_pi" value="{{ pi.name }}"
+                                   class="mr-3 rounded border-gray-300 focus:ring-blue-500 h-4 w-4 text-blue-600" 
+                                   onchange="updatePICount()">
+                            <span class="font-normal">{{ pi.name }} ({{ pi.affiliation or 'N/A' }})</span>
+                          </label>
+                          {% endfor %}
+                        </div>
+                    </div>
+                    <small class="text-gray-600 mt-1 block">Select multiple Scientists/PIs</small>
                 </div>
                 <div class="form-group">
-                    <label class="block text-sm font-semibold text-black mb-2">Director *</label>
+                    <label class="block text-sm font-semibold text-black mb-2">Director</label>
                     <input type="text" name="director"
                         class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                        placeholder="Enter director name" required>
+                        placeholder="Enter director name">
                 </div>
                 <div class="form-group">
                     <label class="block text-sm font-semibold text-black mb-2">City *</label>
@@ -172,15 +279,15 @@
                         placeholder="Enter country" required>
                 </div>
                 <div class="form-group">
-                    <label class="block text-sm font-semibold text-black mb-2">Link *</label>
+                    <label class="block text-sm font-semibold text-black mb-2">Link</label>
                     <input type="url" name="link"
                         class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                        placeholder="Enter website link" required>
+                        placeholder="Enter website link">
                 </div>
                 <div class="form-group">
-                    <label class="block text-sm font-semibold text-black mb-2">Ownership *</label>
+                    <label class="block text-sm font-semibold text-black mb-2">Ownership</label>
                     <select name="ownership"
-                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black" required>
+                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black">
                         <option value="">Select Ownership</option>
                         {% for ownership in ownerships %}
                         <option value="{{ ownership.name }}">{{ ownership.name }}</option>
@@ -266,28 +373,39 @@
                                         </div>
                                     </td>
                                     <td class="px-4 py-3">
-                                        <div class="max-w-xs">
-                                            <span class="text-sm text-black line-clamp-2">
-                                                {{ inst.departments or '-' }}
-                                            </span>
+                                        <div class="flex flex-wrap gap-1 max-w-xs">
+                                            {% if inst.departments %}
+                                                {% for dept in inst.departments.split(',') if dept.strip() %}
+                                                <span class="text-sm bg-gray-100 text-gray-800 px-2 py-1 rounded">{{ dept.strip() }}</span>
+                                                {% endfor %}
+                                            {% endif %}
+                                            {% if not inst.departments %}
+                                                <span class="text-sm text-gray-500">-</span>
+                                            {% endif %}
                                         </div>
                                     </td>
                                     <td class="px-4 py-3">
                                         <div class="flex flex-wrap gap-1 max-w-xs">
                                             {% if inst.focus_area %}
-                                                {% for area in inst.focus_area.split(',') %}
+                                                {% for area in inst.focus_area.split(',') if area.strip() %}
                                                 <span class="text-sm bg-gray-100 text-gray-800 px-2 py-1 rounded">{{ area.strip() }}</span>
                                                 {% endfor %}
-                                            {% else %}
-                                                <span class="text-sm text-black">-</span>
+                                            {% endif %}
+                                            {% if not inst.focus_area %}
+                                                <span class="text-sm text-gray-500">-</span>
                                             {% endif %}
                                         </div>
                                     </td>
                                     <td class="px-4 py-3">
-                                        <div class="max-w-xs">
-                                            <span class="text-sm text-black line-clamp-2">
-                                                {{ inst.key_resources or '-' }}
-                                            </span>
+                                        <div class="flex flex-wrap gap-1 max-w-xs">
+                                            {% if inst.key_resources %}
+                                                {% for res in inst.key_resources.split(',') if res.strip() %}
+                                                <span class="text-sm bg-indigo-100 text-indigo-800 px-2 py-1 rounded">{{ res.strip() }}</span>
+                                                {% endfor %}
+                                            {% endif %}
+                                            {% if not inst.key_resources %}
+                                                <span class="text-sm text-gray-500">-</span>
+                                            {% endif %}
                                         </div>
                                     </td>
                                     <!-- Institutes Table - Enhanced Key People display for professional look with badges -->
@@ -312,8 +430,22 @@
                                             {% endif %}
                                         </div>
                                     </td>
-                                    <td class="px-4 py-3 whitespace-nowrap">
-                                        <span class="text-sm text-black">{{ inst.scientist_pi or '-' }}</span>
+                                    <td class="px-4 py-3">
+                                        <div class="flex flex-wrap gap-1 max-w-xs">
+                                            {% if inst.scientist_pi %}
+                                                {% for pi in inst.scientist_pi.split(',') if pi.strip() %}
+                                                <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+                                                    {{ pi.strip() }}
+                                                </span>
+                                                {% endfor %}
+                                                {% if inst.scientist_pi.split(',') | length > 3 %}
+                                                <span class="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-medium">+{{ (inst.scientist_pi.split(',') | length) - 3 }}</span>
+                                                {% endif %}
+                                            {% endif %}
+                                            {% if not inst.scientist_pi %}
+                                                <span class="text-sm text-gray-500">-</span>
+                                            {% endif %}
+                                        </div>
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <span class="text-sm text-black">{{ inst.director or '-' }}</span>
@@ -454,14 +586,14 @@
             }, 5000);
         });
 
-        // Form validation for Key People checkboxes
+        // Form validation for Departments checkboxes
         const form = document.getElementById('institute-form');
         if (form) {
             form.addEventListener('submit', function(e) {
-                const checkboxes = document.querySelectorAll('input[name="key_people"]:checked');
-                if (checkboxes.length === 0) {
+                const deptCheckboxes = document.querySelectorAll('input[name="departments"]:checked');
+                if (deptCheckboxes.length === 0) {
                     e.preventDefault();
-                    alert('Please select at least one Key Person.');
+                    alert('Please select at least one Department.');
                     return false;
                 }
             });
@@ -508,10 +640,135 @@
     .flash-message button:hover {
         background-color: rgba(0, 0, 0, 0.1);
     }
+
+    /* Enhanced dropdown animations */
+    .dropdown-enter {
+        transform: scale-95 opacity-0;
+    }
+    .dropdown-enter-active {
+        transform: scale-100 opacity-100;
+        transition: all 0.2s ease-in-out;
+    }
+    .dropdown-exit {
+        transform: scale-100 opacity-100;
+    }
+    .dropdown-exit-active {
+        transform: scale-95 opacity-0;
+        transition: all 0.2s ease-in-out;
+    }
 </style>
 
 <!-- JavaScript for Form Toggling and Table Scrolling -->
 <script>
+    function toggleDeptDropdown() {
+      const dropdown = document.getElementById('dept-dropdown');
+      dropdown.classList.toggle('hidden');
+      if (!dropdown.classList.contains('hidden')) {
+        dropdown.classList.remove('scale-95', 'opacity-0');
+        dropdown.classList.add('scale-100', 'opacity-100');
+      } else {
+        dropdown.classList.remove('scale-100', 'opacity-100');
+        dropdown.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => dropdown.classList.add('hidden'), 200);
+      }
+    }
+
+    // Update department count
+    function updateDeptCount() {
+      const checked = document.querySelectorAll('input[name="departments"]:checked');
+      document.getElementById('dept-count').innerText = checked.length;
+    }
+
+    function toggleFocusDropdown() {
+      const dropdown = document.getElementById('focus-dropdown');
+      dropdown.classList.toggle('hidden');
+      if (!dropdown.classList.contains('hidden')) {
+        dropdown.classList.remove('scale-95', 'opacity-0');
+        dropdown.classList.add('scale-100', 'opacity-100');
+      } else {
+        dropdown.classList.remove('scale-100', 'opacity-100');
+        dropdown.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => dropdown.classList.add('hidden'), 200);
+      }
+    }
+
+    function updateFocusCount() {
+      const checked = document.querySelectorAll('input[name="focus_area"]:checked');
+      document.getElementById('focus-count').innerText = checked.length;
+    }
+
+    function toggleTechDropdown() {
+      const dropdown = document.getElementById('tech-dropdown');
+      dropdown.classList.toggle('hidden');
+      if (!dropdown.classList.contains('hidden')) {
+        dropdown.classList.remove('scale-95', 'opacity-0');
+        dropdown.classList.add('scale-100', 'opacity-100');
+      } else {
+        dropdown.classList.remove('scale-100', 'opacity-100');
+        dropdown.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => dropdown.classList.add('hidden'), 200);
+      }
+    }
+
+    function updateTechCount() {
+      const checked = document.querySelectorAll('input[name="technologies"]:checked');
+      document.getElementById('tech-count').innerText = checked.length;
+    }
+
+    function toggleFacDropdown() {
+      const dropdown = document.getElementById('fac-dropdown');
+      dropdown.classList.toggle('hidden');
+      if (!dropdown.classList.contains('hidden')) {
+        dropdown.classList.remove('scale-95', 'opacity-0');
+        dropdown.classList.add('scale-100', 'opacity-100');
+      } else {
+        dropdown.classList.remove('scale-100', 'opacity-100');
+        dropdown.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => dropdown.classList.add('hidden'), 200);
+      }
+    }
+
+    function updateFacCount() {
+      const checked = document.querySelectorAll('input[name="research_facilities"]:checked');
+      document.getElementById('fac-count').innerText = checked.length;
+    }
+
+    function toggleKeyPeopleDropdown() {
+      const dropdown = document.getElementById('key-people-dropdown');
+      dropdown.classList.toggle('hidden');
+      if (!dropdown.classList.contains('hidden')) {
+        dropdown.classList.remove('scale-95', 'opacity-0');
+        dropdown.classList.add('scale-100', 'opacity-100');
+      } else {
+        dropdown.classList.remove('scale-100', 'opacity-100');
+        dropdown.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => dropdown.classList.add('hidden'), 200);
+      }
+    }
+
+    function updateKeyPeopleCount() {
+      const checked = document.querySelectorAll('input[name="key_people"]:checked');
+      document.getElementById('key-people-count').innerText = checked.length;
+    }
+
+    function togglePiDropdown() {
+      const dropdown = document.getElementById('pi-dropdown');
+      dropdown.classList.toggle('hidden');
+      if (!dropdown.classList.contains('hidden')) {
+        dropdown.classList.remove('scale-95', 'opacity-0');
+        dropdown.classList.add('scale-100', 'opacity-100');
+      } else {
+        dropdown.classList.remove('scale-100', 'opacity-100');
+        dropdown.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => dropdown.classList.add('hidden'), 200);
+      }
+    }
+
+    function updatePICount() {
+      const checked = document.querySelectorAll('input[name="scientist_pi"]:checked');
+      document.getElementById('pi-count').innerText = checked.length;
+    }
+
     function showUploadForm() {
         const uploadForm = document.getElementById('upload-form');
         const manualForm = document.getElementById('manual-form');

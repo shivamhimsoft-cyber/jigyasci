@@ -22,7 +22,7 @@ from models import (
     TeamPosition, OpportunityType, OpportunityDomain, CompensationCurrency,
     CSRFundCategory, InterestArea, InstituteOwnership, InstituteType,
     AdminSettingDepartment, Degree, Publisher, SkillType, ResearchArea, User, Opportunity, Application, University,
-    College
+    College, Technology, ResearchFacility
 )
 
 import io
@@ -883,7 +883,7 @@ REQUIRED_COLUMNS = [
     "Ownership", "InstituteType", "Link"
 ]
 
-# Updated route to fetch PI profiles
+# Updated route to fetch PI profiles and additional data
 @admin_bp.route('/add-institute', methods=['GET', 'POST'])
 @login_required
 def add_institute():
@@ -899,6 +899,9 @@ def add_institute():
     institute_types = InstituteType.query.filter_by(status='Active').all()
     departments = AdminSettingDepartment.query.filter_by(status='Active').all()
     pi_profiles = PIProfile.query.filter(PIProfile.name.isnot(None)).all()  # Fetch all PI profiles with names
+    research_areas = ResearchArea.query.filter_by(status='Active').all()
+    technologies = Technology.query.all()
+    research_facilities = ResearchFacility.query.all()
     
     # Get all institutes for admin view
     institutes_query = Institute.query
@@ -930,6 +933,9 @@ def add_institute():
                          institute_types=institute_types,
                          departments=departments,
                          pi_profiles=pi_profiles,
+                         research_areas=research_areas,
+                         technologies=technologies,
+                         research_facilities=research_facilities,
                          query=query)
 
 # Updated handle_manual_institute_addition to handle multi-select for key_people
@@ -939,43 +945,50 @@ def handle_manual_institute_addition():
         # Get form data
         name = request.form.get('name', '').strip()
         
-        # Validate required fields
-        required_fields = ['name', 'departments', 'institute_type', 'focus_area', 'key_resources', 
-                           'key_people', 'scientist_pi', 'director', 'city', 'state', 'pin_code', 
-                           'country', 'link', 'ownership']
-        for field in required_fields:
-            if field == 'departments':
-                departments_list = request.form.getlist(field)
-                if not departments_list:
-                    flash(f"{field.replace('_', ' ').title()} is required for manual addition", "error")
-                    return redirect(url_for('admin.add_institute'))
-            elif field == 'key_people':
-                key_people_list = request.form.getlist(field)
-                if not key_people_list:
-                    flash(f"{field.replace('_', ' ').title()} is required for manual addition", "error")
-                    return redirect(url_for('admin.add_institute'))
-            else:
-                if not request.form.get(field, '').strip():
-                    flash(f"{field.replace('_', ' ').title()} is required for manual addition", "error")
-                    return redirect(url_for('admin.add_institute'))
+        # Validate required fields (only specified ones)
+        required_single_fields = ['name', 'institute_type', 'city', 'state', 'pin_code', 'country']
+        for field in required_single_fields:
+            if not request.form.get(field, '').strip():
+                flash(f"{field.replace('_', ' ').title()} is required for manual addition", "error")
+                return redirect(url_for('admin.add_institute'))
+        
+        # Check for departments (mandatory multi-select)
+        departments_list = request.form.getlist('departments')
+        if not departments_list:
+            flash("At least one Department is required for manual addition", "error")
+            return redirect(url_for('admin.add_institute'))
         
         # Process departments
-        departments_list = [d.strip() for d in request.form.getlist('departments') if d.strip()]
+        departments_list = [d.strip() for d in departments_list if d.strip()]
         departments = ', '.join(departments_list)
         
-        # Process key_people from multi-select
+        # Process focus_area (optional multi-select)
+        focus_list = [f.strip() for f in request.form.getlist('focus_area') if f.strip()]
+        focus_area = ', '.join(focus_list)
+        
+        # Process key_resources from technologies and research_facilities (optional)
+        tech_list = [t.strip() for t in request.form.getlist('technologies') if t.strip()]
+        fac_list = [f.strip() for f in request.form.getlist('research_facilities') if f.strip()]
+        key_resources_list = tech_list + fac_list
+        key_resources = ', '.join(key_resources_list)
+        
+        # Process key_people (optional multi-select)
         key_people_list = [p.strip() for p in request.form.getlist('key_people') if p.strip()]
         key_people = ', '.join(key_people_list)
+        
+        # Process scientist_pi (optional multi-select)
+        sci_list = [s.strip() for s in request.form.getlist('scientist_pi') if s.strip()]
+        scientist_pi = ', '.join(sci_list)
         
         # Create institute
         institute = Institute(
             name=name,
             departments=departments,
             institute_type=request.form.get('institute_type', '').strip(),
-            focus_area=request.form.get('focus_area', '').strip(),
-            key_resources=request.form.get('key_resources', '').strip(),
+            focus_area=focus_area,
+            key_resources=key_resources,
             key_people=key_people,
-            scientist_pi=request.form.get('scientist_pi', '').strip(),
+            scientist_pi=scientist_pi,
             director=request.form.get('director', '').strip(),
             city=request.form.get('city', '').strip(),
             state=request.form.get('state', '').strip(),
@@ -1308,7 +1321,7 @@ def delete_department(id):
 
 # ========================================================================================  STUDENTS
 
-# Updated routes (adminstudents route updated to fetch research_profiles)
+# Updated routes (adminstudents route updated to fetch research_areas)
 @admin_bp.route('/students', methods=['GET', 'POST'])
 @login_required
 def adminstudents():
@@ -1323,6 +1336,9 @@ def adminstudents():
     
     # Fetch research profiles for dropdown
     research_profiles = ResearchProfile.query.filter_by(status='Active').all()
+    
+    # Fetch research areas for multi-select
+    research_areas = ResearchArea.query.filter_by(status='Active').all()
     
     if request.method == 'POST':
         # Check if it's CSV upload or manual add
@@ -1358,7 +1374,8 @@ def adminstudents():
                          query=query,
                          genders=genders,
                          current_statuses=current_statuses,
-                         research_profiles=research_profiles)
+                         research_profiles=research_profiles,
+                         research_areas=research_areas)
 
 @admin_bp.route('/add-student', methods=['POST'])
 @login_required
@@ -1370,7 +1387,7 @@ def add_student():
     return handle_manual_student_addition()
 
 
-# Updated handle_manual_student_addition to handle profile picture upload
+# Updated handle_manual_student_addition to handle multi-select research_interests and links for research_profiles
 def handle_manual_student_addition():
     """Handle manual student addition"""
     try:
@@ -1378,7 +1395,7 @@ def handle_manual_student_addition():
         name = request.form.get('name', '').strip()
         affiliation = request.form.get('affiliation', '').strip()
         contact_email = request.form.get('contact_email', '').strip()
-        research_profiles = request.form.get('research_profiles', '').strip()  # Added for new field
+        research_profiles = request.form.get('research_profiles', '').strip()  # Textarea for links
         
         # Validate required fields
         if not name:
@@ -1398,6 +1415,12 @@ def handle_manual_student_addition():
         # Check if user with this email already exists
         if User.query.filter_by(email=contact_email).first():
             flash(f"User with email {contact_email} already exists.", "error")
+            return redirect(url_for('admin.adminstudents'))
+        
+        # Validate mandatory multi-select for research_interests
+        research_interests_list = request.form.getlist('research_interests')
+        if not research_interests_list:
+            flash("At least one Research Interest is required for manual addition", "error")
             return redirect(url_for('admin.adminstudents'))
         
         # Create new user
@@ -1432,8 +1455,8 @@ def handle_manual_student_addition():
             contact_email=contact_email,
             contact_phone=request.form.get('contact_phone', '').strip(),
             address=request.form.get('address', '').strip(),
-            research_interests=request.form.get('research_interests', '').strip(),
-            research_profiles=research_profiles,  # Added assignment for new field
+            research_interests=', '.join([ri.strip() for ri in research_interests_list if ri.strip()]),
+            research_profiles=research_profiles,  # Store as-is for links
             why_me=request.form.get('why_me', '').strip(),
             current_status=request.form.get('current_status', '').strip(),
         )
@@ -1494,7 +1517,7 @@ def handle_student_csv_upload():
         stream = TextIOWrapper(csv_file.stream, encoding='utf-8')
         csv_reader = csv.DictReader(stream)
         
-        # Validate CSV headers (added research_profiles to required/expected)
+        # Validate CSV headers (updated to include research_profiles)
         required_headers = ['name', 'affiliation', 'contact_email']
         missing_headers = [h for h in required_headers if h not in csv_reader.fieldnames]
         if missing_headers:
@@ -1510,7 +1533,8 @@ def handle_student_csv_upload():
                 name = row.get('name', '').strip()
                 affiliation = row.get('affiliation', '').strip()
                 contact_email = row.get('contact_email', '').strip().lower()
-                research_profiles = row.get('research_profiles', '').strip()  # Added for new field
+                research_profiles = row.get('research_profiles', '').strip()  # For links
+                research_interests = row.get('research_interests', '').strip()  # Comma-separated areas
                 
                 if not name:
                     errors.append(f"Row {row_num}: Name is required")
@@ -1561,8 +1585,8 @@ def handle_student_csv_upload():
                     contact_email=contact_email,
                     contact_phone=row.get('contact_phone', '').strip(),
                     address=row.get('address', '').strip(),
-                    research_interests=row.get('research_interests', '').strip(),
-                    research_profiles=research_profiles,  # Added assignment for new field
+                    research_interests=research_interests,  # Store as comma-separated
+                    research_profiles=research_profiles,  # Store links as-is
                     why_me=row.get('why_me', '').strip(),
                     current_status=row.get('current_status', '').strip(),
                 )
@@ -1633,7 +1657,7 @@ def delete_student(student_id):
     
     return redirect(url_for('admin.adminstudents'))
 
-# Helper route to download CSV template (updated to include research_profiles)
+# Helper route to download CSV template (updated to include research_profiles and research_interests)
 @admin_bp.route('/download-student-template')
 @login_required
 def download_student_template():
@@ -1644,18 +1668,18 @@ def download_student_template():
     output = io.StringIO()
     writer = csv.writer(output)
     
-    # Write header (added research_profiles)
+    # Write header (updated to include research_profiles and research_interests)
     headers = [
         'name', 'affiliation', 'contact_email', 'contact_phone', 
-        'dob', 'gender', 'address', 'research_interests', 'research_profiles',  # Added research_profiles
+        'dob', 'gender', 'address', 'research_interests', 'research_profiles',  # Updated
         'why_me', 'current_status'
     ]
     writer.writerow(headers)
     
-    # Write sample data (added sample for research_profiles)
+    # Write sample data (updated samples)
     sample_data = [
         'Mohit sherma', 'University of Example', 'mohit.doe@example.com', '1234567890',
-        '1995-01-15', 'Male', '123 Example St, City', 'Machine Learning, AI', 'Profile in AI Research Group',  # Added sample
+        '1995-01-15', 'Male', '123 Example St, City', 'Machine Learning, AI', 'https://scholar.google.com/citations?user=abc123, https://researchgate.net/profile/john-doe',  # Updated for links
         'Passionate about research', 'PhD Student'
     ]
     writer.writerow(sample_data)
@@ -1668,6 +1692,9 @@ def download_student_template():
         as_attachment=True,
         download_name='student_template.csv'
     )
+
+
+
     
 # ========================================================================================================FACULTY FACULTY FACULTY FACULTY
 
@@ -1706,6 +1733,7 @@ def adminfaculty():
     departments = AdminSettingDepartment.query.filter_by(status='Active').all()
     research_areas = ResearchArea.query.filter_by(status='Active').all()
     genders = Gender.query.filter_by(status='Active').all()
+    institutes = Institute.query.all()
 
     if request.method == 'POST':
         if 'faculty_csv' in request.files:
@@ -1739,6 +1767,17 @@ def adminfaculty():
             
             if User.query.filter_by(email=email).first():
                 flash(f'A user with the email {email} already exists.', 'error')
+                return redirect(url_for('admin.adminfaculty'))
+
+            # Validate mandatory multi-selects
+            affiliation_list = request.form.getlist('affiliation')
+            if not affiliation_list:
+                flash('At least one Affiliation is required for manual addition', 'error')
+                return redirect(url_for('admin.adminfaculty'))
+
+            current_focus_list = request.form.getlist('current_focus')
+            if not current_focus_list:
+                flash('At least one Current Focus (Research Area) is required for manual addition', 'error')
                 return redirect(url_for('admin.adminfaculty'))
             
             # Create user
@@ -1787,7 +1826,7 @@ def adminfaculty():
                 profile_id=profile.id,
                 name=request.form.get('name'),
                 department=request.form.get('department'),
-                affiliation=request.form.get('affiliation'),
+                affiliation=', '.join([a.strip() for a in affiliation_list if a.strip()]),
                 affiliation_short=request.form.get('affiliation_short'),
                 location=request.form.get('location'),
                 education_summary=request.form.get('education'),
@@ -1806,7 +1845,7 @@ def adminfaculty():
                 profile_picture=profile_picture,
                 research_profiles=request.form.get('research_profiles'),
                 current_message=request.form.get('current_message'),
-                current_focus=request.form.get('current_focus'),
+                current_focus=', '.join([c.strip() for c in current_focus_list if c.strip()]),
                 expectations_from_students=request.form.get('expectations_from_students'),
                 why_join_lab=request.form.get('why_join_lab'),
                 last_updated=datetime.utcnow()
@@ -1835,7 +1874,8 @@ def adminfaculty():
                          designations=designations,
                          departments=departments,
                          research_areas=research_areas,
-                         genders=genders)
+                         genders=genders,
+                         institutes=institutes)
 
 
 

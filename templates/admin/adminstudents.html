@@ -63,7 +63,7 @@
                 <input type="file" name="student_csv"
                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
                        accept=".csv" required>
-                <small class="text-gray-600 mt-1 block">CSV should include columns: name, affiliation, contact_email (required), contact_phone, dob, gender, address, research_interests, why_me, current_status</small>
+                <small class="text-gray-600 mt-1 block">CSV should include columns: name, affiliation, contact_email (required), contact_phone, dob, gender, address, research_interests (comma-separated research areas), research_profiles (comma-separated links or text), why_me, current_status</small>
             </div>
             <button type="button" onclick="hideUploadForm()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors duration-200">
                 Cancel
@@ -74,7 +74,6 @@
         </form>
     </div>
 
-    <!-- Updated Manual Add Form section in adminstudents.html (added file input for profile_picture) -->
     <!-- Manual Add Form -->
     <div id="manual-form" class="hidden mb-6 bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
         <h3 class="text-lg font-semibold text-black mb-6">Add Student Manually</h3>
@@ -153,32 +152,40 @@
                     <small class="text-gray-600 mt-1 block">Upload a profile image (optional)</small>
                 </div>
 
-                <!-- Additional Information -->
+                <!-- Research Interests - Multi-select dropdown -->
                 <div class="form-group sm:col-span-2">
                     <label class="block text-sm font-semibold text-black mb-2">Research Interests</label>
-                    <textarea name="research_interests"
-                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                            rows="3" placeholder="Enter research interests"></textarea>
+                    <div class="relative">
+                        <!-- Dropdown button -->
+                        <button type="button" onclick="toggleResearchInterestsDropdown()" 
+                                class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                          <span>Select Research Interests</span>
+                          <span class="text-gray-500">(<span id="research-interests-count">0</span> selected) <i class="ti ti-chevron-down ml-1"></i></span>
+                        </button>
+
+                        <!-- Dropdown list -->
+                        <div id="research-interests-dropdown" 
+                             class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden transition-all duration-200 ease-in-out transform scale-95 opacity-0">
+                          {% for area in research_areas %}
+                          <label class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors duration-150 border-b border-gray-100 last:border-b-0">
+                            <input type="checkbox" name="research_interests" value="{{ area.name }}"
+                                   class="mr-3 rounded border-gray-300 focus:ring-blue-500 h-4 w-4 text-blue-600" 
+                                   onchange="updateResearchInterestsCount()">
+                            <span class="font-normal">{{ area.name }}</span>
+                          </label>
+                          {% endfor %}
+                        </div>
+                    </div>
+                    <small class="text-gray-600 mt-1 block">Select multiple research areas</small>
                 </div>
 
-                <!-- <div class="form-group sm:col-span-2">
-                    <label class="block text-sm font-semibold text-black mb-2">Research Profiles</label>
-                    <select name="research_profiles"
-                            class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black">
-                        <option value="">Select Research Profile</option>
-                        {% for rp in research_profiles %}
-                        <option value="{{ rp.name }}">{{ rp.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div> -->
-
-                <!-- Research Profiles - Changed from select to text input -->
+                <!-- Research Profiles - Textarea for links -->
                 <div class="form-group sm:col-span-2">
                     <label class="block text-sm font-semibold text-black mb-2">Research Profiles</label>
-                    <input type="text" name="research_profiles"
-                        class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
-                        placeholder="Enter research profiles (comma separated)">
-                    <small class="text-gray-600 mt-1 block">Enter research profiles separated by commas</small>
+                    <textarea name="research_profiles"
+                              class="w-full border border-black/80 rounded-sm px-4 py-1.5 text-black placeholder-black/80 focus:ring-0 focus:outline-0 focus:border-black"
+                              rows="3" placeholder="Enter research profile links or text descriptions (one per line or comma-separated) e.g., https://scholar.google.com/citations?user=abc123, https://researchgate.net/profile/john-doe, Personal Portfolio"></textarea>
+                    <small class="text-gray-600 mt-1 block">Enter links to research profiles or text descriptions (one per line or comma-separated)</small>
                 </div>
 
                 <div class="form-group sm:col-span-2">
@@ -291,20 +298,38 @@
                 <span class="text-sm text-black">{{ student.current_status or '-' }}</span>
             </td>
             <td class="px-4 py-3">
-                <div class="max-w-xs">
-                    <span class="text-sm text-black line-clamp-2">
-                        {{ student.research_interests or '-' }}
-                    </span>
+                <div class="flex flex-wrap gap-1 max-w-xs">
+                    {% if student.research_interests %}
+                        {% for interest in student.research_interests.split(',') if interest.strip() %}
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+                            {{ interest.strip() }}
+                        </span>
+                        {% endfor %}
+                    {% endif %}
+                    {% if not student.research_interests %}
+                        <span class="text-sm text-gray-500">-</span>
+                    {% endif %}
                 </div>
             </td>
-           <!-- Research Profiles - Changed from badges to comma-separated list for professional display -->
-<!-- Research Profiles - Display full comma-separated list without trimming for professional view -->
+           <!-- Research Profiles - Display as professional badges for links and text -->
 <td class="px-4 py-3">
-    <div class="max-w-xs">
+    <div class="flex flex-wrap gap-1 max-w-xs">
         {% if student.research_profiles %}
-            <span class="text-sm text-black whitespace-pre-wrap break-words">
-                {{ student.research_profiles.split(',') | map('trim') | join(', ') }}
-            </span>
+            {% for profile in student.research_profiles.split(',') if profile.strip() %}
+                {% set trimmed = profile.strip() %}
+                {% if trimmed.startswith(('http://', 'https://')) or trimmed.startswith('www.') %}
+                    <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full font-medium whitespace-nowrap flex items-center">
+                        <a href="{{ trimmed if trimmed.startswith(('http://', 'https://')) else 'http://' + trimmed }}" target="_blank" class="hover:underline flex items-center">
+                            <i class="ti ti-link text-xs mr-1"></i>
+                            {{ trimmed.split('/')[-1][:20] if '/' in trimmed else trimmed[:30] }}{% if trimmed|length > 30 %}...{% endif %}
+                        </a>
+                    </span>
+                {% else %}
+                    <span class="text-xs bg-gray-100 text-gray-800 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+                        {{ trimmed[:30] }}{% if trimmed|length > 30 %}...{% endif %}
+                    </span>
+                {% endif %}
+            {% endfor %}
         {% else %}
             <span class="text-sm text-gray-500">-</span>
         {% endif %}
@@ -563,5 +588,23 @@
         const walk = (x - startX) * 1; // Scroll speed multiplier
         container.scrollLeft = scrollLeft - walk;
     });
+
+    function toggleResearchInterestsDropdown() {
+      const dropdown = document.getElementById('research-interests-dropdown');
+      dropdown.classList.toggle('hidden');
+      if (!dropdown.classList.contains('hidden')) {
+        dropdown.classList.remove('scale-95', 'opacity-0');
+        dropdown.classList.add('scale-100', 'opacity-100');
+      } else {
+        dropdown.classList.remove('scale-100', 'opacity-100');
+        dropdown.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => dropdown.classList.add('hidden'), 200);
+      }
+    }
+
+    function updateResearchInterestsCount() {
+      const checked = document.querySelectorAll('input[name="research_interests"]:checked');
+      document.getElementById('research-interests-count').innerText = checked.length;
+    }
 </script>
 {% endblock %}
