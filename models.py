@@ -337,6 +337,7 @@ class OpportunityLink(db.Model):
     title = db.Column(db.String(200), nullable=False)
     url = db.Column(db.String(500), nullable=False)
     description = db.Column(db.Text)
+    tags = db.Column(db.String(200), default="Job")  # Default value added here
     added_by = db.Column(db.Integer, db.ForeignKey('profiles.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)

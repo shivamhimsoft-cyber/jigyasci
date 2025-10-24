@@ -48,13 +48,41 @@
 .modal-scroll::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
 }
+
+/* Tag badge styles for professional look */
+.tag-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 9999px;
+    background-color: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    white-space: nowrap;
+    transition: all 0.2s ease-in-out;
+}
+
+.tag-badge:hover {
+    background-color: #e5e7eb;
+    transform: translateY(-1px);
+}
+
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    align-items: center;
+    max-width: 100%;
+}
 </style>
 
 {% block content %}
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <!-- Toggle Button Bar -->
+            <!-- Opportunities Toggle Button Bar -->
             <div class="card mb-4">
                 <div class="card-body">
                     <div class="flex flex-wrap gap-3">
@@ -65,7 +93,7 @@
                             My Opportunities
                         </button>
 
-                        <!-- Action Buttons -->
+                        <!-- Action Buttons for Opportunities -->
                         <button onclick="toggleSection('addForm')" 
                                 class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-md hover:bg-gray-300 transition-all duration-200">
                             <i class="fas fa-plus"></i>
@@ -78,12 +106,6 @@
                             Bulk Upload
                         </button>
                         
-                        <button onclick="openAddLinkModal()"
-                                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-md hover:bg-gray-300 transition-all duration-200">
-                            <i class="fas fa-link"></i>
-                            Add Opportunity Link
-                        </button>
-
                         <a href="{{ url_for('admin.download_opportunity_template') }}"
                            class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 transition-all duration-200">
                             <i class="fas fa-download"></i>
@@ -373,6 +395,148 @@
                 </div>
             </div>
 
+            <!-- Pagination for Opportunities -->
+            {% if opportunities.pages > 1 %}
+            <div class="mt-6">
+                <nav class="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
+                    <div class="flex flex-1 w-0">
+                        {% if opportunities.has_prev %}
+                        <a href="{{ url_for('admin.admin_opportunities', page=opportunities.prev_num, view='my') }}" 
+                           class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Previous
+                        </a>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="hidden md:flex">
+                        {% for page_num in opportunities.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                            {% if page_num %}
+                                {% if page_num == opportunities.page %}
+                                <a href="{{ url_for('admin.admin_opportunities', page=page_num, view='my') }}" 
+                                   class="inline-flex items-center px-4 py-2 border border-indigo-500 text-sm font-medium text-indigo-600 bg-indigo-50">
+                                    {{ page_num }}
+                                </a>
+                                {% else %}
+                                <a href="{{ url_for('admin.admin_opportunities', page=page_num, view='my') }}" 
+                                   class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                                    {{ page_num }}
+                                </a>
+                                {% endif %}
+                            {% else %}
+                                <span class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium text-gray-700">
+                                    ...
+                                </span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="flex flex-1 justify-end w-0">
+                        {% if opportunities.has_next %}
+                        <a href="{{ url_for('admin.admin_opportunities', page=opportunities.next_num, view='my') }}" 
+                           class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Next
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </nav>
+            </div>
+            {% endif %}
+
+            <!-- Links Toggle Button Bar -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="flex flex-wrap gap-3">
+                        <!-- View Toggles for Links -->
+                        <button onclick="showLinksView('my')" 
+                                class="inline-flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-200 {{ 'bg-orange-600 text-white shadow' if view_type_links == 'my' else 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                            <i class="fas fa-link"></i>
+                            My Opportunity Links
+                        </button>
+
+                        <!-- Action Buttons for Links -->
+                        <button onclick="toggleSection('bulkUploadLinks')" 
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-md hover:bg-gray-300 transition-all duration-200">
+                            <i class="fas fa-upload"></i>
+                            Bulk Upload Links
+                        </button>
+                        
+                        <button onclick="openAddLinkModal()"
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-md hover:bg-gray-300 transition-all duration-200">
+                            <i class="fas fa-plus"></i>
+                            Add Opportunity Link
+                        </button>
+
+                        <!-- In the main opportunities.html, ensure the Download Link Template button has consistent styling -->
+                        <a href="{{ url_for('admin.download_opportunity_link_template') }}"
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-gray-400 text-black font-medium rounded-md shadow-sm hover:bg-orange-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+                            <i class="fas fa-download"></i>
+                            Download Link Template
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bulk Upload Links Section (Initially Hidden) -->
+            <div id="bulkUploadLinks" class="card mb-4 hidden">
+                <div class="card-header bg-gray-50 border-b-0 flex justify-between items-center">
+                    <h4 class="card-title text-xl font-bold text-gray-800">
+                        <i class="fas fa-upload mr-2 text-orange-500"></i>
+                        Bulk Upload Opportunity Links
+                    </h4>
+                    <button onclick="toggleSection('bulkUploadLinks')" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="max-w-2xl mx-auto">
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-info-circle text-blue-400"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-blue-700">
+                                        <strong>Supported formats:</strong> CSV, XLSX<br>
+                                        <strong>Required fields:</strong> URL<br>
+                                        <strong>Optional fields:</strong> Title, Description, Tags
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form id="bulkUploadLinksForm" class="space-y-6">
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors duration-200" 
+                                 id="dropZoneLinks" onclick="document.getElementById('fileInputLinks').click()">
+                                <input type="file" name="file" id="fileInputLinks" class="hidden" accept=".csv,.xlsx,.xls">
+                                
+                                <div class="space-y-3">
+                                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400"></i>
+                                    <div>
+                                        <span class="cursor-pointer text-blue-600 hover:text-blue-800 font-medium">
+                                            Click to upload
+                                        </span>
+                                        <p class="text-sm text-gray-500">or drag and drop</p>
+                                    </div>
+                                    <p class="text-xs text-gray-400">CSV, XLSX up to 10MB</p>
+                                </div>
+                                
+                                <div id="fileNameLinks" class="mt-4 text-sm font-medium text-gray-700 hidden"></div>
+                            </div>
+
+                            <div class="flex justify-center">
+                                <button type="submit" 
+                                        class="px-6 py-3 bg-gray-400 text-black font-medium rounded-lg hover:bg-orange-700 flex items-center gap-2">
+                                    <i class="fas fa-upload"></i>
+                                    Upload and Process Links
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <!-- Opportunity Links Table -->
             <div class="card">
                 <div class="card-header bg-gray-50 border-b-0 flex justify-between items-center">
@@ -380,9 +544,6 @@
                         <i class="fas fa-link mr-2 text-orange-500"></i>
                         Opportunity Links
                     </h4>
-                    <button onclick="openAddLinkModal()" class="px-4 py-2 bg-orange-600 text-black rounded-md hover:bg-orange-700">
-                        <i class="fas fa-plus mr-2"></i>Add Link
-                    </button>
                 </div>
                 <div class="card-body overflow-auto">
                     {% if opportunity_links %}
@@ -394,6 +555,7 @@
                                     <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Title</th>
                                     <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">URL</th>
                                     <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Description</th>
+                                    <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Tags</th>
                                     <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Added By</th>
                                     <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Date Added</th>
                                     <th class="text-start p-3 font-semibold text-dark dark:text-white text-base">Status</th>
@@ -413,6 +575,18 @@
                                         </a>
                                     </td>
                                     <td class="p-3">{{ link.description|truncate(50) or 'No description' }}</td>
+                                    <td class="p-3">
+                                        {% if link.tags %}
+                                            {% set tag_list = link.tags.split(',') %}
+                                            <div class="tags-container">
+                                                {% for tag in tag_list %}
+                                                    <span class="tag-badge">{{ tag.strip() }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            <span class="text-gray-400 text-xs">No tags</span>
+                                        {% endif %}
+                                    </td>
                                     <td class="p-3">{{ link.added_by_profile.user.email if link.added_by_profile else 'Unknown' }}</td>
                                     <td class="p-3">{{ link.created_at.strftime('%Y-%m-%d') }}</td>
                                     <td class="p-3">
@@ -624,10 +798,11 @@
                 </div>
             </div>
 
+            <!-- Edit Link Modal Update in templates\admin\opportunities.html -->
             <!-- Edit Link Modal -->
             <div id="editLinkModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center hidden z-50 overflow-y-auto py-6">
                 <div id="editLinkModalContent" 
-                     class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-2xl mx-auto my-8 transform scale-95 opacity-0 transition-all duration-300 max-h-[90vh] flex flex-col">
+                    class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-2xl mx-auto my-8 transform scale-95 opacity-0 transition-all duration-300 max-h-[90vh] flex flex-col">
                     
                     <div class="flex justify-between items-center mb-5 pb-3 border-b flex-shrink-0">
                         <h3 class="text-xl font-bold text-gray-800">
@@ -647,23 +822,50 @@
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
                                     <input type="text" id="edit_link_title" name="title" 
-                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                                           placeholder="Enter link title">
+                                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                        placeholder="Enter link title">
                                 </div>
 
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Link <span class="text-red-500">*</span></label>
                                     <input type="url" id="edit_link_url" name="url" required
-                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                                           placeholder="https://example.com">
+                                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                        placeholder="https://example.com">
                                 </div>
                             </div>
 
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
                                 <textarea id="edit_link_description" name="description" rows="3"
-                                          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                                          placeholder="Brief description"></textarea>
+                                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                        placeholder="Brief description"></textarea>
+                            </div>
+
+                            <!-- Opportunity Types (Tags) - Multiple Select Dropdown -->
+                            <div class="form-group">
+                                <label class="block text-sm font-semibold text-black mb-2">Opportunity Types (Tags)</label>
+                                <div class="relative">
+                                    <!-- Dropdown button -->
+                                    <button type="button" onclick="toggleEditTagsDropdown(this)" 
+                                            class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                    <span id="edit-tags-display">Select Opportunity Types</span>
+                                    <span class="text-gray-500">(<span id="edit-tag-count">0</span> selected) <i class="ti ti-chevron-down ml-1"></i></span>
+                                    </button>
+
+                                    <!-- Dropdown list -->
+                                    <div id="edit-tags-dropdown" 
+                                        class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden transition-all duration-200 ease-in-out transform scale-95 opacity-0">
+                                    {% for type in opportunity_types %}
+                                    <label class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors duration-150 border-b border-gray-100 last:border-b-0">
+                                        <input type="checkbox" name="edit_tags" value="{{ type.name }}"
+                                            class="mr-3 rounded border-gray-300 focus:ring-blue-500 h-4 w-4 text-blue-600" 
+                                            onchange="updateEditTagsCount()">
+                                        <span class="font-normal">{{ type.name }}</span>
+                                    </label>
+                                    {% endfor %}
+                                    </div>
+                                </div>
+                                <small class="text-gray-600 mt-1 block">Select multiple opportunity types (Hold Ctrl/Cmd to select multiple)</small>
                             </div>
 
                             <div>
@@ -691,54 +893,8 @@
                 </div>
             </div>
 
-            <!-- Pagination -->
-            {% if opportunities.pages > 1 %}
-            <div class="mt-6">
-                <nav class="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
-                    <div class="flex flex-1 w-0">
-                        {% if opportunities.has_prev %}
-                        <a href="{{ url_for('admin.admin_opportunities', page=opportunities.prev_num, view='my') }}" 
-                           class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            <i class="fas fa-arrow-left mr-2"></i>
-                            Previous
-                        </a>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="hidden md:flex">
-                        {% for page_num in opportunities.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-                            {% if page_num %}
-                                {% if page_num == opportunities.page %}
-                                <a href="{{ url_for('admin.admin_opportunities', page=page_num, view='my') }}" 
-                                   class="inline-flex items-center px-4 py-2 border border-indigo-500 text-sm font-medium text-indigo-600 bg-indigo-50">
-                                    {{ page_num }}
-                                </a>
-                                {% else %}
-                                <a href="{{ url_for('admin.admin_opportunities', page=page_num, view='my') }}" 
-                                   class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                    {{ page_num }}
-                                </a>
-                                {% endif %}
-                            {% else %}
-                                <span class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium text-gray-700">
-                                    ...
-                                </span>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                    
-                    <div class="flex flex-1 justify-end w-0">
-                        {% if opportunities.has_next %}
-                        <a href="{{ url_for('admin.admin_opportunities', page=opportunities.next_num, view='my') }}" 
-                           class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            Next
-                            <i class="fas fa-arrow-right ml-2"></i>
-                        </a>
-                        {% endif %}
-                    </div>
-                </nav>
-            </div>
-            {% endif %}
+
+
         </div>
     </div>
 </div>
@@ -746,6 +902,16 @@
 
 <!-- Include the modal for adding links -->
 {% include 'admin/opportunities_modals.html' %}
+
+
+
+
+
+
+
+
+
+
 
 <script>
 // Dropdown management with optimized event handling
@@ -778,7 +944,7 @@ function initDropdowns() {
 
 // Toggle sections
 function toggleSection(sectionId) {
-    const sections = ['addForm', 'bulkUpload'];
+    const sections = ['addForm', 'bulkUpload', 'bulkUploadLinks'];
     sections.forEach(id => {
         const element = document.getElementById(id);
         if (id === sectionId) {
@@ -792,7 +958,7 @@ function toggleSection(sectionId) {
 // Show view (My Opportunities) and close all modals
 function showView(view) {
     // Close all modals
-    const modals = ['addForm', 'bulkUpload', 'editLinkModal', 'editOpportunityModal', 'addLinkModal'];
+    const modals = ['addForm', 'bulkUpload', 'bulkUploadLinks', 'editLinkModal', 'editOpportunityModal', 'addLinkModal'];
     modals.forEach(id => {
         const modal = document.getElementById(id);
         if (modal) {
@@ -824,6 +990,37 @@ function showView(view) {
 
     // Reload the page with the selected view
     window.location.href = `{{ url_for('admin.admin_opportunities', view='my') }}`.replace('view=my', `view=${view}`);
+}
+
+// Show links view (placeholder - can be extended for filtering)
+function showLinksView(view) {
+    // Close relevant sections
+    const modals = ['bulkUploadLinks', 'editLinkModal', 'addLinkModal'];
+    modals.forEach(id => {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.add('hidden');
+            if (id === 'editLinkModal') {
+                const content = document.getElementById('editLinkModalContent');
+                if (content) {
+                    content.classList.add('scale-95', 'opacity-0');
+                    content.classList.remove('scale-100', 'opacity-100');
+                    setTimeout(() => resetEditLinkModal(), 200);
+                }
+            } else if (id === 'addLinkModal') {
+                const content = document.getElementById('linkModalContent');
+                if (content) {
+                    content.classList.add('scale-95', 'opacity-0');
+                    content.classList.remove('scale-100', 'opacity-100');
+                    setTimeout(() => resetLinkModal(), 200);
+                }
+            }
+        }
+    });
+
+    // For now, just log or reload if needed; extend for actual view switching
+    console.log(`Showing links view: ${view}`);
+    // Optionally reload or filter the table via AJAX
 }
 
 // Form submissions
@@ -899,6 +1096,61 @@ document.getElementById('bulkUploadForm').addEventListener('submit', async funct
             this.reset();
             document.getElementById('fileName').classList.add('hidden');
             toggleSection('bulkUpload');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification('error', result.message || 'Failed to process file');
+            if (result.errors && result.errors.length > 0) {
+                result.errors.forEach(error => {
+                    showNotification('error', error);
+                });
+            }
+        }
+    } catch (error) {
+        showNotification('error', 'Network error: ' + error.message);
+    } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+});
+
+// Bulk upload links form
+document.getElementById('bulkUploadLinksForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    const fileInput = document.getElementById('fileInputLinks');
+    
+    if (!fileInput.files.length) {
+        showNotification('error', 'Please select a file to upload');
+        return;
+    }
+    
+    formData.append('file', fileInput.files[0]);
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+    submitBtn.disabled = true;
+    
+    try {
+        const response = await fetch('{{ url_for("admin.admin_bulk_upload_opportunity_links") }}', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('success', result.message);
+            if (result.errors && result.errors.length > 0) {
+                result.errors.forEach(error => {
+                    showNotification('error', error);
+                });
+            }
+            this.reset();
+            document.getElementById('fileNameLinks').classList.add('hidden');
+            toggleSection('bulkUploadLinks');
             setTimeout(() => location.reload(), 1000);
         } else {
             showNotification('error', result.message || 'Failed to process file');
@@ -1048,7 +1300,56 @@ async function submitEditForm() {
     }
 }
 
-// Link management functions
+
+
+
+
+
+// ================================================================================================================
+
+// For Edit Link Tags Dropdown
+function toggleEditTagsDropdown(button) {
+    const dropdown = document.getElementById('edit-tags-dropdown');
+    
+    if (!dropdown) return;
+
+    // Close if already open
+    if (!dropdown.classList.contains('hidden')) {
+        dropdown.classList.add('hidden');
+        dropdown.classList.remove('scale-100', 'opacity-100');
+        dropdown.classList.add('scale-95', 'opacity-0');
+        return;
+    }
+
+    // Open dropdown
+    dropdown.classList.remove('hidden');
+    dropdown.classList.remove('scale-95', 'opacity-0');
+    dropdown.classList.add('scale-100', 'opacity-100');
+    dropdown.focus(); // For accessibility
+}
+
+function updateEditTagsCount() {
+    const dropdown = document.getElementById('edit-tags-dropdown');
+    const display = document.getElementById('edit-tags-display');
+    const countSpan = document.getElementById('edit-tag-count');
+    
+    if (!dropdown || !display || !countSpan) return;
+
+    const selectedCheckboxes = dropdown.querySelectorAll('input[type="checkbox"]:checked');
+    const count = selectedCheckboxes.length;
+    countSpan.textContent = count;
+
+    if (count === 0) {
+        display.textContent = 'Select Opportunity Types';
+    } else if (count === 1) {
+        const selectedLabel = selectedCheckboxes[0].nextElementSibling.textContent.trim();
+        display.textContent = selectedLabel;
+    } else {
+        display.textContent = `${count} types selected`;
+    }
+}
+
+// Updated editLink function to populate tags
 async function editLink(linkId) {
     const modal = document.getElementById('editLinkModal');
     const content = document.getElementById('editLinkModalContent');
@@ -1081,6 +1382,19 @@ async function editLink(linkId) {
             document.getElementById('edit_link_description').value = result.data.description || '';
             document.getElementById('edit_link_status').value = result.data.is_active ? 'true' : 'false';
 
+            // Populate tags
+            const existingTags = result.data.tags || '';
+            if (existingTags) {
+                const tagArray = existingTags.split(',').map(tag => tag.trim());
+                const checkboxes = document.querySelectorAll('#edit-tags-dropdown input[type="checkbox"]');
+                checkboxes.forEach(cb => {
+                    if (tagArray.includes(cb.value)) {
+                        cb.checked = true;
+                    }
+                });
+                updateEditTagsCount(); // Update display after checking boxes
+            }
+
             modal.classList.remove('hidden');
             setTimeout(() => {
                 content.classList.remove('scale-95', 'opacity-0');
@@ -1095,29 +1409,13 @@ async function editLink(linkId) {
     }
 }
 
-function closeEditLinkModal() {
-    const modal = document.getElementById('editLinkModal');
-    const content = document.getElementById('editLinkModalContent');
-    
-    if (!modal || !content) return;
-    
-    content.classList.add('scale-95', 'opacity-0');
-    content.classList.remove('scale-100', 'opacity-100');
-    
-    setTimeout(() => {
-        modal.classList.add('hidden');
-        resetEditLinkModal();
-    }, 200);
-}
 
-function resetEditLinkModal() {
-    const form = document.getElementById('editLinkForm');
-    if (form) {
-        form.reset();
-        document.getElementById('edit_link_id').value = '';
-    }
-}
 
+
+
+
+
+// Updated submitEditLinkForm to collect tags
 async function submitEditLinkForm() {
     const submitBtn = document.getElementById('submitEditLinkBtn');
     if (!submitBtn || submitBtn.disabled) return;
@@ -1134,6 +1432,16 @@ async function submitEditLinkForm() {
             description: document.getElementById('edit_link_description').value.trim(),
             is_active: document.getElementById('edit_link_status').value === 'true'
         };
+
+        // Collect tags from checkboxes
+        let editTags = '';
+        const editTagsDropdown = document.getElementById('edit-tags-dropdown');
+        if (editTagsDropdown) {
+            const selectedCheckboxes = editTagsDropdown.querySelectorAll('input[type="checkbox"]:checked');
+            const selectedValues = Array.from(selectedCheckboxes).map(cb => cb.value).filter(v => v);
+            editTags = selectedValues.join(', ');
+        }
+        linkData.tags = editTags;
 
         console.log('Submitting link data:', linkData);
 
@@ -1169,6 +1477,46 @@ async function submitEditLinkForm() {
         submitBtn.disabled = false;
     }
 }
+
+// Close edit link modal and reset tags
+function closeEditLinkModal() {
+    const modal = document.getElementById('editLinkModal');
+    const content = document.getElementById('editLinkModalContent');
+    
+    if (!modal || !content) return;
+    
+    content.classList.add('scale-95', 'opacity-0');
+    content.classList.remove('scale-100', 'opacity-100');
+    
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        resetEditLinkModal();
+    }, 200);
+}
+
+function resetEditLinkModal() {
+    const form = document.getElementById('editLinkForm');
+    if (form) {
+        form.reset();
+        document.getElementById('edit_link_id').value = '';
+    }
+
+    // Reset tags dropdown
+    const editTagsDisplay = document.getElementById('edit-tags-display');
+    const editTagCount = document.getElementById('edit-tag-count');
+    const editTagsDropdown = document.getElementById('edit-tags-dropdown');
+    if (editTagsDisplay) editTagsDisplay.textContent = 'Select Opportunity Types';
+    if (editTagCount) editTagCount.textContent = '0';
+    if (editTagsDropdown) {
+        const checkboxes = editTagsDropdown.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => cb.checked = false);
+    }
+}
+
+
+
+
+
 
 async function deleteLink(linkId) {
     if (!confirm('Are you sure you want to delete this link?')) return;
@@ -1211,6 +1559,17 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
     }
 });
 
+// File input handling for bulk upload links
+document.getElementById('fileInputLinks').addEventListener('change', function(e) {
+    const fileName = document.getElementById('fileNameLinks');
+    if (this.files.length > 0) {
+        fileName.textContent = this.files[0].name;
+        fileName.classList.remove('hidden');
+    } else {
+        fileName.classList.add('hidden');
+    }
+});
+
 // Drag and drop functionality for bulk upload
 const dropZone = document.getElementById('dropZone');
 if (dropZone) {
@@ -1233,6 +1592,34 @@ if (dropZone) {
             fileInput.files = e.dataTransfer.files;
             
             const fileName = document.getElementById('fileName');
+            fileName.textContent = e.dataTransfer.files[0].name;
+            fileName.classList.remove('hidden');
+        }
+    });
+}
+
+// Drag and drop functionality for bulk upload links
+const dropZoneLinks = document.getElementById('dropZoneLinks');
+if (dropZoneLinks) {
+    dropZoneLinks.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('border-orange-400', 'bg-orange-50');
+    });
+
+    dropZoneLinks.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('border-orange-400', 'bg-orange-50');
+    });
+
+    dropZoneLinks.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('border-orange-400', 'bg-orange-50');
+        
+        if (e.dataTransfer.files.length) {
+            const fileInput = document.getElementById('fileInputLinks');
+            fileInput.files = e.dataTransfer.files;
+            
+            const fileName = document.getElementById('fileNameLinks');
             fileName.textContent = e.dataTransfer.files[0].name;
             fileName.classList.remove('hidden');
         }
@@ -1298,6 +1685,20 @@ function showNotification(type, message) {
 }
 </script>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <style>
 .modal-scroll {
     scrollbar-width: thin;
@@ -1338,35 +1739,3 @@ function showNotification(type, message) {
 }
 </style>
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

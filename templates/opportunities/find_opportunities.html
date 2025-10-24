@@ -462,6 +462,7 @@
           <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Title</th>
           <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">URL</th>
           <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Description</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Tags</th>
           <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Status</th>
           <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Added By</th>
           <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Created</th>
@@ -479,6 +480,7 @@
             </a>
           </td>
           <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">{{ link.description|truncate(50) if link.description else '-' }}</td>
+          <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">{{ link.tags or '-' }}</td>
           <td class="px-6 py-4 text-sm">
             <span class="inline-flex px-2 py-1 rounded-full text-xs font-medium 
               {% if link.is_active %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200

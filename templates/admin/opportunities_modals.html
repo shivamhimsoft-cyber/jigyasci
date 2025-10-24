@@ -46,12 +46,30 @@
                                       placeholder="Brief description"></textarea>
                         </div>
 
-                        <!-- Tags -->
-                        <div class="mt-4">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Tags</label>
-                            <input type="text" name="tags[]" 
-                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                   placeholder="Comma separated tags (e.g. research, internship)">
+                        <!-- Opportunity Types (Multiple Select Dropdown like Current Focus) -->
+                        <div class="form-group mt-4">
+                            <label class="block text-sm font-semibold text-black mb-2">Opportunity Types (Tags) *</label>
+                            <div class="relative">
+                                <!-- Dropdown button -->
+                                <button type="button" onclick="toggleTagsDropdown(this)" 
+                                        class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200">
+                                  <span id="tags-display-0">Select Opportunity Types</span>
+                                  <span class="text-gray-500">(<span class="tag-count">0</span> selected) <i class="ti ti-chevron-down ml-1"></i></span>
+                                </button>
+
+                                <!-- Dropdown list -->
+                                <div class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden transition-all duration-200 ease-in-out transform scale-95 opacity-0" id="tags-dropdown-0">
+                                  {% for type in opportunity_types %}
+                                  <label class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors duration-150 border-b border-gray-100 last:border-b-0">
+                                    <input type="checkbox" name="tags[]" value="{{ type.name }}"
+                                           class="mr-3 rounded border-gray-300 focus:ring-orange-500 h-4 w-4 text-orange-600" 
+                                           onchange="updateTagsCount(this)">
+                                    <span class="font-normal">{{ type.name }}</span>
+                                  </label>
+                                  {% endfor %}
+                                </div>
+                            </div>
+                            <small class="text-gray-600 mt-1 block">Select multiple opportunity types (Hold Ctrl/Cmd to select multiple)</small>
                         </div>
                     </div>
                 </div>
@@ -73,7 +91,7 @@
                 Cancel
             </button>
             <button type="button" id="submitLinksBtn"
-                    class="px-5 py-2.5 bg-orange-600 text-black font-medium rounded-lg hover:bg-orange-700 flex items-center gap-2 transition-colors duration-200">
+                    class="px-5 py-2.5 bg-gray-400 text-black font-medium rounded-lg hover:bg-orange-700 flex items-center gap-2 transition-colors duration-200">
                 <i class="fas fa-plus"></i>
                 Add Links
             </button>
@@ -84,6 +102,7 @@
 <script>
 // Store the first block HTML for resetting
 let firstBlockHTML = '';
+let blockCounter = 0;
 
 // Initialize modal when DOM loads
 document.addEventListener('DOMContentLoaded', function() {
@@ -127,15 +146,18 @@ function addNewLinkBlock() {
         return;
     }
 
+    blockCounter++;
+
     const newBlock = document.createElement('div');
     newBlock.className = 'link-block border rounded-lg p-4 relative bg-gray-50';
-    newBlock.innerHTML = firstBlockHTML;
+    newBlock.innerHTML = firstBlockHTML.replace(/tags-display-\d+/g, `tags-display-${blockCounter}`).replace(/tags-dropdown-\d+/g, `tags-dropdown-${blockCounter}`).replace(/tag-count/g, `tag-count-${blockCounter}`);
 
     // Add remove button to new block
     const removeButton = document.createElement('button');
     removeButton.type = 'button';
     removeButton.className = 'remove-link absolute top-2 right-2 text-red-500 hover:text-red-700 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md z-10';
     removeButton.innerHTML = '<i class="fas fa-times text-sm"></i>';
+    removeButton.onclick = function() { removeLinkBlock(newBlock); };
     newBlock.appendChild(removeButton);
     
     // Clear the input values in the new block
@@ -145,6 +167,17 @@ function addNewLinkBlock() {
             input.value = '';
         }
     });
+
+    // Reset tags dropdown for new block
+    const newTagsDisplay = newBlock.querySelector(`#tags-display-${blockCounter}`);
+    const newTagsDropdown = newBlock.querySelector(`#tags-dropdown-${blockCounter}`);
+    const newTagCount = newBlock.querySelector(`.tag-count-${blockCounter}`);
+    if (newTagsDisplay) newTagsDisplay.textContent = 'Select Opportunity Types';
+    if (newTagCount) newTagCount.textContent = '0';
+    if (newTagsDropdown) {
+        const checkboxes = newTagsDropdown.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => cb.checked = false);
+    }
     
     container.appendChild(newBlock);
     console.log('New link block added with remove button'); // Debugging
@@ -164,7 +197,73 @@ function removeLinkBlock(block) {
                 input.value = '';
             }
         });
+
+        // Reset tags dropdown
+        const tagsDisplay = block.querySelector('#tags-display-0');
+        const tagCount = block.querySelector('.tag-count');
+        const tagsDropdown = block.querySelector('#tags-dropdown-0');
+        if (tagsDisplay) tagsDisplay.textContent = 'Select Opportunity Types';
+        if (tagCount) tagCount.textContent = '0';
+        if (tagsDropdown) {
+            const checkboxes = tagsDropdown.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+        }
+
         showNotification('info', 'Cannot remove the last link block. Fields cleared instead.');
+    }
+}
+
+// Toggle tags dropdown for a specific block
+function toggleTagsDropdown(button) {
+    const block = button.closest('.link-block');
+    const dropdownId = block.querySelector('[id^="tags-dropdown-"]')?.id || 'tags-dropdown-0';
+    const dropdown = document.getElementById(dropdownId);
+    
+    if (!dropdown) return;
+
+    // Close other dropdowns
+    document.querySelectorAll('[id^="tags-dropdown-"]').forEach(dd => {
+        if (dd.id !== dropdownId) {
+            dd.classList.add('hidden');
+            dd.classList.remove('scale-100', 'opacity-100');
+            dd.classList.add('scale-95', 'opacity-0');
+        }
+    });
+
+    dropdown.classList.toggle('hidden');
+    if (!dropdown.classList.contains('hidden')) {
+        dropdown.classList.remove('scale-95', 'opacity-0');
+        dropdown.classList.add('scale-100', 'opacity-100');
+        dropdown.focus(); // For accessibility
+    } else {
+        dropdown.classList.remove('scale-100', 'opacity-100');
+        dropdown.classList.add('scale-95', 'opacity-0');
+    }
+}
+
+// Update tags count and display for a specific block
+function updateTagsCount(checkbox) {
+    const block = checkbox.closest('.link-block');
+    const dropdownId = block.querySelector('[id^="tags-dropdown-"]')?.id || 'tags-dropdown-0';
+    const displayId = block.querySelector('[id^="tags-display-"]')?.id || 'tags-display-0';
+    const countSpan = block.querySelector('.tag-count') || block.querySelector(`.tag-count-${blockCounter}`);
+    
+    const dropdown = document.getElementById(dropdownId);
+    const display = document.getElementById(displayId);
+    
+    if (!dropdown || !display || !countSpan) return;
+
+    const selectedCheckboxes = dropdown.querySelectorAll('input[type="checkbox"]:checked');
+    const count = selectedCheckboxes.length;
+    countSpan.textContent = count;
+
+    if (count === 0) {
+        display.textContent = 'Select Opportunity Types';
+    } else if (count === 1) {
+        const selectedLabel = selectedCheckboxes[0].nextElementSibling.textContent.trim();
+        display.textContent = selectedLabel;
+    } else {
+        display.textContent = `${count} types selected`;
     }
 }
 
@@ -208,11 +307,23 @@ function resetLinkModal() {
 
     // Clear container and add only one block
     container.innerHTML = firstBlockHTML;
+    blockCounter = 0;
     
     // Reset the form
     const form = document.getElementById('addLinkForm');
     if (form) {
         form.reset();
+    }
+
+    // Reset tags for first block
+    const tagsDisplay = document.getElementById('tags-display-0');
+    const tagCount = document.querySelector('.tag-count');
+    const tagsDropdown = document.getElementById('tags-dropdown-0');
+    if (tagsDisplay) tagsDisplay.textContent = 'Select Opportunity Types';
+    if (tagCount) tagCount.textContent = '0';
+    if (tagsDropdown) {
+        const checkboxes = tagsDropdown.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => cb.checked = false);
     }
 }
 
@@ -250,7 +361,7 @@ async function submitLinksForm() {
     }
 }
 
-// Collect links data properly
+// Collect links data properly (updated for custom multi-select)
 function collectLinksData() {
     const blocks = document.querySelectorAll('.link-block');
     const linksData = [];
@@ -260,11 +371,20 @@ function collectLinksData() {
         
         // Only add if URL is provided
         if (url) {
+            // Handle custom multi-select for tags
+            const tagsDropdown = block.querySelector('[id^="tags-dropdown-"]');
+            let tags = '';
+            if (tagsDropdown) {
+                const selectedCheckboxes = tagsDropdown.querySelectorAll('input[type="checkbox"]:checked');
+                const selectedValues = Array.from(selectedCheckboxes).map(cb => cb.value).filter(v => v);
+                tags = selectedValues.join(', ');
+            }
+
             linksData.push({
                 title: block.querySelector('[name="title[]"]')?.value?.trim() || '',
                 url: url,
                 description: block.querySelector('[name="description[]"]')?.value?.trim() || '',
-                tags: block.querySelector('[name="tags[]"]')?.value?.trim() || '',
+                tags: tags,
             });
             
             // Remove validation error styling
@@ -277,7 +397,6 @@ function collectLinksData() {
     
     return linksData;
 }
-
 
 // Send add link data to server
 async function sendLinksData(linksData) {
@@ -297,6 +416,8 @@ window.openAddLinkModal = openAddLinkModal;
 window.closeAddLinkModal = closeAddLinkModal;
 window.addNewLinkBlock = addNewLinkBlock;
 window.removeLinkBlock = removeLinkBlock;
+window.toggleTagsDropdown = toggleTagsDropdown;
+window.updateTagsCount = updateTagsCount;
 
 // Simple notification function (replace with your notification system if available)
 function showNotification(type, message) {
@@ -372,5 +493,29 @@ function showNotification(type, message) {
     background-color: #fef2f2;
     color: #b91c1c;
     border-color: #b91c1c;
+}
+
+/* Custom dropdown styles */
+[id^="tags-dropdown-"] {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+[id^="tags-dropdown-"]::-webkit-scrollbar {
+    width: 6px;
+}
+
+[id^="tags-dropdown-"]::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+[id^="tags-dropdown-"]::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+[id^="tags-dropdown-"]::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 </style>

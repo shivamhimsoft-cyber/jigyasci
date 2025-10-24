@@ -245,6 +245,45 @@ def download_opportunity_template():
         mimetype="text/csv"
     )
 
+# Update the download_opportunity_link_template route in routes/admin_routes.py
+@admin_bp.route('/download-opportunity-link-template')
+@login_required
+def download_opportunity_link_template():
+    redirect_check = check_admin_profile_redirect()
+    if redirect_check:
+        return redirect_check
+
+    columns = [
+        "Title", "URL", "Description", "Tags"
+    ]
+
+    sample_data = [
+        {
+            "Title": "Machine Learning Research Internship",
+            "URL": "https://example.com/internship",
+            "Description": "Work on cutting-edge ML projects with our team.",
+            "Tags": "Internship, Machine Learning, Research"
+        },
+        {
+            "Title": "Data Science Fellowship",
+            "URL": "https://example.com/fellowship",
+            "Description": "Collaborate on data-driven research projects.",
+            "Tags": "Fellowship, Data Science, Analytics"
+        }
+    ]
+
+    df = pd.DataFrame(sample_data, columns=columns)
+    output = io.StringIO()
+    df.to_csv(output, index=False)
+    output.seek(0)
+
+    return send_file(
+        io.BytesIO(output.getvalue().encode('utf-8')),
+        as_attachment=True,
+        download_name="opportunity_link_template.csv",
+        mimetype="text/csv"
+    )
+
 @admin_bp.route('/opportunities')
 @login_required
 def admin_opportunities():
@@ -355,6 +394,44 @@ def admin_bulk_upload_opportunities():
             
     except Exception as e:
         current_app.logger.error(f"Error in bulk upload: {str(e)}")
+        return jsonify({
+            'success': False, 
+            'message': f'Error processing file: {str(e)}'
+        })
+
+@admin_bp.route('/bulk-upload-opportunity-links', methods=['POST'])
+@login_required
+def admin_bulk_upload_opportunity_links():
+    profile_check = check_admin_profile()
+    if profile_check:
+        return profile_check
+    
+    try:
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'message': 'No file selected'})
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'success': False, 'message': 'No file selected'})
+        
+        current_app.logger.info(f"Uploaded file for links: {file.filename}")
+        if file and allowed_file(file.filename):
+            result = process_opportunity_links_file(file, current_user.profile.id)
+            response = {
+                'success': True, 
+                'message': f'Successfully uploaded {result["processed_count"]} opportunity links!'
+            }
+            if result.get('errors'):
+                response['errors'] = result['errors']
+            return jsonify(response)
+        else:
+            return jsonify({
+                'success': False, 
+                'message': f'Invalid file type: {file.filename}. Please upload an .xlsx, .xls, or .csv file.'
+            })
+            
+    except Exception as e:
+        current_app.logger.error(f"Error in bulk upload links: {str(e)}")
         return jsonify({
             'success': False, 
             'message': f'Error processing file: {str(e)}'
@@ -482,6 +559,103 @@ def process_opportunities_file(file, creator_profile_id):
         db.session.rollback()
         current_app.logger.error(f"Error processing file {file.filename}: {str(e)}")
         return {'success': False, 'message': f"Error processing file: {str(e)}"}
+
+# Update the process_opportunity_links_file function in routes/admin_routes.py
+def process_opportunity_links_file(file, added_by_profile_id):
+    """Process the uploaded Excel or CSV file and create opportunity links."""
+    try:
+        extension = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+        current_app.logger.info(f"Processing links file: {file.filename}, extension: {extension}")
+
+        if extension not in {'xlsx', 'xls', 'csv'}:
+            raise ValueError(f"Unsupported file extension: {extension}")
+
+        df = None
+        if extension in {'xlsx', 'xls'}:
+            try:
+                df = pd.read_excel(file, sheet_name="Template")
+            except ValueError as e:
+                current_app.logger.error(f"Excel sheet 'Template' not found: {str(e)}")
+                raise ValueError("Excel file must contain a sheet named 'Template'")
+            except Exception as e:
+                current_app.logger.error(f"Error reading Excel file: {str(e)}")
+                raise ValueError(f"Failed to read Excel file: {str(e)}")
+        else:
+            try:
+                df = pd.read_csv(file, encoding='utf-8')
+            except Exception as e:
+                current_app.logger.error(f"Error reading CSV file: {str(e)}")
+                raise ValueError(f"Failed to read CSV file: {str(e)}")
+
+        if df is None:
+            current_app.logger.error("DataFrame could not be created")
+            raise ValueError("Failed to create DataFrame from file")
+
+        current_app.logger.info(f"Links file columns: {list(df.columns)}")
+
+        expected_columns = [
+            "Title", "URL", "Description", "Tags"
+        ]
+
+        if not all(col in df.columns for col in expected_columns):
+            missing_cols = [col for col in expected_columns if col not in df.columns]
+            current_app.logger.error(f"Missing columns: {missing_cols}")
+            raise ValueError(f"File does not contain all required columns: {', '.join(expected_columns)}")
+
+        processed_count = 0
+        errors = []
+        for index, row in df.iterrows():
+            try:
+                if pd.isna(row["URL"]):
+                    errors.append(f"Row {index + 2}: Missing required field (URL)")
+                    current_app.logger.warning(f"Row {index + 2}: Missing required field (URL)")
+                    continue
+
+                # Check if link already exists for this admin
+                existing_link = OpportunityLink.query.filter_by(
+                    url=str(row["URL"]).strip(),
+                    added_by=added_by_profile_id
+                ).first()
+                
+                if existing_link:
+                    errors.append(f"Row {index + 2}: Duplicate URL '{row['URL']}' already exists")
+                    current_app.logger.warning(f"Row {index + 2}: Duplicate URL '{row['URL']}'")
+                    continue
+
+                opportunity_link = OpportunityLink(
+                    title=str(row.get("Title", f"Untitled Link {index + 1}")) if pd.notna(row.get("Title")) else f"Untitled Link {index + 1}",
+                    url=str(row["URL"]).strip(),
+                    description=str(row.get("Description", "")) if pd.notna(row.get("Description")) else "",
+                    tags=str(row.get("Tags", "")) if pd.notna(row.get("Tags")) else "",  # Assuming OpportunityLink has a 'tags' field
+                    added_by=added_by_profile_id,
+                    is_active=True  # Default to active
+                )
+
+                db.session.add(opportunity_link)
+                processed_count += 1
+                db.session.flush()
+                current_app.logger.info(f"Row {index + 2}: Successfully added link '{row['URL']}'")
+            except Exception as e:
+                errors.append(f"Row {index + 2}: Error processing row - {str(e)}")
+                current_app.logger.error(f"Row {index + 2}: Error processing row - {str(e)}")
+                continue
+
+        if processed_count > 0:
+            db.session.commit()
+            current_app.logger.info(f"Committed {processed_count} opportunity links")
+        else:
+            current_app.logger.warning("No opportunity links to commit")
+
+        response = {'processed_count': processed_count}
+        if errors:
+            response['errors'] = errors
+        return response
+
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error processing links file {file.filename}: {str(e)}")
+        return {'success': False, 'message': f"Error processing file: {str(e)}"}
+
 
 # routes/admin_routes.py
 
@@ -754,7 +928,7 @@ def admin_toggle_opportunity_link(id):
         })
 
 
-# Get opportunity link data for editing
+# Update admin_get_opportunity_link route to include tags
 @admin_bp.route('/get-opportunity-link/<int:id>', methods=['GET'])
 @login_required
 def admin_get_opportunity_link(id):
@@ -772,6 +946,7 @@ def admin_get_opportunity_link(id):
                 'title': link.title or '',
                 'url': link.url or '',
                 'description': link.description or '',
+                'tags': link.tags or '',  # Include tags
                 'is_active': link.is_active
             }
         })
@@ -783,7 +958,7 @@ def admin_get_opportunity_link(id):
             'message': f'Error fetching link: {str(e)}'
         }), 404
 
-# Edit opportunity link route
+# Update admin_edit_opportunity_link route to handle tags
 @admin_bp.route('/edit-opportunity-link/<int:id>', methods=['POST'])
 @login_required
 def admin_edit_opportunity_link(id):
@@ -804,6 +979,7 @@ def admin_edit_opportunity_link(id):
         link.title = data.get('title', '')
         link.url = data.get('url', '')
         link.description = data.get('description', '')
+        link.tags = data.get('tags', '')  # Update tags
         link.is_active = data.get('is_active', True)
         
         if not link.url:
@@ -823,7 +999,7 @@ def admin_edit_opportunity_link(id):
         db.session.rollback()
         current_app.logger.error(f'Error updating opportunity link: {str(e)}')
         return jsonify({
-            'success': False,
+            'success': False, 
             'message': f'Error updating link: {str(e)}'
         }), 500
 
@@ -1695,7 +1871,7 @@ def download_student_template():
 
 
 
-    
+
 # ========================================================================================================FACULTY FACULTY FACULTY FACULTY
 
 import pandas as pd
