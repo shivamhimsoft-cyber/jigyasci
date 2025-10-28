@@ -100,12 +100,12 @@ app.config['SECRET_KEY'] = os.environ.get("SESSION_SECRET", "dev-secret-key")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Configure database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://postgres:bbb07ak47@localhost:5432/shivamdb"   # Local Database URL
+# app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://postgres:bbb07ak47@localhost:5432/shivamdb"   # Local Database URL
 # app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://shivamdb2:m0WvkN7s49MdSG2Gtjun34v45rZLQcaV@dpg-d3mtd42dbo4c73ar7860-a.oregon-postgres.render.com/shivamdb2_drm4"   # External Database URL
-# app.config["SQLALCHEMY_DATABASE_URI"] = (
-#     os.environ.get("DATABASE_URL") or 
-#     "postgresql+psycopg2://shivamdb2:m0WvkN7s49MdSG2Gtjun34v45rZLQcaV@dpg-d3mtd42dbo4c73ar7860-a.oregon-postgres.render.com/shivamdb2_drm4"
-# )
+app.config["SQLALCHEMY_DATABASE_URI"] = (
+    os.environ.get("DATABASE_URL") or 
+    "postgresql+psycopg2://shivamdb2:m0WvkN7s49MdSG2Gtjun34v45rZLQcaV@dpg-d3mtd42dbo4c73ar7860-a.oregon-postgres.render.com/shivamdb2_drm4"
+)
 
 # app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or "postgresql://shivamdb2:peIpDSI8JJ6tONyYEufjqUPz6cYAafEj@dpg-d34g43ruibrs73ages70-a/shivamdb2"      # Internal Database URL
  
