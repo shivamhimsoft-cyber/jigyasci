@@ -95,4 +95,45 @@
         </div>
     </form>
 </div>
+
+{% if show_pending_modal %}
+<div id="pendingModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-sm bg-white rounded-lg shadow-xl border border-gray-200">
+        <div class="p-6">
+            <div class="flex items-center mb-4">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <h3 class="ml-3 text-lg font-semibold text-gray-900">Account Verification Pending</h3>
+            </div>
+            <div class="mb-6">
+                <p class="text-sm text-gray-700 leading-relaxed">Your Scientist account has been submitted for admin verification. You will receive an update within 24 hours via email, indicating whether it has been verified or rejected. Once verified, you can log in to access the platform.</p>
+            </div>
+            <div class="flex justify-center">
+                <button id="closeModal" class="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out">
+                    OK, Got it
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('pendingModal');
+    if (modal) {
+        document.getElementById('closeModal').onclick = function() {
+            modal.style.display = 'none';
+        };
+        modal.onclick = function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+    }
+});
+</script>
+{% endif %}
 {% endblock %}

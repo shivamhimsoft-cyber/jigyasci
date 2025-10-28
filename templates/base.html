@@ -31,6 +31,9 @@
   </head>
 
 <body class="DEFAULT_THEME bg-lightprimary dark:bg-darkbody">
+  <!-- Flash Messages Import & Render -->
+    {% from 'macros/_flash_macros.html' import render_flash_messages %}
+    {{ render_flash_messages() }}
 <main>
     <div id="main-wrapper" class="flex p-5">
 <!--        sidebar starts here-->
@@ -1711,6 +1714,133 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+
+<!-- Move ALL flash JS and CSS to the END of base.html, before </body> (load once, after DOM) -->
+<script>
+    // Global Flash Message Functions (now outside macro for better reliability)
+    function showFlashMessage(category, message) {
+        // Create container if not exists
+        let flashContainer = document.getElementById('flash-messages');
+        if (!flashContainer) {
+            flashContainer = createFlashContainer();
+        }
+        
+        // Clear all existing flash messages to prevent multiples
+        const existingMessages = flashContainer.querySelectorAll('.flash-message');
+        existingMessages.forEach(msg => {
+            msg.classList.remove('animate-slide-in');
+            msg.classList.add('animate-slide-out');
+            setTimeout(() => msg.remove(), 300);
+        });
+        
+        // Delay for animation
+        setTimeout(() => {
+            const flashDiv = document.createElement('div');
+            flashDiv.className = `flash-message flex items-start p-4 rounded-lg shadow-lg border transition-all duration-300 transform animate-slide-in ${getFlashClasses(category)}`;
+            flashDiv.innerHTML = `
+                <div class="flex-shrink-0">
+                    ${getFlashIcon(category)}
+                </div>
+                <div class="ml-3 flex-1">
+                    <p class="text-sm font-medium">${message}</p>
+                </div>
+                <button type="button" class="ml-2 p-1 hover:bg-gray-200 rounded-full focus:outline-none" onclick="dismissMessage(event, this)">
+                    <i class="ti ti-x text-lg"></i>
+                </button>
+            `;
+            flashContainer.appendChild(flashDiv);
+            
+            // Auto-dismiss after 5 seconds (increased from 3 for visibility)
+            setTimeout(() => dismissMessage(null, flashDiv.querySelector('button')), 5000);
+        }, 350);
+    }
+
+    function createFlashContainer() {
+        const container = document.createElement('div');
+        container.id = 'flash-messages';
+        container.className = 'fixed top-4 right-4 z-50 w-80 max-w-full space-y-3';
+        document.body.insertBefore(container, document.body.firstChild);  // Insert at body start for overlay
+        return container;
+    }
+
+    function getFlashClasses(category) {
+        const classes = {
+            success: 'bg-green-100 border-green-300 text-green-800',
+            error: 'bg-red-100 border-red-300 text-red-800',
+            warning: 'bg-yellow-100 border-yellow-300 text-yellow-800'
+        };
+        return classes[category] || 'bg-blue-100 border-blue-300 text-blue-800';
+    }
+
+    function getFlashIcon(category) {
+        const icons = {
+            success: '<i class="ti ti-check text-xl"></i>',
+            error: '<i class="ti ti-alert-circle text-xl"></i>',
+            warning: '<i class="ti ti-alert-triangle text-xl"></i>'
+        };
+        return icons[category] || '<i class="ti ti-info-circle text-xl"></i>';
+    }
+
+    // Fixed dismiss function (now handles event to prevent bubbling)
+    function dismissMessage(event, button) {
+        if (event) event.stopPropagation();  // Prevent any bubbling
+        const message = button.closest('.flash-message');
+        if (message) {
+            message.classList.remove('animate-slide-in');
+            message.classList.add('animate-slide-out');
+            setTimeout(() => {
+                message.remove();
+                // If no messages left, optionally hide container
+                const container = document.getElementById('flash-messages');
+                if (container && container.children.length === 0) {
+                    container.style.display = 'none';
+                }
+            }, 300);
+        }
+    }
+
+    // Auto-dismiss for initial loaded messages (on DOM ready)
+    document.addEventListener('DOMContentLoaded', () => {
+        const messages = document.querySelectorAll('.flash-message');
+        messages.forEach((message, index) => {
+            // Staggered dismiss for multiple (5 + index*1 sec)
+            setTimeout(() => {
+                const closeBtn = message.querySelector('button');
+                if (closeBtn) dismissMessage(null, closeBtn);
+            }, 5000 + (index * 1000));
+        });
+        
+        // Re-attach event listeners if needed (for dynamic buttons)
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('button[onclick*="dismissMessage"]')) {
+                const btn = e.target.closest('button');
+                dismissMessage(e, btn);
+            }
+        });
+    });
+</script>
+
+<style>
+    .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
+    .animate-slide-out { animation: slideOut 0.3s ease-in forwards; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+    .flash-message { 
+        min-height: 3rem; 
+        display: flex; 
+        align-items: center; 
+        padding: 1rem; 
+        border-radius: 0.5rem; 
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); 
+        position: relative;
+    }
+    .flash-message button:hover { 
+        background-color: rgba(0, 0, 0, 0.1); 
+    }
+    #flash-messages { pointer-events: auto; }  /* Ensure clickable */
+</style>
 
 
 </body>

@@ -40,6 +40,7 @@ def login():
             
 
     form = LoginForm()
+    show_pending_modal = session.pop('show_pending_modal', False)
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user is None or not check_password_hash(user.password_hash, form.password.data):
@@ -48,6 +49,8 @@ def login():
 
         # NEW: Check account status before login
         if user.account_status != 'Active':
+            if user.user_type == 'Scientist':
+                session['show_pending_modal'] = True
             flash('Your account is not active. Please wait for admin verification if you are a Scientist.', 'warning')
             return redirect(url_for('auth.login'))
 
@@ -70,7 +73,7 @@ def login():
         else:
             return redirect(url_for('index'))
 
-    return render_template('auth/login.html', title='Sign In', form=form)
+    return render_template('auth/login.html', title='Sign In', form=form, show_pending_modal=show_pending_modal)
 
 # Google login routes (updated for Scientist and user_type selection)
 @auth_bp.route('/login-google')
@@ -113,6 +116,8 @@ def google_callback():
             
             # NEW: Check account status before login
             if user.account_status != 'Active':
+                if user.user_type == 'Scientist':
+                    session['show_pending_modal'] = True
                 flash('Your account is not active. Please wait for admin verification if you are a Scientist.', 'warning')
                 current_app.logger.info(f"Redirecting inactive user {email} to login.")
                 return redirect(url_for('auth.login'))
@@ -172,6 +177,8 @@ def google_user_type_select():
         if user:
             # Login existing user
             if user.account_status != 'Active':
+                if user.user_type == 'Scientist':
+                    session['show_pending_modal'] = True
                 flash('Your account is not active. Please wait for admin verification if you are a Scientist.', 'warning')
                 session.pop('google_email', None)
                 session.pop('google_name', None)
@@ -237,12 +244,17 @@ def google_user_type_select():
         
         db.session.commit()
         
+        # NEW: Send pending email for Scientist
+        if user_type == 'Scientist':
+            send_pending_verification_email(email, name)
+        
         # Clear session
         session.pop('google_email', None)
         session.pop('google_name', None)
         
         # Check status before login
         if user.account_status != 'Active':
+            session['show_pending_modal'] = True
             flash('Your account is pending admin verification. Please wait.', 'warning')
             return redirect(url_for('auth.login'))
         
@@ -479,6 +491,34 @@ def verify_otp():
         return jsonify({'success': True})
     return jsonify({'success': False, 'message': 'Invalid or expired OTP'})
 
+# NEW: Helper function for pending verification email
+def send_pending_verification_email(email, name=None):
+    subject = 'Account Verification Pending - jigyasci'
+    html_body = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Your jigyasci Account is Under Review</h2>
+        <p>Dear {name or 'User'},</p>
+        <p>Thank you for registering as a Scientist on jigyasci. Your account has been submitted for admin verification.</p>
+        <p>You will receive an update within 24 hours via email, informing you if your account has been verified or rejected.</p>
+        <p>In the meantime, please ensure your profile information is ready for review.</p>
+        <p>Best regards,<br>The jigyasci Team</p>
+    </div>
+    """
+    text_body = f"Your Scientist account has been submitted for admin verification. You will get an update within 24 hours via email whether it's verified or rejected."
+    
+    msg = MailMessage(
+        subject=subject,
+        sender=('jigyasci Support', current_app.config['MAIL_USERNAME']),
+        recipients=[email]
+    )
+    msg.body = text_body
+    msg.html = html_body
+    try:
+        mail.send(msg)
+        current_app.logger.info(f"Pending verification email sent to {email}")
+    except Exception as e:
+        current_app.logger.error(f"Failed to send pending verification email to {email}: {str(e)}")
+
 # Updated register route for Scientist pending status
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -533,10 +573,15 @@ def register():
             db.session.commit()
             session.pop('otp_verified', None)
 
+            # NEW: Send pending email for Scientist
+            if user_type == 'Scientist':
+                send_pending_verification_email(email)
+
             # Clear any login session to prevent auto-redirect
             logout_user() if current_user.is_authenticated else None
             
             if user_type == 'Scientist':
+                session['show_pending_modal'] = True
                 flash('✅ Registration successful! Your account is pending admin verification.', 'info')
             else:
                 flash('✅ Registration successful! You may log in now.', 'success')
