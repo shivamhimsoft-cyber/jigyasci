@@ -1,9 +1,9 @@
 # routes/admin_routes.py
 from flask import Blueprint, render_template, flash, redirect, url_for, request, current_app, jsonify, send_file, make_response, abort
 from flask_login import login_required, current_user
-from models import User, Opportunity, Application, PIProfile, Profile, Institute, Department, OpportunityLink, ApplicationLink, StudentProfile                                                                                               
+from models import User, Opportunity, Application, PIProfile, Profile, Institute, Department, OpportunityLink, ApplicationLink, StudentProfile, ContactMessage                                                                                               
 from datetime import datetime
-from extensions import db
+from extensions import db, mail
 import os
 
 from werkzeug.security import generate_password_hash
@@ -30,6 +30,11 @@ from io import StringIO
 import csv
 import pandas as pd
 from werkzeug.utils import secure_filename
+from flask_mail import Message as MailMessage  # Import MailMessage
+from flask import current_app  # ✅ correct import
+import logging
+logger = logging.getLogger(__name__)
+
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin', static_folder='static')
 
@@ -3791,3 +3796,122 @@ def toggle_college_status(item_id):
 @admin_required
 def delete_college(item_id):
     return generic_delete_item(College, item_id, 'College', 'admin.colleges')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# CONTACT US 
+
+
+@admin_bp.route('/contact_messages', methods=['GET', 'POST'])
+@login_required
+def contact_messages():
+    if current_user.user_type != 'Admin':
+        flash('You do not have permission to access this page.', 'error')
+        return redirect(url_for('welcome'))
+
+    page = request.args.get('page', 1, type=int)
+    per_page = 10  # Number of items per page
+
+    # Handle traditional form submission (fallback)
+    if request.method == 'POST' and 'message_id' in request.form:
+        message_id = request.form.get('message_id')
+        new_status = request.form.get('status')
+        remark = request.form.get('remark', '').strip()
+
+        contact_message = ContactMessage.query.get_or_404(message_id)
+
+        if new_status not in ['Pending', 'InProgress', 'Resolved']:
+            flash('Invalid status provided.', 'error')
+            return redirect(url_for('admin.contact_messages', page=page))
+
+        contact_message.status = new_status
+        contact_message.remark = remark if remark else None
+        contact_message.updated_at = datetime.utcnow()
+        db.session.commit()
+
+        try:
+            msg = MailMessage(
+                subject=f'Update on Your Contact Request - JigyaSci',
+                sender=current_app.config['MAIL_USERNAME'],
+                recipients=[contact_message.email]
+            )
+            msg.body = (
+                f"Dear {contact_message.name},\n\n"
+                f"We have updated the status of your contact request.\n\n"
+                f"**Details:**\n"
+                f"Subject: {contact_message.subject}\n"
+                f"Message: {contact_message.message}\n"
+                f"New Status: {contact_message.status}\n"
+                f"Admin Remark: {contact_message.remark if contact_message.remark else 'No remarks provided.'}\n\n"
+                "Thank you for reaching out to us. If you have further questions, feel free to reply to this email.\n\n"
+                "Best regards,\n"
+                "JigyaSci Team"
+            )
+            mail.send(msg)
+            flash(f'Status updated to {contact_message.status} and notification sent to {contact_message.email}.', 'success')
+        except Exception as e:
+            logger.error(f"Failed to send status update email: {str(e)}")
+            flash(f'Status updated to {contact_message.status}, but failed to send notification email.', 'warning')
+
+        return redirect(url_for('admin.contact_messages', page=page))
+
+    # Paginate the contact messages
+    contact_messages = ContactMessage.query.order_by(ContactMessage.created_at.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+    return render_template('admin/contact_messages.html', contact_messages=contact_messages)
+
+@admin_bp.route('/contact_messages/<int:message_id>', methods=['POST'])
+@login_required
+def update_contact_message(message_id):
+    if current_user.user_type != 'Admin':
+        return jsonify({'success': False, 'message': 'Unauthorized access.'}), 403
+
+    contact_message = ContactMessage.query.get_or_404(message_id)
+    new_status = request.form.get('status')
+    remark = request.form.get('remark', '').strip()
+
+    if new_status not in ['Pending', 'InProgress', 'Resolved']:
+        return jsonify({'success': False, 'message': 'Invalid status.'}), 400
+
+    contact_message.status = new_status
+    contact_message.remark = remark if remark else None
+    contact_message.updated_at = datetime.utcnow()
+    db.session.commit()
+
+    try:
+        msg = MailMessage(
+            subject=f'Update on Your Contact Request - JigyaSci',
+            sender=current_app.config['MAIL_USERNAME'],
+            recipients=[contact_message.email]
+        )
+        msg.body = (
+            f"Dear {contact_message.name},\n\n"
+            f"We have updated the status of your contact request.\n\n"
+            f"**Details:**\n"
+            f"Subject: {contact_message.subject}\n"
+            f"Message: {contact_message.message}\n"
+            f"New Status: {contact_message.status}\n"
+            f"Admin Remark: {contact_message.remark if contact_message.remark else 'No remarks provided.'}\n\n"
+            "Thank you for reaching out to us. If you have further questions, feel free to reply to this email.\n\n"
+            "Best regards,\n"
+            "JigyaSci Team"
+        )
+        mail.send(msg)
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"Failed to send status update email: {str(e)}")
+        return jsonify({'success': True, 'message': 'Status updated, but failed to send notification email.'})

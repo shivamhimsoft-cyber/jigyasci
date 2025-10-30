@@ -196,7 +196,19 @@ Admin Settings | {{ title }}
                                             <iconify-icon icon="mdi:shield-check-outline" class="text-xl p-2"></iconify-icon>
                                             <span class="hide-menu flex-shrink-0">Pending Verifications</span>
                                         </a>
-                                    </li>                    
+                                    </li>       
+                                    
+                                      <div class="caption">
+                                        <i class="ti ti-dots nav-small-cap-icon text-lg hidden text-center leading-[16px]"></i>
+                                        <span class="hide-menu">Support</span>
+                                    </div>
+                                    <li class="sidebar-item">
+                                        <a class="sidebar-link before:bg-lightindigo hover:text-indigo" href="{{ url_for('admin.contact_messages') }}">
+                                            <iconify-icon icon="mdi:email-outline" class="text-xl p-2"></iconify-icon>
+                                            <span class="hide-menu flex-shrink-0">Contact Messages</span>
+                                        </a>
+                                    </li>
+
 
               {% endif %}
 

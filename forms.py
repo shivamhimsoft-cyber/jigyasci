@@ -13,46 +13,6 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
 
-# class RegistrationForm(FlaskForm):
-#     email = StringField('Email', validators=[DataRequired(), Email()])
-#     user_type = SelectField('User Type', choices=[
-#         ('Student', 'Student'),
-#         ('PI', 'Principal Investigator/Lab Director'),
-#         ('Industry', 'Industry/Company'),
-#         ('Vendor', 'Vendor/Service Provider')
-#     ], validators=[DataRequired()])
-#     password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
-#     password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
-#     agree_terms = BooleanField('I agree to the Terms and Conditions', validators=[DataRequired()])
-#     submit = SubmitField('Register')
-
-#     def validate_email(self, email):
-#         user = User.query.filter_by(email=email.data).first()
-#         if user is not None:
-#             raise ValidationError('Email already registered. Please use a different email address.')
-
-
-# form.py
-
-
-# In forms.py, simplify the email validation
-# class RegistrationForm(FlaskForm):
-#     email = StringField('Email', validators=[DataRequired(), Email()])
-#     user_type = SelectField('User Type', choices=[
-#         ('Student', 'Student'),
-#         ('PI', 'Principal Investigator/Lab Director'),
-#         ('Industry', 'Industry/Company'),
-#         ('Vendor', 'Vendor/Service Provider')
-#     ], validators=[DataRequired()])
-#     password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
-#     password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
-#     agree_terms = BooleanField('I agree to the Terms and Conditions', validators=[DataRequired()])
-#     submit = SubmitField('Register')
-
-#     def validate_email(self, email):
-#         user = User.query.filter_by(email=email.data).first()
-#         if user is not None:
-#             raise ValidationError('Email already registered. Please use a different email address.')
 
 
 class RegistrationForm(FlaskForm):
@@ -175,3 +135,15 @@ class SearchForm(FlaskForm):
 
 
 
+class ContactForm(FlaskForm):
+    name = StringField('Full Name', validators=[DataRequired(message="Full Name is required."), Length(max=100)])
+    email = StringField('Email Address', validators=[DataRequired(message="Email Address is required."), Email(message="Invalid email address."), Length(max=120)])
+    subject = SelectField('Subject', choices=[
+        ('general', 'General Inquiry'),
+        ('partnership', 'Partnership Opportunity'),
+        ('technical', 'Technical Support'),
+        ('feedback', 'Feedback/Suggestions'),
+        ('other', 'Other')
+    ], validators=[DataRequired(message="Please select a subject.")])
+    message = TextAreaField('Your Message', validators=[DataRequired(message="Message is required."), Length(max=500)])
+    submit = SubmitField('Send Message')

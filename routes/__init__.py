@@ -12,7 +12,7 @@ from routes.technology_routes import tech_bp
 from routes.bookmark_routes import bookmark_bp  # ✅ Add this import
 
 from routes.profile_routes import profile_bp  # ✅ Add this import
-
+from routes.contact_routes import contact_bp  # Add this import
 
 def register_blueprints(app):
     app.register_blueprint(admin_bp)
@@ -28,5 +28,6 @@ def register_blueprints(app):
     app.register_blueprint(bookmark_bp)  # ✅ Register the bookmark blueprint
 
     app.register_blueprint(profile_bp)  # ✅ Register the new profile blueprint
+    app.register_blueprint(contact_bp)  # Register contact blueprint without prefix
 
 

@@ -93,6 +93,27 @@ class Profile(db.Model):
 
 
 
+class ContactMessage(db.Model):
+    __tablename__ = 'contact_messages'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), nullable=False)
+    subject = db.Column(db.String(100), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(20), default='Pending')  # Pending, InProgress, Resolved
+    remark = db.Column(db.Text, nullable=True)  # New column for admin remarks
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+
+    user = db.relationship('User', backref=db.backref('contact_messages', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<ContactMessage {self.name} - {self.email} - {self.status}>'
+    
+
+
 # models.py (Updated PIProfile model with added 'research_profiles' column)
 class PIProfile(db.Model):
     __tablename__ = 'pi_profiles'
