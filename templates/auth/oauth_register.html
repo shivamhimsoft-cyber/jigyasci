@@ -1,0 +1,112 @@
+{% extends "authBase.html" %}
+{% block title %}Complete Signup | {{ provider }}{% endblock %}
+
+{% block content %}
+<div class="lg:w-5/12 w-full">
+    <div class="text-center mb-6">
+        <img src="{{ url_for('static', filename='assets/images/svgs/' + provider|lower + '-icon.svg') }}" 
+             alt="{{ provider }}" class="w-10 h-10 mx-auto mb-3">
+        <h2 class="text-2xl font-bold">Welcome {{ name }}!</h2>
+        <p class="text-sm text-gray-600 mt-1">Complete your profile to continue with {{ provider }}</p>
+    </div>
+
+    <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="space-y-5">
+
+            <!-- EMAIL -->
+            <div>
+                {{ form.email.label(class="text-dark dark:text-darklink font-semibold mb-2 block") }}
+                {{ form.email(class="form-control rounded-full bg-gray-100", value=email, readonly=True) }}
+            </div>
+
+            <!-- USER TYPE -->
+            <div>
+                {{ form.user_type.label(class="text-dark dark:text-darklink font-semibold mb-2 block") }}
+                {{ form.user_type(class="form-control rounded-full", id="userType", required=True) }}
+                {% if form.user_type.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.user_type.errors[0] }}</p>
+                {% endif %}
+            </div>
+
+            <!-- FULL NAME -->
+            <div>
+                {{ form.full_name.label(class="text-dark dark:text-darklink font-semibold mb-2 block") }}
+                {{ form.full_name(class="form-control rounded-full", value=name, required=True) }}
+                {% if form.full_name.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.full_name.errors[0] }}</p>
+                {% endif %}
+            </div>
+
+            <!-- ORGANIZATION -->
+            <div>
+                <label id="orgLabel" class="text-dark dark:text-darklink font-semibold mb-2 block">
+                    Institution / Company
+                </label>
+                <div id="orgContainer">
+                    {{ form.organization(class="form-control rounded-full", id="organization", required=True) }}
+                </div>
+                <div id="orgTextContainer" class="hidden">
+                    <input type="text" name="organization" id="organizationText" 
+                           class="form-control rounded-full" placeholder="Enter Industry Name" required>
+                </div>
+                {% if form.organization.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.organization.errors[0] }}</p>
+                {% endif %}
+            </div>
+
+            <!-- DESIGNATION -->
+            <div>
+                {{ form.designation.label(class="text-dark dark:text-darklink font-semibold mb-2 block") }}
+                {{ form.designation(class="form-control rounded-full", id="designation", required=True) }}
+                {% if form.designation.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.designation.errors[0] }}</p>
+                {% endif %}
+            </div>
+
+            <!-- PHONE -->
+            <div>
+                {{ form.phone.label(class="text-dark dark:text-darklink font-semibold mb-2 block") }}
+                {{ form.phone(class="form-control rounded-full", id="phone", placeholder="+91 9876543210") }}
+            </div>
+
+            <!-- SUBMIT -->
+            <button type="submit" class="btn btn-primary w-full py-3 rounded-full font-medium shadow-md hover:shadow-lg transition">
+                Create Account & Continue
+            </button>
+
+            <div class="text-center mt-4">
+                <a href="{{ url_for('auth.login') }}" class="text-sm text-primary hover:underline">
+                    Back to Login
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const userType = document.getElementById('userType');
+    const orgLabel = document.getElementById('orgLabel');
+    const orgContainer = document.getElementById('orgContainer');
+    const orgTextContainer = document.getElementById('orgTextContainer');
+
+    userType.addEventListener('change', () => {
+        if (userType.value === 'Industry') {
+            orgLabel.textContent = 'Industry Name';
+            orgContainer.classList.add('hidden');
+            orgTextContainer.classList.remove('hidden');
+        } else {
+            orgLabel.textContent = 'Institution / Company';
+            orgTextContainer.classList.add('hidden');
+            orgContainer.classList.remove('hidden');
+        }
+    });
+
+    // Trigger on load if pre-filled
+    if (userType.value) {
+        userType.dispatchEvent(new Event('change'));
+    }
+});
+</script>
+{% endblock %}

@@ -69,6 +69,15 @@ register_blueprints(app)
 
 app.secret_key = os.getenv("SECRET_KEY")
 
+
+
+# Load LinkedIn config
+app.config['LINKEDIN_CLIENT_ID'] = os.getenv('LINKEDIN_CLIENT_ID')
+app.config['LINKEDIN_CLIENT_SECRET'] = os.getenv('LINKEDIN_CLIENT_SECRET')
+
+
+
+
 # Email config (ensure no space or typos)
 app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER", "smtp.gmail.com")
 app.config['MAIL_PORT'] = int(os.getenv("MAIL_PORT", 587))

@@ -1,3 +1,5 @@
+# models.py
+
 from datetime import datetime
 # from app import db
 from extensions import db  #  direct yaha se lo
@@ -902,3 +904,17 @@ class University(BaseModel):
 
 class College(BaseModel):
     __tablename__ = 'colleges'
+
+
+
+
+# models.py
+class PasswordResetToken(db.Model):
+    __tablename__ = 'password_reset_tokens'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    token = db.Column(db.String(64), unique=True, nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    used = db.Column(db.Boolean, default=False)
+
+    user = db.relationship('User', backref='reset_tokens')

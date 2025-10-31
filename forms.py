@@ -1,9 +1,9 @@
 # forms.py
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, DateField, IntegerField, HiddenField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, DateField, IntegerField, HiddenField, TelField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional, URL, ValidationError
-from models import User, UserType  # Import UserType
+from models import User, UserType, University, College, CurrentDesignation  # Import UserType
 import re
 
 
@@ -15,26 +15,95 @@ class LoginForm(FlaskForm):
 
 
 
+# class RegistrationForm(FlaskForm):
+#     email       = StringField('Email', validators=[DataRequired(), Email()])
+#     user_type   = SelectField('User Type', coerce=str, validators=[DataRequired()])
+#     full_name   = StringField('Full Name', validators=[DataRequired()])
+#     organization= StringField('Institution / Company', validators=[DataRequired()])
+#     designation = StringField('Designation / Role', validators=[DataRequired()])
+#     bio         = TextAreaField('Short Bio (Optional)', validators=[Length(max=300)])
+#     password    = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
+#     password2   = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+#     agree_terms = BooleanField('I agree to the Terms and Conditions', validators=[DataRequired()])
+
+#     # Hidden field for frozen user_type
+#     user_type_frozen = HiddenField()
+
+#     submit = SubmitField('Complete Registration')
+
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.user_type.choices = [('', 'Select User Type')] + \
+#             [(ut.name, ut.name) for ut in UserType.query.filter_by(status='Active').all()]
+
+#     def validate_email(self, field):
+#         if User.query.filter_by(email=field.data).first():
+#             raise ValidationError('Email already registered.')
+
+# forms.py
+
 class RegistrationForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    user_type = SelectField('User Type', coerce=str, validators=[DataRequired()])  # coerce=str for string choices
-    password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
-    password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
-    agree_terms = BooleanField('I agree to the Terms and Conditions', validators=[DataRequired()])
-    submit = SubmitField('Register')
+    email = StringField(
+        'Email',
+        validators=[DataRequired("Email is required."), Email("Invalid email format.")],
+        render_kw={"placeholder": "you@example.com"}
+    )
+
+    user_type = SelectField(
+        'User Type',
+        validators=[DataRequired("Please select a user type.")],
+        coerce=str
+    )
+
+    full_name = StringField(
+        'Full Name',
+        validators=[DataRequired("Full name is required."), Length(2, 100)],
+        render_kw={"placeholder": "Dr. John Doe"}
+    )
+
+    organization = SelectField(
+        'Institution / Company',
+        validators=[DataRequired("Please select an institution.")],
+        coerce=str,  # ← str mein, int('') error nahi hoga
+        render_kw={"class": "form-control rounded-full"}
+    )
+
+    designation = SelectField(
+        'Designation / Role',
+        validators=[DataRequired("Please select a designation.")],
+        coerce=str,  # ← str mein
+        render_kw={"class": "form-control rounded-full"}
+    )
+
+    phone = TelField(
+        'Phone Number (Optional)',
+        validators=[Optional()],
+        render_kw={"placeholder": "+91 9876543210"}
+    )
+
+    user_type_frozen = HiddenField()
 
     def __init__(self, *args, **kwargs):
-        super(RegistrationForm, self).__init__(*args, **kwargs)
-        # Dynamic choices from UserType table (assuming seeded with 'Student', 'PI', 'Industry', 'Vendor')
-        self.user_type.choices = [('', 'Select User Type')] + [(ut.name, ut.name) for ut in UserType.query.filter_by(status='Active').all()]
+        super().__init__(*args, **kwargs)
 
-    def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
-        if user is not None:
-            raise ValidationError('Email already registered. Please use a different email address.')
+        # User Types
+        active = UserType.query.filter_by(status='Active').order_by(UserType.name).all()
+        self.user_type.choices = [('', 'Select User Type')] + [(t.name, t.name) for t in active]
 
+        # Designations
+        desigs = CurrentDesignation.query.filter_by(status='Active').order_by(CurrentDesignation.name).all()
+        self.designation.choices = [('', 'Select Designation')] + [(str(d.id), d.name) for d in desigs]
 
+        # Institutions
+        unis = University.query.filter_by(status='Active').order_by(University.name).all()
+        cols = College.query.filter_by(status='Active').order_by(College.name).all()
+        institutions = unis + cols
+        self.organization.choices = [('', 'Select Institution')] + [(str(i.id), i.name) for i in institutions]
             
+
+
+
+
 
 class StudentProfileForm(FlaskForm):
     name = StringField('Full Name', validators=[DataRequired(), Length(max=100)])

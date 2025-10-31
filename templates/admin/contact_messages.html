@@ -140,6 +140,10 @@
                                             </select>
                                             <input type="text" name="remark" placeholder="Add remark (optional)" 
                                                    value="{{ message.remark | default('') }}" class="border rounded p-1 w-32 text-sm" maxlength="200">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" name="send_email" class="mr-1 send-email-checkbox" checked>
+                                                <span class="text-sm text-gray-600">Send Email</span>
+                                            </label>
                                             <button onclick="handleAction('{{ message.id }}', 'update', this)" 
                                                     class="update-btn p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors duration-200" 
                                                     title="Update">
@@ -221,7 +225,7 @@
 
             <!-- Footer Info -->
             <div class="text-center pt-3 border-t border-gray-200 text-muted small">
-                <i class="fas fa-info-circle me-1"></i>Update message status and add remarks to notify users.
+                <i class="fas fa-info-circle me-1"></i>Update message status and add remarks. Check "Send Email" to notify users.
             </div>
         </div>
     </div>
@@ -247,12 +251,15 @@
         // Get form data from the row
         const statusSelect = row.querySelector('select[name="status"]');
         const remarkInput = row.querySelector('input[name="remark"]');
+        const sendEmailCheckbox = row.querySelector('input[name="send_email"]');
         const newStatus = statusSelect ? statusSelect.value : '';
         const remark = remarkInput ? remarkInput.value : '';
+        const sendEmail = sendEmailCheckbox ? sendEmailCheckbox.checked : false;
 
         const formData = new FormData();
         formData.append('status', newStatus);
         formData.append('remark', remark);
+        formData.append('send_email', sendEmail);
 
         // Show loading state
         const updateBtn = row.querySelector('.update-btn');
@@ -275,7 +282,7 @@
                 row.querySelector('.remark-cell').title = remark || 'No remarks'; // Update tooltip
                 
                 // Show success message
-                showFlashMessage('success', `Updated status and remark for ${email} successfully.`);
+                showFlashMessage('success', `Updated status and remark for ${email} successfully.${data.message ? ' ' + data.message : ''}`);
             } else {
                 showFlashMessage('error', data.message || 'Update failed. Please try again.');
             }
@@ -480,7 +487,22 @@
     .message-cell, .remark-cell { max-width: 100%; display: block; white-space: pre-wrap; }
     .badge { padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 0.25rem; }
     .contact-message-row { transition: all 0.3s ease-out; }
-    
+    /* [title]:hover:after {
+        content: attr(title);
+        position: absolute;
+        background-color: #333;
+        color: #fff;
+        padding: 0.5rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        z-index: 1000;
+        white-space: normal;
+        max-width: 300px;
+        word-wrap: break-word;
+        margin-top: -2.5rem;
+        margin-left: 0.5rem;
+    }
+    [title] { position: relative; } */
 
     .status-select {
         appearance: none;

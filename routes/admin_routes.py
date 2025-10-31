@@ -1,10 +1,11 @@
 # routes/admin_routes.py
 from flask import Blueprint, render_template, flash, redirect, url_for, request, current_app, jsonify, send_file, make_response, abort
 from flask_login import login_required, current_user
-from models import User, Opportunity, Application, PIProfile, Profile, Institute, Department, OpportunityLink, ApplicationLink, StudentProfile, ContactMessage                                                                                               
+from models import User, Opportunity, Application, PIProfile, Profile, Institute, Department, OpportunityLink, ApplicationLink, StudentProfile, ContactMessage, Register                                                                                             
 from datetime import datetime
 from extensions import db, mail
 import os
+from sqlalchemy.orm import joinedload
 
 from werkzeug.security import generate_password_hash
 from io import TextIOWrapper
@@ -32,55 +33,84 @@ import pandas as pd
 from werkzeug.utils import secure_filename
 from flask_mail import Message as MailMessage  # Import MailMessage
 from flask import current_app  # ✅ correct import
+from routes.auth_routes import send_verification_email  # Import function
+
 import logging
 logger = logging.getLogger(__name__)
 
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin', static_folder='static')
 
-# ====================================================================================
-#                    ADMIN PENDING Scientist ACCOUNTS      
-# ====================================================================================
-
-# Verification routes (fixed to use 'Scientist' instead of 'Scientist')
+# -----------------------------------------------------------------
+# ADMIN: Pending Scientist Accounts
+# -----------------------------------------------------------------
 @admin_bp.route('/verify_accounts')
 @login_required
 def verify_accounts():
     if current_user.user_type != 'Admin':
         flash('Access denied.', 'danger')
         return redirect(url_for('index'))
-    
-    pending_pis = User.query.filter_by(user_type='Scientist', verification_status='Pending', account_status='Inactive').order_by(User.created_at.desc()).all()
+
+    pending_pis = User.query.filter_by(
+        user_type='Scientist',
+        verification_status='Pending',
+        account_status='Inactive'
+    ).options(
+        joinedload(User.profile).joinedload(Profile.pi_profile)
+    ).order_by(User.created_at.desc()).all()
+
     return render_template('admin/admin_settings/verify_accounts.html', pending_pis=pending_pis)
+
 
 @admin_bp.route('/verify_account/<int:user_id>', methods=['POST'])
 @login_required
 def verify_account(user_id):
     if current_user.user_type != 'Admin':
         return jsonify({'success': False, 'message': 'Access denied.'}), 403
-    
+
     user = User.query.get_or_404(user_id)
     if user.user_type != 'Scientist' or user.verification_status != 'Pending':
-        return jsonify({'success': False, 'message': 'Invalid user for verification.'}), 400
-    
-    action = request.form.get('action')
-    if action == 'accept':
-        user.account_status = 'Active'
-        user.verification_status = 'Verified'
-        send_verification_email(user.email, 'accepted')
-        flash(f'Account for {user.email} verified successfully.', 'success')  # For non-AJAX fallback
-    elif action == 'reject':
-        user.verification_status = 'Rejected'
-        send_verification_email(user.email, 'rejected')
-        flash(f'Verification for {user.email} rejected.', 'warning')  # For non-AJAX fallback
-    else:
-        return jsonify({'success': False, 'message': 'Invalid action.'}), 400
-    
-    db.session.commit()
-    return jsonify({'success': True, 'message': f'Account {action}ed successfully.'})
-# Ensure send_verification_email is imported or defined here (from auth_routes)
-from routes.auth_routes import send_verification_email
+        return jsonify({'success': False, 'message': 'Invalid user.'}), 400
 
+    action = request.form.get('action')
+
+    try:
+        if action == 'accept':
+            user.account_status = 'Active'
+            user.verification_status = 'Verified'
+            db.session.commit()
+
+            # Fetch password from Register table
+            register_entry = Register.query.filter_by(user_id=user.id).first()
+            plain_password = register_entry.password_hash if register_entry else "******"
+
+            send_verification_email(user, 'accepted', plain_password)
+            return jsonify({'success': True, 'message': 'Account verified.'})
+
+        elif action == 'reject':
+            # 1. Delete Register first
+            Register.query.filter_by(profile_id=user.profile.id).delete()
+
+            # 2. Delete PIProfile
+            if user.profile:
+                PIProfile.query.filter_by(profile_id=user.profile.id).delete()
+
+            # 3. Delete Profile
+            Profile.query.filter_by(id=user.profile.id).delete()
+
+            # 4. Delete User
+            db.session.delete(user)
+            db.session.commit()
+
+            send_verification_email(user, 'rejected')
+            return jsonify({'success': True, 'message': 'Account rejected and removed.'})
+
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Verify error: {e}")
+        return jsonify({'success': False, 'message': 'Database error.'}), 500
+
+    return jsonify({'success': False, 'message': 'Invalid action.'}), 400
 
 
 # ============================================================================================
@@ -3830,6 +3860,7 @@ def contact_messages():
         message_id = request.form.get('message_id')
         new_status = request.form.get('status')
         remark = request.form.get('remark', '').strip()
+        send_email = request.form.get('send_email') == 'on'  # Check if checkbox is ticked
 
         contact_message = ContactMessage.query.get_or_404(message_id)
 
@@ -3842,29 +3873,73 @@ def contact_messages():
         contact_message.updated_at = datetime.utcnow()
         db.session.commit()
 
-        try:
-            msg = MailMessage(
-                subject=f'Update on Your Contact Request - JigyaSci',
-                sender=current_app.config['MAIL_USERNAME'],
-                recipients=[contact_message.email]
-            )
-            msg.body = (
-                f"Dear {contact_message.name},\n\n"
-                f"We have updated the status of your contact request.\n\n"
-                f"**Details:**\n"
-                f"Subject: {contact_message.subject}\n"
-                f"Message: {contact_message.message}\n"
-                f"New Status: {contact_message.status}\n"
-                f"Admin Remark: {contact_message.remark if contact_message.remark else 'No remarks provided.'}\n\n"
-                "Thank you for reaching out to us. If you have further questions, feel free to reply to this email.\n\n"
-                "Best regards,\n"
-                "JigyaSci Team"
-            )
-            mail.send(msg)
-            flash(f'Status updated to {contact_message.status} and notification sent to {contact_message.email}.', 'success')
-        except Exception as e:
-            logger.error(f"Failed to send status update email: {str(e)}")
-            flash(f'Status updated to {contact_message.status}, but failed to send notification email.', 'warning')
+        if send_email:
+            try:
+                msg = MailMessage(
+                    subject=f'Update on Your Contact Request - JigyaSci',
+                    sender=current_app.config['MAIL_USERNAME'],
+                    recipients=[contact_message.email]
+                )
+                msg.html = (
+                    f"""
+                    <!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <style>
+                            body {{ font-family: 'Arial', sans-serif; background-color: #f7f7f7; color: #333; margin: 0; padding: 0; }}
+                            .container {{ max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }}
+                            .header {{ background-color: #66C0DC; color: #ffffff; padding: 20px; text-align: center; }}
+                            .header h1 {{ margin: 0; font-size: 24px; }}
+                            .content {{ padding: 20px; }}
+                            .content h2 {{ color: #2c3e50; font-size: 20px; margin-top: 0; }}
+                            .content p {{ line-height: 1.6; }}
+                            .details {{ background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 15px 0; }}
+                            .details p {{ margin: 5px 0; font-size: 14px; }}
+                            .footer {{ text-align: center; padding: 10px; background-color: #f7f7f7; color: #666; font-size: 12px; }}
+                            .btn {{ display: inline-block; padding: 10px 20px; background-color: #66C0DC; color: #ffffff; text-decoration: none; border-radius: 5px; margin-top: 15px; }}
+                            .btn:hover {{ background-color: #4da8c4; }}
+                            @media (max-width: 600px) {{
+                                .container {{ margin: 10px; }}
+                                .header h1 {{ font-size: 20px; }}
+                                .content {{ padding: 15px; }}
+                            }}
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <div class="header">
+                                <h1>JigyaSci</h1>
+                            </div>
+                            <div class="content">
+                                <h2>Dear {contact_message.name},</h2>
+                                <p>We are pleased to inform you that the status of your contact request has been updated.</p>
+                                <div class="details">
+                                    <p><strong>Subject:</strong> {contact_message.subject}</p>
+                                    <p><strong>Message:</strong> {contact_message.message}</p>
+                                    <p><strong>New Status:</strong> {contact_message.status}</p>
+                                    <p><strong>Admin Remark:</strong> {contact_message.remark if contact_message.remark else 'No remarks provided.'}</p>
+                                </div>
+                                <p>For further assistance, feel free to <a href="mailto:support@jigyasci.org" style="color: #66C0DC;">contact us</a> or visit our <a href="https://jigyasci.org" style="color: #66C0DC;">website</a>.</p>
+                                <a href="https://jigyasci.org" class="btn">Explore More</a>
+                            </div>
+                            <div class="footer">
+                                <p>&copy; {datetime.utcnow().year} JigyaSci. All rights reserved.</p>
+                                <p>Powered by <a href="https://himsoftsolution.com" style="color: #66C0DC;">Him Soft Solution</a></p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                    """
+                )
+                mail.send(msg)
+                flash(f'Status updated to {contact_message.status} and notification sent to {contact_message.email}.', 'success')
+            except Exception as e:
+                logger.error(f"Failed to send status update email: {str(e)}")
+                flash(f'Status updated to {contact_message.status}, but failed to send notification email.', 'warning')
+        else:
+            flash(f'Status updated to {contact_message.status} without sending notification email.', 'success')
 
         return redirect(url_for('admin.contact_messages', page=page))
 
@@ -3883,6 +3958,7 @@ def update_contact_message(message_id):
     contact_message = ContactMessage.query.get_or_404(message_id)
     new_status = request.form.get('status')
     remark = request.form.get('remark', '').strip()
+    send_email = request.form.get('send_email') == 'true'  # Handle boolean from AJAX
 
     if new_status not in ['Pending', 'InProgress', 'Resolved']:
         return jsonify({'success': False, 'message': 'Invalid status.'}), 400
@@ -3892,26 +3968,70 @@ def update_contact_message(message_id):
     contact_message.updated_at = datetime.utcnow()
     db.session.commit()
 
-    try:
-        msg = MailMessage(
-            subject=f'Update on Your Contact Request - JigyaSci',
-            sender=current_app.config['MAIL_USERNAME'],
-            recipients=[contact_message.email]
-        )
-        msg.body = (
-            f"Dear {contact_message.name},\n\n"
-            f"We have updated the status of your contact request.\n\n"
-            f"**Details:**\n"
-            f"Subject: {contact_message.subject}\n"
-            f"Message: {contact_message.message}\n"
-            f"New Status: {contact_message.status}\n"
-            f"Admin Remark: {contact_message.remark if contact_message.remark else 'No remarks provided.'}\n\n"
-            "Thank you for reaching out to us. If you have further questions, feel free to reply to this email.\n\n"
-            "Best regards,\n"
-            "JigyaSci Team"
-        )
-        mail.send(msg)
-        return jsonify({'success': True})
-    except Exception as e:
-        logger.error(f"Failed to send status update email: {str(e)}")
-        return jsonify({'success': True, 'message': 'Status updated, but failed to send notification email.'})
+    if send_email:
+        try:
+            msg = MailMessage(
+                subject=f'Update on Your Contact Request - JigyaSci',
+                sender=current_app.config['MAIL_USERNAME'],
+                recipients=[contact_message.email]
+            )
+            msg.html = (
+                f"""
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <style>
+                        body {{ font-family: 'Arial', sans-serif; background-color: #f7f7f7; color: #333; margin: 0; padding: 0; }}
+                        .container {{ max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }}
+                        .header {{ background-color: #66C0DC; color: #ffffff; padding: 20px; text-align: center; }}
+                        .header h1 {{ margin: 0; font-size: 24px; }}
+                        .content {{ padding: 20px; }}
+                        .content h2 {{ color: #2c3e50; font-size: 20px; margin-top: 0; }}
+                        .content p {{ line-height: 1.6; }}
+                        .details {{ background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 15px 0; }}
+                        .details p {{ margin: 5px 0; font-size: 14px; }}
+                        .footer {{ text-align: center; padding: 10px; background-color: #f7f7f7; color: #666; font-size: 12px; }}
+                        .btn {{ display: inline-block; padding: 10px 20px; background-color: #66C0DC; color: #ffffff; text-decoration: none; border-radius: 5px; margin-top: 15px; }}
+                        .btn:hover {{ background-color: #4da8c4; }}
+                        @media (max-width: 600px) {{
+                            .container {{ margin: 10px; }}
+                            .header h1 {{ font-size: 20px; }}
+                            .content {{ padding: 15px; }}
+                        }}
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <h1>JigyaSci</h1>
+                        </div>
+                        <div class="content">
+                            <h2>Dear {contact_message.name},</h2>
+                            <p>We are pleased to inform you that the status of your contact request has been updated.</p>
+                            <div class="details">
+                                <p><strong>Subject:</strong> {contact_message.subject}</p>
+                                <p><strong>Message:</strong> {contact_message.message}</p>
+                                <p><strong>New Status:</strong> {contact_message.status}</p>
+                                <p><strong>Admin Remark:</strong> {contact_message.remark if contact_message.remark else 'No remarks provided.'}</p>
+                            </div>
+                            <p>For further assistance, feel free to <a href="mailto:support@jigyasci.org" style="color: #66C0DC;">contact us</a> or visit our <a href="https://jigyasci.org" style="color: #66C0DC;">website</a>.</p>
+                            <a href="https://jigyasci.org" class="btn">Explore More</a>
+                        </div>
+                        <div class="footer">
+                            <p>&copy; {datetime.utcnow().year} JigyaSci. All rights reserved.</p>
+                            <p>Powered by <a href="https://himsoftsolution.com" style="color: #66C0DC;">Him Soft Solution</a></p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """
+            )
+            mail.send(msg)
+            return jsonify({'success': True, 'message': 'Status updated and notification email sent.'})
+        except Exception as e:
+            logger.error(f"Failed to send status update email: {str(e)}")
+            return jsonify({'success': True, 'message': 'Status updated, but failed to send notification email.'})
+    else:
+        return jsonify({'success': True, 'message': 'Status updated without sending notification email.'})

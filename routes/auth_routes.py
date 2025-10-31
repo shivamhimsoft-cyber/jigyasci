@@ -1,285 +1,72 @@
-# Updated routes/auth_routes.py (with Scientist instead of Faculty, and Google user_type selection)
-import re
+# routes/auth_routes.py
+import secrets  
+import random
+import string
+from datetime import datetime, timedelta
 from flask import (
     Blueprint, render_template, redirect, url_for, flash,
     request, session, jsonify, current_app
 )
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
-from datetime import datetime, timedelta
-import random, string, time
+from flask_mail import Message as MailMessage
 
-from models import User, Register, Profile, UserType # Note: ALLOWED_DOMAINS moved to models or keep here
+from models import (
+    User, Register, Profile, UserType,
+    PIProfile, StudentProfile, IndustryProfile, VendorProfile, PasswordResetToken, University, College, CurrentDesignation
+)
 from forms import LoginForm, RegistrationForm
 from extensions import db, mail
-from flask_mail import Message as MailMessage
 
 auth_bp = Blueprint('auth', __name__)
 
-# Allowed domains for Scientist and Student users (can move to models.py if preferred)
-ALLOWED_DOMAINS = ['.ac.in', '.edu.in', '.gov.in', '.nic.in', '.res.in', 
-                  '.ernet.in', '.isro.gov.in', '.drdo.in', '.nptel.iitm.ac.in', 
-                  '.swayam.gov.in', 'gmail.com', 'yopmail.com']
+ALLOWED_DOMAINS = [
+    '.ac.in', '.edu.in', '.gov.in', '.nic.in', '.res.in',
+    '.ernet.in', '.isro.gov.in', '.drdo.in', '.nptel.iitm.ac.in',
+    '.swayam.gov.in', 'gmail.com', 'yopmail.com'
+]
 
+# LOGIN
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        # Redirect logic (updated for Scientist)
-        if current_user.user_type == 'Admin':
-            return redirect(url_for('admin.admin_dashboard'))
-        elif current_user.user_type == 'Scientist':
-            return redirect(url_for('pi.faculty_dashboard'))
-        elif current_user.user_type == 'Student':
-            return redirect(url_for('student.student_profile'))
-        elif current_user.user_type == 'Industry':
-            return redirect(url_for('industry.industry_dashboard'))
-        elif current_user.user_type == 'Vendor':
-            return redirect(url_for('vendor.vendor_dashboard'))
-        else:
-            return redirect(url_for('index'))
-            
+        return _redirect_by_user_type(current_user)
 
     form = LoginForm()
     show_pending_modal = session.pop('show_pending_modal', False)
+
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user is None or not check_password_hash(user.password_hash, form.password.data):
+        if not user or not check_password_hash(user.password_hash, form.password.data):
             flash('Invalid email or password', 'danger')
             return redirect(url_for('auth.login'))
 
-        # NEW: Check account status before login
         if user.account_status != 'Active':
             if user.user_type == 'Scientist':
                 session['show_pending_modal'] = True
-            flash('Your account is not active. Please wait for admin verification if you are a Scientist.', 'warning')
+                flash('Your Scientist account is awaiting admin verification. You will be notified within 24 hours.', 'warning')
+            else:
+                flash('Your account is not active.', 'warning')
             return redirect(url_for('auth.login'))
 
         login_user(user, remember=form.remember_me.data)
-        user.last_login = datetime.utcnow()  # Update last_login
+        user.last_login = datetime.utcnow()
         db.session.commit()
         flash('Login successful!', 'success')
+        return _redirect_by_user_type(user)
 
-        # Redirect logic (updated for Scientist)
-        if user.user_type == 'Admin':
-            return redirect(url_for('admin.admin_dashboard'))
-        elif user.user_type == 'Scientist':
-            return redirect(url_for('pi.faculty_dashboard'))
-        elif user.user_type == 'Student':
-            return redirect(url_for('student.student_profile'))
-        elif user.user_type == 'Industry':
-            return redirect(url_for('industry.industry_dashboard'))
-        elif user.user_type == 'Vendor':
-            return redirect(url_for('vendor.vendor_dashboard'))
-        else:
-            return redirect(url_for('index'))
+    return render_template('auth/login.html', title='Sign In', form=form,
+                           show_pending_modal=show_pending_modal)
 
-    return render_template('auth/login.html', title='Sign In', form=form, show_pending_modal=show_pending_modal)
-
-# Google login routes (updated for Scientist and user_type selection)
-@auth_bp.route('/login-google')
-def login_google():
-    from app import google
-    redirect_uri = url_for('auth.google_callback', _external=True)
-    return google.authorize_redirect(redirect_uri)
-
-
-# Updated routes/auth_routes.py (fix userinfo URL)
-@auth_bp.route('/google-callback')
-def google_callback():
-    from app import google
-    try:
-        token = google.authorize_access_token()
-        # Use full userinfo endpoint URL
-        resp = google.get('https://www.googleapis.com/oauth2/v2/userinfo', token=token)
-        user_info = resp.json()
-        
-        email = user_info.get('email')
-        name = user_info.get('name')
-        
-        if not email:
-            flash('Google login failed: No email provided', 'error')
-            return redirect(url_for('auth.login'))
-        
-        # Check if user exists
-        user = User.query.filter_by(email=email).first()
-        if user:
-            # Update last_login
-            user.last_login = datetime.utcnow()
-            # Ensure Scientist status is pending if newly detected as Scientist
-            if user.user_type == 'Scientist' and user.account_status == 'Active':
-                user.account_status = 'Inactive'
-                user.verification_status = 'Pending'
-                db.session.commit()
-                current_app.logger.info(f"Updated existing Scientist user {email} to pending status.")
-            db.session.commit()
-            flash('Login successful!', 'success')
-            
-            # NEW: Check account status before login
-            if user.account_status != 'Active':
-                if user.user_type == 'Scientist':
-                    session['show_pending_modal'] = True
-                flash('Your account is not active. Please wait for admin verification if you are a Scientist.', 'warning')
-                current_app.logger.info(f"Redirecting inactive user {email} to login.")
-                return redirect(url_for('auth.login'))
-            
-            login_user(user)
-            
-            # Redirect based on user_type (updated for Scientist)
-            if user.user_type == 'Admin':
-                return redirect(url_for('admin.admin_dashboard'))
-            elif user.user_type == 'Scientist':
-                return redirect(url_for('pi.faculty_dashboard'))
-            elif user.user_type == 'Student':
-                return redirect(url_for('student.student_profile'))
-            elif user.user_type == 'Industry':
-                return redirect(url_for('industry.industry_dashboard'))
-            elif user.user_type == 'Vendor':
-                return redirect(url_for('vendor.vendor_dashboard'))
-            else:
-                return redirect(url_for('index'))
-        else:
-            # New user: Store in session and redirect to user_type selection
-            session['google_email'] = email
-            session['google_name'] = name
-            flash('Please select your user type to complete signup.', 'info')
-            current_app.logger.info(f"New Google user {email}, redirecting to user_type select.")
-            return redirect(url_for('auth.google_user_type_select'))
-            
-    except Exception as e:
-        current_app.logger.error(f"Google callback error for {email if 'email' in locals() else 'unknown'}: {str(e)}")
-        flash(f'Google login failed: {str(e)}', 'error')
-        return redirect(url_for('auth.login'))
-
-
-
-
-# NEW: Route for Google user_type selection (updated to pass dynamic user_types)
-@auth_bp.route('/google_user_type_select', methods=['GET', 'POST'])
-def google_user_type_select():
-    if 'google_email' not in session:
-        flash('Invalid session. Please try Google login again.', 'error')
-        return redirect(url_for('auth.login'))
-
-    email = session['google_email']
-    name = session['google_name']
-
-    # Query active user types dynamically
-    user_types = UserType.query.filter_by(status='Active').all()
-
-    if request.method == 'POST':
-        user_type = request.form.get('user_type')
-        if not user_type:
-            flash('Please select a user type.', 'error')
-            return render_template('auth/google_user_type.html', email=email, name=name, user_types=user_types)
-
-        # Check if user now exists (in case manual reg meanwhile)
-        user = User.query.filter_by(email=email).first()
-        if user:
-            # Login existing user
-            if user.account_status != 'Active':
-                if user.user_type == 'Scientist':
-                    session['show_pending_modal'] = True
-                flash('Your account is not active. Please wait for admin verification if you are a Scientist.', 'warning')
-                session.pop('google_email', None)
-                session.pop('google_name', None)
-                return redirect(url_for('auth.login'))
-
-            login_user(user)
-            user.last_login = datetime.utcnow()
-            db.session.commit()
-            flash('Login successful!', 'success')
-
-            # Redirect based on user_type (updated for Scientist)
-            if user.user_type == 'Admin':
-                return redirect(url_for('admin.admin_dashboard'))
-            elif user.user_type == 'Scientist':
-                return redirect(url_for('pi.faculty_dashboard'))
-            elif user.user_type == 'Student':
-                return redirect(url_for('student.student_profile'))
-            elif user.user_type == 'Industry':
-                return redirect(url_for('industry.industry_dashboard'))
-            elif user.user_type == 'Vendor':
-                return redirect(url_for('vendor.vendor_dashboard'))
-            else:
-                return redirect(url_for('index'))
-
-        # Create new user with selected type
-        # For Scientist, set pending status
-        verification_status = 'Pending' if user_type == 'Scientist' else 'Verified'
-        account_status = 'Inactive' if user_type == 'Scientist' else 'Active'
-        
-        password_hash = generate_password_hash(f'google_{random_string(16)}')
-        user = User(
-            email=email,
-            user_type=user_type,
-            password_hash=password_hash,
-            created_at=datetime.utcnow(),
-            last_login=datetime.utcnow(),
-            verification_status=verification_status,
-            account_status=account_status
-        )
-        db.session.add(user)
-        db.session.flush()
-        
-        profile = Profile(
-            user_id=user.id,
-            profile_type=user_type,
-            profile_completeness=0,
-            visibility_settings='Public',
-            last_updated=datetime.utcnow()
-        )
-        db.session.add(profile)
-        db.session.flush()
-        
-        register_entry = Register(
-            email=email,
-            user_type=user_type,
-            user_id=user.id,
-            profile_id=profile.id,
-            verified=True,
-            password_hash=password_hash,
-            created_at=datetime.utcnow()
-        )
-        db.session.add(register_entry)
-        
-        db.session.commit()
-        
-        # NEW: Send pending email for Scientist
-        if user_type == 'Scientist':
-            send_pending_verification_email(email, name)
-        
-        # Clear session
-        session.pop('google_email', None)
-        session.pop('google_name', None)
-        
-        # Check status before login
-        if user.account_status != 'Active':
-            session['show_pending_modal'] = True
-            flash('Your account is pending admin verification. Please wait.', 'warning')
-            return redirect(url_for('auth.login'))
-        
-        login_user(user)
-        flash(f'Welcome {name}! Account created successfully.', 'success')
-        
-        # Redirect based on user_type (updated for Scientist)
-        if user_type == 'Admin':
-            return redirect(url_for('admin.admin_dashboard'))
-        elif user_type == 'Scientist':
-            return redirect(url_for('pi.faculty_dashboard'))
-        elif user_type == 'Student':
-            return redirect(url_for('student.student_profile'))
-        elif user_type == 'Industry':
-            return redirect(url_for('industry.industry_dashboard'))
-        elif user_type == 'Vendor':
-            return redirect(url_for('vendor.vendor_dashboard'))
-        else:
-            return redirect(url_for('index'))
-
-    return render_template('auth/google_user_type.html', email=email, name=name, user_types=user_types)
-
-
-def random_string(length=16):
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+def _redirect_by_user_type(user):
+    mapping = {
+        'Admin': url_for('admin.admin_dashboard'),
+        'Scientist': url_for('pi.faculty_dashboard'),
+        'Student': url_for('student.student_profile'),
+        'Industry': url_for('industry.industry_dashboard'),
+        'Vendor': url_for('vendor.vendor_dashboard')
+    }
+    return redirect(mapping.get(user.user_type, url_for('index')))
 
 @auth_bp.route('/logout')
 @login_required
@@ -288,349 +75,499 @@ def logout():
     flash('You have been logged out.', 'info')
     return redirect('/')
 
-# check_email, send_otp, verify_otp (updated for Scientist)
 @auth_bp.route('/check_email', methods=['POST'])
 def check_email():
-    data = request.get_json()
-    email = data.get('email')
-    
-    user = User.query.filter_by(email=email).first()
-    return jsonify({'exists': user is not None})
+    email = request.get_json().get('email')
+    exists = User.query.filter_by(email=email).first() is not None
+    return jsonify({'exists': exists})
 
+# SEND OTP
 @auth_bp.route('/send_otp', methods=['POST'])
 def send_otp():
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     email = data.get('email')
     user_type = data.get('user_type')
-    
-    # Validate email domain for Scientist and Student
+
+    if not email or not user_type:
+        return jsonify({'error': 'Email and user type required'}), 400
+
     if user_type in ['Scientist', 'Student']:
-        domain_valid = any(email.endswith(allowed) for allowed in ALLOWED_DOMAINS)
-        if not domain_valid:
-            return jsonify({'error': 'Invalid email domain for ' + user_type + ' user'}), 400
-    
-    # Check if email already exists
+        if not any(email.lower().endswith(d) for d in ALLOWED_DOMAINS):
+            return jsonify({'error': 'Use institutional email'}), 400
+
     if User.query.filter_by(email=email).first():
         return jsonify({'error': 'Email already registered'}), 400
-    
+
     otp = ''.join(random.choices(string.digits, k=6))
     session['otp'] = otp
     session['otp_email'] = email
-    session['otp_time'] = (datetime.utcnow() + timedelta(minutes=5)).timestamp()
+    session['otp_time'] = (datetime.utcnow() + timedelta(minutes=10)).timestamp()  # 10 minutes
 
     try:
-        # HTML and text content (unchanged)
-        html_content = f"""
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Your Verification Code - jigyasci</title>
-            <style>
-                body {{
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                    line-height: 1.6;
-                    color: #333;
-                    margin: 0;
-                    padding: 0;
-                    background-color: #f9f9f9;
-                }}
-                .container {{
-                    max-width: 600px;
-                    margin: 0 auto;
-                    background-color: #ffffff;
-                    border-radius: 8px;
-                    overflow: hidden;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                }}
-                .header {{
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    padding: 30px 20px;
-                    text-align: center;
-                    color: white;
-                }}
-                .logo {{
-                    font-size: 28px;
-                    font-weight: bold;
-                    margin-bottom: 10px;
-                }}
-                .content {{
-                    padding: 30px;
-                }}
-                .otp-container {{
-                    background-color: #f8f9fa;
-                    border-radius: 6px;
-                    padding: 20px;
-                    text-align: center;
-                    margin: 25px 0;
-                    border: 1px dashed #dee2e6;
-                }}
-                .otp-code {{
-                    font-size: 32px;
-                    font-weight: bold;
-                    letter-spacing: 8px;
-                    color: #495057;
-                    margin: 15px 0;
-                    font-family: 'Courier New', monospace;
-                }}
-                .footer {{
-                    background-color: #f8f9fa;
-                    padding: 20px;
-                    text-align: center;
-                    font-size: 12px;
-                    color: #6c757d;
-                    border-top: 1px solid #e9ecef;
-                }}
-                .button {{
-                    display: inline-block;
-                    padding: 12px 24px;
-                    background-color: #667eea;
-                    color: white;
-                    text-decoration: none;
-                    border-radius: 4px;
-                    font-weight: 500;
-                    margin-top: 20px;
-                }}
-                .info-box {{
-                    background-color: #e8f4fd;
-                    border-left: 4px solid #2196F3;
-                    padding: 15px;
-                    margin: 20px 0;
-                    border-radius: 4px;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <div class="logo">JIGYASCI</div>
-                    <h2>Email Verification</h2>
-                </div>
-                
-                <div class="content">
-                    <p>Hello,</p>
-                    <p>Thank you for choosing jigyasci - the Research Collaboration Platform. To complete your registration, please use the following verification code:</p>
-                    
-                    <div class="otp-container">
-                        <p>Your verification code is:</p>
-                        <div class="otp-code">{otp}</div>
-                        <p>This code will expire in <strong>5 minutes</strong>.</p>
-                    </div>
-                    
-                    <div class="info-box">
-                        <strong>Security Tip:</strong> Never share this code with anyone. jigyasci will never ask you for your verification code.
-                    </div>
-                    
-                    <p>If you didn't request this code, please ignore this email or contact our support team if you have concerns.</p>
-                    
-                    <p>Welcome to our community of researchers and innovators!</p>
-                    
-                    <p>Best regards,<br>The jigyasci Team</p>
-                </div>
-                
-                <div class="footer">
-                    <p>© {datetime.now().year} jigyasci Research Collaboration Platform. All rights reserved.</p>
-                    <p>This is an automated message, please do not reply to this email.</p>
-                    <p>If you need assistance, please contact our support team at support@jigyasci.com</p>
-                </div>
-            </div>
-        </body>
-        </html>
+        msg = MailMessage("JigyaSci OTP", sender=current_app.config['MAIL_USERNAME'], recipients=[email])
+        msg.html = f"""
+        <div style="font-family:Arial;max-width:600px;margin:auto;padding:20px;">
+            <h3>Your OTP: <strong style="font-size:1.5em;color:#667eea">{otp}</strong></h3>
+            <p>Valid for <strong>10 minutes</strong>.</p>
+            <p>Do not share this code.</p>
+        </div>
         """
-        
-        text_content = f"""
-        jigyasci - Email Verification
-        
-        Hello,
-        
-        Thank you for choosing jigyasci - the Research Collaboration Platform. 
-        To complete your registration, please use the following verification code:
-        
-        Your verification code: {otp}
-        This code will expire in 5 minutes.
-        
-        Security Tip: Never share this code with anyone. jigyasci will never ask you for your verification code.
-        
-        If you didn't request this code, please ignore this email.
-        
-        Best regards,
-        The jigyasci Team
-        
-        © {datetime.now().year} jigyasci Research Collaboration Platform. All rights reserved.
-        This is an automated message, please do not reply to this email.
-        """
-        
-        msg = MailMessage(
-            subject='Your jigyasci Verification Code',
-            sender=('jigyasci Support', current_app.config['MAIL_USERNAME']),
-            recipients=[email]
-        )
-        
-        msg.body = text_content
-        msg.html = html_content
-        
         mail.send(msg)
-        return jsonify({'message': 'OTP sent successfully'})
+        return jsonify({'message': 'OTP sent'})
     except Exception as e:
-        current_app.logger.error(f"Failed to send OTP email: {str(e)}")
-        return jsonify({'error': 'Failed to send verification code. Please try again.'}), 500
+        current_app.logger.error(f"OTP failed: {e}")
+        return jsonify({'error': 'Failed to send OTP'}), 500
 
-@auth_bp.route('/verify_otp', methods=['POST'])
-def verify_otp():
-    data = request.get_json()
-    entered_otp = data.get('otp')
-    entered_email = data.get('email')
+# AUTO REGISTER
+def generate_random_password():
+    return ''.join(random.choice(string.ascii_letters + string.digits + "!@#$%") for _ in range(10))
 
-    if (session.get('otp') == entered_otp and session.get('otp_email') == entered_email 
-        and datetime.utcnow().timestamp() < session.get('otp_time', 0)):
-        session['otp_verified'] = True
-        session.pop('otp', None)
-        session.pop('otp_email', None)
-        session.pop('otp_time', None)
-        return jsonify({'success': True})
-    return jsonify({'success': False, 'message': 'Invalid or expired OTP'})
 
-# NEW: Helper function for pending verification email
-def send_pending_verification_email(email, name=None):
-    subject = 'Account Verification Pending - jigyasci'
-    html_body = f"""
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Your jigyasci Account is Under Review</h2>
-        <p>Dear {name or 'User'},</p>
-        <p>Thank you for registering as a Scientist on jigyasci. Your account has been submitted for admin verification.</p>
-        <p>You will receive an update within 24 hours via email, informing you if your account has been verified or rejected.</p>
-        <p>In the meantime, please ensure your profile information is ready for review.</p>
-        <p>Best regards,<br>The jigyasci Team</p>
+
+def send_account_details_email(email, details):
+    login_url = url_for('auth.login', _external=True)
+    pending_msg = ""
+    if details['user_type'] == 'Scientist':
+        pending_msg = "<p class='text-orange-600 font-semibold'>Note: You cannot login yet. Your account is awaiting admin verification. You will receive an email once approved.</p>"
+
+    # Dynamic label for Institution / Industry
+    org_label = "Industry Name" if details['user_type'] == 'Industry' else "Institution / Company"
+    
+    # Phone line (only if provided)
+    phone_line = f"<p><strong>Phone:</strong> {details.get('phone') or '—'}</p>" if details.get('phone') else ""
+
+    html = f"""
+    <div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:auto;padding:20px;border:1px solid #e2e8f0;border-radius:8px;background:#ffffff;">
+        <h2 style="color:#1f2937;margin-bottom:8px;">Welcome to JigyaSci!</h2>
+        <p style="color:#4b5563;margin-bottom:16px;">Your account has been created successfully.</p>
+        {pending_msg}
+        <hr style="border-color:#e5e7eb;margin:20px 0;">
+        
+        <p style="margin:8px 0;"><strong>User Type:</strong> {details['user_type']}</p>
+        <p style="margin:8px 0;"><strong>Full Name:</strong> {details['full_name']}</p>
+        <p style="margin:8px 0;"><strong>{org_label}:</strong> {details['organization']}</p>
+        <p style="margin:8px 0;"><strong>Designation:</strong> {details['designation']}</p>
+        {phone_line}
+        <p style="margin:8px 0;"><strong>Email:</strong> {email}</p>
+        <p style="margin:8px 0;">
+            <strong>Password:</strong> 
+            <code style="background:#f3f4f6;padding:4px 8px;border-radius:4px;font-family:monospace;">{details['password']}</code>
+        </p>
+        
+        <hr style="border-color:#e5e7eb;margin:20px 0;">
+        <p style="text-align:center;margin:20px 0;">
+            <a href="{login_url}" style="background:#667eea;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;display:inline-block;">
+                Go to Login
+            </a>
+        </p>
+        <p style="color:#6b7280;font-size:13px;text-align:center;">
+            <small>Change your password after first login for security.</small>
+        </p>
     </div>
     """
-    text_body = f"Your Scientist account has been submitted for admin verification. You will get an update within 24 hours via email whether it's verified or rejected."
     
-    msg = MailMessage(
-        subject=subject,
-        sender=('jigyasci Support', current_app.config['MAIL_USERNAME']),
-        recipients=[email]
-    )
-    msg.body = text_body
-    msg.html = html_body
-    try:
-        mail.send(msg)
-        current_app.logger.info(f"Pending verification email sent to {email}")
-    except Exception as e:
-        current_app.logger.error(f"Failed to send pending verification email to {email}: {str(e)}")
+    msg = MailMessage("Your JigyaSci Account", sender=current_app.config['MAIL_USERNAME'], recipients=[email])
+    msg.html = html
+    mail.send(msg)
 
-# Updated register route for Scientist pending status
+
+
+@auth_bp.route('/auto_register', methods=['POST'])
+def auto_register():
+    data = request.get_json(silent=True) or {}
+    otp = data.get('otp')
+    email = data.get('email')
+    user_type = data.get('user_type')
+    full_name = data.get('full_name')
+    organization_input = data.get('organization')  # str (ID or custom)
+    designation_input = data.get('designation')    # str (ID)
+    phone = data.get('phone')
+
+    if (session.get('otp') != otp or session.get('otp_email') != email or
+        datetime.utcnow().timestamp() > session.get('otp_time', 0)):
+        return jsonify({'message': 'Invalid or expired OTP'}), 400
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({'message': 'Email already registered'}), 400
+
+    try:
+        # Resolve organization name
+        if user_type == 'Industry':
+            organization_name = organization_input or "Unknown"
+        else:
+            try:
+                org_id = int(organization_input) if organization_input and organization_input != '' else None
+            except ValueError:
+                org_id = None
+            org = University.query.get(org_id) or College.query.get(org_id)
+            organization_name = org.name if org else "Unknown"
+
+        # Resolve designation name
+        try:
+            desig_id = int(designation_input) if designation_input and designation_input != '' else None
+        except ValueError:
+            desig_id = None
+        desig = CurrentDesignation.query.get(desig_id)
+        designation_name = desig.name if desig else "Unknown"
+
+        password = generate_random_password()
+        hashed = generate_password_hash(password)
+        verification_status = 'Pending' if user_type == 'Scientist' else 'Verified'
+        account_status = 'Inactive' if user_type == 'Scientist' else 'Active'
+
+        user = User(email=email, user_type=user_type, password_hash=hashed,
+                    verification_status=verification_status, account_status=account_status,
+                    created_at=datetime.utcnow(), last_login=datetime.utcnow())
+        db.session.add(user)
+        db.session.flush()
+
+        profile = Profile(user_id=user.id, profile_type=user_type,
+                          profile_completeness=20, visibility_settings='Public',
+                          last_updated=datetime.utcnow())
+        db.session.add(profile)
+        db.session.flush()
+
+        if user_type == 'Scientist':
+            db.session.add(PIProfile(profile_id=profile.id, name=full_name, affiliation=organization_name,
+                                     current_designation=designation_name, current_message='', contact_phone=phone))
+        elif user_type == 'Student':
+            db.session.add(StudentProfile(profile_id=profile.id, name=full_name, affiliation=organization_name,
+                                          contact_email=email, why_me='', contact_phone=phone))
+        elif user_type == 'Industry':
+            db.session.add(IndustryProfile(profile_id=profile.id, company_name=organization_name,
+                                           contact_person=full_name, email=email, contact_phone=phone))
+        elif user_type == 'Vendor':
+            db.session.add(VendorProfile(profile_id=profile.id, company_name=organization_name,
+                                         contact_person=full_name, email=email, contact_phone=phone))
+
+        db.session.add(Register(
+            email=email, user_type=user_type, user_id=user.id, profile_id=profile.id,
+            verified=True, password_hash=password, created_at=datetime.utcnow()
+        ))
+
+        db.session.commit()
+
+        for k in ['otp', 'otp_email', 'otp_time']:
+            session.pop(k, None)
+
+        send_account_details_email(email, {
+            'user_type': user_type,
+            'full_name': full_name,
+            'organization': organization_name,
+            'designation': designation_name,
+            'phone': phone,
+            'password': password
+        })
+
+        return jsonify({'success': True})
+
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Auto-register error: {e}")
+        return jsonify({'message': 'Registration failed'}), 500
+
+
+def send_verification_email(user, action, password=None):
+    login_url = url_for('auth.login', _external=True)
+
+    # Get name safely
+    pi = user.profile.pi_profile if user.profile else None
+    name = pi.name if pi else user.email.split('@')[0]
+
+    if action == 'accepted':
+        subject = 'Account Verified – You Can Now Login'
+        password_line = f"<p><strong>Password:</strong> <code style='background:#f0f0f0;padding:4px 8px;'>{password or '******'}</code></p>"
+        html = f"""
+        <div style="font-family:Arial;max-width:600px;margin:auto;padding:20px;">
+            <h2>Account Verified!</h2>
+            <p>Dear {name},</p>
+            <p>Your Scientist account has been <strong>approved</strong> and is now active.</p>
+            <p>You can now log in using the credentials below:</p>
+            <hr>
+            <p><strong>Email:</strong> {user.email}</p>
+            {password_line}
+            <p><a href="{login_url}" style="background:#667eea;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;">Login Now</a></p>
+            <p><small>Change password after first login for security.</small></p>
+            <p>Best regards,<br>JigyaSci Team</p>
+        </div>
+        """
+    else:  # rejected
+        subject = 'Account Verification Rejected'
+        html = f"""
+        <div style="font-family:Arial;max-width:600px;margin:auto;padding:20px;">
+            <h2>Verification Update</h2>
+            <p>Dear {name},</p>
+            <p>Unfortunately, your Scientist account has been <strong>rejected</strong>.</p>
+            <p>Your account has been removed. Contact <a href="mailto:support@jigyasci.com">support@jigyasci.com</a> for details.</p>
+            <p>Best regards,<br>JigyaSci Team</p>
+        </div>
+        """
+
+    msg = MailMessage(subject, sender=current_app.config['MAIL_USERNAME'], recipients=[user.email])
+    msg.html = html
+    mail.send(msg)
+
+
+
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
-
-    if form.validate_on_submit():
-        # Get user_type from either the form or request (for disabled fields)
-        user_type = form.user_type.data or request.form.get('user_type')
-        email = form.email.data
-        password = form.password.data
-        password2 = form.password2.data
-        agree_terms = form.agree_terms.data
-
-        if not session.get('otp_verified'):
-            flash('❌ Please verify your email before registering.', 'danger')
-            return render_template('auth/register.html', form=form)
-
-        # Validate email domain for Scientist and Student
-        if user_type in ['Scientist', 'Student']:
-            domain_valid = any(email.endswith(allowed) for allowed in ALLOWED_DOMAINS)
-            if not domain_valid:
-                flash('❌ Invalid email domain for ' + user_type + ' user', 'danger')
-                return render_template('auth/register.html', form=form)
-
-        # Check if user already exists
-        if User.query.filter_by(email=email).first():
-            flash('❌ Email already registered.', 'danger')
-            return render_template('auth/register.html', form=form)
-
-        try:
-            hashed_password = generate_password_hash(password)
-            # NEW: Set status based on user_type
-            verification_status = 'Pending' if user_type == 'Scientist' else 'Verified'
-            account_status = 'Inactive' if user_type == 'Scientist' else 'Active'
-            
-            user = User(email=email, user_type=user_type, password_hash=hashed_password,
-                        created_at=datetime.utcnow(), last_login=datetime.utcnow(),
-                        verification_status=verification_status, account_status=account_status)
-            db.session.add(user)
-            db.session.flush()
-
-            profile = Profile(user_id=user.id, profile_type=user_type, profile_completeness=0,
-                              visibility_settings='Public', last_updated=datetime.utcnow())
-            db.session.add(profile)
-            db.session.flush()
-
-            register_entry = Register(email=email, user_type=user_type, user_id=user.id,
-                                      profile_id=profile.id, verified=True,
-                                      password_hash=hashed_password, created_at=datetime.utcnow())
-            db.session.add(register_entry)
-
-            db.session.commit()
-            session.pop('otp_verified', None)
-
-            # NEW: Send pending email for Scientist
-            if user_type == 'Scientist':
-                send_pending_verification_email(email)
-
-            # Clear any login session to prevent auto-redirect
-            logout_user() if current_user.is_authenticated else None
-            
-            if user_type == 'Scientist':
-                session['show_pending_modal'] = True
-                flash('✅ Registration successful! Your account is pending admin verification.', 'info')
-            else:
-                flash('✅ Registration successful! You may log in now.', 'success')
-            return redirect(url_for('auth.login'))
-        except Exception as e:
-            db.session.rollback()
-            flash('❌ Something went wrong. Please try again.', 'danger')
-            current_app.logger.error(f"Registration error: {e}")
-            return render_template('auth/register.html', form=form)
-
-    # Prefill form if session email exists (unchanged)
-    if 'register_email' in session:
-        form.email.data = session['register_email']
-    if 'register_user_type' in session:
-        form.user_type.data = session['register_user_type']
-
     return render_template('auth/register.html', form=form)
 
-# NEW: Helper function for verification emails (updated for Scientist)
-def send_verification_email(email, action):
-    if action == 'accepted':
-        subject = 'Account Verified - jigyasci'
-        html_body = """
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2>Your jigyasci Account Has Been Verified!</h2>
-            <p>Congratulations! Your Scientist account has been verified and activated.</p>
-            <p>You can now log in and access the full platform.</p>
-            <a href="https://www.jigyasci.com/login" style="background: #667eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Log In Now</a>
-            <p>Best regards,<br>The jigyasci Team</p>
-        </div>
-        """
-        text_body = "Your Scientist account has been verified and activated. Log in at https://www.jigyasci.com/login"
-    elif action == 'rejected':
-        subject = 'Account Verification Rejected - jigyasci'
-        html_body = """
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2>Account Verification Update</h2>
-            <p>Unfortunately, your Scientist account verification request has been rejected.</p>
-            <p>Please contact support@jigyasci.com for more details.</p>
-            <p>Best regards,<br>The jigyasci Team</p>
-        </div>
-        """
-        text_body = "Your Scientist account verification has been rejected. Contact support@jigyasci.com for details."
-    
+
+
+
+@auth_bp.route('/forgot_password', methods=['POST'])
+def forgot_password():
+    data = request.get_json()
+    email = data.get('email')
+    if not email:
+        return jsonify({'error': 'Email required'}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        # Security: Don't reveal if email exists
+        return jsonify({'success': True}), 200
+
+    # Generate secure token
+    token = secrets.token_urlsafe(32)
+    expiry = datetime.utcnow() + timedelta(hours=1)
+
+    # Delete old tokens
+    PasswordResetToken.query.filter_by(user_id=user.id).delete()
+
+    reset_token = PasswordResetToken(user_id=user.id, token=token, expires_at=expiry, used=False)
+    db.session.add(reset_token)
+    db.session.commit()
+
+    # Send email
+    reset_url = url_for('auth.reset_password', token=token, _external=True)
     msg = MailMessage(
-        subject=subject,
-        sender=('jigyasci Support', current_app.config['MAIL_USERNAME']),
+        "Password Reset Request",
+        sender=current_app.config['MAIL_USERNAME'],
         recipients=[email]
     )
-    msg.body = text_body
-    msg.html = html_body
-    mail.send(msg)
+    msg.html = f"""
+    <div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:auto;padding:20px;background:#f9f9f9;border-radius:8px;">
+        <h2 style="color:#333;">Reset Your JigyaSci Password</h2>
+        <p style="color:#555;font-size:15px;">You requested a password reset. Click below to set a new password:</p>
+        <p style="text-align:center;margin:25px 0;">
+            <a href="{reset_url}" style="background:#667eea;color:white;padding:12px 28px;text-decoration:none;border-radius:6px;font-weight:bold;display:inline-block;">
+                Reset Password
+            </a>
+        </p>
+        <p style="color:#777;font-size:13px;">This link expires in <strong>1 hour</strong>.</p>
+        <p style="color:#999;font-size:12px;">If you didn't request this, please ignore this email.</p>
+    </div>
+    """
+    try:
+        mail.send(msg)
+    except Exception as e:
+        current_app.logger.error(f"Failed to send reset email: {e}")
+        return jsonify({'error': 'Failed to send email'}), 500
+
+    return jsonify({'success': True})
+
+
+@auth_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    reset = PasswordResetToken.query.filter_by(token=token, used=False).first()
+    if not reset or reset.expires_at < datetime.utcnow():
+        flash('Invalid or expired reset link.', 'danger')
+        return redirect(url_for('auth.login'))
+
+    if request.method == 'POST':
+        password = request.form.get('password')
+        confirm = request.form.get('confirm')
+        if password != confirm:
+            flash('Passwords do not match.', 'danger')
+            return render_template('auth/reset_password.html', token=token)
+        if len(password) < 8:
+            flash('Password must be at least 8 characters.', 'danger')
+            return render_template('auth/reset_password.html', token=token)
+
+        user = reset.user
+        user.password_hash = generate_password_hash(password)
+        reset.used = True
+        db.session.commit()
+
+        flash('Password updated! You can now log in.', 'success')
+        return redirect(url_for('auth.login'))
+
+    return render_template('auth/reset_password.html', token=token)
+
+
+
+
+
+
+
+# ===================================================================
+# GOOGLE + LINKEDIN → FULL REGISTRATION (Same as normal register)
+# ===================================================================
+
+@auth_bp.route('/login_google')
+def login_google():
+    from app import google
+    redirect_uri = url_for('auth.oauth_callback', provider='google', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+
+@auth_bp.route('/login_linkedin')
+def login_linkedin():
+    client_id = current_app.config['LINKEDIN_CLIENT_ID']
+    redirect_uri = url_for('auth.oauth_callback', provider='linkedin', _external=True)
+    scope = 'r_liteprofile r_emailaddress'
+    state = secrets.token_urlsafe(16)
+    session['oauth_state'] = state
+
+    auth_url = (
+        f"https://www.linkedin.com/oauth/v2/authorization?"
+        f"response_type=code&client_id={client_id}&redirect_uri={redirect_uri}"
+        f"&scope={scope}&state={state}"
+    )
+    return redirect(auth_url)
+
+
+# Unified OAuth Callback
+@auth_bp.route('/oauth_register', methods=['GET', 'POST'])
+def oauth_register():
+    if 'oauth_email' not in session:
+        flash('Session expired. Please try again.', 'danger')
+        return redirect(url_for('auth.login'))
+
+    email = session['oauth_email']
+    name = session['oauth_name']
+    provider = session.get('oauth_provider', 'social')
+
+    # Check if user already exists
+    existing_user = User.query.filter_by(email=email).first()
+    if existing_user:
+        login_user(existing_user)
+        session.pop('oauth_email', None)
+        session.pop('oauth_name', None)
+        session.pop('oauth_provider', None)
+        return redirect(_redirect_by_user_type(existing_user))
+
+    form = RegistrationForm()
+    user_types = UserType.query.filter_by(status='Active').all()
+    form.user_type.choices = [('', 'Select User Type')] + [(ut.name, ut.name) for ut in user_types]
+
+    if form.validate_on_submit():
+        user_type = form.user_type.data
+        full_name = form.full_name.data.strip()
+        organization = form.organization.data.strip()
+        designation = form.designation.data.strip()
+        phone = form.phone.data.strip() if form.phone.data else None  # ← Fixed
+
+        # Bio removed → default empty
+        bio = ''
+
+        # Scientist → pending
+        verification_status = 'Pending' if user_type == 'Scientist' else 'Verified'
+        account_status = 'Inactive' if user_type == 'Scientist' else 'Active'
+
+        password = generate_random_password()
+        hashed = generate_password_hash(password)
+
+        user = User(
+            email=email,
+            user_type=user_type,
+            password_hash=hashed,
+            verification_status=verification_status,
+            account_status=account_status,
+            created_at=datetime.utcnow(),
+            last_login=datetime.utcnow()
+        )
+        db.session.add(user)
+        db.session.flush()
+
+        profile = Profile(
+            user_id=user.id,
+            profile_type=user_type,
+            profile_completeness=20,
+            visibility_settings='Public',
+            last_updated=datetime.utcnow()
+        )
+        db.session.add(profile)
+        db.session.flush()
+
+        # Profile type specific
+        if user_type == 'Scientist':
+            db.session.add(PIProfile(
+                profile_id=profile.id,
+                name=full_name,
+                affiliation=organization,
+                current_designation=designation,
+                current_message=bio,
+                contact_phone=phone  # ← Save phone
+            ))
+        elif user_type == 'Student':
+            db.session.add(StudentProfile(
+                profile_id=profile.id,
+                name=full_name,
+                affiliation=organization,
+                contact_email=email,
+                why_me=bio,
+                contact_phone=phone
+            ))
+        elif user_type == 'Industry':
+            db.session.add(IndustryProfile(
+                profile_id=profile.id,
+                company_name=organization,
+                contact_person=full_name,
+                email=email,
+                contact_phone=phone
+            ))
+        elif user_type == 'Vendor':
+            db.session.add(VendorProfile(
+                profile_id=profile.id,
+                company_name=organization,
+                contact_person=full_name,
+                email=email,
+                contact_phone=phone
+            ))
+
+        db.session.add(Register(
+            email=email,
+            user_type=user_type,
+            user_id=user.id,
+            profile_id=profile.id,
+            verified=True,
+            password_hash=password,
+            created_at=datetime.utcnow()
+        ))
+
+        db.session.commit()
+
+        # Send email with phone
+        send_account_details_email(email, {
+            'user_type': user_type,
+            'full_name': full_name,
+            'organization': organization,
+            'designation': designation,
+            'phone': phone,
+            'password': password
+        })
+
+        # Clear session
+        session.pop('oauth_email', None)
+        session.pop('oauth_name', None)
+        session.pop('oauth_provider', None)
+
+        if user_type == 'Scientist':
+            session['show_pending_modal'] = True
+            flash('Account created! Awaiting admin approval.', 'info')
+            return redirect(url_for('auth.login'))
+
+        login_user(user)
+        flash(f'Welcome {full_name}!', 'success')
+        return redirect(_redirect_by_user_type(user))
+
+    # Pre-fill form
+    if request.method == 'GET':
+        form.email.data = email
+        form.full_name.data = name
+
+    return render_template('auth/oauth_register.html',
+                           form=form, email=email, name=name, provider=provider.title())
